@@ -1,0 +1,53 @@
+name: Release SOPT makers backend & Sync develop branch to prod branch
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1️⃣ 코드 가져오기
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2️⃣ prod → develop fast-forward sync
+      - name: Sync prod → develop (fast-forward only)
+        run: |
+          git fetch origin prod develop
+          git checkout -B develop origin/develop
+
+          git merge --ff-only origin/prod
+
+          git push origin develop
+
+      # 3️⃣ 날짜 기반 태그 생성
+      - name: Generate tag
+        id: tag
+        run: |
+          DATE=$(date -u +%Y%m%d-%H%M%S)
+          TAG="release-$DATE-${GITHUB_RUN_NUMBER}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # 4️⃣ 태그 push
+      - name: Create Git Tag
+        run: |
+          git tag ${{ steps.tag.outputs.tag }}
+          git push origin ${{ steps.tag.outputs.tag }}
+
+      # 5️⃣ release-drafter로 릴리즈 생성 + publish
+      - name: Create GitHub Release
+        uses: release-drafter/release-drafter@v6
+        with:
+          publish: true
+          tag: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

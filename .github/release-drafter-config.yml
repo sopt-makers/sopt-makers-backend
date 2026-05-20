@@ -1,0 +1,37 @@
+name-template: 'Release $TAG'
+tag-template: '$TAG'
+
+categories:
+  - title: '🎁 새로운 기능이 추가되었어요'
+    labels:
+      - '🎁 feature'
+
+  - title: '🐞 버그를 수정했어요'
+    labels:
+      - '🔨 fix'
+
+  - title: '♻️ 코드를 개선했어요'
+    labels:
+      - '♻️ refactor'
+
+  - title: '📋 문서를 수정했어요'
+    labels:
+      - '📋 docs'
+
+  - title: '🚀 배포 관련 작업이에요'
+    labels:
+      - '🚀 deploy'
+
+catch-all-category: '📝 기타 작업이에요'
+
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
+
+template: |
+  ## 🚀 이번 배포 변경사항
+
+  $CHANGES
+
+  ---
+  🙌 Contributors: $CONTRIBUTORS
+
+no-changes-template: '이번 배포에는 변경사항이 없어요 🙂'
