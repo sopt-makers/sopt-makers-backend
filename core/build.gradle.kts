@@ -1,3 +1,4 @@
 dependencies {
-    // No project dependencies — core must remain pure and stable
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 }
