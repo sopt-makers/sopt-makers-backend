@@ -1,23 +1,23 @@
 package org.sopt.makers.api.common.config;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
+@Validated
 @ConfigurationProperties(prefix = "security")
-public record SecurityProperty(Api api, Jwt jwt) {
+public record SecurityProperty(@Valid @NotNull Api api, @NotNull Jwt jwt) {
 
-  public record Api(Map<String, String> keys, List<String> securedEndpoints) {}
+  public record Api(@NotEmpty Map<String, String> keys, @NotEmpty List<String> securedEndpoints) {}
 
-  public record Jwt(Secret secret) {
-
-    public record Secret(Rsa rsa, Expiration expiration, Issuer issuer) {
-
-      public record Rsa(String keyId, String publicKey, String privateKey) {}
-
-      public record Expiration(long accessTokenExpiration, long refreshTokenExpiration) {}
-
-      public record Issuer(String issuerName) {}
+  public record Jwt(@Valid @NotNull Secret secret) {
+    public record Secret(@Valid @NotNull Expiration expiration) {
+      public record Expiration(
+          @NotNull Long accessTokenExpiration, @NotNull Long refreshTokenExpiration) {}
     }
   }
 }

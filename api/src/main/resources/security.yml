@@ -1,0 +1,12 @@
+security:
+  api:
+    keys:
+      monitoring: ${MONITORING_X_API_KEY}
+    secured-endpoints:
+      - ${ACTUATOR_PATH}
+
+  jwt:
+    secret:
+      expiration:
+        access-token-expiration: ${ACCESS_TOKEN_EXPIRATION_TIME}
+        refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION_TIME}

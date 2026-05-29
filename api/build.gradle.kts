@@ -7,7 +7,6 @@ dependencies {
     implementation(project(":domain:domain-user"))
     implementation(project(":domain:domain-auth"))
     implementation(project(":domain:domain-playground"))
-    implementation(project(":domain:domain-crew"))
     implementation(project(":domain:domain-app"))
     implementation(project(":domain:domain-admin"))
     implementation(project(":storage"))
@@ -15,7 +14,8 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

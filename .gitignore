@@ -41,3 +41,6 @@ out/
 
 ### properties ###
 .properties
+
+### .env ###
+*.env
