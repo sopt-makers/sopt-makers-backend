@@ -26,8 +26,12 @@ public enum Part {
   private final String name;
 
   public static Part findPart(final String part) {
+    if (part == null || part.isEmpty()) {
+      throw new IllegalArgumentException("OAuth 플랫폼은 필수 값입니다.");
+    }
+
     return Arrays.stream(Part.values())
-        .filter(p -> p.name.equals(part))
+        .filter(p -> p.name().equalsIgnoreCase(part))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파트입니다: " + part));
   }
