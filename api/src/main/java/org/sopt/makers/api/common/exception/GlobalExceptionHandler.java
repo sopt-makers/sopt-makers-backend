@@ -80,8 +80,9 @@ public class GlobalExceptionHandler {
     log.warn(e.getMessage());
     Map<String, String> errorDetails = new HashMap<>();
     for (FieldError error : e.getBindingResult().getFieldErrors()) {
-      errorDetails.put(
-          String.format(VALIDATION_KEY_FORMAT, error.getField()), error.getDefaultMessage());
+      String message =
+          error.getDefaultMessage() != null ? error.getDefaultMessage() : "유효하지 않은 입력값입니다";
+      errorDetails.put(String.format(VALIDATION_KEY_FORMAT, error.getField()), message);
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(BaseResponse.ofFailure(INVALID_INPUT_VALUE, errorDetails));
