@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CookieUtil {
 
-  private static final String REFRESH_TOKEN_HEADER = "Refresh-Token";
+  private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
   private static final String COOKIE_DOMAIN = ".sopt.org";
   private static final String SAME_SITE_NONE = "None";
   private static final String ROOT_PATH = "/";
@@ -21,7 +21,7 @@ public class CookieUtil {
   public HttpHeaders setRefreshToken(final String refreshToken) {
     long durationSeconds = securityProperty.jwt().secret().expiration().refreshTokenExpiration();
     ResponseCookie cookie =
-        ResponseCookie.from(REFRESH_TOKEN_HEADER, refreshToken)
+        ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
             .httpOnly(true)
             .secure(true)
             .sameSite(SAME_SITE_NONE)
