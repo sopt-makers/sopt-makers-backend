@@ -47,4 +47,9 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
+
+    dependencies {
+        "compileOnly"("org.projectlombok:lombok")
+        "annotationProcessor"("org.projectlombok:lombok")
+    }
 }
