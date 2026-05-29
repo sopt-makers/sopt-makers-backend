@@ -1,4 +1,4 @@
-package org.sopt.makers.api.common.util;
+package org.sopt.makers.api.common.factory;
 
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CookieUtil {
-
+public class CookieFactory {
   private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
   private static final String COOKIE_DOMAIN = ".sopt.org";
   private static final String SAME_SITE_NONE = "None";

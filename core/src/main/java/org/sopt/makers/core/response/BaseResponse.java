@@ -1,35 +1,26 @@
 package org.sopt.makers.core.response;
 
-import static lombok.AccessLevel.PRIVATE;
-
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.code.FailureCode;
 import org.sopt.makers.core.code.SuccessCode;
 
-@Getter
-@Builder(access = PRIVATE)
-@RequiredArgsConstructor(access = PRIVATE)
-public class BaseResponse<T> {
+@Builder(access = AccessLevel.PRIVATE)
+public record BaseResponse<T>(boolean success, String message, T data) {
 
-  private final boolean isSuccess;
-  private final String message;
-  private final T data;
-
-  public static <T> BaseResponse<?> ofFailure(FailureCode failure, T data) {
-    return new BaseResponse<>(false, failure.getMessage(), data);
+  public static <T> BaseResponse<T> ofSuccess(final SuccessCode code, final T data) {
+    return BaseResponse.<T>builder().success(true).message(code.getMessage()).data(data).build();
   }
 
-  public static BaseResponse<?> ofFailure(FailureCode failure) {
-    return new BaseResponse<>(false, failure.getMessage(), null);
+  public static BaseResponse<?> ofSuccess(final SuccessCode code) {
+    return BaseResponse.builder().success(true).message(code.getMessage()).data(null).build();
   }
 
-  public static <T> BaseResponse<?> ofSuccess(SuccessCode success, T data) {
-    return new BaseResponse<>(true, success.getMessage(), data);
+  public static <T> BaseResponse<T> ofFailure(final FailureCode code, final T data) {
+    return BaseResponse.<T>builder().success(false).message(code.getMessage()).data(data).build();
   }
 
-  public static BaseResponse<?> ofSuccess(SuccessCode success) {
-    return new BaseResponse<>(true, success.getMessage(), null);
+  public static BaseResponse<?> ofFailure(final FailureCode code) {
+    return BaseResponse.builder().success(false).message(code.getMessage()).data(null).build();
   }
 }

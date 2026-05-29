@@ -1,36 +1,16 @@
-package org.sopt.makers.api.common.util;
+package org.sopt.makers.api.common.factory;
 
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.sopt.makers.core.code.FailureCode;
 import org.sopt.makers.core.code.SuccessCode;
-import org.sopt.makers.core.exception.BaseException;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-@Component
-@RequiredArgsConstructor
-public final class ResponseUtil {
-
-  private final ObjectMapper objectMapper;
-
-  public void generateErrorResponse(
-      final HttpServletResponse response, final BaseException exception) throws IOException {
-    String bodyValue =
-        objectMapper.writeValueAsString(BaseResponse.ofFailure(exception.getError()));
-
-    response.setStatus(exception.getError().getStatusCode());
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.getWriter().write(bodyValue);
-  }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ResponseFactory {
 
   public static <T> ResponseEntity<BaseResponse<?>> success(final SuccessCode code, final T data) {
     return ResponseEntity.status(HttpStatus.valueOf(code.getStatusCode()))
