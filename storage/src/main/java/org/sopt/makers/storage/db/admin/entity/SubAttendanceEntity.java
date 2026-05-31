@@ -53,7 +53,7 @@ public class SubAttendanceEntity {
     SubAttendanceEntity entity = new SubAttendanceEntity();
     entity.attendance = attendanceEntity;
     entity.subLecture = subLectureEntity;
-    entity.status = subAttendance.getStatus();
+    entity.status = subAttendance.status();
     return entity;
   }
 }

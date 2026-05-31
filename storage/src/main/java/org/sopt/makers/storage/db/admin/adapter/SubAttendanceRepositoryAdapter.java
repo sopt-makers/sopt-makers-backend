@@ -28,9 +28,9 @@ public class SubAttendanceRepositoryAdapter implements SubAttendanceRepositoryPo
   public SubAttendance save(SubAttendance subAttendance) {
     SubAttendanceEntity entity =
         subAttendanceJpaRepository
-            .findById(subAttendance.getId())
+            .findById(subAttendance.id())
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_SUB_ATTENDANCE));
-    entity.updateStatus(subAttendance.getStatus());
+    entity.updateStatus(subAttendance.status());
     return subAttendanceJpaRepository.save(entity).toDomain();
   }
 }

@@ -42,16 +42,16 @@ public class AttendanceService {
 
     Attendance attendance =
         attendanceRepositoryPort
-            .findByLectureIdAndUserId(subLecture.getLectureId(), userId)
+            .findByLectureIdAndUserId(subLecture.lectureId(), userId)
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
 
-    SubAttendance subAttendance = attendance.getSubAttendanceByRound(subLecture.getRound());
+    SubAttendance subAttendance = attendance.getSubAttendanceByRound(subLecture.round());
     SubAttendance marked = subAttendance.withStatus(AttendanceStatus.ATTENDANCE);
 
     subAttendanceRepositoryPort.save(marked);
 
     AttendanceStatus newStatus = attendance.computeStatus(marked);
-    attendanceRepositoryPort.updateStatus(attendance.getId(), newStatus);
+    attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
   }
 
   public void updateSubAttendance(Long subAttendanceId, AttendanceStatus status) {
@@ -65,11 +65,11 @@ public class AttendanceService {
 
     Attendance attendance =
         attendanceRepositoryPort
-            .findById(updated.getAttendanceId())
+            .findById(updated.attendanceId())
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
 
     AttendanceStatus newStatus = attendance.computeStatus(updated);
-    attendanceRepositoryPort.updateStatus(attendance.getId(), newStatus);
+    attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
   }
 
   public void updateAttendanceScore(Long userId, int generation) {

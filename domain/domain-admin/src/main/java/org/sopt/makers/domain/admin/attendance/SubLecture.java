@@ -1,30 +1,28 @@
 package org.sopt.makers.domain.admin.attendance;
 
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.Objects;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 
-@Getter
-@AllArgsConstructor
-public class SubLecture {
+public record SubLecture(
+    Long id,
+    Long lectureId,
+    LectureAttribute attribute,
+    int generation,
+    int round,
+    LocalDateTime startAt,
+    String code) {
 
   private static final int ATTENDANCE_WINDOW_MINUTES = 10;
 
-  private final Long id;
-  private final Long lectureId;
-  private final LectureAttribute attribute;
-  private final int generation;
-  private final int round;
-  private final LocalDateTime startAt;
-  private final String code;
-
   public void validateForAttendance(String inputCode) {
-    if (isNotStarted()) {
+    LocalDateTime now = LocalDateTime.now();
+
+    if (isNotStarted(now)) {
       throw new AttendanceException(AttendanceFailure.ATTENDANCE_NOT_STARTED);
     }
-    if (isEnded()) {
+    if (isEnded(now)) {
       throw new AttendanceException(AttendanceFailure.ATTENDANCE_ENDED);
     }
     if (!isMatchCode(inputCode)) {
@@ -32,15 +30,15 @@ public class SubLecture {
     }
   }
 
-  private boolean isNotStarted() {
-    return startAt == null || startAt.isAfter(LocalDateTime.now());
+  private boolean isNotStarted(LocalDateTime now) {
+    return startAt == null || startAt.isAfter(now);
   }
 
-  private boolean isEnded() {
-    return LocalDateTime.now().isAfter(startAt.plusMinutes(ATTENDANCE_WINDOW_MINUTES));
+  private boolean isEnded(LocalDateTime now) {
+    return startAt != null && now.isAfter(startAt.plusMinutes(ATTENDANCE_WINDOW_MINUTES));
   }
 
   private boolean isMatchCode(String inputCode) {
-    return this.code.equals(inputCode);
+    return Objects.equals(this.code, inputCode);
   }
 }
