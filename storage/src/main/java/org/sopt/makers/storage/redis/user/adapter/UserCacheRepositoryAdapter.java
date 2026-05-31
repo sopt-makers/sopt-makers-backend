@@ -24,6 +24,7 @@ public class UserCacheRepositoryAdapter implements UserCacheRepositoryPort {
 
   private static final String KEY_PREFIX = "user:profile:";
   private static final Duration TTL = Duration.ofDays(1);
+  private static final int NO_ACTIVITY_GENERATION = 0;
 
   private final RedisTemplate<String, CachedUserProfile> userProfileRedisTemplate;
 
@@ -68,7 +69,9 @@ public class UserCacheRepositoryAdapter implements UserCacheRepositoryPort {
         profile.birthday(),
         profile.phone(),
         profile.email().orElse(null),
-        activityList.getLastActivity().getGeneration(),
+        activityList.getActivities().isEmpty()
+            ? NO_ACTIVITY_GENERATION
+            : activityList.getLastActivity().getGeneration(),
         activityList.getActivities().stream()
             .map(
                 a ->
