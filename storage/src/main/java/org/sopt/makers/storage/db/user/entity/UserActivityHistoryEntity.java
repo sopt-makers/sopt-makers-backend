@@ -1,0 +1,105 @@
+package org.sopt.makers.storage.db.user.entity;
+
+import static lombok.AccessLevel.PRIVATE;
+import static lombok.AccessLevel.PROTECTED;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.sopt.makers.core.type.Part;
+import org.sopt.makers.domain.user.Activity;
+import org.sopt.makers.domain.user.Role;
+import org.sopt.makers.domain.user.Team;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = PROTECTED)
+@Table(
+    name = "user_activity_histories",
+    uniqueConstraints = {
+      @UniqueConstraint(
+          name = "UK_USER_ID_AND_GENERATION",
+          columnNames = {"user_id", "generation", "is_sopt"})
+    })
+public class UserActivityHistoryEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private UserEntity user;
+
+  private int generation;
+
+  @Enumerated(EnumType.STRING)
+  private Team team;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private Part part;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private Role role;
+
+  @Column(name = "is_sopt", nullable = false)
+  private boolean isSopt;
+
+  @Column(name = "attendance_score")
+  private Float attendanceScore;
+
+  @Builder(access = PRIVATE)
+  private UserActivityHistoryEntity(
+      UserEntity user,
+      int generation,
+      Team team,
+      Part part,
+      Role role,
+      boolean isSopt,
+      Float attendanceScore) {
+    this.user = user;
+    this.generation = generation;
+    this.team = team;
+    this.part = part;
+    this.role = role;
+    this.isSopt = isSopt;
+    this.attendanceScore = attendanceScore;
+  }
+
+  public static UserActivityHistoryEntity create(
+      UserEntity user,
+      int generation,
+      Team team,
+      Part part,
+      Role role,
+      boolean isSopt,
+      Float attendanceScore) {
+    return UserActivityHistoryEntity.builder()
+        .user(user)
+        .generation(generation)
+        .team(team)
+        .part(part)
+        .role(role)
+        .isSopt(isSopt)
+        .attendanceScore(attendanceScore)
+        .build();
+  }
+
+  public Activity toDomain() {
+    return Activity.of(id, generation, team, part, role, isSopt, attendanceScore);
+  }
+}
