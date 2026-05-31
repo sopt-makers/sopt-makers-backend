@@ -30,7 +30,7 @@ public interface AttendanceJpaRepository extends JpaRepository<AttendanceEntity,
   List<AttendanceEntity> findAllEndedByUserId(
       @Param("userId") Long userId, @Param("generation") int generation);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query("UPDATE AttendanceEntity a SET a.status = :status WHERE a.id = :id")
   void updateStatus(@Param("id") Long id, @Param("status") AttendanceStatus status);
 }

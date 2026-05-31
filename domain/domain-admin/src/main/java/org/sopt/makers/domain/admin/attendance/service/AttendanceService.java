@@ -54,6 +54,7 @@ public class AttendanceService {
     attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
   }
 
+  @Transactional
   public void updateSubAttendance(Long subAttendanceId, AttendanceStatus status) {
     SubAttendance subAttendance =
         subAttendanceRepositoryPort
@@ -72,6 +73,7 @@ public class AttendanceService {
     attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
   }
 
+  @Transactional
   public void updateAttendanceScore(Long userId, int generation) {
     List<Attendance> endedAttendances =
         attendanceRepositoryPort.findAllEndedByUserId(userId, generation);

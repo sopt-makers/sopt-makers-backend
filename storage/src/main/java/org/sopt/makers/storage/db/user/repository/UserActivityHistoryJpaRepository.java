@@ -22,7 +22,7 @@ public interface UserActivityHistoryJpaRepository
   int countDistinctUserByGenerationAndIsSopt(
       @Param("generation") int generation, @Param("isSopt") boolean isSopt);
 
-  @Modifying
+  @Modifying(clearAutomatically = true)
   @Query(
       "UPDATE UserActivityHistoryEntity u SET u.attendanceScore = :score"
           + " WHERE u.user.id = :userId AND u.generation = :generation")
