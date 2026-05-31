@@ -51,7 +51,7 @@ public class UserCacheRepositoryAdapter implements UserCacheRepositoryPort {
 
   @Override
   public void put(User user) {
-    userProfileRedisTemplate.opsForValue().set(KEY_PREFIX + user.getId(), toCache(user), TTL);
+    userProfileRedisTemplate.opsForValue().set(KEY_PREFIX + user.id(), toCache(user), TTL);
   }
 
   @Override
@@ -60,27 +60,27 @@ public class UserCacheRepositoryAdapter implements UserCacheRepositoryPort {
   }
 
   private CachedUserProfile toCache(User user) {
-    Profile profile = user.getProfile();
-    ActivityList activityList = user.getActivities();
+    Profile profile = user.profile();
+    ActivityList activityList = user.activities();
     return new CachedUserProfile(
-        user.getId(),
+        user.id(),
         profile.name(),
         profile.profileImage().orElse(null),
         profile.birthday(),
         profile.phone(),
         profile.email().orElse(null),
-        activityList.getActivities().isEmpty()
+        activityList.activities().isEmpty()
             ? NO_ACTIVITY_GENERATION
-            : activityList.getLastActivity().getGeneration(),
-        activityList.getActivities().stream()
+            : activityList.getLastActivity().generation(),
+        activityList.activities().stream()
             .map(
                 a ->
                     new CachedUserActivity(
-                        a.getId(),
-                        a.getGeneration(),
-                        a.getPart().name(),
+                        a.id(),
+                        a.generation(),
+                        a.part().name(),
                         a.optionalTeam().map(Team::name).orElse(null),
-                        a.getRole().name(),
+                        a.role().name(),
                         a.isSopt()))
             .toList());
   }

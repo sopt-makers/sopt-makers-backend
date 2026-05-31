@@ -26,12 +26,12 @@ public class UserRegisterInfoRepositoryAdapter implements UserRegisterInfoReposi
   public UserRegisterInfo save(UserRegisterInfo info) {
     UserRegisterInfoEntity entity =
         UserRegisterInfoEntity.create(
-            info.getName(),
-            info.getPhone(),
-            info.getEmail(),
-            info.getBirthday(),
-            info.getGeneration(),
-            info.getPart());
+            info.name(),
+            info.phone(),
+            info.email(),
+            info.birthday(),
+            info.generation(),
+            info.part());
     return userRegisterInfoJpaRepository.save(entity).toDomain();
   }
 
@@ -39,7 +39,7 @@ public class UserRegisterInfoRepositoryAdapter implements UserRegisterInfoReposi
   @Override
   public void delete(UserRegisterInfo info) {
     userRegisterInfoJpaRepository
-        .findByPhone(info.getPhone())
+        .findByPhone(info.phone())
         .ifPresent(userRegisterInfoJpaRepository::delete);
   }
 }

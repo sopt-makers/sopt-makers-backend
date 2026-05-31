@@ -130,8 +130,8 @@ public class UserEntity extends BaseEntity {
   }
 
   public static UserEntity fromDomain(User user) {
-    Profile profile = user.getProfile();
-    SocialAccount socialAccount = user.getSocialAccount();
+    Profile profile = user.profile();
+    SocialAccount socialAccount = user.socialAccount();
     UserEntity entity =
         UserEntity.builder()
             .name(profile.name())
@@ -143,8 +143,8 @@ public class UserEntity extends BaseEntity {
             .authPlatformType(socialAccount.authPlatformType())
             .isFirstLogin(user.isFirstLogin())
             .build();
-    if (user.getId() != null) {
-      entity.setId(user.getId());
+    if (user.id() != null) {
+      entity.setId(user.id());
     }
     return entity;
   }

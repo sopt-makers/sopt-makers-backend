@@ -4,39 +4,21 @@ import static org.sopt.makers.domain.user.exception.UserFailure.INVALID_ACTIVITY
 import static org.sopt.makers.domain.user.exception.UserFailure.ROLE_REQUIRES_PART;
 
 import java.util.Optional;
-import lombok.Getter;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.exception.UserException;
 
-@Getter
-public class Activity {
-
-  private final Long id;
-  private final int generation;
-  private final Team team;
-  private final Part part;
-  private final Role role;
-  private final boolean isSopt;
-  private final Float attendanceScore;
-
-  private Activity(
-      Long id,
-      int generation,
-      Team team,
-      Part part,
-      Role role,
-      boolean isSopt,
-      Float attendanceScore) {
+public record Activity(
+    Long id,
+    int generation,
+    Team team,
+    Part part,
+    Role role,
+    boolean isSopt,
+    Float attendanceScore) {
+  public Activity {
     if (generation < 1) {
       throw new UserException(INVALID_ACTIVITY_GENERATION);
     }
-    this.id = id;
-    this.generation = generation;
-    this.team = team;
-    this.part = part;
-    this.role = role;
-    this.isSopt = isSopt;
-    this.attendanceScore = attendanceScore;
   }
 
   public static Activity of(int generation, Team team, Part part, boolean isSopt) {

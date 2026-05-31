@@ -7,24 +7,17 @@ import static org.sopt.makers.domain.user.exception.UserFailure.NOT_FOUND_USER_A
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.sopt.makers.domain.user.exception.UserException;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ActivityList {
-
-  private final List<Activity> activities;
+public record ActivityList(List<Activity> activities) {
 
   public ActivityList() {
-    this.activities = new ArrayList<>();
+    this(new ArrayList<>());
   }
 
   public static ActivityList of(List<Activity> activities) {
     List<Activity> sorted = new ArrayList<>(activities);
-    sorted.sort(Comparator.comparingInt(Activity::getGeneration));
+    sorted.sort(Comparator.comparingInt(Activity::generation));
     return new ActivityList(sorted);
   }
 
@@ -61,9 +54,7 @@ public class ActivityList {
     boolean isDuplicate =
         activities.stream()
             .anyMatch(
-                a ->
-                    a.getGeneration() == activity.getGeneration()
-                        && a.isSopt() == activity.isSopt());
+                a -> a.generation() == activity.generation() && a.isSopt() == activity.isSopt());
     if (isDuplicate) {
       throw new UserException(DUPLICATE_ACTIVITY);
     }

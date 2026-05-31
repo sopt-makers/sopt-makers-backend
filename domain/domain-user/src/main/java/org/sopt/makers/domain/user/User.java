@@ -1,39 +1,18 @@
 package org.sopt.makers.domain.user;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder(access = AccessLevel.PRIVATE)
-public class User {
-
-  private final Long id;
-  private final Profile profile;
-  private final SocialAccount socialAccount;
-  private ActivityList activities;
-  private final boolean isFirstLogin;
-
+public record User(
+    Long id,
+    Profile profile,
+    SocialAccount socialAccount,
+    ActivityList activities,
+    boolean isFirstLogin) {
   public static User createNewUser(SocialAccount socialAccount, Profile profile) {
-    return User.builder()
-        .socialAccount(socialAccount)
-        .profile(profile)
-        .activities(new ActivityList())
-        .isFirstLogin(true)
-        .build();
+    return new User(null, profile, socialAccount, new ActivityList(), true);
   }
 
   public static User createUser(
       Long id, SocialAccount socialAccount, Profile profile, boolean isFirstLogin) {
-    return User.builder()
-        .id(id)
-        .socialAccount(socialAccount)
-        .profile(profile)
-        .activities(new ActivityList())
-        .isFirstLogin(isFirstLogin)
-        .build();
+    return new User(id, profile, socialAccount, new ActivityList(), isFirstLogin);
   }
 
   public static User createUser(
@@ -42,41 +21,18 @@ public class User {
       Profile profile,
       ActivityList activities,
       boolean isFirstLogin) {
-    return User.builder()
-        .id(id)
-        .socialAccount(socialAccount)
-        .profile(profile)
-        .activities(activities)
-        .isFirstLogin(isFirstLogin)
-        .build();
+    return new User(id, profile, socialAccount, activities, isFirstLogin);
   }
 
   public User updateSocialAccount(SocialAccount socialAccount) {
-    return User.builder()
-        .id(this.id)
-        .socialAccount(socialAccount)
-        .profile(this.profile)
-        .activities(this.activities)
-        .isFirstLogin(this.isFirstLogin)
-        .build();
+    return new User(id, profile, socialAccount, activities, isFirstLogin);
   }
 
   public User updateProfile(Profile profile) {
-    return User.createUser(
-        this.id, this.socialAccount, profile, this.activities, this.isFirstLogin);
+    return new User(id, profile, socialAccount, activities, isFirstLogin);
   }
 
   public User completeFirstLogin() {
-    return User.builder()
-        .id(this.id)
-        .socialAccount(this.socialAccount)
-        .profile(this.profile)
-        .activities(this.activities)
-        .isFirstLogin(false)
-        .build();
-  }
-
-  public void joinActivity(Activity activity) {
-    this.activities = activities.addActivity(activity);
+    return new User(id, profile, socialAccount, activities, false);
   }
 }

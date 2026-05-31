@@ -63,11 +63,11 @@ public class AuthFacade {
             .orElseThrow(() -> new AuthException(NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT));
 
     if (user.isFirstLogin()) {
-      userCommandService.completeFirstLogin(user.getId());
+      userCommandService.completeFirstLogin(user.id());
     }
 
-    Role role = user.getActivities().getLastActivity().getRole();
-    return tokenIssuerPort.issue(user.getId(), role);
+    Role role = user.activities().getLastActivity().role();
+    return tokenIssuerPort.issue(user.id(), role);
   }
 
   @Transactional(readOnly = true)
@@ -93,17 +93,16 @@ public class AuthFacade {
 
     Profile profile =
         Profile.of(
-            registerInfo.getName(),
-            registerInfo.getEmail(),
-            registerInfo.getPhone(),
-            registerInfo.getBirthday());
+            registerInfo.name(),
+            registerInfo.email(),
+            registerInfo.phone(),
+            registerInfo.birthday());
 
-    Activity activity =
-        Activity.of(registerInfo.getGeneration(), null, registerInfo.getPart(), true);
+    Activity activity = Activity.of(registerInfo.generation(), null, registerInfo.part(), true);
 
     try {
       User newUser = userCommandService.createUser(socialAccount, profile);
-      userCommandService.addActivity(newUser.getId(), activity);
+      userCommandService.addActivity(newUser.id(), activity);
     } catch (DataIntegrityViolationException e) {
       log.error("중복된 소셜 계정으로 회원가입 시도 platformId={}", platformId);
       throw new AuthException(ALREADY_REGISTERED_SOCIAL_ACCOUNT);
@@ -135,7 +134,7 @@ public class AuthFacade {
       case REGISTER ->
           userRegisterInfoRepositoryPort
               .findByPhone(phone)
-              .map(UserRegisterInfo::getName)
+              .map(UserRegisterInfo::name)
               .orElseThrow(
                   () -> {
                     if (userQueryService.existsByPhone(phone)) {
@@ -144,8 +143,8 @@ public class AuthFacade {
                     return new AuthException(NOT_FOUND_REGISTER_INFO);
                   });
       case SEARCH_SOCIAL_PLATFORM, CHANGE_SOCIAL_PLATFORM ->
-          userQueryService.getByPhone(phone).getProfile().name();
-      case CHANGE_PHONE_NUMBER -> userQueryService.getById(userId).getProfile().name();
+          userQueryService.getByPhone(phone).profile().name();
+      case CHANGE_PHONE_NUMBER -> userQueryService.getById(userId).profile().name();
     };
   }
 
@@ -161,7 +160,7 @@ public class AuthFacade {
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
     SocialAccount newAccount = SocialAccount.of(platformId, platform);
 
-    userCommandService.updateSocialAccount(user.getId(), newAccount);
+    userCommandService.updateSocialAccount(user.id(), newAccount);
   }
 
   // ──────────────────────────────────────────────────
@@ -173,7 +172,7 @@ public class AuthFacade {
     PhoneVerification verification =
         authService.findVerifiedOrThrow(phone, PhoneVerificationType.SEARCH_SOCIAL_PLATFORM);
     User user = userQueryService.getByPhone(verification.phone());
-    return user.getSocialAccount().authPlatformType();
+    return user.socialAccount().authPlatformType();
   }
 
   // ──────────────────────────────────────────────────
@@ -185,7 +184,7 @@ public class AuthFacade {
       Long userId, Profile newProfile, List<ActivityUpdateCommand> activityUpdates) {
 
     User current = userQueryService.getWithActivitiesById(userId);
-    boolean isPhoneChanged = !current.getProfile().phone().equals(newProfile.phone());
+    boolean isPhoneChanged = !current.profile().phone().equals(newProfile.phone());
 
     if (isPhoneChanged) {
       authService.validateVerified(newProfile.phone(), PhoneVerificationType.CHANGE_PHONE_NUMBER);

@@ -33,12 +33,12 @@ public class UserActivityHistoryRepositoryAdapter implements UserActivityHistory
     UserActivityHistoryEntity entity =
         UserActivityHistoryEntity.create(
             userRef,
-            activity.getGeneration(),
-            activity.getTeam(),
-            activity.getPart(),
-            activity.getRole(),
+            activity.generation(),
+            activity.team(),
+            activity.part(),
+            activity.role(),
             activity.isSopt(),
-            activity.getAttendanceScore());
+            activity.attendanceScore());
     return activityJpaRepository.save(entity).toDomain();
   }
 
@@ -52,12 +52,12 @@ public class UserActivityHistoryRepositoryAdapter implements UserActivityHistory
                 a ->
                     UserActivityHistoryEntity.create(
                         userRef,
-                        a.getGeneration(),
-                        a.getTeam(),
-                        a.getPart(),
-                        a.getRole(),
+                        a.generation(),
+                        a.team(),
+                        a.part(),
+                        a.role(),
                         a.isSopt(),
-                        a.getAttendanceScore()))
+                        a.attendanceScore()))
             .toList();
     return activityJpaRepository.saveAll(entities).stream()
         .map(UserActivityHistoryEntity::toDomain)

@@ -50,7 +50,7 @@ public class UserCommandService {
 
     userRepositoryPort.save(user.updateProfile(profile));
 
-    List<Activity> updated = applyActivityUpdates(user.getActivities(), activityUpdates);
+    List<Activity> updated = applyActivityUpdates(user.activities(), activityUpdates);
     activityRepositoryPort.saveAll(userId, updated);
 
     userCacheRepositoryPort.evict(userId);
@@ -76,7 +76,7 @@ public class UserCommandService {
   private List<Activity> applyActivityUpdates(
       ActivityList existing, List<ActivityUpdateCommand> commands) {
     Map<Long, Activity> byId =
-        existing.getActivities().stream().collect(toMap(Activity::getId, identity()));
+        existing.activities().stream().collect(toMap(Activity::id, identity()));
 
     return commands.stream()
         .map(
@@ -86,12 +86,12 @@ public class UserCommandService {
                       .orElseThrow(() -> new UserException(NOT_FOUND_USER_ACTIVITY));
               return Activity.of(
                   cmd.activityId(),
-                  activity.getGeneration(),
+                  activity.generation(),
                   cmd.team(),
-                  activity.getPart(),
-                  activity.getRole(),
+                  activity.part(),
+                  activity.role(),
                   activity.isSopt(),
-                  activity.getAttendanceScore());
+                  activity.attendanceScore());
             })
         .toList();
   }

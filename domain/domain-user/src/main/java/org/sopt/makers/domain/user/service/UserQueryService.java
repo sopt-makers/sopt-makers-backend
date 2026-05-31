@@ -78,7 +78,7 @@ public class UserQueryService {
         .forEach(
             user -> {
               userCacheRepositoryPort.put(user);
-              cached.put(user.getId(), user);
+              cached.put(user.id(), user);
             });
   }
 }
