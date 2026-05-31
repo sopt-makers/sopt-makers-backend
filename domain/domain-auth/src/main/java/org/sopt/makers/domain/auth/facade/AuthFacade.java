@@ -37,6 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthFacade {
 
   private static final String VERIFICATION_MESSAGE_FORMAT = "[SOPT makers]\n인증번호 [%s]를 입력해주세요.";
+  private static final String SOCIAL_ACCOUNT_UNIQUE_CONSTRAINT =
+      "UK_AUTH_PLATFORM_ID_AND_AUTH_PLATFORM_TYPE";
 
   // auth domain
   private final AuthService authService;
@@ -86,6 +88,13 @@ public class AuthFacade {
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
     SocialAccount socialAccount = SocialAccount.of(platformId, platform);
 
+    userQueryService
+        .findBySocialAccount(platform, platformId)
+        .ifPresent(
+            u -> {
+              throw new AuthException(ALREADY_REGISTERED_SOCIAL_ACCOUNT);
+            });
+
     UserRegisterInfo registerInfo =
         userRegisterInfoRepositoryPort
             .findByPhone(phone)
@@ -104,7 +113,10 @@ public class AuthFacade {
       User newUser = userCommandService.createUser(socialAccount, profile);
       userCommandService.addActivity(newUser.id(), activity);
     } catch (DataIntegrityViolationException e) {
-      log.error("중복된 소셜 계정으로 회원가입 시도 platformId={}", platformId);
+      if (!isSocialAccountConstraintViolation(e)) {
+        throw e;
+      }
+      log.error("동시성으로 인한 중복 소셜 계정 가입 시도 platformId={}", platformId);
       throw new AuthException(ALREADY_REGISTERED_SOCIAL_ACCOUNT);
     }
 
@@ -161,6 +173,15 @@ public class AuthFacade {
     SocialAccount newAccount = SocialAccount.of(platformId, platform);
 
     userCommandService.updateSocialAccount(user.id(), newAccount);
+  }
+
+  private boolean isSocialAccountConstraintViolation(DataIntegrityViolationException e) {
+    for (Throwable t = e; t != null; t = t.getCause()) {
+      if (t.getMessage() != null && t.getMessage().contains(SOCIAL_ACCOUNT_UNIQUE_CONSTRAINT)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // ──────────────────────────────────────────────────
