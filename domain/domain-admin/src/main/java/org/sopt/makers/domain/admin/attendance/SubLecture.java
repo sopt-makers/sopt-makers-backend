@@ -20,7 +20,7 @@ public class SubLecture {
   private final LocalDateTime startAt;
   private final String code;
 
-  public void validateForCheckin(String inputCode) {
+  public void validateForAttendance(String inputCode) {
     if (isNotStarted()) {
       throw new AttendanceException(AttendanceFailure.ATTENDANCE_NOT_STARTED);
     }
