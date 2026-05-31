@@ -13,6 +13,13 @@ public record Attendance(
     AttendanceStatus status,
     List<SubAttendance> subAttendances) {
 
+  private static final int FIRST_ROUND = 1;
+  private static final int SECOND_ROUND = 2;
+  private static final float NO_DEDUCTION = 0f;
+  private static final float EVENT_PARTICIPATION_SCORE = 0.5f;
+  private static final float TARDY_DEDUCTION = -0.5f;
+  private static final float ABSENT_DEDUCTION = -1f;
+
   public SubAttendance getSubAttendanceByRound(int round) {
     return subAttendances.stream()
         .filter(sub -> sub.round() == round)
@@ -26,8 +33,8 @@ public record Attendance(
             .map(sub -> sub.round() == updatedSub.round() ? updatedSub : sub)
             .toList();
 
-    SubAttendance first = findByRound(updated, 1);
-    SubAttendance second = findByRound(updated, 2);
+    SubAttendance first = findByRound(updated, FIRST_ROUND);
+    SubAttendance second = findByRound(updated, SECOND_ROUND);
 
     if (attribute == LectureAttribute.ETC) {
       return second != null && second.status() == AttendanceStatus.ATTENDANCE
@@ -51,15 +58,15 @@ public record Attendance(
 
   public float computeScore() {
     if (attribute == LectureAttribute.ETC) {
-      return 0f;
+      return NO_DEDUCTION;
     }
     if (attribute == LectureAttribute.EVENT) {
-      return status == AttendanceStatus.ABSENT ? 0f : 0.5f;
+      return status == AttendanceStatus.ABSENT ? NO_DEDUCTION : EVENT_PARTICIPATION_SCORE;
     }
     return switch (status) {
-      case ABSENT -> -1f;
-      case TARDY -> -0.5f;
-      default -> 0f;
+      case ABSENT -> ABSENT_DEDUCTION;
+      case TARDY -> TARDY_DEDUCTION;
+      default -> NO_DEDUCTION;
     };
   }
 
