@@ -68,15 +68,15 @@ public class PhoneVerificationEntity extends BaseEntity {
   public static PhoneVerificationEntity fromDomain(PhoneVerification verification) {
     PhoneVerificationEntity entity =
         PhoneVerificationEntity.create(
-            verification.getName(),
-            verification.getPhone(),
-            verification.getVerificationCode().getCode(),
-            verification.getVerificationType());
+            verification.name(),
+            verification.phone(),
+            verification.verificationCode().code(),
+            verification.verificationType());
     if (verification.isVerified()) {
       entity.verify();
     }
-    if (verification.getId() != null) {
-      entity.setId(verification.getId());
+    if (verification.id() != null) {
+      entity.setId(verification.id());
     }
     return entity;
   }

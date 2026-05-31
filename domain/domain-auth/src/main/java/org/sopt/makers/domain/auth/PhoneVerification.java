@@ -2,28 +2,21 @@ package org.sopt.makers.domain.auth;
 
 import static lombok.AccessLevel.PRIVATE;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@Getter
 @Builder(access = PRIVATE)
-@RequiredArgsConstructor(access = PRIVATE)
-@EqualsAndHashCode
-public class PhoneVerification {
+public record PhoneVerification(
+    Long id,
+    String name,
+    String phone,
+    PhoneVerificationType verificationType,
+    VerificationCode verificationCode,
+    LocalDateTime createdAt,
+    boolean isVerified) {
 
   private static final int VERIFICATION_EXPIRY_MINUTES = 3;
-
-  private final Long id;
-  private final String name;
-  private final String phone;
-  private final PhoneVerificationType verificationType;
-  private final VerificationCode verificationCode;
-  private final LocalDateTime createdAt;
-  private final boolean isVerified;
 
   public static PhoneVerification create(String name, String phone, PhoneVerificationType type) {
     return PhoneVerification.builder()
@@ -71,16 +64,9 @@ public class PhoneVerification {
         .build();
   }
 
-  @Getter
-  @EqualsAndHashCode
-  public static class VerificationCode {
+  public record VerificationCode(String code) {
 
     private static final int CODE_SIZE = 6;
-    private final String code;
-
-    private VerificationCode(String code) {
-      this.code = code;
-    }
 
     static VerificationCode random() {
       return new VerificationCode(generateRandomCode());
@@ -91,7 +77,7 @@ public class PhoneVerification {
     }
 
     private static String generateRandomCode() {
-      Random random = new Random();
+      SecureRandom random = new SecureRandom();
       StringBuilder builder = new StringBuilder(CODE_SIZE);
       for (int i = 0; i < CODE_SIZE; i++) {
         builder.append(random.nextInt(10));

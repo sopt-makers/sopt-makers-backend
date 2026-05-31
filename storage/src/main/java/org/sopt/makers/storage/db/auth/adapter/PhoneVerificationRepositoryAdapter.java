@@ -45,9 +45,9 @@ public class PhoneVerificationRepositoryAdapter implements PhoneVerificationRepo
   @Override
   public void delete(PhoneVerification phoneVerification) {
     phoneVerificationJpaRepository.deleteByNameAndPhoneAndCodeAndType(
-        phoneVerification.getName(),
-        phoneVerification.getPhone(),
-        phoneVerification.getVerificationCode().getCode(),
-        phoneVerification.getVerificationType());
+        phoneVerification.name(),
+        phoneVerification.phone(),
+        phoneVerification.verificationCode().code(),
+        phoneVerification.verificationType());
   }
 }

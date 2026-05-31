@@ -34,7 +34,7 @@ public class AuthService {
       throw new AuthException(EXPIRED_PHONE_VERIFICATION);
     }
 
-    if (!verification.getVerificationCode().getCode().equals(code)) {
+    if (!verification.verificationCode().code().equals(code)) {
       throw new AuthException(INVALID_PHONE_VERIFICATION_CODE);
     }
 

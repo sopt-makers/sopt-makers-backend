@@ -121,7 +121,7 @@ public class AuthFacade {
     String name = resolveVerificationName(userId, phone, type);
     PhoneVerification verification = authService.createVerification(name, phone, type);
     String message =
-        String.format(VERIFICATION_MESSAGE_FORMAT, verification.getVerificationCode().getCode());
+        String.format(VERIFICATION_MESSAGE_FORMAT, verification.verificationCode().code());
     smsSenderPort.send(phone, message);
   }
 
@@ -172,7 +172,7 @@ public class AuthFacade {
   public OAuthPlatform getSocialPlatform(String phone) {
     PhoneVerification verification =
         authService.findVerifiedOrThrow(phone, PhoneVerificationType.SEARCH_SOCIAL_PLATFORM);
-    User user = userQueryService.getByPhone(verification.getPhone());
+    User user = userQueryService.getByPhone(verification.phone());
     return user.getSocialAccount().authPlatformType();
   }
 
