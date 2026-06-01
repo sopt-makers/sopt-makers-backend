@@ -1,8 +1,7 @@
 ---
-
 name: implement
-description: sopt-makers Spring Boot 멀티모듈 프로젝트에서 신규 기능의 구현 위치, 생성 파일, Controller → Service/Facade → Port → Adapter 콜체인, 모듈 의존성 방향을 설계할 때 사용한다. "새 기능", "구현", "어디에 둬야", "API 만들기", "Controller", "Service", "Facade", "Port", "Adapter" 요청 시 사용한다.
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+description: 'sopt-makers Spring Boot 멀티모듈 프로젝트에서 신규 기능의 구현 위치, 생성 파일, Controller → Service/Facade → Port → Adapter 콜체인, 모듈 의존성 방향을 설계할 때 사용한다. "새 기능", "구현", "어디에 둬야", "API 만들기", "Controller", "Service", "Facade", "Port", "Adapter" 요청 시 사용한다.'
+---
 
 # 신규 기능 구현 모듈 설계 가이드
 
@@ -318,7 +317,7 @@ Banner
 ```text
 HTTP Request
   → ...
-````
+```
 
 ### Port 인터페이스 예시
 
@@ -334,7 +333,7 @@ public interface XxxRepositoryPort {
 * JPA Entity는 `storage`에만 위치
 * 외부 시스템은 Port로 추상화
 
-```
+````
 
 ---
 
@@ -348,4 +347,3 @@ public interface XxxRepositoryPort {
 - Facade는 여러 도메인 조율이 있을 때만 제안한다.
 - `core`에는 정말 공통인 코드만 둔다.
 - build.gradle.kts 수정이 필요하면 어떤 모듈에 어떤 의존성을 추가해야 하는지 명시한다.
-```
