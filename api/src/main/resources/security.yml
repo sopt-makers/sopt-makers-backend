@@ -10,3 +10,6 @@ security:
       expiration:
         access-token-expiration: ${ACCESS_TOKEN_EXPIRATION_TIME}
         refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION_TIME}
+      issuer:
+        issuer-name: "sopt-makers"
+      secret-key: ${JWT_SECRET_KEY}
