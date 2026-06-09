@@ -24,3 +24,20 @@ security:
       expiration:
         access-token-expiration: 3600000
         refresh-token-expiration: 86400000
+      issuer:
+        issuer-name: sopt-makers
+      secret-key: test-secret-key-that-is-long-enough-for-hmac
+
+external:
+  oauth:
+    apple:
+      web-aud: test-apple-web-aud
+      app-aud: test-apple-app-aud
+    google:
+      client:
+        id: test-google-client-id
+  sms:
+    gabia:
+      sms-id: test-gabia-sms-id
+      api-key: test-gabia-api-key
+      sender-number: "01000000000"

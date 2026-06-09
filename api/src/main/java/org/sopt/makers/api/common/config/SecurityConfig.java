@@ -74,7 +74,6 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/error/**")
               .permitAll();
-
           for (String endpoint : securedEndpoints) {
             authorize.requestMatchers(endpoint + PATTERN_ALL).hasRole(INTERNAL_SERVICE);
           }

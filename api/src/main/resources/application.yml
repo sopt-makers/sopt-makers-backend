@@ -3,3 +3,4 @@ spring:
     import:
       - classpath:jpa.yml
       - classpath:security.yml
+      - classpath:external.yml

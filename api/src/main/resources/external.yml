@@ -1,0 +1,13 @@
+external:
+  oauth:
+    apple:
+      web-aud: ${APPLE_OAUTH_WEB_AUD}
+      app-aud: ${APPLE_OAUTH_APP_AUD}
+    google:
+      client:
+        id: ${GOOGLE_OAUTH_CLIENT_ID}
+  sms:
+    gabia:
+      sms-id: ${GABIA_SMS_ID}
+      api-key: ${GABIA_API_KEY}
+      sender-number: ${GABIA_SENDER_NUMBER}

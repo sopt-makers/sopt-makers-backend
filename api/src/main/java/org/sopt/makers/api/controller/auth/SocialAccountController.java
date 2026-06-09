@@ -1,0 +1,42 @@
+package org.sopt.makers.api.controller.auth;
+
+import static org.sopt.makers.api.controller.auth.SocialAccountSuccessCode.GET_SOCIAL_ACCOUNT_PLATFORM;
+import static org.sopt.makers.api.controller.auth.SocialAccountSuccessCode.UPDATE_SOCIAL_ACCOUNT;
+
+import lombok.RequiredArgsConstructor;
+import org.sopt.makers.api.common.factory.ResponseFactory;
+import org.sopt.makers.api.controller.auth.dto.AuthResponse;
+import org.sopt.makers.api.controller.auth.dto.SocialAccountRequest;
+import org.sopt.makers.core.response.BaseResponse;
+import org.sopt.makers.core.type.OAuthPlatform;
+import org.sopt.makers.domain.auth.facade.AuthFacade;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/social/accounts")
+@RequiredArgsConstructor
+public class SocialAccountController {
+
+  private final AuthFacade authFacade;
+
+  @GetMapping("/platform")
+  public ResponseEntity<BaseResponse<?>> getSocialPlatform(@RequestParam String phone) {
+    OAuthPlatform platform = authFacade.getSocialPlatform(phone);
+    return ResponseFactory.success(
+        GET_SOCIAL_ACCOUNT_PLATFORM, new AuthResponse.SocialAccountPlatform(platform.name()));
+  }
+
+  @PatchMapping
+  public ResponseEntity<BaseResponse<?>> updateSocialAccount(
+      @RequestBody SocialAccountRequest.UpdateSocialAccount request) {
+    OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
+    authFacade.updateSocialAccount(request.phone(), request.idToken(), platform);
+    return ResponseFactory.success(UPDATE_SOCIAL_ACCOUNT);
+  }
+}

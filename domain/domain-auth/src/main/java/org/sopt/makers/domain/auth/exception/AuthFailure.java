@@ -30,7 +30,10 @@ public enum AuthFailure implements FailureCode {
   NOT_FOUND_PHONE_VERIFICATION(404, "존재하지 않는 번호 인증 이력입니다."),
   NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT(400, "소셜 계정 정보와 일치하는 회원이 없습니다."),
   NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET(404, "유효한 Public Key Set를 찾을 수 없습니다."),
-  NOT_FOUND_REGISTER_INFO(404, "SOPT 활동 시 사용한 전화번호가 아닙니다.");
+  NOT_FOUND_REGISTER_INFO(404, "SOPT 활동 시 사용한 전화번호가 아닙니다."),
+
+  // 500
+  SMS_SEND_FAILED(500, "SMS 발송에 실패했습니다.");
 
   private final int statusCode;
   private final String message;
