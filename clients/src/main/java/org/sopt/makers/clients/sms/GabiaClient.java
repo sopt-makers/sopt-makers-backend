@@ -3,6 +3,8 @@ package org.sopt.makers.clients.sms;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -19,23 +21,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 class GabiaClient {
 
-  private static final String SMS_OAUTH_TOKEN_URL = "https://sms.gabia.com/oauth/token";
-  private static final String SMS_SEND_URL = "https://sms.gabia.com/api/send/sms";
-  private static final String LMS_SEND_URL = "https://sms.gabia.com/api/send/lms";
   private static final int SMS_MAX_LENGTH = 45;
   private static final int MAX_RETRY_COUNT = 3;
-  private static final String GABIA_SUCCESS_CODE = "200";
 
   private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final GabiaSmsProperty property;
+  private final Object accessTokenLock = new Object();
+  private volatile CachedAccessToken cachedAccessToken;
 
   void send(final String phone, final String message) {
     for (int attempt = 1; attempt <= MAX_RETRY_COUNT; attempt++) {
       try {
         GabiaSmsResponse response = attemptSend(phone, message);
-        if (GABIA_SUCCESS_CODE.equals(response.code())) {
+        if (GabiaApi.SUCCESS_CODE.equals(response.code())) {
           return;
         }
         log.warn("SMS 발송 실패, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, response.message());
@@ -47,19 +47,41 @@ class GabiaClient {
     throw new IllegalStateException("SMS 발송 실패: 최대 재시도 횟수 초과");
   }
 
-  private GabiaAuthResponse getAccessToken() throws IOException {
+  private String getAccessToken() throws IOException {
+    CachedAccessToken token = cachedAccessToken;
+    if (isAccessTokenUsable(token)) {
+      return token.accessToken();
+    }
+
+    synchronized (accessTokenLock) {
+      token = cachedAccessToken;
+      if (isAccessTokenUsable(token)) {
+        return token.accessToken();
+      }
+
+      GabiaAuthResponse response = requestAccessToken();
+      cachedAccessToken = CachedAccessToken.from(response);
+      return cachedAccessToken.accessToken();
+    }
+  }
+
+  private boolean isAccessTokenUsable(final CachedAccessToken token) {
+    return token != null && token.refreshAt().isAfter(Instant.now());
+  }
+
+  private GabiaAuthResponse requestAccessToken() throws IOException {
     String authValue = encodeBasicAuth(property.smsId(), property.apiKey());
     RequestBody body =
         new MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            .addFormDataPart("grant_type", "client_credentials")
+            .addFormDataPart(FormField.GRANT_TYPE, GabiaApi.CLIENT_CREDENTIALS_GRANT_TYPE)
             .build();
     Request request =
         new Request.Builder()
-            .url(SMS_OAUTH_TOKEN_URL)
+            .url(GabiaApi.OAUTH_TOKEN_URL)
             .post(body)
-            .addHeader("Authorization", "Basic " + authValue)
-            .addHeader("cache-control", "no-cache")
+            .addHeader(HttpHeader.AUTHORIZATION, HttpHeader.BASIC_AUTH_PREFIX + authValue)
+            .addHeader(HttpHeader.CACHE_CONTROL, HttpHeader.NO_CACHE)
             .build();
     try (Response response = HTTP_CLIENT.newCall(request).execute()) {
       if (!response.isSuccessful() || response.body() == null) {
@@ -71,24 +93,24 @@ class GabiaClient {
 
   private GabiaSmsResponse attemptSend(final String phone, final String message)
       throws IOException {
-    GabiaAuthResponse auth = getAccessToken();
-    String authValue = encodeBasicAuth(property.smsId(), auth.accessToken());
-    String url = message.length() <= SMS_MAX_LENGTH ? SMS_SEND_URL : LMS_SEND_URL;
+    String accessToken = getAccessToken();
+    String authValue = encodeBasicAuth(property.smsId(), accessToken);
+    String url = message.length() <= SMS_MAX_LENGTH ? GabiaApi.SMS_SEND_URL : GabiaApi.LMS_SEND_URL;
 
     RequestBody body =
         new MultipartBody.Builder()
             .setType(MultipartBody.FORM)
-            .addFormDataPart("phone", phone)
-            .addFormDataPart("callback", property.senderNumber())
-            .addFormDataPart("message", message)
-            .addFormDataPart("refkey", UUID.randomUUID().toString())
+            .addFormDataPart(FormField.PHONE, phone)
+            .addFormDataPart(FormField.CALLBACK, property.senderNumber())
+            .addFormDataPart(FormField.MESSAGE, message)
+            .addFormDataPart(FormField.REFKEY, UUID.randomUUID().toString())
             .build();
     Request request =
         new Request.Builder()
             .url(url)
             .post(body)
-            .addHeader("Authorization", "Basic " + authValue)
-            .addHeader("cache-control", "no-cache")
+            .addHeader(HttpHeader.AUTHORIZATION, HttpHeader.BASIC_AUTH_PREFIX + authValue)
+            .addHeader(HttpHeader.CACHE_CONTROL, HttpHeader.NO_CACHE)
             .build();
     try (Response response = HTTP_CLIENT.newCall(request).execute()) {
       if (response.body() == null) {
@@ -100,6 +122,52 @@ class GabiaClient {
 
   private String encodeBasicAuth(final String id, final String secret) {
     return Base64.getEncoder()
-        .encodeToString(String.format("%s:%s", id, secret).getBytes(StandardCharsets.UTF_8));
+        .encodeToString(
+            String.format(HttpHeader.BASIC_AUTH_FORMAT, id, secret)
+                .getBytes(StandardCharsets.UTF_8));
+  }
+
+  private record CachedAccessToken(String accessToken, Instant refreshAt) {
+
+    private static CachedAccessToken from(final GabiaAuthResponse response) {
+      Duration ttl =
+          response.expiresIn() > 0
+              ? Duration.ofSeconds(response.expiresIn())
+              : AccessTokenPolicy.DEFAULT_TTL;
+      Duration cacheTtl =
+          ttl.compareTo(AccessTokenPolicy.REFRESH_MARGIN) > 0
+              ? ttl.minus(AccessTokenPolicy.REFRESH_MARGIN)
+              : ttl.dividedBy(2);
+      return new CachedAccessToken(response.accessToken(), Instant.now().plus(cacheTtl));
+    }
+  }
+
+  private static final class GabiaApi {
+    private static final String OAUTH_TOKEN_URL = "https://sms.gabia.com/oauth/token";
+    private static final String SMS_SEND_URL = "https://sms.gabia.com/api/send/sms";
+    private static final String LMS_SEND_URL = "https://sms.gabia.com/api/send/lms";
+    private static final String CLIENT_CREDENTIALS_GRANT_TYPE = "client_credentials";
+    private static final String SUCCESS_CODE = "200";
+  }
+
+  private static final class HttpHeader {
+    private static final String AUTHORIZATION = "Authorization";
+    private static final String CACHE_CONTROL = "cache-control";
+    private static final String NO_CACHE = "no-cache";
+    private static final String BASIC_AUTH_PREFIX = "Basic ";
+    private static final String BASIC_AUTH_FORMAT = "%s:%s";
+  }
+
+  private static final class FormField {
+    private static final String GRANT_TYPE = "grant_type";
+    private static final String PHONE = "phone";
+    private static final String CALLBACK = "callback";
+    private static final String MESSAGE = "message";
+    private static final String REFKEY = "refkey";
+  }
+
+  private static final class AccessTokenPolicy {
+    private static final Duration REFRESH_MARGIN = Duration.ofMinutes(5);
+    private static final Duration DEFAULT_TTL = Duration.ofHours(1);
   }
 }
