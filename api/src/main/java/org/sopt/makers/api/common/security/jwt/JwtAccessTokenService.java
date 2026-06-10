@@ -46,15 +46,9 @@ public class JwtAccessTokenService {
   }
 
   public CustomAuthentication parse(final String requestToken) {
+    String token = extract(requestToken);
     try {
-      String token = extract(requestToken);
-      Claims claims =
-          Jwts.parser()
-              .verifyWith(jwtSecretKey)
-              .requireIssuer(securityProperty.jwt().secret().issuer().issuerName())
-              .build()
-              .parseSignedClaims(token)
-              .getPayload();
+      Claims claims = parseClaims(token);
       return JwtAccessToken.of(claims).parse();
     } catch (ExpiredJwtException e) {
       throw new TokenException(TOKEN_EXPIRED);
@@ -64,15 +58,9 @@ public class JwtAccessTokenService {
   }
 
   public CustomAuthentication parseLenient(final String requestToken) {
+    String token = extract(requestToken);
     try {
-      String token = extract(requestToken);
-      Claims claims =
-          Jwts.parser()
-              .verifyWith(jwtSecretKey)
-              .requireIssuer(securityProperty.jwt().secret().issuer().issuerName())
-              .build()
-              .parseSignedClaims(token)
-              .getPayload();
+      Claims claims = parseClaims(token);
       return JwtAccessToken.of(claims).parse();
     } catch (ExpiredJwtException e) {
       Claims claims = e.getClaims();
@@ -81,6 +69,15 @@ public class JwtAccessTokenService {
     } catch (JwtException e) {
       throw new TokenException(TOKEN_PARSE_FAILED);
     }
+  }
+
+  private Claims parseClaims(final String token) {
+    return Jwts.parser()
+        .verifyWith(jwtSecretKey)
+        .requireIssuer(securityProperty.jwt().secret().issuer().issuerName())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
   }
 
   private void validateIssuer(final Claims claims) {
