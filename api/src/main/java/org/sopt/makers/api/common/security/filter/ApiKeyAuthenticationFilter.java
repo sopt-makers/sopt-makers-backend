@@ -9,6 +9,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.sopt.makers.api.common.config.SecurityProperty;
@@ -51,11 +53,21 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private void validateApiKey(final String apiKey, final String serviceName) {
-    if (apiKey == null || serviceName == null) {
+    boolean hasInvalidInput =
+        apiKey == null || apiKey.isBlank() || serviceName == null || serviceName.isBlank();
+    if (hasInvalidInput) {
       throw new AuthException(INVALID_API_KEY);
     }
+
     String expectedKey = securityProperty.api().keys().get(serviceName);
-    if (!apiKey.equals(expectedKey)) {
+    if (expectedKey == null || expectedKey.isBlank()) {
+      throw new AuthException(INVALID_API_KEY);
+    }
+
+    boolean isNotMatched =
+        !MessageDigest.isEqual(
+            apiKey.getBytes(StandardCharsets.UTF_8), expectedKey.getBytes(StandardCharsets.UTF_8));
+    if (isNotMatched) {
       throw new AuthException(INVALID_API_KEY);
     }
   }
