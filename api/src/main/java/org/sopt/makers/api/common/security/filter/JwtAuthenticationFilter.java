@@ -19,12 +19,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @NullMarked
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+  private static final PathMatcher PATH_MATCHER = new AntPathMatcher();
 
   private final JwtAccessTokenService jwtAccessTokenService;
 
@@ -63,6 +67,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private boolean isWhiteRequest(final HttpServletRequest request) {
     String uri = request.getRequestURI();
-    return JWT_WHITELIST.stream().anyMatch(uri::startsWith);
+    return JWT_WHITELIST.stream().anyMatch(whitePath -> isWhitePath(whitePath, uri));
+  }
+
+  private boolean isWhitePath(final String whitePath, final String uri) {
+    return PATH_MATCHER.match(whitePath, uri) || PATH_MATCHER.match(whitePath + "/**", uri);
   }
 }
