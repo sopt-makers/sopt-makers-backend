@@ -9,19 +9,23 @@ import org.springframework.security.core.GrantedAuthority;
 @NullMarked
 public class CustomAuthentication extends UsernamePasswordAuthenticationToken {
 
-  public CustomAuthentication(final Object principal, final Object credentials) {
-    super(principal, credentials);
+  private final String principal;
+
+  public CustomAuthentication(final String principal, final Object credentials) {
+    super(Objects.requireNonNull(principal), credentials);
+    this.principal = principal;
   }
 
   public CustomAuthentication(
-      final Object principal,
+      final String principal,
       final Object credentials,
       final Collection<? extends GrantedAuthority> authorities) {
-    super(principal, credentials, authorities);
+    super(Objects.requireNonNull(principal), credentials, authorities);
+    this.principal = principal;
   }
 
   @Override
   public String getPrincipal() {
-    return Objects.requireNonNull((String) super.getPrincipal());
+    return principal;
   }
 }

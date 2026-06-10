@@ -17,6 +17,6 @@ public record JwtAccessToken(Claims claims) {
     List<?> rawRoles = claims.get(ROLES, List.class);
     List<SimpleGrantedAuthority> authorities =
         rawRoles.stream().map(role -> new SimpleGrantedAuthority((String) role)).toList();
-    return new CustomAuthentication(claims.getSubject(), authorities);
+    return new CustomAuthentication(claims.getSubject(), null, authorities);
   }
 }
