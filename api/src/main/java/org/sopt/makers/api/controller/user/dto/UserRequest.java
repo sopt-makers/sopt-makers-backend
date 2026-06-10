@@ -28,7 +28,7 @@ public final class UserRequest {
           String email,
       List<SoptActivityInfo> soptActivities) {
 
-    public AuthFacade.UpdateProfileCommand toCommand(Long userId) {
+    public AuthFacade.UpdateProfileCommand toCommand() {
       List<UserCommandService.ActivityUpdateCommand> activityUpdates =
           soptActivities == null
               ? List.of()
