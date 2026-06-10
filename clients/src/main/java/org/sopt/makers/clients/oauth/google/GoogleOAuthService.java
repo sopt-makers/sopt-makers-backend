@@ -12,6 +12,7 @@ import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
 import org.sopt.makers.domain.auth.exception.AuthException;
@@ -37,12 +38,18 @@ public class GoogleOAuthService {
   }
 
   private JWK findMatchJWK(SignedJWT jwt) {
-    JWKSet jwkSet = googleOAuthClient.getPublicKeySet();
     String kid = jwt.getHeader().getKeyID();
-    return jwkSet.getKeys().stream()
-        .filter(jwk -> jwk.getKeyID().equals(kid))
-        .findFirst()
-        .orElseThrow(() -> new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET));
+    JWKSet jwkSet = googleOAuthClient.getPublicKeySet();
+    return findMatchJWK(jwkSet, kid)
+        .orElseGet(
+            () ->
+                findMatchJWK(googleOAuthClient.refreshPublicKeySet(), kid)
+                    .orElseThrow(
+                        () -> new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET)));
+  }
+
+  private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid) {
+    return jwkSet.getKeys().stream().filter(jwk -> jwk.getKeyID().equals(kid)).findFirst();
   }
 
   private void verifyGoogleIdToken(SignedJWT jwt, JWK jwk) throws ParseException {

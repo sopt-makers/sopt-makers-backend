@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
 import org.sopt.makers.domain.auth.exception.AuthException;
@@ -38,13 +39,21 @@ public class AppleOAuthService {
   }
 
   private JWK findMatchJWK(SignedJWT jwt) {
-    JWKSet jwkSet = appleOAuthClient.getPublicKeySet();
     String kid = jwt.getHeader().getKeyID();
     String alg = jwt.getHeader().getAlgorithm().getName();
+    JWKSet jwkSet = appleOAuthClient.getPublicKeySet();
+    return findMatchJWK(jwkSet, kid, alg)
+        .orElseGet(
+            () ->
+                findMatchJWK(appleOAuthClient.refreshPublicKeySet(), kid, alg)
+                    .orElseThrow(
+                        () -> new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET)));
+  }
+
+  private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid, String alg) {
     return jwkSet.getKeys().stream()
         .filter(jwk -> jwk.getKeyID().equals(kid) && jwk.getAlgorithm().getName().equals(alg))
-        .findFirst()
-        .orElseThrow(() -> new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET));
+        .findFirst();
   }
 
   private void verifyAppleIdToken(SignedJWT jwt, JWK jwk) throws ParseException {

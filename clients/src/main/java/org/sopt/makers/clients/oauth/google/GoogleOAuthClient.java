@@ -3,19 +3,19 @@ package org.sopt.makers.clients.oauth.google;
 import static org.sopt.makers.clients.oauth.OAuthConstant.GOOGLE_PUBLIC_KEY_SET_URL;
 
 import com.nimbusds.jose.jwk.JWKSet;
-import java.net.URI;
-import org.sopt.makers.domain.auth.exception.AuthException;
-import org.sopt.makers.domain.auth.exception.AuthFailure;
+import org.sopt.makers.clients.oauth.JwkSetCache;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GoogleOAuthClient {
 
+  private final JwkSetCache jwkSetCache = new JwkSetCache(GOOGLE_PUBLIC_KEY_SET_URL);
+
   public JWKSet getPublicKeySet() {
-    try {
-      return JWKSet.load(new URI(GOOGLE_PUBLIC_KEY_SET_URL).toURL());
-    } catch (Exception e) {
-      throw new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET);
-    }
+    return jwkSetCache.get();
+  }
+
+  public JWKSet refreshPublicKeySet() {
+    return jwkSetCache.refresh();
   }
 }
