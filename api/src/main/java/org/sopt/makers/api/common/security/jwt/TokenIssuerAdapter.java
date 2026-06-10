@@ -1,8 +1,11 @@
 package org.sopt.makers.api.common.security.jwt;
 
+import static org.sopt.makers.api.common.security.exception.TokenFailureCode.INVALID_SUBJECT;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.security.authentication.CustomAuthentication;
+import org.sopt.makers.api.common.security.exception.TokenException;
 import org.sopt.makers.domain.auth.port.TokenIssuerPort;
 import org.sopt.makers.domain.user.Role;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,16 +24,22 @@ public class TokenIssuerAdapter implements TokenIssuerPort {
         new CustomAuthentication(
             String.valueOf(userId), null, List.of(new SimpleGrantedAuthority(role.name())));
     String accessToken = jwtAccessTokenService.generateJwt(auth);
-    String refreshToken = jwtRefreshTokenService.generateJwt(accessToken);
+    String refreshToken = jwtRefreshTokenService.generateJwt(auth.getPrincipal());
     return new TokenPair(accessToken, refreshToken);
   }
 
   @Override
   public TokenPair refresh(String expiredAccessToken, String refreshToken) {
-    jwtRefreshTokenService.parse(refreshToken);
+    String refreshTokenSubject = jwtRefreshTokenService.parse(refreshToken);
     CustomAuthentication auth = jwtAccessTokenService.parseLenient(expiredAccessToken);
+    boolean isInvalidSubject = !auth.getPrincipal().equals(refreshTokenSubject);
+
+    if (isInvalidSubject) {
+      throw new TokenException(INVALID_SUBJECT);
+    }
+
     String newAccessToken = jwtAccessTokenService.generateJwt(auth);
-    String newRefreshToken = jwtRefreshTokenService.generateJwt(newAccessToken);
+    String newRefreshToken = jwtRefreshTokenService.generateJwt(auth.getPrincipal());
     return new TokenPair(newAccessToken, newRefreshToken);
   }
 }

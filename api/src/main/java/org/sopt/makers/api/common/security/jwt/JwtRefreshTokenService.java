@@ -1,8 +1,10 @@
 package org.sopt.makers.api.common.security.jwt;
 
+import static org.sopt.makers.api.common.security.exception.TokenFailureCode.INVALID_SUBJECT;
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.TOKEN_EXPIRED;
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.TOKEN_PARSE_FAILED;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -21,7 +23,7 @@ public class JwtRefreshTokenService {
   private final SecretKey jwtSecretKey;
   private final SecurityProperty securityProperty;
 
-  public String generateJwt(final String accessToken) {
+  public String generateJwt(final String subject) {
     Date now = new Date();
     Date expiration =
         new Date(
@@ -30,6 +32,7 @@ public class JwtRefreshTokenService {
 
     return Jwts.builder()
         .id(UUID.randomUUID().toString())
+        .subject(subject)
         .issuer(securityProperty.jwt().secret().issuer().issuerName())
         .issuedAt(now)
         .expiration(expiration)
@@ -39,8 +42,20 @@ public class JwtRefreshTokenService {
 
   public String parse(final String requestToken) {
     try {
-      Jwts.parser().verifyWith(jwtSecretKey).build().parseSignedClaims(requestToken);
-      return requestToken;
+      Claims claims =
+          Jwts.parser()
+              .verifyWith(jwtSecretKey)
+              .requireIssuer(securityProperty.jwt().secret().issuer().issuerName())
+              .build()
+              .parseSignedClaims(requestToken)
+              .getPayload();
+      String subject = claims.getSubject();
+      boolean isInvalidSubject = subject == null || subject.isBlank();
+
+      if (isInvalidSubject) {
+        throw new TokenException(INVALID_SUBJECT);
+      }
+      return subject;
     } catch (ExpiredJwtException e) {
       throw new TokenException(TOKEN_EXPIRED);
     } catch (JwtException e) {
