@@ -11,6 +11,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.config.SecurityProperty;
@@ -74,8 +75,17 @@ public class JwtAccessTokenService {
               .getPayload();
       return JwtAccessToken.of(claims).parse();
     } catch (ExpiredJwtException e) {
-      return JwtAccessToken.of(e.getClaims()).parse();
+      Claims claims = e.getClaims();
+      validateIssuer(claims);
+      return JwtAccessToken.of(claims).parse();
     } catch (JwtException e) {
+      throw new TokenException(TOKEN_PARSE_FAILED);
+    }
+  }
+
+  private void validateIssuer(final Claims claims) {
+    if (!Objects.equals(
+        claims.getIssuer(), securityProperty.jwt().secret().issuer().issuerName())) {
       throw new TokenException(TOKEN_PARSE_FAILED);
     }
   }

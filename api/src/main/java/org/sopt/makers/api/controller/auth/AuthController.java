@@ -40,7 +40,7 @@ public class AuthController {
   @PostMapping("/phone")
   public ResponseEntity<BaseResponse<?>> createPhoneVerification(
       @RequestBody AuthRequest.CreatePhoneVerification request) {
-    PhoneVerificationType type = PhoneVerificationType.valueOf(request.verificationType());
+    PhoneVerificationType type = PhoneVerificationType.find(request.verificationType());
     authFacade.createPhoneVerification(request.userId(), request.phone(), type);
     return ResponseFactory.success(CREATE_PHONE_VERIFICATION);
   }
@@ -48,7 +48,7 @@ public class AuthController {
   @PostMapping("/verify/phone")
   public ResponseEntity<BaseResponse<?>> verifyPhoneVerification(
       @RequestBody AuthRequest.VerifyPhoneVerification request) {
-    PhoneVerificationType type = PhoneVerificationType.valueOf(request.verificationType());
+    PhoneVerificationType type = PhoneVerificationType.find(request.verificationType());
     AuthFacade.VerifyResult result =
         authFacade.verifyPhoneCode(request.phone(), request.code(), type);
     return ResponseFactory.success(
