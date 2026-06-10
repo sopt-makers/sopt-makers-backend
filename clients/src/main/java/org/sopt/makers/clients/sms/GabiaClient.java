@@ -32,9 +32,10 @@ class GabiaClient {
   private volatile CachedAccessToken cachedAccessToken;
 
   void send(final String phone, final String message) {
+    String refkey = UUID.randomUUID().toString();
     for (int attempt = 1; attempt <= MAX_RETRY_COUNT; attempt++) {
       try {
-        GabiaSmsResponse response = attemptSend(phone, message);
+        GabiaSmsResponse response = attemptSend(phone, message, refkey);
         if (GabiaApi.SUCCESS_CODE.equals(response.code())) {
           return;
         }
@@ -43,7 +44,7 @@ class GabiaClient {
         log.warn("SMS 발송 오류, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, e.getMessage());
       }
     }
-    log.error("SMS 최종 발송 실패: phone={}", phone);
+    log.error("SMS 최종 발송 실패: phone={}", maskPhone(phone));
     throw new IllegalStateException("SMS 발송 실패: 최대 재시도 횟수 초과");
   }
 
@@ -91,8 +92,8 @@ class GabiaClient {
     }
   }
 
-  private GabiaSmsResponse attemptSend(final String phone, final String message)
-      throws IOException {
+  private GabiaSmsResponse attemptSend(
+      final String phone, final String message, final String refkey) throws IOException {
     String accessToken = getAccessToken();
     String authValue = encodeBasicAuth(property.smsId(), accessToken);
     String url = message.length() <= SMS_MAX_LENGTH ? GabiaApi.SMS_SEND_URL : GabiaApi.LMS_SEND_URL;
@@ -103,7 +104,7 @@ class GabiaClient {
             .addFormDataPart(FormField.PHONE, phone)
             .addFormDataPart(FormField.CALLBACK, property.senderNumber())
             .addFormDataPart(FormField.MESSAGE, message)
-            .addFormDataPart(FormField.REFKEY, UUID.randomUUID().toString())
+            .addFormDataPart(FormField.REFKEY, refkey)
             .build();
     Request request =
         new Request.Builder()
@@ -125,6 +126,37 @@ class GabiaClient {
         .encodeToString(
             String.format(HttpHeader.BASIC_AUTH_FORMAT, id, secret)
                 .getBytes(StandardCharsets.UTF_8));
+  }
+
+  private String maskPhone(final String phone) {
+    if (phone == null || phone.isBlank()) {
+      return "";
+    }
+
+    int digitCount = (int) phone.chars().filter(Character::isDigit).count();
+    if (digitCount <= 4) {
+      return "*".repeat(digitCount);
+    }
+
+    int visiblePrefixCount = Math.min(3, digitCount - 4);
+    int visibleSuffixStart = digitCount - 4;
+    StringBuilder masked = new StringBuilder(phone.length());
+    int digitIndex = 0;
+
+    for (char value : phone.toCharArray()) {
+      if (!Character.isDigit(value)) {
+        masked.append(value);
+        continue;
+      }
+
+      if (digitIndex < visiblePrefixCount || digitIndex >= visibleSuffixStart) {
+        masked.append(value);
+      } else {
+        masked.append('*');
+      }
+      digitIndex++;
+    }
+    return masked.toString();
   }
 
   private record CachedAccessToken(String accessToken, Instant refreshAt) {
