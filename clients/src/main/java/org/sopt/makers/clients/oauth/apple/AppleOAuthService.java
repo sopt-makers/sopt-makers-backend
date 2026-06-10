@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
-import org.sopt.makers.domain.auth.exception.AuthException;
-import org.sopt.makers.domain.auth.exception.AuthFailure;
+import org.sopt.makers.clients.oauth.exception.OAuthException;
+import org.sopt.makers.clients.oauth.exception.OAuthFailure;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,7 +34,7 @@ public class AppleOAuthService {
       verifyAppleIdToken(signedJWT, targetJwk);
       return signedJWT.getJWTClaimsSet().getSubject();
     } catch (ParseException e) {
-      throw new AuthException(AuthFailure.INVALID_ID_TOKEN);
+      throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
   }
 
@@ -46,8 +46,7 @@ public class AppleOAuthService {
         .orElseGet(
             () ->
                 findMatchJWK(appleOAuthClient.refreshPublicKeySet(), kid, alg)
-                    .orElseThrow(
-                        () -> new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET)));
+                    .orElseThrow(() -> new OAuthException(OAuthFailure.INVALID_ID_TOKEN)));
   }
 
   private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid, String alg) {
@@ -66,10 +65,10 @@ public class AppleOAuthService {
       boolean isNotExpired = claims.getExpirationTime().after(Date.from(Instant.now()));
 
       if (!(isValidSignature && isCorrectIssuer && isCorrectAudience && isNotExpired)) {
-        throw new AuthException(AuthFailure.INVALID_ID_TOKEN);
+        throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
       }
     } catch (JOSEException e) {
-      throw new AuthException(AuthFailure.INVALID_ID_TOKEN);
+      throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
   }
 

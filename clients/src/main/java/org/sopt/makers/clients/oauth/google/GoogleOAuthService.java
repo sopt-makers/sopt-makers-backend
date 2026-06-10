@@ -15,8 +15,8 @@ import java.util.Date;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
-import org.sopt.makers.domain.auth.exception.AuthException;
-import org.sopt.makers.domain.auth.exception.AuthFailure;
+import org.sopt.makers.clients.oauth.exception.OAuthException;
+import org.sopt.makers.clients.oauth.exception.OAuthFailure;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,7 +33,7 @@ public class GoogleOAuthService {
       verifyGoogleIdToken(signedJWT, targetJwk);
       return signedJWT.getJWTClaimsSet().getSubject();
     } catch (ParseException e) {
-      throw new AuthException(AuthFailure.INVALID_ID_TOKEN);
+      throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
   }
 
@@ -44,8 +44,7 @@ public class GoogleOAuthService {
         .orElseGet(
             () ->
                 findMatchJWK(googleOAuthClient.refreshPublicKeySet(), kid)
-                    .orElseThrow(
-                        () -> new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET)));
+                    .orElseThrow(() -> new OAuthException(OAuthFailure.INVALID_ID_TOKEN)));
   }
 
   private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid) {
@@ -63,10 +62,10 @@ public class GoogleOAuthService {
       boolean isNotExpired = claims.getExpirationTime().after(Date.from(Instant.now()));
 
       if (!(isValidSignature && isCorrectIssuer && isCorrectAudience && isNotExpired)) {
-        throw new AuthException(AuthFailure.INVALID_ID_TOKEN);
+        throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
       }
     } catch (JOSEException e) {
-      throw new AuthException(AuthFailure.INVALID_ID_TOKEN);
+      throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
   }
 }

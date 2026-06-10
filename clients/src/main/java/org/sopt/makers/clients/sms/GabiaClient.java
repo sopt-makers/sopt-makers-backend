@@ -14,6 +14,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.sopt.makers.clients.sms.exception.SmsException;
+import org.sopt.makers.clients.sms.exception.SmsFailure;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -45,7 +47,7 @@ class GabiaClient {
       }
     }
     log.error("SMS 최종 발송 실패: phone={}", maskPhone(phone));
-    throw new IllegalStateException("SMS 발송 실패: 최대 재시도 횟수 초과");
+    throw new SmsException(SmsFailure.SMS_SEND_FAILED);
   }
 
   private String getAccessToken() throws IOException {

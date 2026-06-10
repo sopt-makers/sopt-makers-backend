@@ -4,8 +4,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
-import org.sopt.makers.domain.auth.exception.AuthException;
-import org.sopt.makers.domain.auth.exception.AuthFailure;
+import org.sopt.makers.clients.oauth.exception.OAuthException;
+import org.sopt.makers.clients.oauth.exception.OAuthFailure;
 
 public class JwkSetCache {
 
@@ -32,7 +32,7 @@ public class JwkSetCache {
 
       try {
         return loadAndCache();
-      } catch (AuthException e) {
+      } catch (OAuthException e) {
         if (cachedJwkSet != null) {
           return cachedJwkSet;
         }
@@ -56,7 +56,7 @@ public class JwkSetCache {
       cachedAt = Instant.now();
       return jwkSet;
     } catch (Exception e) {
-      throw new AuthException(AuthFailure.NOT_FOUND_AVAILABLE_PUBLIC_KEY_SET);
+      throw new OAuthException(OAuthFailure.PUBLIC_KEY_SET_FETCH_FAILED);
     }
   }
 }
