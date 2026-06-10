@@ -12,6 +12,8 @@ import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
@@ -39,6 +41,10 @@ public class GoogleOAuthService {
 
   private JWK findMatchJWK(SignedJWT jwt) {
     String kid = jwt.getHeader().getKeyID();
+    if (kid == null) {
+      throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
+    }
+
     JWKSet jwkSet = googleOAuthClient.getPublicKeySet();
     return findMatchJWK(jwkSet, kid)
         .orElseGet(
@@ -48,7 +54,7 @@ public class GoogleOAuthService {
   }
 
   private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid) {
-    return jwkSet.getKeys().stream().filter(jwk -> jwk.getKeyID().equals(kid)).findFirst();
+    return jwkSet.getKeys().stream().filter(jwk -> Objects.equals(jwk.getKeyID(), kid)).findFirst();
   }
 
   private void verifyGoogleIdToken(SignedJWT jwt, JWK jwk) throws ParseException {
@@ -57,15 +63,27 @@ public class GoogleOAuthService {
       JWSVerifier verifier = new RSASSAVerifier(jwk.toRSAKey());
       boolean isValidSignature = jwt.verify(verifier);
       boolean isCorrectIssuer = GOOGLE_ISSUER.equals(claims.getIssuer());
-      boolean isCorrectAudience =
-          claims.getAudience().contains(oAuthProperty.google().client().id());
-      boolean isNotExpired = claims.getExpirationTime().after(Date.from(Instant.now()));
+      boolean isCorrectAudience = verifyAudience(claims.getAudience());
+      boolean isNotExpired = verifyExpirationTime(claims.getExpirationTime());
+      boolean hasSubject = claims.getSubject() != null;
 
-      if (!(isValidSignature && isCorrectIssuer && isCorrectAudience && isNotExpired)) {
+      if (!(isValidSignature
+          && isCorrectIssuer
+          && isCorrectAudience
+          && isNotExpired
+          && hasSubject)) {
         throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
       }
     } catch (JOSEException e) {
       throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
+  }
+
+  private boolean verifyAudience(List<String> audiences) {
+    return audiences != null && audiences.contains(oAuthProperty.google().client().id());
+  }
+
+  private boolean verifyExpirationTime(Date expirationTime) {
+    return expirationTime != null && expirationTime.after(Date.from(Instant.now()));
   }
 }

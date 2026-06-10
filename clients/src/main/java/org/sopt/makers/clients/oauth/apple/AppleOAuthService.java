@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
@@ -40,7 +41,12 @@ public class AppleOAuthService {
 
   private JWK findMatchJWK(SignedJWT jwt) {
     String kid = jwt.getHeader().getKeyID();
-    String alg = jwt.getHeader().getAlgorithm().getName();
+    String alg =
+        jwt.getHeader().getAlgorithm() == null ? null : jwt.getHeader().getAlgorithm().getName();
+    if (kid == null || alg == null) {
+      throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
+    }
+
     JWKSet jwkSet = appleOAuthClient.getPublicKeySet();
     return findMatchJWK(jwkSet, kid, alg)
         .orElseGet(
@@ -51,7 +57,9 @@ public class AppleOAuthService {
 
   private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid, String alg) {
     return jwkSet.getKeys().stream()
-        .filter(jwk -> jwk.getKeyID().equals(kid) && jwk.getAlgorithm().getName().equals(alg))
+        .filter(
+            jwk ->
+                Objects.equals(jwk.getKeyID(), kid) && Objects.equals(getAlgorithmName(jwk), alg))
         .findFirst();
   }
 
@@ -62,9 +70,14 @@ public class AppleOAuthService {
       boolean isValidSignature = jwt.verify(verifier);
       boolean isCorrectIssuer = APPLE_ISSUER.equals(claims.getIssuer());
       boolean isCorrectAudience = verifyAudience(claims.getAudience());
-      boolean isNotExpired = claims.getExpirationTime().after(Date.from(Instant.now()));
+      boolean isNotExpired = verifyExpirationTime(claims.getExpirationTime());
+      boolean hasSubject = claims.getSubject() != null;
 
-      if (!(isValidSignature && isCorrectIssuer && isCorrectAudience && isNotExpired)) {
+      if (!(isValidSignature
+          && isCorrectIssuer
+          && isCorrectAudience
+          && isNotExpired
+          && hasSubject)) {
         throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
       }
     } catch (JOSEException e) {
@@ -73,7 +86,16 @@ public class AppleOAuthService {
   }
 
   private boolean verifyAudience(List<String> audiences) {
-    return audiences.contains(oAuthProperty.apple().webAud())
-        || audiences.contains(oAuthProperty.apple().appAud());
+    return audiences != null
+        && (audiences.contains(oAuthProperty.apple().webAud())
+            || audiences.contains(oAuthProperty.apple().appAud()));
+  }
+
+  private boolean verifyExpirationTime(Date expirationTime) {
+    return expirationTime != null && expirationTime.after(Date.from(Instant.now()));
+  }
+
+  private String getAlgorithmName(JWK jwk) {
+    return jwk.getAlgorithm() == null ? null : jwk.getAlgorithm().getName();
   }
 }
