@@ -1,6 +1,5 @@
 package org.sopt.makers.api.common.security.jwt;
 
-import static org.sopt.makers.api.common.security.exception.TokenFailureCode.INVALID_SUBJECT;
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.TOKEN_EXPIRED;
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.TOKEN_PARSE_FAILED;
 
@@ -40,7 +39,7 @@ public class JwtRefreshTokenService {
         .compact();
   }
 
-  public String parse(final String requestToken) {
+  public JwtRefreshToken parse(final String requestToken) {
     try {
       Claims claims =
           Jwts.parser()
@@ -49,13 +48,9 @@ public class JwtRefreshTokenService {
               .build()
               .parseSignedClaims(requestToken)
               .getPayload();
-      String subject = claims.getSubject();
-      boolean isInvalidSubject = subject == null || subject.isBlank();
-
-      if (isInvalidSubject) {
-        throw new TokenException(INVALID_SUBJECT);
-      }
-      return subject;
+      JwtRefreshToken refreshToken = JwtRefreshToken.of(claims);
+      refreshToken.subject();
+      return refreshToken;
     } catch (ExpiredJwtException e) {
       throw new TokenException(TOKEN_EXPIRED);
     } catch (JwtException e) {

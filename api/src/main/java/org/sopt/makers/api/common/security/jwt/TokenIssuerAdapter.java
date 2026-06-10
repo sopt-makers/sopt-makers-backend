@@ -30,9 +30,9 @@ public class TokenIssuerAdapter implements TokenIssuerPort {
 
   @Override
   public TokenPair refresh(String expiredAccessToken, String refreshToken) {
-    String refreshTokenSubject = jwtRefreshTokenService.parse(refreshToken);
+    JwtRefreshToken parsedRefreshToken = jwtRefreshTokenService.parse(refreshToken);
     CustomAuthentication auth = jwtAccessTokenService.parseLenient(expiredAccessToken);
-    boolean isInvalidSubject = !auth.getPrincipal().equals(refreshTokenSubject);
+    boolean isInvalidSubject = !auth.getPrincipal().equals(parsedRefreshToken.subject());
 
     if (isInvalidSubject) {
       throw new TokenException(INVALID_SUBJECT);
