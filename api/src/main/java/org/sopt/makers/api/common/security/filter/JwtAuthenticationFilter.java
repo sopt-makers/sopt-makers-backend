@@ -51,7 +51,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     if (authorizationHeaderValue == null) {
       throw new AuthException(MISSING_AUTHORIZATION_HEADER);
     }
-    return authorizationHeaderValue.trim();
+    String authorizationToken = authorizationHeaderValue.trim();
+    jwtAccessTokenService.validatePrefix(authorizationToken);
+    return authorizationToken;
   }
 
   private boolean isApiKeyAuthenticationExists() {

@@ -1,11 +1,9 @@
 package org.sopt.makers.api.common.security.jwt;
 
 import static org.sopt.makers.api.common.security.SecurityConstant.ROLES;
-import static org.sopt.makers.api.common.security.SecurityConstant.TOKEN_HEADER;
-import static org.sopt.makers.api.common.security.exception.TokenFailureCode.INVALID_PREFIX;
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.TOKEN_EXPIRED;
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.TOKEN_PARSE_FAILED;
-import static org.sopt.makers.api.common.security.jwt.BearerTokenConverter.extract;
+import static org.sopt.makers.api.common.security.jwt.BearerTokenExtractor.extract;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -47,8 +45,6 @@ public class JwtAccessTokenService {
   }
 
   public CustomAuthentication parse(final String requestToken) {
-    validatePrefix(requestToken);
-
     try {
       String token = extract(requestToken);
       Claims claims =
@@ -67,8 +63,6 @@ public class JwtAccessTokenService {
   }
 
   public CustomAuthentication parseLenient(final String requestToken) {
-    validatePrefix(requestToken);
-
     try {
       String token = extract(requestToken);
       Claims claims =
@@ -86,9 +80,7 @@ public class JwtAccessTokenService {
     }
   }
 
-  private void validatePrefix(final String requestToken) {
-    if (requestToken == null || !requestToken.startsWith(TOKEN_HEADER)) {
-      throw new TokenException(INVALID_PREFIX);
-    }
+  public void validatePrefix(final String requestToken) {
+    BearerTokenExtractor.validatePrefix(requestToken);
   }
 }
