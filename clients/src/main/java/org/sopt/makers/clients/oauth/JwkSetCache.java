@@ -9,9 +9,11 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.clients.oauth.exception.OAuthException;
 import org.sopt.makers.clients.oauth.exception.OAuthFailure;
 
+@Slf4j
 public class JwkSetCache {
 
   private static final Duration CACHE_TTL = Duration.ofHours(24);
@@ -108,6 +110,7 @@ public class JwkSetCache {
       cachedAt = Instant.now(clock);
       return jwkSet;
     } catch (Exception e) {
+      log.error(e.getMessage(), e);
       throw new OAuthException(OAuthFailure.PUBLIC_KEY_SET_FETCH_FAILED);
     }
   }
@@ -116,6 +119,7 @@ public class JwkSetCache {
     try {
       return JWKSet.load(URI.create(jwkSetUrl).toURL());
     } catch (Exception e) {
+      log.error(e.getMessage(), e);
       throw new OAuthException(OAuthFailure.PUBLIC_KEY_SET_FETCH_FAILED);
     }
   }
