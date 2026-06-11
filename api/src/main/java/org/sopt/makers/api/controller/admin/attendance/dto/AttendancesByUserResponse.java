@@ -15,10 +15,10 @@ public record AttendancesByUserResponse(List<AttendanceItem> attendances) {
 
     public static AttendanceItem from(Attendance attendance) {
       return new AttendanceItem(
-          attendance.getId(),
-          attendance.getAttribute().name(),
-          attendance.getStatus().name(),
-          attendance.getSubAttendances().stream().map(SubAttendanceItem::from).toList());
+          attendance.id(),
+          attendance.attribute().name(),
+          attendance.status().name(),
+          attendance.subAttendances().stream().map(SubAttendanceItem::from).toList());
     }
   }
 
@@ -26,7 +26,7 @@ public record AttendancesByUserResponse(List<AttendanceItem> attendances) {
 
     public static SubAttendanceItem from(SubAttendance subAttendance) {
       return new SubAttendanceItem(
-          subAttendance.getId(), subAttendance.getRound(), subAttendance.getStatus().name());
+          subAttendance.id(), subAttendance.round(), subAttendance.status().name());
     }
   }
 }

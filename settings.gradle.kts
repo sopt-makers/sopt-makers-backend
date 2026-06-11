@@ -7,6 +7,7 @@ include(
     "domain:domain-playground",
     "domain:domain-app",
     "domain:domain-admin",
+    "domain:domain-official",
     "storage",
     "clients",
     "core"

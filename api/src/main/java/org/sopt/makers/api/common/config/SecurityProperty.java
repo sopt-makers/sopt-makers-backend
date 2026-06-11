@@ -15,9 +15,14 @@ public record SecurityProperty(@Valid @NotNull Api api, @NotNull Jwt jwt) {
   public record Api(@NotEmpty Map<String, String> keys, @NotEmpty List<String> securedEndpoints) {}
 
   public record Jwt(@Valid @NotNull Secret secret) {
-    public record Secret(@Valid @NotNull Expiration expiration) {
+    public record Secret(
+        @Valid @NotNull Expiration expiration,
+        @NotNull String secretKey,
+        @Valid @NotNull Issuer issuer) {
       public record Expiration(
           @NotNull Long accessTokenExpiration, @NotNull Long refreshTokenExpiration) {}
+
+      public record Issuer(@NotNull String issuerName) {}
     }
   }
 }

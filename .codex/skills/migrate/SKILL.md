@@ -1,8 +1,7 @@
 ---
-
 name: migrate
-description: sopt-makers Spring Boot 프로젝트에서 legacy 코드나 기존 코드를 새 멀티모듈 구조로 마이그레이션할 때 사용한다. "legacy", "마이그레이션", "옮기기", "기존 코드 분리", "모듈로 이동", "Controller/Service/Repository 분리" 요청 시 사용한다.
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+description: 'sopt-makers Spring Boot 프로젝트에서 legacy 코드나 기존 코드를 새 멀티모듈 구조로 마이그레이션할 때 사용한다. "legacy", "마이그레이션", "옮기기", "기존 코드 분리", "모듈로 이동", "Controller/Service/Repository 분리" 요청 시 사용한다.'
+---
 
 # Legacy 코드 멀티모듈 마이그레이션 가이드
 
@@ -305,7 +304,7 @@ domain-<name>/port/
 storage/db/<domain>/entity/
 storage/db/<domain>/repository/
 storage/db/<domain>/adapter/
-````
+```
 
 ### 생성할 Port
 
@@ -335,7 +334,7 @@ public interface XxxRepositoryPort {
 * JPA Entity는 `storage`에만 위치
 * 외부 Client 직접 호출은 Port로 분리
 
-```
+````
 
 ---
 
@@ -348,4 +347,3 @@ public interface XxxRepositoryPort {
 - 의존성 위반이 발생할 수 있는 지점을 먼저 지적한다.
 - build.gradle.kts 수정 방향을 함께 검토한다.
 - 기존 기능의 동작을 유지하는 것을 우선한다.
-```

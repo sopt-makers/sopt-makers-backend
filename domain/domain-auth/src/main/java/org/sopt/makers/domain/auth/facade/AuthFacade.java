@@ -5,6 +5,7 @@ import static org.sopt.makers.domain.auth.exception.AuthFailure.ALREADY_REGISTER
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_REGISTER_INFO;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,6 @@ import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserRegisterInfo;
 import org.sopt.makers.domain.user.port.UserRegisterInfoRepositoryPort;
 import org.sopt.makers.domain.user.service.UserCommandService;
-import org.sopt.makers.domain.user.service.UserCommandService.ActivityUpdateCommand;
 import org.sopt.makers.domain.user.service.UserQueryService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
@@ -51,12 +51,23 @@ public class AuthFacade {
   private final UserCommandService userCommandService;
   private final UserRegisterInfoRepositoryPort userRegisterInfoRepositoryPort;
 
+  public record LoginResult(String accessToken, String refreshToken, boolean isFirstLogin) {}
+
+  public record VerifyResult(String name, String phone) {}
+
+  public record UpdateProfileCommand(
+      String email,
+      String phone,
+      LocalDate birthday,
+      String profileImage,
+      List<UserCommandService.ActivityUpdateCommand> activityUpdates) {}
+
   // ──────────────────────────────────────────────────
   // 로그인
   // ──────────────────────────────────────────────────
 
   @Transactional
-  public TokenPair login(String idToken, OAuthPlatform platform) {
+  public LoginResult login(String idToken, OAuthPlatform platform) {
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
 
     User user =
@@ -64,12 +75,14 @@ public class AuthFacade {
             .findBySocialAccount(platform, platformId)
             .orElseThrow(() -> new AuthException(NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT));
 
-    if (user.isFirstLogin()) {
+    boolean isFirstLogin = user.isFirstLogin();
+    if (isFirstLogin) {
       userCommandService.completeFirstLogin(user.id());
     }
 
     Role role = user.activities().getLastActivity().role();
-    return tokenIssuerPort.issue(user.id(), role);
+    TokenPair tokenPair = tokenIssuerPort.issue(user.id(), role);
+    return new LoginResult(tokenPair.accessToken(), tokenPair.refreshToken(), isFirstLogin);
   }
 
   @Transactional(readOnly = true)
@@ -137,8 +150,9 @@ public class AuthFacade {
   }
 
   @Transactional
-  public void verifyPhoneCode(String phone, String code, PhoneVerificationType type) {
-    authService.verifyCode(phone, code, type);
+  public VerifyResult verifyPhoneCode(String phone, String code, PhoneVerificationType type) {
+    PhoneVerification verified = authService.verifyCode(phone, code, type);
+    return new VerifyResult(verified.name(), verified.phone());
   }
 
   private String resolveVerificationName(Long userId, String phone, PhoneVerificationType type) {
@@ -201,16 +215,20 @@ public class AuthFacade {
   // ──────────────────────────────────────────────────
 
   @Transactional
-  public void updateProfile(
-      Long userId, Profile newProfile, List<ActivityUpdateCommand> activityUpdates) {
-
+  public void updateProfile(Long userId, UpdateProfileCommand command) {
     User current = userQueryService.getWithActivitiesById(userId);
-    boolean isPhoneChanged = !current.profile().phone().equals(newProfile.phone());
 
-    if (isPhoneChanged) {
-      authService.validateVerified(newProfile.phone(), PhoneVerificationType.CHANGE_PHONE_NUMBER);
+    if (!current.profile().phone().equals(command.phone())) {
+      authService.validateVerified(command.phone(), PhoneVerificationType.CHANGE_PHONE_NUMBER);
     }
 
-    userCommandService.updateProfileWithActivities(userId, newProfile, activityUpdates);
+    Profile updatedProfile =
+        current
+            .profile()
+            .updateProfile(
+                command.email(), command.phone(), command.birthday(), command.profileImage());
+
+    userCommandService.updateProfileWithActivities(
+        userId, updatedProfile, command.activityUpdates());
   }
 }

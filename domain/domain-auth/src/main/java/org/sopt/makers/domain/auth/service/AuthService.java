@@ -26,7 +26,7 @@ public class AuthService {
     return phoneVerificationRepositoryPort.save(verification);
   }
 
-  public void verifyCode(String phone, String code, PhoneVerificationType type) {
+  public PhoneVerification verifyCode(String phone, String code, PhoneVerificationType type) {
     PhoneVerification verification = findLatestOrThrow(phone, type);
 
     if (verification.isExpired()) {
@@ -38,7 +38,7 @@ public class AuthService {
       throw new AuthException(INVALID_PHONE_VERIFICATION_CODE);
     }
 
-    phoneVerificationRepositoryPort.save(verification.verify());
+    return phoneVerificationRepositoryPort.save(verification.verify());
   }
 
   @Transactional(readOnly = true)
