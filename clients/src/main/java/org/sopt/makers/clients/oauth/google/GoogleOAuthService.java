@@ -6,7 +6,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
@@ -14,7 +13,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
 import org.sopt.makers.clients.oauth.exception.OAuthException;
@@ -45,16 +43,9 @@ public class GoogleOAuthService {
       throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
 
-    JWKSet jwkSet = googleOAuthClient.getPublicKeySet();
-    return findMatchJWK(jwkSet, kid)
-        .orElseGet(
-            () ->
-                findMatchJWK(googleOAuthClient.refreshPublicKeySet(), kid)
-                    .orElseThrow(() -> new OAuthException(OAuthFailure.INVALID_ID_TOKEN)));
-  }
-
-  private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid) {
-    return jwkSet.getKeys().stream().filter(jwk -> Objects.equals(jwk.getKeyID(), kid)).findFirst();
+    return googleOAuthClient
+        .findPublicKey(jwk -> Objects.equals(jwk.getKeyID(), kid))
+        .orElseThrow(() -> new OAuthException(OAuthFailure.INVALID_ID_TOKEN));
   }
 
   private void verifyGoogleIdToken(SignedJWT jwt, JWK jwk) throws ParseException {

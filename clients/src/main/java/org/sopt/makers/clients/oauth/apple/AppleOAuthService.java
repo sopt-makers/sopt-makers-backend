@@ -6,7 +6,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.text.ParseException;
@@ -14,7 +13,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.config.OAuthProperty;
 import org.sopt.makers.clients.oauth.exception.OAuthException;
@@ -47,20 +45,11 @@ public class AppleOAuthService {
       throw new OAuthException(OAuthFailure.INVALID_ID_TOKEN);
     }
 
-    JWKSet jwkSet = appleOAuthClient.getPublicKeySet();
-    return findMatchJWK(jwkSet, kid, alg)
-        .orElseGet(
-            () ->
-                findMatchJWK(appleOAuthClient.refreshPublicKeySet(), kid, alg)
-                    .orElseThrow(() -> new OAuthException(OAuthFailure.INVALID_ID_TOKEN)));
-  }
-
-  private Optional<JWK> findMatchJWK(JWKSet jwkSet, String kid, String alg) {
-    return jwkSet.getKeys().stream()
-        .filter(
+    return appleOAuthClient
+        .findPublicKey(
             jwk ->
                 Objects.equals(jwk.getKeyID(), kid) && Objects.equals(getAlgorithmName(jwk), alg))
-        .findFirst();
+        .orElseThrow(() -> new OAuthException(OAuthFailure.INVALID_ID_TOKEN));
   }
 
   private void verifyAppleIdToken(SignedJWT jwt, JWK jwk) throws ParseException {
