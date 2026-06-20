@@ -3,7 +3,6 @@ package org.sopt.makers.domain.user;
 import static org.sopt.makers.domain.user.exception.UserFailure.INVALID_ACTIVITY_GENERATION;
 import static org.sopt.makers.domain.user.exception.UserFailure.ROLE_REQUIRES_PART;
 
-import java.util.Optional;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.exception.UserException;
 
@@ -34,10 +33,6 @@ public record Activity(
       boolean isSopt,
       Float attendanceScore) {
     return new Activity(id, generation, team, part, role, isSopt, attendanceScore);
-  }
-
-  public Optional<Team> optionalTeam() {
-    return Optional.ofNullable(team);
   }
 
   public void validateActivityContents() {
