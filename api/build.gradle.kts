@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":domain:domain-playground"))
     implementation(project(":domain:domain-app"))
     implementation(project(":domain:domain-admin"))
+    implementation(project(":domain:domain-official"))
     implementation(project(":storage"))
     implementation(project(":clients"))
 
