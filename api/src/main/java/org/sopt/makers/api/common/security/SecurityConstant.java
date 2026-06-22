@@ -15,5 +15,11 @@ public final class SecurityConstant {
   public static final String PATTERN_ALL = "/**";
 
   public static final List<String> JWT_WHITELIST =
-      List.of("/api/v1/auth", "/api/v1/social/accounts", "/error");
+      List.of(
+          "/api/v1/auth",
+          "/api/v1/social/accounts",
+          "/error",
+          "/swagger-ui.html",
+          "/swagger-ui",
+          "/v3/api-docs");
 }
