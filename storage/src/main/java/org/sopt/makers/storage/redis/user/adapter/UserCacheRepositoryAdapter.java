@@ -65,10 +65,10 @@ public class UserCacheRepositoryAdapter implements UserCacheRepositoryPort {
     return new CachedUserProfile(
         user.id(),
         profile.name(),
-        profile.profileImage().orElse(null),
+        profile.profileImage(),
         profile.birthday(),
         profile.phone(),
-        profile.email().orElse(null),
+        profile.email(),
         activityList.activities().isEmpty()
             ? NO_ACTIVITY_GENERATION
             : activityList.getLastActivity().generation(),
@@ -79,7 +79,7 @@ public class UserCacheRepositoryAdapter implements UserCacheRepositoryPort {
                         a.id(),
                         a.generation(),
                         a.part().name(),
-                        a.optionalTeam().map(Team::name).orElse(null),
+                        a.team() != null ? a.team().name() : null,
                         a.role().name(),
                         a.isSopt()))
             .toList());

@@ -6,6 +6,7 @@ public record User(
     SocialAccount socialAccount,
     ActivityList activities,
     boolean isFirstLogin) {
+
   public static User createNewUser(SocialAccount socialAccount, Profile profile) {
     return new User(null, profile, socialAccount, new ActivityList(), true);
   }

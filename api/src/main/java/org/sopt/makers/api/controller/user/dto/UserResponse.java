@@ -28,10 +28,10 @@ public final class UserResponse {
       return new UserProfileAndActivity(
           user.id(),
           user.profile().name(),
-          user.profile().profileImage().orElse(null),
+          user.profile().profileImage(),
           user.profile().birthday(),
           user.profile().phone(),
-          user.profile().email().orElse(null),
+          user.profile().email(),
           lastGeneration,
           activities);
     }

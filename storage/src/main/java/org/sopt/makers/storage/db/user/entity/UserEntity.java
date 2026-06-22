@@ -19,6 +19,7 @@ import org.sopt.makers.domain.user.ActivityList;
 import org.sopt.makers.domain.user.Profile;
 import org.sopt.makers.domain.user.SocialAccount;
 import org.sopt.makers.domain.user.User;
+import org.sopt.makers.domain.user.UserFavor;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
@@ -48,11 +49,57 @@ public class UserEntity extends BaseEntity {
 
   private String profileImage;
 
-  private boolean isFirstLogin;
+  @Column(nullable = false)
+  private Boolean isFirstLogin = true;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private OAuthPlatform authPlatformType;
+
+  private String address;
+
+  private String university;
+
+  private String major;
+
+  private String introduction;
+
+  private String mbti;
+
+  private String mbtiDescription;
+
+  private Double sojuCapacity;
+
+  private String interest;
+
+  private Boolean isPourSauceLover;
+
+  private Boolean isHardPeachLover;
+
+  private Boolean isMintChocoLover;
+
+  private Boolean isRedBeanFishBreadLover;
+
+  private Boolean isSojuLover;
+
+  private Boolean isRiceTteokLover;
+
+  private String idealType;
+
+  private String selfIntroduction;
+
+  private String skill;
+
+  private Boolean openToWork;
+
+  private Boolean openToSideProject;
+
+  private Boolean allowOfficial;
+
+  private Boolean editActivitiesAble;
+
+  @Column(nullable = false)
+  private Boolean isPhoneBlind = false;
 
   @Builder(access = PRIVATE)
   private UserEntity(
@@ -103,6 +150,53 @@ public class UserEntity extends BaseEntity {
     this.profileImage = profileImage;
   }
 
+  public void updatePlaygroundProfile(
+      String address,
+      String university,
+      String major,
+      String introduction,
+      String skill,
+      String mbti,
+      String mbtiDescription,
+      Double sojuCapacity,
+      String interest,
+      Boolean isPourSauceLover,
+      Boolean isHardPeachLover,
+      Boolean isMintChocoLover,
+      Boolean isRedBeanFishBreadLover,
+      Boolean isSojuLover,
+      Boolean isRiceTteokLover,
+      String idealType,
+      String selfIntroduction,
+      Boolean openToWork,
+      Boolean openToSideProject,
+      Boolean allowOfficial,
+      Boolean editActivitiesAble,
+      Boolean isPhoneBlind) {
+    this.address = address;
+    this.university = university;
+    this.major = major;
+    this.introduction = introduction;
+    this.skill = skill;
+    this.mbti = mbti;
+    this.mbtiDescription = mbtiDescription;
+    this.sojuCapacity = sojuCapacity;
+    this.interest = interest;
+    this.isPourSauceLover = isPourSauceLover;
+    this.isHardPeachLover = isHardPeachLover;
+    this.isMintChocoLover = isMintChocoLover;
+    this.isRedBeanFishBreadLover = isRedBeanFishBreadLover;
+    this.isSojuLover = isSojuLover;
+    this.isRiceTteokLover = isRiceTteokLover;
+    this.idealType = idealType;
+    this.selfIntroduction = selfIntroduction;
+    this.openToWork = openToWork;
+    this.openToSideProject = openToSideProject;
+    this.allowOfficial = allowOfficial;
+    this.editActivitiesAble = editActivitiesAble;
+    this.isPhoneBlind = isPhoneBlind;
+  }
+
   public void updateAuthPlatform(String authPlatformId, OAuthPlatform authPlatformType) {
     this.authPlatformId = authPlatformId;
     this.authPlatformType = authPlatformType;
@@ -113,20 +207,55 @@ public class UserEntity extends BaseEntity {
   }
 
   public User toDomain() {
-    SocialAccount socialAccount = SocialAccount.of(authPlatformId, authPlatformType);
-    Profile profile = Profile.of(name, email, phone, birthday, profileImage);
-    return User.createUser(getId(), socialAccount, profile, isFirstLogin);
+    return User.createUser(getId(), socialAccount(), toProfile(), isFirstLogin);
   }
 
   public User toDomainWithActivities(List<UserActivityHistoryEntity> activities) {
-    SocialAccount socialAccount = SocialAccount.of(authPlatformId, authPlatformType);
-    Profile profile = Profile.of(name, email, phone, birthday, profileImage);
-    if (activities.isEmpty()) {
-      return User.createUser(getId(), socialAccount, profile, isFirstLogin);
-    }
     ActivityList activityList =
-        ActivityList.of(activities.stream().map(UserActivityHistoryEntity::toDomain).toList());
-    return User.createUser(getId(), socialAccount, profile, activityList, isFirstLogin);
+        activities.isEmpty()
+            ? new ActivityList()
+            : ActivityList.of(
+                activities.stream().map(UserActivityHistoryEntity::toDomain).toList());
+    return User.createUser(getId(), socialAccount(), toProfile(), activityList, isFirstLogin);
+  }
+
+  private SocialAccount socialAccount() {
+    return SocialAccount.of(authPlatformId, authPlatformType);
+  }
+
+  private Profile toProfile() {
+    return Profile.ofFull(
+        name,
+        email,
+        phone,
+        birthday,
+        profileImage,
+        address,
+        university,
+        major,
+        introduction,
+        mbti,
+        mbtiDescription,
+        sojuCapacity,
+        interest,
+        UserFavor.of(
+            isPourSauceLover,
+            isHardPeachLover,
+            isMintChocoLover,
+            isRedBeanFishBreadLover,
+            isSojuLover,
+            isRiceTteokLover),
+        idealType,
+        selfIntroduction,
+        skill,
+        openToWork,
+        openToSideProject,
+        allowOfficial,
+        editActivitiesAble,
+        isPhoneBlind,
+        null, // workPreference: UserWorkPreferenceEntity에서 별도 조회
+        List.of(), // links: UserLinkEntity에서 별도 조회
+        List.of()); // careers: UserCareerEntity에서 별도 조회
   }
 
   public static UserEntity fromDomain(User user) {
@@ -136,9 +265,9 @@ public class UserEntity extends BaseEntity {
         UserEntity.builder()
             .name(profile.name())
             .phone(profile.phone())
-            .email(profile.email().orElse(null))
+            .email(profile.email())
             .birthday(profile.birthday())
-            .profileImage(profile.profileImage().orElse(null))
+            .profileImage(profile.profileImage())
             .authPlatformId(socialAccount.authPlatformId())
             .authPlatformType(socialAccount.authPlatformType())
             .isFirstLogin(user.isFirstLogin())

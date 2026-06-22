@@ -45,10 +45,18 @@ public class SecurityConfig {
   }
 
   @Bean
-  @Profile({"dev", "prod"})
-  public SecurityFilterChain filterChainDevAndProd(final HttpSecurity http) throws Exception {
+  @Profile("dev")
+  public SecurityFilterChain filterChainDev(final HttpSecurity http) throws Exception {
     setDefaultHttp(http);
-    setSecuredHttp(http);
+    setSecuredHttp(http, true);
+    return http.build();
+  }
+
+  @Bean
+  @Profile("prod")
+  public SecurityFilterChain filterChainProd(final HttpSecurity http) throws Exception {
+    setDefaultHttp(http);
+    setSecuredHttp(http, false);
     return http.build();
   }
 
@@ -63,7 +71,8 @@ public class SecurityConfig {
         .addFilterBefore(authenticationExceptionFilter, ApiKeyAuthenticationFilter.class);
   }
 
-  private void setSecuredHttp(final HttpSecurity http) throws Exception {
+  private void setSecuredHttp(final HttpSecurity http, final boolean includeSwagger)
+      throws Exception {
     List<String> securedEndpoints = securityProperty.api().securedEndpoints();
     http.authorizeHttpRequests(
         authorize -> {
@@ -74,6 +83,11 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/error/**")
               .permitAll();
+          if (includeSwagger) {
+            authorize
+                .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+                .permitAll();
+          }
           for (String endpoint : securedEndpoints) {
             authorize.requestMatchers(endpoint + PATTERN_ALL).hasRole(INTERNAL_SERVICE);
           }
