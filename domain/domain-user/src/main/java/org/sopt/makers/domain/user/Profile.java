@@ -28,7 +28,6 @@ public record Profile(
     Boolean openToWork,
     Boolean openToSideProject,
     Boolean allowOfficial,
-    Boolean hasProfile,
     Boolean editActivitiesAble,
     Boolean isPhoneBlind,
     WorkPreference workPreference,
@@ -39,7 +38,7 @@ public record Profile(
     validate(name, phone);
     return new Profile(
         name, email, phone, birthday, null, null, null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null, null, null, List.of(), List.of());
+        null, null, null, null, null, null, null, null, null, List.of(), List.of());
   }
 
   public static Profile of(
@@ -51,7 +50,6 @@ public record Profile(
         phone,
         birthday,
         profileImage,
-        null,
         null,
         null,
         null,
@@ -95,7 +93,6 @@ public record Profile(
       Boolean openToWork,
       Boolean openToSideProject,
       Boolean allowOfficial,
-      Boolean hasProfile,
       Boolean editActivitiesAble,
       Boolean isPhoneBlind,
       WorkPreference workPreference,
@@ -123,7 +120,6 @@ public record Profile(
         openToWork,
         openToSideProject,
         allowOfficial,
-        hasProfile,
         editActivitiesAble,
         isPhoneBlind,
         workPreference,
@@ -157,7 +153,6 @@ public record Profile(
         this.openToWork,
         this.openToSideProject,
         this.allowOfficial,
-        this.hasProfile,
         this.editActivitiesAble,
         this.isPhoneBlind,
         this.workPreference,

@@ -49,7 +49,8 @@ public class UserEntity extends BaseEntity {
 
   private String profileImage;
 
-  private boolean isFirstLogin;
+  @Column(nullable = false)
+  private Boolean isFirstLogin = true;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
@@ -95,12 +96,10 @@ public class UserEntity extends BaseEntity {
 
   private Boolean allowOfficial;
 
-  private Boolean hasProfile;
-
   private Boolean editActivitiesAble;
 
   @Column(nullable = false)
-  private Boolean isPhoneBlind;
+  private Boolean isPhoneBlind = false;
 
   @Builder(access = PRIVATE)
   private UserEntity(
@@ -169,7 +168,10 @@ public class UserEntity extends BaseEntity {
       Boolean isRiceTteokLover,
       String idealType,
       String selfIntroduction,
+      Boolean openToWork,
+      Boolean openToSideProject,
       Boolean allowOfficial,
+      Boolean editActivitiesAble,
       Boolean isPhoneBlind) {
     this.address = address;
     this.university = university;
@@ -188,8 +190,10 @@ public class UserEntity extends BaseEntity {
     this.isRiceTteokLover = isRiceTteokLover;
     this.idealType = idealType;
     this.selfIntroduction = selfIntroduction;
+    this.openToWork = openToWork;
+    this.openToSideProject = openToSideProject;
     this.allowOfficial = allowOfficial;
-    this.hasProfile = true;
+    this.editActivitiesAble = editActivitiesAble;
     this.isPhoneBlind = isPhoneBlind;
   }
 
@@ -220,9 +224,6 @@ public class UserEntity extends BaseEntity {
   }
 
   private Profile toProfile() {
-    if (!Boolean.TRUE.equals(hasProfile)) {
-      return Profile.of(name, email, phone, birthday, profileImage);
-    }
     return Profile.ofFull(
         name,
         email,
@@ -250,7 +251,6 @@ public class UserEntity extends BaseEntity {
         openToWork,
         openToSideProject,
         allowOfficial,
-        hasProfile,
         editActivitiesAble,
         isPhoneBlind,
         null, // workPreference: UserWorkPreferenceEntity에서 별도 조회
