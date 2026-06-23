@@ -21,9 +21,7 @@ public class UserLinkRepositoryAdapter implements UserLinkRepositoryPort {
   public List<UserLink> replaceAll(final Long userId, final List<UserLink> links) {
     userLinkJpaRepository.deleteAllByUserId(userId);
     List<UserLinkEntity> entities =
-        links.stream()
-            .map(link -> UserLinkEntity.from(UserLink.of(null, userId, link.title(), link.url())))
-            .toList();
+        links.stream().map(link -> UserLinkEntity.fromLinkForUser(userId, link)).toList();
     return userLinkJpaRepository.saveAll(entities).stream().map(UserLinkEntity::toDomain).toList();
   }
 }
