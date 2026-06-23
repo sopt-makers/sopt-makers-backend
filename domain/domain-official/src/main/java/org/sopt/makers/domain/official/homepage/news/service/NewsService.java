@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.official.homepage.news.News;
 import org.sopt.makers.domain.official.homepage.news.exception.NewsException;
+import org.sopt.makers.domain.official.homepage.news.port.NewsFileStoragePort;
 import org.sopt.makers.domain.official.homepage.news.port.NewsRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class NewsService {
 
+  private static final String NEWS_IMAGE_DIRECTORY = "news/";
+
   private final NewsRepositoryPort newsRepositoryPort;
+  private final NewsFileStoragePort newsFileStoragePort;
+
+  @Transactional
+  public News createWithFile(CreateNewsWithFileCommand command) {
+    String imageUrl = newsFileStoragePort.upload(command.image(), NEWS_IMAGE_DIRECTORY);
+    News news = News.create(imageUrl, command.title(), command.link());
+    News saved = newsRepositoryPort.save(news);
+    log.info("최신소식 추가 완료 - id={}", saved.id());
+    return saved;
+  }
 
   @Transactional
   public News create(CreateNewsCommand command) {
@@ -48,8 +61,22 @@ public class NewsService {
   }
 
   @Transactional
+  public News editWithFile(Integer id, EditNewsWithFileCommand command) {
+    News news = getById(id);
+    String imageUrl = news.imageUrl();
+    if (command.image() != null) {
+      newsFileStoragePort.delete(news.imageUrl());
+      imageUrl = newsFileStoragePort.upload(command.image(), NEWS_IMAGE_DIRECTORY);
+    }
+    News saved = newsRepositoryPort.save(news.update(imageUrl, command.title(), command.link()));
+    log.info("최신소식 수정 완료 - id={}", id);
+    return saved;
+  }
+
+  @Transactional
   public void delete(Integer id) {
     News news = getById(id);
+    newsFileStoragePort.delete(news.imageUrl());
     newsRepositoryPort.delete(news);
     log.info("최신소식 삭제 완료 - id={}", id);
   }
@@ -62,9 +89,20 @@ public class NewsService {
     return newsRepositoryPort.findAll();
   }
 
+  public NewsFileStoragePort.PresignedFile generatePresignedUrl(
+      NewsFileStoragePort.PresignedFileRequest request) {
+    return newsFileStoragePort.generatePresignedUrl(request);
+  }
+
   public record CreateNewsCommand(String imageUrl, String title, String link) {}
 
+  public record CreateNewsWithFileCommand(
+      NewsFileStoragePort.UploadFile image, String title, String link) {}
+
   public record EditNewsCommand(String imageUrl, String title, String link) {}
+
+  public record EditNewsWithFileCommand(
+      NewsFileStoragePort.UploadFile image, String title, String link) {}
 
   public record BulkCreateNewsCommand(List<NewsData> news) {
 
