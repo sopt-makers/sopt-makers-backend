@@ -129,6 +129,10 @@ public class UserCommandService {
   }
 
   private YearMonth parseYearMonth(String date) {
+    if (date == null || date.isBlank()) {
+      throw new UserException(INVALID_CAREER_DATE);
+    }
+
     try {
       return YearMonth.parse(date, YEAR_MONTH_FORMATTER);
     } catch (DateTimeParseException e) {
