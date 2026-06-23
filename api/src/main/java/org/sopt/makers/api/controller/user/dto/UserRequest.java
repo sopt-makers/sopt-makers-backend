@@ -9,18 +9,18 @@ import jakarta.validation.constraints.Pattern;
 import java.util.Arrays;
 import java.util.List;
 import lombok.NoArgsConstructor;
-import org.sopt.makers.domain.auth.facade.AuthFacade;
 import org.sopt.makers.domain.user.Team;
 import org.sopt.makers.domain.user.UserCareer;
 import org.sopt.makers.domain.user.UserFavor;
 import org.sopt.makers.domain.user.UserLink;
 import org.sopt.makers.domain.user.WorkPreference;
+import org.sopt.makers.domain.user.command.ActivityUpdateCommand;
+import org.sopt.makers.domain.user.command.UpdateProfileCommand;
 import org.sopt.makers.domain.user.enums.CommunicationStyle;
 import org.sopt.makers.domain.user.enums.FeedbackStyle;
 import org.sopt.makers.domain.user.enums.IdeationStyle;
 import org.sopt.makers.domain.user.enums.WorkPlace;
 import org.sopt.makers.domain.user.enums.WorkTime;
-import org.sopt.makers.domain.user.service.UserCommandService;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class UserRequest {
@@ -56,8 +56,8 @@ public final class UserRequest {
       Boolean allowOfficial,
       Boolean isPhoneBlind) {
 
-    public AuthFacade.UpdateProfileCommand toCommand() {
-      List<UserCommandService.ActivityUpdateCommand> activityUpdates =
+    public UpdateProfileCommand toCommand() {
+      List<ActivityUpdateCommand> activityUpdates =
           soptActivities == null
               ? List.of()
               : soptActivities.stream().map(SoptActivityInfo::toCommand).toList();
@@ -69,7 +69,7 @@ public final class UserRequest {
       List<UserCareer> careerList =
           careers != null ? careers.stream().map(UserCareerInfo::toDomain).toList() : List.of();
 
-      return new AuthFacade.UpdateProfileCommand(
+      return new UpdateProfileCommand(
           email,
           phone,
           profileImage,
@@ -96,7 +96,7 @@ public final class UserRequest {
 
   public record SoptActivityInfo(Long activityId, String team) {
 
-    public UserCommandService.ActivityUpdateCommand toCommand() {
+    public ActivityUpdateCommand toCommand() {
       Team teamEnum =
           team == null
               ? null
@@ -104,7 +104,7 @@ public final class UserRequest {
                   .filter(t -> t.getDisplayName().equals(team))
                   .findFirst()
                   .orElseThrow(() -> new IllegalArgumentException("Unknown team: " + team));
-      return new UserCommandService.ActivityUpdateCommand(activityId, teamEnum);
+      return new ActivityUpdateCommand(activityId, teamEnum);
     }
   }
 

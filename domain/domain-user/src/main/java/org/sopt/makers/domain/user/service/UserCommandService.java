@@ -19,9 +19,9 @@ import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.ActivityList;
 import org.sopt.makers.domain.user.Profile;
 import org.sopt.makers.domain.user.SocialAccount;
-import org.sopt.makers.domain.user.Team;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserCareer;
+import org.sopt.makers.domain.user.command.ActivityUpdateCommand;
 import org.sopt.makers.domain.user.exception.UserException;
 import org.sopt.makers.domain.user.port.UserActivityHistoryRepositoryPort;
 import org.sopt.makers.domain.user.port.UserCacheRepositoryPort;
@@ -158,7 +158,4 @@ public class UserCommandService {
             })
         .toList();
   }
-
-  /** 활동 이력 수정 커맨드. 기수/파트/역할은 고정이며 팀만 변경 가능하다. */
-  public record ActivityUpdateCommand(Long activityId, Team team) {}
 }
