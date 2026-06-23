@@ -11,3 +11,7 @@ external:
       sms-id: ${GABIA_SMS_ID}
       api-key: ${GABIA_API_KEY}
       sender-number: ${GABIA_SENDER_NUMBER}
+  s3:
+    bucket: ${S3_BUCKET}
+    region: ${S3_REGION}
+    base-dir: ${S3_BASE_DIR}

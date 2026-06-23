@@ -41,3 +41,7 @@ external:
       sms-id: test-gabia-sms-id
       api-key: test-gabia-api-key
       sender-number: "01000000000"
+  s3:
+    bucket: test-bucket
+    region: ap-northeast-2
+    base-dir: test/
