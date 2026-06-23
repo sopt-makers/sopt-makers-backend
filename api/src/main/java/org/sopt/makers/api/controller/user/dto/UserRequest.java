@@ -1,9 +1,7 @@
 package org.sopt.makers.api.controller.user.dto;
 
 import static lombok.AccessLevel.PRIVATE;
-import static org.sopt.makers.core.constant.TimeExpressionConstant.YEAR_MONTH;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.util.Arrays;
@@ -154,8 +152,8 @@ public final class UserRequest {
   public record UserCareerInfo(
       String companyName,
       String title,
-      @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = YEAR_MONTH) String startDate,
-      @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = YEAR_MONTH) String endDate,
+      @Pattern(regexp = "^\\d{4}-\\d{2}$", message = "시작일은 yyyy-MM 형식이어야 합니다.") String startDate,
+      @Pattern(regexp = "^\\d{4}-\\d{2}$", message = "종료일은 yyyy-MM 형식이어야 합니다.") String endDate,
       Boolean isCurrent) {
 
     public UserCareer toDomain() {
