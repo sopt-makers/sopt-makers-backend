@@ -9,9 +9,9 @@ import org.sopt.makers.domain.admin.attendance.SubLecture;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
+import org.sopt.makers.domain.admin.attendance.port.AttendanceUserActivityPort;
 import org.sopt.makers.domain.admin.attendance.port.SubAttendanceRepositoryPort;
 import org.sopt.makers.domain.admin.attendance.port.SubLectureRepositoryPort;
-import org.sopt.makers.domain.user.port.UserActivityHistoryRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ public class AttendanceService {
   private final SubLectureRepositoryPort subLectureRepositoryPort;
   private final AttendanceRepositoryPort attendanceRepositoryPort;
   private final SubAttendanceRepositoryPort subAttendanceRepositoryPort;
-  private final UserActivityHistoryRepositoryPort userActivityHistoryRepositoryPort;
+  private final AttendanceUserActivityPort attendanceUserActivityPort;
 
   public List<Attendance> getAttendancesByUserId(Long userId) {
     return attendanceRepositoryPort.findAllByUserId(userId);
@@ -82,6 +82,6 @@ public class AttendanceService {
         BASE_ATTENDANCE_SCORE
             + (float) endedAttendances.stream().mapToDouble(Attendance::computeScore).sum();
 
-    userActivityHistoryRepositoryPort.updateAttendanceScore(userId, generation, totalScore);
+    attendanceUserActivityPort.updateAttendanceScore(userId, generation, totalScore);
   }
 }

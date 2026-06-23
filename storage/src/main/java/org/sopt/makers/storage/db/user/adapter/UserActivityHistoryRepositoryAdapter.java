@@ -69,10 +69,4 @@ public class UserActivityHistoryRepositoryAdapter implements UserActivityHistory
   public void deleteByUserId(Long userId) {
     activityJpaRepository.deleteByUserId(userId);
   }
-
-  @Transactional
-  @Override
-  public void updateAttendanceScore(Long userId, int generation, Float score) {
-    activityJpaRepository.updateAttendanceScore(userId, generation, score);
-  }
 }
