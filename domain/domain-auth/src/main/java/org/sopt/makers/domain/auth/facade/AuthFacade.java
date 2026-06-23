@@ -5,7 +5,6 @@ import static org.sopt.makers.domain.auth.exception.AuthFailure.ALREADY_REGISTER
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_REGISTER_INFO;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT;
 
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +61,6 @@ public class AuthFacade {
   public record UpdateProfileCommand(
       String email,
       String phone,
-      LocalDate birthday,
       String profileImage,
       List<UserCommandService.ActivityUpdateCommand> activityUpdates,
       // 플레이그라운드 확장 프로필
@@ -249,7 +247,6 @@ public class AuthFacade {
         currentProfile.update(
             command.email(),
             command.phone(),
-            command.birthday(),
             command.profileImage(),
             command.address(),
             command.university(),

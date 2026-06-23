@@ -25,10 +25,7 @@ public record Profile(
     String idealType,
     String selfIntroduction,
     String skill,
-    Boolean openToWork,
-    Boolean openToSideProject,
     Boolean allowOfficial,
-    Boolean editActivitiesAble,
     Boolean isPhoneBlind,
     WorkPreference workPreference,
     List<UserLink> links,
@@ -38,7 +35,7 @@ public record Profile(
     validate(name, phone);
     return new Profile(
         name, email, phone, birthday, null, null, null, null, null, null, null, null, null, null,
-        null, null, null, null, null, null, null, null, null, List.of(), List.of());
+        null, null, null, null, null, null, List.of(), List.of());
   }
 
   public static Profile of(
@@ -65,21 +62,14 @@ public record Profile(
         null,
         null,
         null,
-        null,
-        null,
-        null,
         List.of(),
         List.of());
   }
 
-  /**
-   * 유저가 변경 가능한 필드를 적용한 새 Profile을 반환한다. name, openToWork, openToSideProject, editActivitiesAble은
-   * 시스템 관리 필드로 변경 불가.
-   */
+  /** 유저가 변경 가능한 필드를 적용한 새 Profile을 반환한다. name, birthday는 시스템 관리 필드로 변경 불가. */
   public Profile update(
       String email,
       String phone,
-      LocalDate birthday,
       String profileImage,
       String address,
       String university,
@@ -105,7 +95,7 @@ public record Profile(
         this.name, // 시스템 관리 — 변경 불가
         email,
         phone,
-        birthday,
+        this.birthday, // 시스템 관리 — 변경 불가
         profileImage,
         address,
         university,
@@ -119,10 +109,7 @@ public record Profile(
         idealType,
         selfIntroduction,
         skill,
-        this.openToWork, // 시스템 관리 — 변경 불가
-        this.openToSideProject, // 시스템 관리 — 변경 불가
         allowOfficial,
-        this.editActivitiesAble, // 시스템 관리 — 변경 불가
         isPhoneBlind,
         workPreference,
         links != null ? links : List.of(),

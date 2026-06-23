@@ -90,13 +90,7 @@ public class UserEntity extends BaseEntity {
 
   private String skill;
 
-  private Boolean openToWork;
-
-  private Boolean openToSideProject;
-
   private Boolean allowOfficial;
-
-  private Boolean editActivitiesAble;
 
   @Column(nullable = false)
   private Boolean isPhoneBlind = false;
@@ -164,10 +158,7 @@ public class UserEntity extends BaseEntity {
       Boolean isRiceTteokLover,
       String idealType,
       String selfIntroduction,
-      Boolean openToWork,
-      Boolean openToSideProject,
       Boolean allowOfficial,
-      Boolean editActivitiesAble,
       Boolean isPhoneBlind) {
     this.name = name;
     this.phone = phone;
@@ -191,10 +182,7 @@ public class UserEntity extends BaseEntity {
     this.isRiceTteokLover = isRiceTteokLover;
     this.idealType = idealType;
     this.selfIntroduction = selfIntroduction;
-    this.openToWork = openToWork;
-    this.openToSideProject = openToSideProject;
     this.allowOfficial = allowOfficial;
-    this.editActivitiesAble = editActivitiesAble;
     this.isPhoneBlind = isPhoneBlind;
   }
 
@@ -249,10 +237,7 @@ public class UserEntity extends BaseEntity {
         idealType,
         selfIntroduction,
         skill,
-        openToWork,
-        openToSideProject,
         allowOfficial,
-        editActivitiesAble,
         isPhoneBlind,
         null, // workPreference: UserWorkPreferenceEntity에서 별도 조회
         List.of(), // links: UserLinkEntity에서 별도 조회
@@ -295,10 +280,7 @@ public class UserEntity extends BaseEntity {
         favor != null ? favor.isRiceTteokLover() : null,
         profile.idealType(),
         profile.selfIntroduction(),
-        profile.openToWork(),
-        profile.openToSideProject(),
         profile.allowOfficial(),
-        profile.editActivitiesAble(),
         profile.isPhoneBlind());
     return entity;
   }

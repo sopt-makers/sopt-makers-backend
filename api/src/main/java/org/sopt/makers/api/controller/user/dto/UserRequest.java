@@ -5,7 +5,6 @@ import static lombok.AccessLevel.PRIVATE;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import lombok.NoArgsConstructor;
@@ -29,7 +28,6 @@ public final class UserRequest {
 
   public record UserProfileInfo(
       String profileImage,
-      LocalDate birthday,
       @NotNull(message = "핸드폰 번호는 필수 입력 값입니다.")
           @Pattern(regexp = "^\\d{11}$", message = "잘못된 전화번호 형식입니다. '-'을 제외한 11자리 번호를 입력해주세요.")
           String phone,
@@ -73,7 +71,6 @@ public final class UserRequest {
       return new AuthFacade.UpdateProfileCommand(
           email,
           phone,
-          birthday,
           profileImage,
           activityUpdates,
           address,
