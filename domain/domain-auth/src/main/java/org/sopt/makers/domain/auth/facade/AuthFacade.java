@@ -23,7 +23,11 @@ import org.sopt.makers.domain.user.Profile;
 import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.domain.user.SocialAccount;
 import org.sopt.makers.domain.user.User;
+import org.sopt.makers.domain.user.UserCareer;
+import org.sopt.makers.domain.user.UserFavor;
+import org.sopt.makers.domain.user.UserLink;
 import org.sopt.makers.domain.user.UserRegisterInfo;
+import org.sopt.makers.domain.user.WorkPreference;
 import org.sopt.makers.domain.user.port.UserRegisterInfoRepositoryPort;
 import org.sopt.makers.domain.user.service.UserCommandService;
 import org.sopt.makers.domain.user.service.UserQueryService;
@@ -60,7 +64,25 @@ public class AuthFacade {
       String phone,
       LocalDate birthday,
       String profileImage,
-      List<UserCommandService.ActivityUpdateCommand> activityUpdates) {}
+      List<UserCommandService.ActivityUpdateCommand> activityUpdates,
+      // 플레이그라운드 확장 프로필
+      String address,
+      String university,
+      String major,
+      String introduction,
+      String skill,
+      String mbti,
+      String mbtiDescription,
+      Double sojuCapacity,
+      String interest,
+      UserFavor userFavor,
+      String idealType,
+      String selfIntroduction,
+      Boolean allowOfficial,
+      Boolean isPhoneBlind,
+      WorkPreference workPreference,
+      List<UserLink> links,
+      List<UserCareer> careers) {}
 
   // ──────────────────────────────────────────────────
   // 로그인
@@ -217,16 +239,35 @@ public class AuthFacade {
   @Transactional
   public void updateProfile(Long userId, UpdateProfileCommand command) {
     User current = userQueryService.getWithActivitiesById(userId);
+    Profile currentProfile = current.profile();
 
-    if (!current.profile().phone().equals(command.phone())) {
+    if (!currentProfile.phone().equals(command.phone())) {
       authService.validateVerified(command.phone(), PhoneVerificationType.CHANGE_PHONE_NUMBER);
     }
 
     Profile updatedProfile =
-        current
-            .profile()
-            .updateProfile(
-                command.email(), command.phone(), command.birthday(), command.profileImage());
+        currentProfile.update(
+            command.email(),
+            command.phone(),
+            command.birthday(),
+            command.profileImage(),
+            command.address(),
+            command.university(),
+            command.major(),
+            command.introduction(),
+            command.skill(),
+            command.mbti(),
+            command.mbtiDescription(),
+            command.sojuCapacity(),
+            command.interest(),
+            command.userFavor(),
+            command.idealType(),
+            command.selfIntroduction(),
+            command.allowOfficial(),
+            command.isPhoneBlind(),
+            command.workPreference(),
+            command.links(),
+            command.careers());
 
     userCommandService.updateProfileWithActivities(
         userId, updatedProfile, command.activityUpdates());
