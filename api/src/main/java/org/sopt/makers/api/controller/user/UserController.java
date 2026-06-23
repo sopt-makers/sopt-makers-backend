@@ -8,7 +8,7 @@ import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.user.dto.UserRequest;
 import org.sopt.makers.core.response.BaseResponse;
-import org.sopt.makers.domain.auth.facade.AuthFacade;
+import org.sopt.makers.domain.user.facade.UserFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Validated
 public class UserController {
-  private final AuthFacade authFacade;
+  private final UserFacade userFacade;
 
   @PutMapping("")
   public ResponseEntity<BaseResponse<?>> updateUserProfile(
       @CurrentUserId Long userId, @Valid @RequestBody UserRequest.UserProfileInfo request) {
-    authFacade.updateProfile(userId, request.toCommand());
+    userFacade.updateProfile(userId, request.toCommand());
     return ResponseFactory.success(UPDATE_USER_PROFILE);
   }
 }

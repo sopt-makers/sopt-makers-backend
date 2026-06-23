@@ -42,6 +42,14 @@ public class UserLinkEntity {
         .build();
   }
 
+  public static UserLinkEntity fromLinkForUser(final Long userId, final UserLink userLink) {
+    return UserLinkEntity.builder()
+        .userId(userId)
+        .title(userLink.title())
+        .url(userLink.url())
+        .build();
+  }
+
   public UserLink toDomain() {
     return UserLink.of(id, userId, title, url);
   }

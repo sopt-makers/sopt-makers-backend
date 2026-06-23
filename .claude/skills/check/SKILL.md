@@ -83,7 +83,7 @@ tools: Read, Grep, Glob, Bash
 ```text
 api          → domain-*, storage, clients, core   ✅
 domain-*     → core                               ✅
-domain-auth/playground/app/admin → domain-user    ✅
+domain-auth/playground/app/admin → domain-user Port/domain model only ✅
 storage      → domain-* (Port 구현용), core        ✅
 clients      → domain-* (Port 구현용), core        ✅
 core         → 아무것도 의존하지 않음              ✅
@@ -102,7 +102,9 @@ core     → 다른 모듈             ❌
 
 예외:
 
-* `domain-auth`, `domain-playground`, `domain-app`, `domain-admin`에서 `domain-user`의 조회 서비스 또는 조회 Port를 사용하는 것은 허용합니다.
+* `domain-auth`, `domain-playground`, `domain-app`, `domain-admin`에서 user 기능이 필요하면 `domain-user`가 노출한 목적별 Port와 도메인 모델만 사용합니다.
+* 다른 도메인에서 `UserCommandService`, `UserQueryService`를 직접 주입하지 않습니다.
+* 다른 도메인 유스케이스가 user 데이터를 변경해야 하면 소비 도메인의 Port를 먼저 만들고 구현은 `domain-user` 또는 `storage`에 둡니다.
 * 사용자 조회가 필요할 때는 `UserEntity`나 User JpaRepository를 직접 참조하지 않습니다.
 
 ---
@@ -228,8 +230,9 @@ core에 두면 안 되는 것:
 | Controller가 비즈니스 검증 수행            | HTTP 계층에 정책이 섞임                 | Domain Service로 이동                      |
 | Facade가 단일 Service만 위임            | 불필요한 계층 증가                      | Facade 제거                               |
 | core에 도메인 전용 enum 배치              | core가 도메인에 오염됨                  | 해당 domain 모듈로 이동                        |
-| domain 간 직접 의존                    | 도메인 결합도 증가                      | Facade 또는 User 조회 서비스로 조율               |
-| domain에서 UserEntity import        | domain이 storage/user JPA 구조에 묶임 | UserQueryService 또는 조회 Port 사용          |
+| 다른 도메인 Service 직접 주입              | 도메인 내부 구현에 결합됨                  | 목적별 Port 생성 후 Adapter에서 Service 호출       |
+| domain 간 직접 의존                    | 도메인 결합도 증가                      | Facade 또는 목적별 Port로 조율                  |
+| domain에서 UserEntity import        | domain이 storage/user JPA 구조에 묶임 | domain-user Port 또는 소비 도메인 Port 사용       |
 
 ---
 
@@ -245,7 +248,7 @@ dependencies {
 }
 ```
 
-user 조회가 필요한 일부 도메인은 예외적으로 `domain-user`를 의존할 수 있습니다.
+user 기능이 필요한 일부 도메인은 예외적으로 `domain-user`의 Port와 도메인 모델에만 의존할 수 있습니다.
 
 ```kotlin
 dependencies {

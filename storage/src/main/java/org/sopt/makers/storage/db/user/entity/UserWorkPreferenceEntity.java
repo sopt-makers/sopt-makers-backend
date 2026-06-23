@@ -78,6 +78,14 @@ public class UserWorkPreferenceEntity {
         .build();
   }
 
+  public void update(final WorkPreference workPreference) {
+    this.ideationStyle = workPreference.ideationStyle();
+    this.workTime = workPreference.workTime();
+    this.communicationStyle = workPreference.communicationStyle();
+    this.workPlace = workPreference.workPlace();
+    this.feedbackStyle = workPreference.feedbackStyle();
+  }
+
   public WorkPreference toDomain() {
     return WorkPreference.of(ideationStyle, workTime, communicationStyle, workPlace, feedbackStyle);
   }

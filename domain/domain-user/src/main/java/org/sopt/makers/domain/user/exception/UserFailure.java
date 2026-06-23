@@ -11,6 +11,8 @@ import org.sopt.makers.core.code.FailureCode;
 public enum UserFailure implements FailureCode {
 
   // 400
+  MULTIPLE_CURRENT_CAREERS(400, "현재 직장이 2개 이상입니다"),
+  INVALID_CAREER_DATE(400, "커리어 시작 날짜가 종료 날짜보다 늦을 수 없습니다"),
   DUPLICATE_ACTIVITY(400, "이미 존재하는 활동 정보입니다"),
   INVALID_ACTIVITY_GENERATION(400, "기수는 1 이상이어야 합니다"),
   ROLE_REQUIRES_PART(400, "해당 Role은 Part가 필수입니다"),
@@ -19,6 +21,7 @@ public enum UserFailure implements FailureCode {
   INVALID_PROFILE_PHONE(400, "전화번호는 필수 값입니다"),
   INVALID_SOCIAL_ACCOUNT(400, "소셜 계정 정보는 필수 값입니다"),
   INVALID_ACTIVITY(400, "활동 정보는 필수 값입니다"),
+  INVALID_WORK_PREFERENCE(400, "유효하지 않은 작업 선호 값입니다"),
 
   // 404
   NOT_FOUND_PART(404, "존재하지 않는 파트입니다"),

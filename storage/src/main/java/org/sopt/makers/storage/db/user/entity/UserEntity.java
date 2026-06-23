@@ -90,13 +90,7 @@ public class UserEntity extends BaseEntity {
 
   private String skill;
 
-  private Boolean openToWork;
-
-  private Boolean openToSideProject;
-
   private Boolean allowOfficial;
-
-  private Boolean editActivitiesAble;
 
   @Column(nullable = false)
   private Boolean isPhoneBlind = false;
@@ -142,15 +136,11 @@ public class UserEntity extends BaseEntity {
   }
 
   public void updateProfile(
-      String name, String phone, String email, LocalDate birthday, String profileImage) {
-    this.name = name;
-    this.phone = phone;
-    this.email = email;
-    this.birthday = birthday;
-    this.profileImage = profileImage;
-  }
-
-  public void updatePlaygroundProfile(
+      String name,
+      String phone,
+      String email,
+      LocalDate birthday,
+      String profileImage,
       String address,
       String university,
       String major,
@@ -168,11 +158,13 @@ public class UserEntity extends BaseEntity {
       Boolean isRiceTteokLover,
       String idealType,
       String selfIntroduction,
-      Boolean openToWork,
-      Boolean openToSideProject,
       Boolean allowOfficial,
-      Boolean editActivitiesAble,
       Boolean isPhoneBlind) {
+    this.name = name;
+    this.phone = phone;
+    this.email = email;
+    this.birthday = birthday;
+    this.profileImage = profileImage;
     this.address = address;
     this.university = university;
     this.major = major;
@@ -190,10 +182,7 @@ public class UserEntity extends BaseEntity {
     this.isRiceTteokLover = isRiceTteokLover;
     this.idealType = idealType;
     this.selfIntroduction = selfIntroduction;
-    this.openToWork = openToWork;
-    this.openToSideProject = openToSideProject;
     this.allowOfficial = allowOfficial;
-    this.editActivitiesAble = editActivitiesAble;
     this.isPhoneBlind = isPhoneBlind;
   }
 
@@ -224,7 +213,7 @@ public class UserEntity extends BaseEntity {
   }
 
   private Profile toProfile() {
-    return Profile.ofFull(
+    return new Profile(
         name,
         email,
         phone,
@@ -248,10 +237,7 @@ public class UserEntity extends BaseEntity {
         idealType,
         selfIntroduction,
         skill,
-        openToWork,
-        openToSideProject,
         allowOfficial,
-        editActivitiesAble,
         isPhoneBlind,
         null, // workPreference: UserWorkPreferenceEntity에서 별도 조회
         List.of(), // links: UserLinkEntity에서 별도 조회
@@ -263,11 +249,6 @@ public class UserEntity extends BaseEntity {
     SocialAccount socialAccount = user.socialAccount();
     UserEntity entity =
         UserEntity.builder()
-            .name(profile.name())
-            .phone(profile.phone())
-            .email(profile.email())
-            .birthday(profile.birthday())
-            .profileImage(profile.profileImage())
             .authPlatformId(socialAccount.authPlatformId())
             .authPlatformType(socialAccount.authPlatformType())
             .isFirstLogin(user.isFirstLogin())
@@ -275,6 +256,32 @@ public class UserEntity extends BaseEntity {
     if (user.id() != null) {
       entity.setId(user.id());
     }
+    UserFavor favor = profile.userFavor();
+    entity.updateProfile(
+        profile.name(),
+        profile.phone(),
+        profile.email(),
+        profile.birthday(),
+        profile.profileImage(),
+        profile.address(),
+        profile.university(),
+        profile.major(),
+        profile.introduction(),
+        profile.skill(),
+        profile.mbti(),
+        profile.mbtiDescription(),
+        profile.sojuCapacity(),
+        profile.interest(),
+        favor != null ? favor.isPourSauceLover() : null,
+        favor != null ? favor.isHardPeachLover() : null,
+        favor != null ? favor.isMintChocoLover() : null,
+        favor != null ? favor.isRedBeanFishBreadLover() : null,
+        favor != null ? favor.isSojuLover() : null,
+        favor != null ? favor.isRiceTteokLover() : null,
+        profile.idealType(),
+        profile.selfIntroduction(),
+        profile.allowOfficial(),
+        profile.isPhoneBlind());
     return entity;
   }
 }

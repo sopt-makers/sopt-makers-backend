@@ -12,6 +12,4 @@ public interface UserActivityHistoryRepositoryPort {
   List<Activity> saveAll(Long userId, List<Activity> activities);
 
   void deleteByUserId(Long userId);
-
-  void updateAttendanceScore(Long userId, int generation, Float score);
 }

@@ -64,7 +64,7 @@ tools: Read, Grep, Glob, Bash
 1. 데이터 생명주기를 소유하는 도메인을 우선합니다.
 2. 상태 변경의 주체가 되는 도메인을 우선합니다.
 3. 특정 API가 여러 도메인을 묶는 경우 Facade 후보로 봅니다.
-4. 단순히 사용자 정보를 조회하는 경우 `domain-user`의 조회 서비스 또는 조회 Port 사용을 고려합니다.
+4. 사용자 정보나 user 기능이 필요한 경우 다른 도메인의 Service 직접 주입 대신 목적별 Port 사용을 고려합니다.
 
 ---
 
@@ -185,7 +185,7 @@ public record User(Long id) {
 ```text
 api          → domain-*, storage, clients, core   ✅
 domain-*     → core                               ✅
-domain-auth/playground/app/admin → domain-user    ✅
+domain-auth/playground/app/admin → domain-user Port/domain model only ✅
 storage      → domain-* (Port 구현용), core        ✅
 clients      → domain-* (Port 구현용), core        ✅
 core         → 아무것도 의존하지 않음              ✅
@@ -204,7 +204,9 @@ core     → 다른 모듈             ❌
 
 예외:
 
-* `domain-auth`, `domain-playground`, `domain-app`, `domain-admin`에서 `domain-user`의 조회 서비스 또는 조회 Port를 사용하는 것은 허용합니다.
+* `domain-auth`, `domain-playground`, `domain-app`, `domain-admin`에서 user 기능이 필요하면 `domain-user`가 노출한 목적별 Port와 도메인 모델만 사용합니다.
+* 다른 도메인에서 `UserCommandService`, `UserQueryService`를 직접 주입하지 않습니다.
+* 다른 도메인 유스케이스가 user 데이터를 변경해야 하면 소비 도메인의 Port를 먼저 만들고 구현은 `domain-user` 또는 `storage`에 둡니다.
 
 ---
 
@@ -235,7 +237,7 @@ core     → 다른 모듈             ❌
 
 * `api`는 필요한 domain 모듈에 의존할 수 있습니다.
 * `domain-*`은 기본적으로 `core`에만 의존합니다.
-* user 조회가 필요한 도메인은 `domain-user` 의존을 예외적으로 가질 수 있습니다.
+* user 기능이 필요한 도메인은 `domain-user`의 Port와 도메인 모델에 한해 예외적으로 의존할 수 있습니다.
 * `storage`는 Port 구현을 위해 필요한 domain 모듈에 의존할 수 있습니다.
 * `clients`는 Port 구현을 위해 필요한 domain 모듈에 의존할 수 있습니다.
 * `core`는 다른 프로젝트 모듈에 의존하지 않습니다.

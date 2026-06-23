@@ -1,7 +1,10 @@
 package org.sopt.makers.domain.user.enums;
 
+import static org.sopt.makers.domain.user.exception.UserFailure.INVALID_WORK_PREFERENCE;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.user.exception.UserException;
 
 @Getter
 @RequiredArgsConstructor
@@ -16,6 +19,6 @@ public enum WorkTime {
     for (WorkTime time : values()) {
       if (time.value.equals(value)) return time;
     }
-    throw new IllegalArgumentException("Invalid work time: " + value);
+    throw new UserException(INVALID_WORK_PREFERENCE);
   }
 }

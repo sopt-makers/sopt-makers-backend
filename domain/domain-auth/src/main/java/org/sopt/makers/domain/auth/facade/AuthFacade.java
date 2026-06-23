@@ -5,8 +5,6 @@ import static org.sopt.makers.domain.auth.exception.AuthFailure.ALREADY_REGISTER
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_REGISTER_INFO;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT;
 
-import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.core.type.OAuthPlatform;
@@ -24,9 +22,8 @@ import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.domain.user.SocialAccount;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserRegisterInfo;
+import org.sopt.makers.domain.user.port.AuthUserPort;
 import org.sopt.makers.domain.user.port.UserRegisterInfoRepositoryPort;
-import org.sopt.makers.domain.user.service.UserCommandService;
-import org.sopt.makers.domain.user.service.UserQueryService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,21 +43,12 @@ public class AuthFacade {
   private final TokenIssuerPort tokenIssuerPort;
   private final SmsSenderPort smsSenderPort;
 
-  // user domain (domain-auth → domain-user 허용)
-  private final UserQueryService userQueryService;
-  private final UserCommandService userCommandService;
+  private final AuthUserPort authUserPort;
   private final UserRegisterInfoRepositoryPort userRegisterInfoRepositoryPort;
 
   public record LoginResult(String accessToken, String refreshToken, boolean isFirstLogin) {}
 
   public record VerifyResult(String name, String phone) {}
-
-  public record UpdateProfileCommand(
-      String email,
-      String phone,
-      LocalDate birthday,
-      String profileImage,
-      List<UserCommandService.ActivityUpdateCommand> activityUpdates) {}
 
   // ──────────────────────────────────────────────────
   // 로그인
@@ -71,13 +59,13 @@ public class AuthFacade {
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
 
     User user =
-        userQueryService
+        authUserPort
             .findBySocialAccount(platform, platformId)
             .orElseThrow(() -> new AuthException(NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT));
 
     boolean isFirstLogin = user.isFirstLogin();
     if (isFirstLogin) {
-      userCommandService.completeFirstLogin(user.id());
+      authUserPort.completeFirstLogin(user.id());
     }
 
     Role role = user.activities().getLastActivity().role();
@@ -101,7 +89,7 @@ public class AuthFacade {
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
     SocialAccount socialAccount = SocialAccount.of(platformId, platform);
 
-    userQueryService
+    authUserPort
         .findBySocialAccount(platform, platformId)
         .ifPresent(
             u -> {
@@ -123,8 +111,8 @@ public class AuthFacade {
     Activity activity = Activity.of(registerInfo.generation(), null, registerInfo.part(), true);
 
     try {
-      User newUser = userCommandService.createUser(socialAccount, profile);
-      userCommandService.addActivity(newUser.id(), activity);
+      User newUser = authUserPort.createUser(socialAccount, profile);
+      authUserPort.addActivity(newUser.id(), activity);
     } catch (DataIntegrityViolationException e) {
       if (!isSocialAccountConstraintViolation(e)) {
         throw e;
@@ -163,14 +151,14 @@ public class AuthFacade {
               .map(UserRegisterInfo::name)
               .orElseThrow(
                   () -> {
-                    if (userQueryService.existsByPhone(phone)) {
+                    if (authUserPort.existsByPhone(phone)) {
                       throw new AuthException(ALREADY_REGISTER_PHONE_NUMBER);
                     }
                     return new AuthException(NOT_FOUND_REGISTER_INFO);
                   });
       case SEARCH_SOCIAL_PLATFORM, CHANGE_SOCIAL_PLATFORM ->
-          userQueryService.getByPhone(phone).profile().name();
-      case CHANGE_PHONE_NUMBER -> userQueryService.getById(userId).profile().name();
+          authUserPort.getByPhone(phone).profile().name();
+      case CHANGE_PHONE_NUMBER -> authUserPort.getById(userId).profile().name();
     };
   }
 
@@ -182,11 +170,11 @@ public class AuthFacade {
   public void updateSocialAccount(String phone, String idToken, OAuthPlatform platform) {
     authService.validateVerified(phone, PhoneVerificationType.CHANGE_SOCIAL_PLATFORM);
 
-    User user = userQueryService.getByPhone(phone);
+    User user = authUserPort.getByPhone(phone);
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
     SocialAccount newAccount = SocialAccount.of(platformId, platform);
 
-    userCommandService.updateSocialAccount(user.id(), newAccount);
+    authUserPort.updateSocialAccount(user.id(), newAccount);
   }
 
   private boolean isSocialAccountConstraintViolation(DataIntegrityViolationException e) {
@@ -206,29 +194,7 @@ public class AuthFacade {
   public OAuthPlatform getSocialPlatform(String phone) {
     PhoneVerification verification =
         authService.findVerifiedOrThrow(phone, PhoneVerificationType.SEARCH_SOCIAL_PLATFORM);
-    User user = userQueryService.getByPhone(verification.phone());
+    User user = authUserPort.getByPhone(verification.phone());
     return user.socialAccount().authPlatformType();
-  }
-
-  // ──────────────────────────────────────────────────
-  // 프로필 수정 (전화번호 변경 시 인증 포함)
-  // ──────────────────────────────────────────────────
-
-  @Transactional
-  public void updateProfile(Long userId, UpdateProfileCommand command) {
-    User current = userQueryService.getWithActivitiesById(userId);
-
-    if (!current.profile().phone().equals(command.phone())) {
-      authService.validateVerified(command.phone(), PhoneVerificationType.CHANGE_PHONE_NUMBER);
-    }
-
-    Profile updatedProfile =
-        current
-            .profile()
-            .updateProfile(
-                command.email(), command.phone(), command.birthday(), command.profileImage());
-
-    userCommandService.updateProfileWithActivities(
-        userId, updatedProfile, command.activityUpdates());
   }
 }

@@ -93,7 +93,7 @@ HTTP Request
   └→ api/controller/<domain>/XxxController
        └→ domain-<name>/facade/XxxFacade
             ├→ domain-<name>/service/XxxService
-            ├→ domain-user/service/UserQueryService
+            ├→ domain-user/port/<Purpose>UserPort
             └→ domain-<name>/port/XxxRepositoryPort
                  └→ storage/db/<domain>/adapter/XxxRepositoryAdapter
 ```
@@ -134,6 +134,7 @@ Facade를 만들지 않는 경우:
 * DB 조회/저장
 * Redis 접근
 * QueryDSL 조회
+* 다른 도메인 기능 호출
 * SMS 발송
 * S3 업로드/삭제
 * EventBridge 이벤트 발행
@@ -168,7 +169,7 @@ public interface SmsSenderPort {
 ```text
 api          → domain-*, storage, clients, core   ✅
 domain-*     → core                               ✅
-domain-auth/playground/app/admin → domain-user    ✅
+domain-auth/playground/app/admin → domain-user Port/domain model only ✅
 storage      → domain-* (Port 구현용), core        ✅
 clients      → domain-* (Port 구현용), core        ✅
 core         → 아무것도 의존하지 않음              ✅
@@ -187,8 +188,10 @@ core     → 다른 모듈             ❌
 
 예외:
 
-* `domain-auth`, `domain-playground`, `domain-app`, `domain-admin`에서 `domain-user`의 조회 서비스 또는 조회 Port를 사용하는 것은 허용합니다.
-* 다른 도메인에서 사용자 정보가 필요할 때는 `UserEntity`가 아니라 `UserQueryService` 또는 domain-user의 조회용 Port를 사용합니다.
+* `domain-auth`, `domain-playground`, `domain-app`, `domain-admin`에서 user 기능이 필요하면 `domain-user`가 노출한 목적별 Port와 도메인 모델만 사용합니다.
+* 다른 도메인에서 `UserCommandService`, `UserQueryService`를 직접 주입하지 않습니다.
+* 다른 도메인 유스케이스가 user 데이터를 변경해야 하면 소비 도메인의 Port를 먼저 만들고 구현은 `domain-user` 또는 `storage`에 둡니다.
+* 다른 도메인에서 사용자 정보가 필요할 때는 `UserEntity`가 아니라 domain-user의 목적별 Port를 사용합니다.
 
 ---
 

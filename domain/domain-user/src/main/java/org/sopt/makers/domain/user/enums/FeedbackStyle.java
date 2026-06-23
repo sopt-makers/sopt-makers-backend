@@ -1,7 +1,10 @@
 package org.sopt.makers.domain.user.enums;
 
+import static org.sopt.makers.domain.user.exception.UserFailure.INVALID_WORK_PREFERENCE;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.user.exception.UserException;
 
 @Getter
 @RequiredArgsConstructor
@@ -16,6 +19,6 @@ public enum FeedbackStyle {
     for (FeedbackStyle style : values()) {
       if (style.value.equals(value)) return style;
     }
-    throw new IllegalArgumentException("Invalid feedback style: " + value);
+    throw new UserException(INVALID_WORK_PREFERENCE);
   }
 }
