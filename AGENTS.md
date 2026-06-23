@@ -11,6 +11,8 @@
 `domain-*`은 `storage`, `clients`, JPA Entity, JpaRepository에 직접 의존하지 않는다.  
 외부 의존성은 domain의 Port로 추상화하고 구현은 `storage` 또는 `clients`에 둔다.  
 여러 도메인 조율은 Facade에서 처리한다.  
+다른 도메인의 Service를 직접 주입하지 않는다. 특히 `domain-auth`, `domain-app`, `domain-admin`, `domain-playground`에서 user 기능이 필요하면 `UserCommandService`/`UserQueryService` 대신 필요한 기능만 담은 Port를 사용한다.  
+다른 도메인의 user 데이터 변경이 필요하면 소비 도메인의 유스케이스 전용 Port를 먼저 만들고, 구현은 `domain-user`, `storage`, `clients` 중 실제 책임을 가진 모듈에 둔다.  
 `core`는 다른 모듈에 의존하지 않는다.
 
 ## 상세 Skill
