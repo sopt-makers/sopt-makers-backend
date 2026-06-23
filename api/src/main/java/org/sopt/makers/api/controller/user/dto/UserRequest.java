@@ -54,7 +54,7 @@ public final class UserRequest {
       List<UserLinkInfo> links,
       List<UserCareerInfo> careers,
       Boolean allowOfficial,
-      Boolean isPhoneBlind) {
+      @NotNull(message = "전화번호 비공개 여부는 필수 입력 값입니다.") Boolean isPhoneBlind) {
 
     public UpdateProfileCommand toCommand() {
       List<ActivityUpdateCommand> activityUpdates =
