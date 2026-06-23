@@ -2,6 +2,7 @@ package org.sopt.makers.domain.user.service;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.YEAR_MONTH;
 import static org.sopt.makers.domain.user.exception.UserFailure.INVALID_CAREER_DATE;
 import static org.sopt.makers.domain.user.exception.UserFailure.MULTIPLE_CURRENT_CAREERS;
 import static org.sopt.makers.domain.user.exception.UserFailure.NOT_FOUND_USER;
@@ -35,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class UserCommandService {
+
+  private static final DateTimeFormatter YEAR_MONTH_FORMATTER =
+      DateTimeFormatter.ofPattern(YEAR_MONTH);
 
   private final UserRepositoryPort userRepositoryPort;
   private final UserActivityHistoryRepositoryPort activityRepositoryPort;
@@ -97,24 +101,38 @@ public class UserCommandService {
     if (careers == null || careers.isEmpty()) {
       return;
     }
-    long currentCount = careers.stream().filter(c -> Boolean.TRUE.equals(c.isCurrent())).count();
-    if (currentCount > 1) {
+
+    validateSingleCurrentCareer(careers);
+    careers.forEach(this::validateCareerDateRange);
+  }
+
+  private void validateSingleCurrentCareer(List<UserCareer> careers) {
+    if (careers.stream().filter(this::isCurrentCareer).count() > 1) {
       throw new UserException(MULTIPLE_CURRENT_CAREERS);
     }
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
-    for (UserCareer career : careers) {
-      if (Boolean.TRUE.equals(career.isCurrent()) || career.endDate() == null) {
-        continue;
-      }
-      try {
-        YearMonth start = YearMonth.parse(career.startDate(), formatter);
-        YearMonth end = YearMonth.parse(career.endDate(), formatter);
-        if (start.isAfter(end)) {
-          throw new UserException(INVALID_CAREER_DATE);
-        }
-      } catch (DateTimeParseException e) {
-        throw new UserException(INVALID_CAREER_DATE);
-      }
+  }
+
+  private void validateCareerDateRange(UserCareer career) {
+    if (isCurrentCareer(career) || career.endDate() == null) {
+      return;
+    }
+
+    YearMonth start = parseYearMonth(career.startDate());
+    YearMonth end = parseYearMonth(career.endDate());
+    if (start.isAfter(end)) {
+      throw new UserException(INVALID_CAREER_DATE);
+    }
+  }
+
+  private boolean isCurrentCareer(UserCareer career) {
+    return Boolean.TRUE.equals(career.isCurrent());
+  }
+
+  private YearMonth parseYearMonth(String date) {
+    try {
+      return YearMonth.parse(date, YEAR_MONTH_FORMATTER);
+    } catch (DateTimeParseException e) {
+      throw new UserException(INVALID_CAREER_DATE);
     }
   }
 
