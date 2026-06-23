@@ -72,8 +72,11 @@ public record Profile(
         List.of());
   }
 
-  public static Profile ofFull(
-      String name,
+  /**
+   * 유저가 변경 가능한 필드를 적용한 새 Profile을 반환한다. name, openToWork, openToSideProject, editActivitiesAble은
+   * 시스템 관리 필드로 변경 불가.
+   */
+  public Profile update(
       String email,
       String phone,
       LocalDate birthday,
@@ -82,6 +85,7 @@ public record Profile(
       String university,
       String major,
       String introduction,
+      String skill,
       String mbti,
       String mbtiDescription,
       Double sojuCapacity,
@@ -89,18 +93,16 @@ public record Profile(
       UserFavor userFavor,
       String idealType,
       String selfIntroduction,
-      String skill,
-      Boolean openToWork,
-      Boolean openToSideProject,
       Boolean allowOfficial,
-      Boolean editActivitiesAble,
       Boolean isPhoneBlind,
       WorkPreference workPreference,
       List<UserLink> links,
       List<UserCareer> careers) {
-    validate(name, phone);
+    if (phone == null || phone.isBlank()) {
+      throw new UserException(INVALID_PROFILE_PHONE);
+    }
     return new Profile(
-        name,
+        this.name, // 시스템 관리 — 변경 불가
         email,
         phone,
         birthday,
@@ -117,47 +119,14 @@ public record Profile(
         idealType,
         selfIntroduction,
         skill,
-        openToWork,
-        openToSideProject,
+        this.openToWork, // 시스템 관리 — 변경 불가
+        this.openToSideProject, // 시스템 관리 — 변경 불가
         allowOfficial,
-        editActivitiesAble,
+        this.editActivitiesAble, // 시스템 관리 — 변경 불가
         isPhoneBlind,
         workPreference,
-        links,
-        careers);
-  }
-
-  public Profile updateProfile(
-      String email, String phone, LocalDate birthday, String profileImage) {
-    if (phone == null || phone.isBlank()) {
-      throw new UserException(INVALID_PROFILE_PHONE);
-    }
-    return new Profile(
-        this.name,
-        email,
-        phone,
-        birthday,
-        profileImage,
-        this.address,
-        this.university,
-        this.major,
-        this.introduction,
-        this.mbti,
-        this.mbtiDescription,
-        this.sojuCapacity,
-        this.interest,
-        this.userFavor,
-        this.idealType,
-        this.selfIntroduction,
-        this.skill,
-        this.openToWork,
-        this.openToSideProject,
-        this.allowOfficial,
-        this.editActivitiesAble,
-        this.isPhoneBlind,
-        this.workPreference,
-        this.links,
-        this.careers);
+        links != null ? links : List.of(),
+        careers != null ? careers : List.of());
   }
 
   private static void validate(String name, String phone) {
