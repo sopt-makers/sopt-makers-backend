@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.official.homepage.news;
+package org.sopt.makers.domain.official.news;
 
 import java.time.LocalDateTime;
 

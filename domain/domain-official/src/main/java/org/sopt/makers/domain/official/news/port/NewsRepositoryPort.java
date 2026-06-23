@@ -1,8 +1,8 @@
-package org.sopt.makers.domain.official.homepage.news.port;
+package org.sopt.makers.domain.official.news.port;
 
 import java.util.List;
 import java.util.Optional;
-import org.sopt.makers.domain.official.homepage.news.News;
+import org.sopt.makers.domain.official.news.News;
 
 public interface NewsRepositoryPort {
 

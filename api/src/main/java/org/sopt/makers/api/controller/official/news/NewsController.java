@@ -1,21 +1,21 @@
-package org.sopt.makers.api.controller.official.homepage.news;
+package org.sopt.makers.api.controller.official.news;
 
-import static org.sopt.makers.api.controller.official.homepage.news.NewsSuccessCode.CREATE_NEWS;
-import static org.sopt.makers.api.controller.official.homepage.news.NewsSuccessCode.DELETE_NEWS;
-import static org.sopt.makers.api.controller.official.homepage.news.NewsSuccessCode.GET_NEWS;
-import static org.sopt.makers.api.controller.official.homepage.news.NewsSuccessCode.GET_NEWS_LIST;
-import static org.sopt.makers.api.controller.official.homepage.news.NewsSuccessCode.UPDATE_NEWS;
+import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.CREATE_NEWS;
+import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.DELETE_NEWS;
+import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.GET_NEWS;
+import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.GET_NEWS_LIST;
+import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.UPDATE_NEWS;
 
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
-import org.sopt.makers.api.controller.official.homepage.news.dto.NewsRequest;
-import org.sopt.makers.api.controller.official.homepage.news.dto.NewsResponse;
+import org.sopt.makers.api.controller.official.news.dto.NewsRequest;
+import org.sopt.makers.api.controller.official.news.dto.NewsResponse;
 import org.sopt.makers.core.response.BaseResponse;
-import org.sopt.makers.domain.official.homepage.news.News;
-import org.sopt.makers.domain.official.homepage.news.service.NewsService;
+import org.sopt.makers.domain.official.news.News;
+import org.sopt.makers.domain.official.news.service.NewsService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

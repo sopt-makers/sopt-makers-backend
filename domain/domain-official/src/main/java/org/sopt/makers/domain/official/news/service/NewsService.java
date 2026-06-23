@@ -1,14 +1,14 @@
-package org.sopt.makers.domain.official.homepage.news.service;
+package org.sopt.makers.domain.official.news.service;
 
-import static org.sopt.makers.domain.official.homepage.news.exception.NewsFailure.NOT_FOUND_NEWS;
+import static org.sopt.makers.domain.official.news.exception.NewsFailure.NOT_FOUND_NEWS;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.makers.domain.official.homepage.news.News;
-import org.sopt.makers.domain.official.homepage.news.exception.NewsException;
-import org.sopt.makers.domain.official.homepage.news.port.NewsFileStoragePort;
-import org.sopt.makers.domain.official.homepage.news.port.NewsRepositoryPort;
+import org.sopt.makers.domain.official.news.News;
+import org.sopt.makers.domain.official.news.exception.NewsException;
+import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
+import org.sopt.makers.domain.official.news.port.NewsRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

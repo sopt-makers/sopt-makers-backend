@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.official.homepage.news.dto;
+package org.sopt.makers.api.controller.official.news.dto;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import lombok.NoArgsConstructor;
-import org.sopt.makers.domain.official.homepage.news.port.NewsFileStoragePort;
-import org.sopt.makers.domain.official.homepage.news.service.NewsService;
+import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
+import org.sopt.makers.domain.official.news.service.NewsService;
 import org.springframework.web.multipart.MultipartFile;
 
 @NoArgsConstructor(access = PRIVATE)

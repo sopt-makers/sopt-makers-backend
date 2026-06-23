@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.official.homepage.news.exception;
+package org.sopt.makers.domain.official.news.exception;
 
 import static lombok.AccessLevel.PRIVATE;
 

@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.official.homepage.news.port;
+package org.sopt.makers.domain.official.news.port;
 
 import java.io.InputStream;
 

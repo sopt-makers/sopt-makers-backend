@@ -3,7 +3,7 @@ package org.sopt.makers.api.controller.official.s3.dto;
 import static lombok.AccessLevel.PRIVATE;
 
 import lombok.NoArgsConstructor;
-import org.sopt.makers.domain.official.homepage.news.port.NewsFileStoragePort;
+import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class S3Response {

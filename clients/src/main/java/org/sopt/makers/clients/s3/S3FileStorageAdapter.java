@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.clients.s3.exception.S3Exception;
 import org.sopt.makers.clients.s3.exception.S3Failure;
-import org.sopt.makers.domain.official.homepage.news.port.NewsFileStoragePort;
+import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;

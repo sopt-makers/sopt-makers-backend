@@ -5,7 +5,7 @@ import static lombok.AccessLevel.PRIVATE;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.NoArgsConstructor;
-import org.sopt.makers.domain.official.homepage.news.port.NewsFileStoragePort;
+import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class S3Request {

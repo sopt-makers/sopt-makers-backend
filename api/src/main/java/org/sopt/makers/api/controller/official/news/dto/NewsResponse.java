@@ -1,7 +1,7 @@
-package org.sopt.makers.api.controller.official.homepage.news.dto;
+package org.sopt.makers.api.controller.official.news.dto;
 
 import java.util.List;
-import org.sopt.makers.domain.official.homepage.news.News;
+import org.sopt.makers.domain.official.news.News;
 
 public record NewsResponse(Integer id, String imageUrl, String title, String link) {
 

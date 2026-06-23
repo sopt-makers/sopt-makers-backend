@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.sopt.makers.domain.official.homepage.news.News;
+import org.sopt.makers.domain.official.news.News;
 
 @Entity
 @Getter

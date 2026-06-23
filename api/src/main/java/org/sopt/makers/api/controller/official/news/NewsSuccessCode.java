@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.official.homepage.news;
+package org.sopt.makers.api.controller.official.news;
 
 import static lombok.AccessLevel.PRIVATE;
 
