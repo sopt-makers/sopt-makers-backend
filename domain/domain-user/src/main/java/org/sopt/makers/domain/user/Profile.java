@@ -92,10 +92,10 @@ public record Profile(
       throw new UserException(INVALID_PROFILE_PHONE);
     }
     return new Profile(
-        this.name, // 시스템 관리 — 변경 불가
+        this.name,
         email,
         phone,
-        this.birthday, // 시스템 관리 — 변경 불가
+        this.birthday,
         profileImage,
         address,
         university,

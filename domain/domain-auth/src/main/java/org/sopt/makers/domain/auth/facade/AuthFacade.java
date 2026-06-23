@@ -63,7 +63,6 @@ public class AuthFacade {
       String phone,
       String profileImage,
       List<UserCommandService.ActivityUpdateCommand> activityUpdates,
-      // 플레이그라운드 확장 프로필
       String address,
       String university,
       String major,
@@ -238,8 +237,9 @@ public class AuthFacade {
   public void updateProfile(Long userId, UpdateProfileCommand command) {
     User current = userQueryService.getWithActivitiesById(userId);
     Profile currentProfile = current.profile();
+    boolean isPhoneNumberChanged = !currentProfile.phone().equals(command.phone());
 
-    if (!currentProfile.phone().equals(command.phone())) {
+    if (isPhoneNumberChanged) {
       authService.validateVerified(command.phone(), PhoneVerificationType.CHANGE_PHONE_NUMBER);
     }
 
@@ -265,7 +265,6 @@ public class AuthFacade {
             command.workPreference(),
             command.links(),
             command.careers());
-
     userCommandService.updateProfileWithActivities(
         userId, updatedProfile, command.activityUpdates());
   }
