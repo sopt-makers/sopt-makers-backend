@@ -21,6 +21,7 @@ public enum UserFailure implements FailureCode {
   INVALID_PROFILE_PHONE(400, "전화번호는 필수 값입니다"),
   INVALID_SOCIAL_ACCOUNT(400, "소셜 계정 정보는 필수 값입니다"),
   INVALID_ACTIVITY(400, "활동 정보는 필수 값입니다"),
+  INVALID_WORK_PREFERENCE(400, "유효하지 않은 작업 선호 값입니다"),
 
   // 404
   NOT_FOUND_PART(404, "존재하지 않는 파트입니다"),
