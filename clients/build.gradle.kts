@@ -8,6 +8,7 @@ dependencies {
     //          implementation(project(":domain:domain-crew"))   // when EventPublisher is added
 
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.nimbusds:nimbus-jose-jwt:10.4")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
