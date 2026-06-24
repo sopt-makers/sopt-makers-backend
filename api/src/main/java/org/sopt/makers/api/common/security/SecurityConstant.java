@@ -12,6 +12,7 @@ public final class SecurityConstant {
   public static final String SERVICE_NAME_HEADER = "X-Service-Name";
   public static final String ROLE_PREFIX = "ROLE_";
   public static final String INTERNAL_SERVICE = "INTERNAL_SERVICE";
+  public static final String ADMIN = "ADMIN";
   public static final String PATTERN_ALL = "/**";
 
   public static final List<String> JWT_WHITELIST =
