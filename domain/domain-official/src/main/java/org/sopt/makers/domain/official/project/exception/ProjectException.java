@@ -1,0 +1,9 @@
+package org.sopt.makers.domain.official.project.exception;
+
+import org.sopt.makers.core.exception.BaseException;
+
+public class ProjectException extends BaseException {
+  public ProjectException(ProjectFailure failure) {
+    super(failure);
+  }
+}
