@@ -44,7 +44,7 @@ public class AdminAuthService {
   }
 
   @Transactional
-  public AdminTokenPair login(String email, String rawPassword) {
+  public LoginResult login(String email, String rawPassword) {
     AdminAccount adminAccount = findByEmailOrThrow(email);
     if (!passwordHashPort.matches(rawPassword, adminAccount.encodedPassword())) {
       throw new AdminAuthException(INVALID_PASSWORD);
@@ -52,8 +52,11 @@ public class AdminAuthService {
     if (adminAccount.isNotAllowed()) {
       throw new AdminAuthException(NOT_APPROVED_ACCOUNT);
     }
-    return adminTokenIssuerPort.issue(adminAccount.id());
+    AdminTokenPair tokenPair = adminTokenIssuerPort.issue(adminAccount.id());
+    return new LoginResult(adminAccount, tokenPair);
   }
+
+  public record LoginResult(AdminAccount adminAccount, AdminTokenPair tokenPair) {}
 
   public AdminTokenPair refresh(String expiredAccessToken, String refreshToken) {
     return adminTokenIssuerPort.refresh(expiredAccessToken, refreshToken);

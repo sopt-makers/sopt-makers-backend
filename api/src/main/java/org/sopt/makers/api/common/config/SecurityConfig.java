@@ -81,6 +81,11 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/api/v1/social/accounts/**")
               .permitAll()
+              .requestMatchers(
+                  "/api/v1/admin/auth/signup",
+                  "/api/v1/admin/auth/login",
+                  "/api/v1/admin/auth/refresh")
+              .permitAll()
               .requestMatchers("/error/**")
               .permitAll();
           if (includeSwagger) {
