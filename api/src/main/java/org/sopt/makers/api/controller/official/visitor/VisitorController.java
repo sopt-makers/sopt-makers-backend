@@ -38,7 +38,10 @@ public class VisitorController {
   private String extractClientIp(HttpServletRequest request) {
     String ip = request.getHeader("X-Real-IP");
     if (ip == null) {
-      ip = request.getHeader("X-Forwarded-For");
+      String xff = request.getHeader("X-Forwarded-For");
+      if (xff != null && !xff.isEmpty()) {
+        ip = xff.split(",")[0].trim();
+      }
     }
     if (ip == null) {
       ip = request.getRemoteAddr();
