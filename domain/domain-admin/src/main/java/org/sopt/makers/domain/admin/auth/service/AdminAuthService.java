@@ -1,0 +1,90 @@
+package org.sopt.makers.domain.admin.auth.service;
+
+import static org.sopt.makers.domain.admin.auth.exception.AdminAuthFailure.DUPLICATED_EMAIL;
+import static org.sopt.makers.domain.admin.auth.exception.AdminAuthFailure.INVALID_EMAIL;
+import static org.sopt.makers.domain.admin.auth.exception.AdminAuthFailure.INVALID_PASSWORD;
+import static org.sopt.makers.domain.admin.auth.exception.AdminAuthFailure.NOT_APPROVED_ACCOUNT;
+import static org.sopt.makers.domain.admin.auth.exception.AdminAuthFailure.NOT_FOUND_ADMIN;
+
+import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.admin.auth.AdminAccount;
+import org.sopt.makers.domain.admin.auth.AdminAccountStatus;
+import org.sopt.makers.domain.admin.auth.AdminRole;
+import org.sopt.makers.domain.admin.auth.exception.AdminAuthException;
+import org.sopt.makers.domain.admin.auth.port.AdminAccountRepositoryPort;
+import org.sopt.makers.domain.admin.auth.port.AdminTokenIssuerPort;
+import org.sopt.makers.domain.admin.auth.port.AdminTokenIssuerPort.AdminTokenPair;
+import org.sopt.makers.domain.admin.auth.port.PasswordHashPort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class AdminAuthService {
+
+  private final AdminAccountRepositoryPort adminAccountRepositoryPort;
+  private final AdminTokenIssuerPort adminTokenIssuerPort;
+  private final PasswordHashPort passwordHashPort;
+
+  @Transactional
+  public AdminAccount signUp(String email, String rawPassword, String name, AdminRole adminRole) {
+    if (adminAccountRepositoryPort.existsByEmail(email)) {
+      throw new AdminAuthException(DUPLICATED_EMAIL);
+    }
+    AdminAccount adminAccount =
+        new AdminAccount(
+            null,
+            email,
+            passwordHashPort.encode(rawPassword),
+            name,
+            adminRole,
+            AdminAccountStatus.NOT_CERTIFIED);
+    return adminAccountRepositoryPort.save(adminAccount);
+  }
+
+  @Transactional
+  public AdminTokenPair login(String email, String rawPassword) {
+    AdminAccount adminAccount = findByEmailOrThrow(email);
+    if (!passwordHashPort.matches(rawPassword, adminAccount.encodedPassword())) {
+      throw new AdminAuthException(INVALID_PASSWORD);
+    }
+    if (adminAccount.isNotAllowed()) {
+      throw new AdminAuthException(NOT_APPROVED_ACCOUNT);
+    }
+    return adminTokenIssuerPort.issue(adminAccount.id());
+  }
+
+  public AdminTokenPair refresh(String expiredAccessToken, String refreshToken) {
+    return adminTokenIssuerPort.refresh(expiredAccessToken, refreshToken);
+  }
+
+  @Transactional
+  public void changePassword(Long adminId, String oldPassword, String newPassword) {
+    AdminAccount adminAccount = findByIdOrThrow(adminId);
+    if (!passwordHashPort.matches(oldPassword, adminAccount.encodedPassword())) {
+      throw new AdminAuthException(INVALID_PASSWORD);
+    }
+    AdminAccount updated =
+        new AdminAccount(
+            adminAccount.id(),
+            adminAccount.email(),
+            passwordHashPort.encode(newPassword),
+            adminAccount.name(),
+            adminAccount.adminRole(),
+            adminAccount.status());
+    adminAccountRepositoryPort.save(updated);
+  }
+
+  private AdminAccount findByEmailOrThrow(String email) {
+    return adminAccountRepositoryPort
+        .findByEmail(email)
+        .orElseThrow(() -> new AdminAuthException(INVALID_EMAIL));
+  }
+
+  private AdminAccount findByIdOrThrow(Long adminId) {
+    return adminAccountRepositoryPort
+        .findById(adminId)
+        .orElseThrow(() -> new AdminAuthException(NOT_FOUND_ADMIN));
+  }
+}
