@@ -85,6 +85,8 @@ public class SecurityConfig {
               .requestMatchers("/error/**")
               .permitAll()
               .requestMatchers(HttpMethod.POST, "/api/v1/notification/register")
+              .permitAll()
+              .requestMatchers("/api/v1/visitor/**")
               .permitAll();
           if (includeSwagger) {
             authorize
