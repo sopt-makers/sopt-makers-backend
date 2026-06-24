@@ -6,6 +6,7 @@ import static org.sopt.makers.api.common.security.SecurityConstant.PATTERN_ALL;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.api.common.security.filter.AdminStatusVerificationFilter;
 import org.sopt.makers.api.common.security.filter.ApiKeyAuthenticationFilter;
 import org.sopt.makers.api.common.security.filter.AuthenticationExceptionFilter;
 import org.sopt.makers.api.common.security.filter.JwtAuthenticationFilter;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+  private final AdminStatusVerificationFilter adminStatusVerificationFilter;
   private final ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationExceptionFilter authenticationExceptionFilter;
@@ -68,6 +70,7 @@ public class SecurityConfig {
         .cors(Customizer.withDefaults())
         .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(adminStatusVerificationFilter, JwtAuthenticationFilter.class)
         .addFilterBefore(apiKeyAuthenticationFilter, JwtAuthenticationFilter.class)
         .addFilterBefore(authenticationExceptionFilter, ApiKeyAuthenticationFilter.class);
   }

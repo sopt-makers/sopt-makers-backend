@@ -11,6 +11,7 @@ import org.jspecify.annotations.NullMarked;
 import org.sopt.makers.api.common.security.exception.TokenException;
 import org.sopt.makers.core.exception.BaseException;
 import org.sopt.makers.core.response.BaseResponse;
+import org.sopt.makers.domain.admin.auth.exception.AdminAuthException;
 import org.sopt.makers.domain.auth.exception.AuthException;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class AuthenticationExceptionFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     try {
       filterChain.doFilter(request, response);
-    } catch (AuthException | TokenException e) {
+    } catch (AuthException | TokenException | AdminAuthException e) {
       writeErrorResponse(response, e);
     }
   }
