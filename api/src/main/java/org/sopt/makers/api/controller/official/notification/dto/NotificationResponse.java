@@ -23,11 +23,7 @@ public final class NotificationResponse {
 
   public record NotificationList(Integer generation, List<String> emailList) {
 
-    public static NotificationList of(List<Notification> notifications) {
-      if (notifications.isEmpty()) {
-        return new NotificationList(null, List.of());
-      }
-      Integer generation = notifications.get(0).generation();
+    public static NotificationList of(Integer generation, List<Notification> notifications) {
       List<String> emailList = notifications.stream().map(Notification::email).toList();
       return new NotificationList(generation, emailList);
     }

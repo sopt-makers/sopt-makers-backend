@@ -40,6 +40,6 @@ public class NotificationController {
   public ResponseEntity<BaseResponse<?>> getList(@RequestParam Integer generation) {
     List<Notification> result = notificationService.findByGeneration(generation);
     return ResponseFactory.success(
-        GET_NOTIFICATION_LIST, NotificationResponse.NotificationList.of(result));
+        GET_NOTIFICATION_LIST, NotificationResponse.NotificationList.of(generation, result));
   }
 }
