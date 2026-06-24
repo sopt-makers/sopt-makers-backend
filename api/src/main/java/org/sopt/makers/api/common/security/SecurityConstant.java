@@ -24,6 +24,7 @@ public final class SecurityConstant {
           "/api/v1/visitor",
           "/api/v1/admin/auth/login",
           "/api/v1/admin/auth/refresh",
+          "/api/v1/projects",
           "/error",
           "/swagger-ui.html",
           "/swagger-ui",
