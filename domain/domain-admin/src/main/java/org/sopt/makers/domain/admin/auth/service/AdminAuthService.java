@@ -29,9 +29,11 @@ public class AdminAuthService {
 
   @Transactional
   public AdminAccount signUp(String email, String rawPassword, String name, AdminRole adminRole) {
-    if (adminAccountRepositoryPort.existsByEmail(email)) {
+    boolean isDuplicatedEmail = adminAccountRepositoryPort.existsByEmail(email);
+    if (isDuplicatedEmail) {
       throw new AdminAuthException(DUPLICATED_EMAIL);
     }
+
     AdminAccount adminAccount =
         new AdminAccount(
             null,
@@ -46,12 +48,16 @@ public class AdminAuthService {
   @Transactional
   public LoginResult login(String email, String rawPassword) {
     AdminAccount adminAccount = findByEmailOrThrow(email);
-    if (!passwordHashPort.matches(rawPassword, adminAccount.encodedPassword())) {
+    boolean isInvalidPassword =
+        !passwordHashPort.matches(rawPassword, adminAccount.encodedPassword());
+
+    if (isInvalidPassword) {
       throw new AdminAuthException(INVALID_PASSWORD);
     }
     if (adminAccount.isNotAllowed()) {
       throw new AdminAuthException(NOT_APPROVED_ACCOUNT);
     }
+
     AdminTokenPair tokenPair = adminTokenIssuerPort.issue(adminAccount.id());
     return new LoginResult(adminAccount, tokenPair);
   }
@@ -65,9 +71,13 @@ public class AdminAuthService {
   @Transactional
   public void changePassword(Long adminId, String oldPassword, String newPassword) {
     AdminAccount adminAccount = findByIdOrThrow(adminId);
-    if (!passwordHashPort.matches(oldPassword, adminAccount.encodedPassword())) {
+    boolean isInvalidOldPassword =
+        !passwordHashPort.matches(oldPassword, adminAccount.encodedPassword());
+
+    if (isInvalidOldPassword) {
       throw new AdminAuthException(INVALID_PASSWORD);
     }
+
     AdminAccount updated =
         new AdminAccount(
             adminAccount.id(),
