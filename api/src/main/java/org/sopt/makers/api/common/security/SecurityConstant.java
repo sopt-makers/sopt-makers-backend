@@ -18,6 +18,8 @@ public final class SecurityConstant {
       List.of(
           "/api/v1/auth",
           "/api/v1/social/accounts",
+          "/api/v1/notification/register",
+          "/api/v1/visitor",
           "/error",
           "/swagger-ui.html",
           "/swagger-ui",
