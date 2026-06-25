@@ -36,7 +36,7 @@ public class AdminAuthController {
   private final CookieFactory cookieFactory;
 
   @PostMapping("/signup")
-  public ResponseEntity<BaseResponse<?>> signUp(@RequestBody AdminAuthRequest.SignUp request) {
+  public ResponseEntity<BaseResponse<?>> signUp(@RequestBody AdminAuthRequest.AdminSignUp request) {
     var adminAccount =
         adminAuthService.signUp(
             request.email(), request.password(), request.name(), request.accountType());
@@ -45,7 +45,7 @@ public class AdminAuthController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<BaseResponse<?>> login(@RequestBody AdminAuthRequest.Login request) {
+  public ResponseEntity<BaseResponse<?>> login(@RequestBody AdminAuthRequest.AdminLogin request) {
     LoginResult loginResult = adminAuthService.login(request.email(), request.password());
     HttpHeaders headers = cookieFactory.setRefreshToken(loginResult.tokenPair().refreshToken());
     return ResponseFactory.success(
