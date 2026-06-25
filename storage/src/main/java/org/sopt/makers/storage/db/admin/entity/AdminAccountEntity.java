@@ -14,8 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.admin.auth.AdminAccount;
-import org.sopt.makers.domain.admin.auth.AdminAccountStatus;
-import org.sopt.makers.domain.admin.auth.AdminRole;
+import org.sopt.makers.domain.admin.auth.AdminAccountType;
 
 @Entity
 @Getter
@@ -38,20 +37,16 @@ public class AdminAccountEntity {
   private String name;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "role")
-  private AdminRole adminRole;
-
-  @Enumerated(EnumType.STRING)
-  private AdminAccountStatus status;
+  @Column(name = "account_type")
+  private AdminAccountType accountType;
 
   @Builder
   private AdminAccountEntity(
-      String email, String password, String name, AdminRole adminRole, AdminAccountStatus status) {
+      String email, String password, String name, AdminAccountType accountType) {
     this.email = email;
     this.password = password;
     this.name = name;
-    this.adminRole = adminRole;
-    this.status = status;
+    this.accountType = accountType;
   }
 
   public void updatePassword(String encodedPassword) {
@@ -59,7 +54,7 @@ public class AdminAccountEntity {
   }
 
   public AdminAccount toDomain() {
-    return new AdminAccount(id, email, password, name, adminRole, status);
+    return new AdminAccount(id, email, password, name, accountType);
   }
 
   public static AdminAccountEntity from(AdminAccount adminAccount) {
@@ -67,8 +62,7 @@ public class AdminAccountEntity {
         .email(adminAccount.email())
         .password(adminAccount.encodedPassword())
         .name(adminAccount.name())
-        .adminRole(adminAccount.adminRole())
-        .status(adminAccount.status())
+        .accountType(adminAccount.accountType())
         .build();
   }
 }

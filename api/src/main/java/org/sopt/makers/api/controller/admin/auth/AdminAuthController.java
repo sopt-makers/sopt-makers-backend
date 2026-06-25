@@ -39,7 +39,7 @@ public class AdminAuthController {
   public ResponseEntity<BaseResponse<?>> signUp(@RequestBody AdminAuthRequest.SignUp request) {
     var adminAccount =
         adminAuthService.signUp(
-            request.email(), request.password(), request.name(), request.adminRole());
+            request.email(), request.password(), request.name(), request.accountType());
     return ResponseFactory.success(
         SUCCESS_SIGN_UP, AdminAuthResponse.SignUpResult.from(adminAccount));
   }

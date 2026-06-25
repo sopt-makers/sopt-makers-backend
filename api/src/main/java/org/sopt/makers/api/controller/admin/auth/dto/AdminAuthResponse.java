@@ -1,23 +1,22 @@
 package org.sopt.makers.api.controller.admin.auth.dto;
 
 import org.sopt.makers.domain.admin.auth.AdminAccount;
-import org.sopt.makers.domain.admin.auth.AdminAccountStatus;
-import org.sopt.makers.domain.admin.auth.AdminRole;
+import org.sopt.makers.domain.admin.auth.AdminAccountType;
 import org.sopt.makers.domain.admin.auth.port.AdminTokenIssuerPort.AdminTokenPair;
 import org.sopt.makers.domain.admin.auth.service.AdminAuthService.LoginResult;
 
 public sealed interface AdminAuthResponse {
 
-  record SignUpResult(Long id, String email, String name, AdminRole adminRole)
+  record SignUpResult(Long id, String email, String name, AdminAccountType accountType)
       implements AdminAuthResponse {
 
     public static SignUpResult from(AdminAccount adminAccount) {
       return new SignUpResult(
-          adminAccount.id(), adminAccount.email(), adminAccount.name(), adminAccount.adminRole());
+          adminAccount.id(), adminAccount.email(), adminAccount.name(), adminAccount.accountType());
     }
   }
 
-  record LoginBody(Long id, String name, AdminAccountStatus adminAccountStatus, String accessToken)
+  record LoginBody(Long id, String name, AdminAccountType accountType, String accessToken)
       implements AdminAuthResponse {
 
     public static LoginBody of(LoginResult loginResult) {
@@ -25,7 +24,7 @@ public sealed interface AdminAuthResponse {
       return new LoginBody(
           adminAccount.id(),
           adminAccount.name(),
-          adminAccount.status(),
+          adminAccount.accountType(),
           loginResult.tokenPair().accessToken());
     }
   }
