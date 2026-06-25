@@ -5,6 +5,7 @@ import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUC
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_REFRESH_TOKEN;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_SIGN_UP;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.CookieFactory;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -37,7 +38,8 @@ public class AdminAuthController implements AdminAuthApi {
 
   @Override
   @PostMapping("/signup")
-  public ResponseEntity<BaseResponse<?>> signUp(@RequestBody AdminAuthRequest.AdminSignUp request) {
+  public ResponseEntity<BaseResponse<?>> signUp(
+      @Valid @RequestBody AdminAuthRequest.AdminSignUp request) {
     var adminAccount =
         adminAuthService.signUp(
             request.email(), request.password(), request.name(), request.accountType());
@@ -47,7 +49,8 @@ public class AdminAuthController implements AdminAuthApi {
 
   @Override
   @PostMapping("/login")
-  public ResponseEntity<BaseResponse<?>> login(@RequestBody AdminAuthRequest.AdminLogin request) {
+  public ResponseEntity<BaseResponse<?>> login(
+      @Valid @RequestBody AdminAuthRequest.AdminLogin request) {
     LoginResult loginResult = adminAuthService.login(request.email(), request.password());
     HttpHeaders headers = cookieFactory.setRefreshToken(loginResult.tokenPair().refreshToken());
     return ResponseFactory.success(
