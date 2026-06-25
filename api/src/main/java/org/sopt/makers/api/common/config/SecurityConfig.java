@@ -82,8 +82,6 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/api/v1/social/accounts/**")
               .permitAll()
-              .requestMatchers("/api/v1/admin/auth/signup")
-              .hasRole(INTERNAL_SERVICE)
               .requestMatchers("/api/v1/admin/auth/login", "/api/v1/admin/auth/refresh")
               .permitAll()
               .requestMatchers("/api/v1/admin/**")
