@@ -28,13 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/auth")
-public class AdminAuthController {
+public class AdminAuthController implements AdminAuthApi {
 
   private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
   private final AdminAuthService adminAuthService;
   private final CookieFactory cookieFactory;
 
+  @Override
   @PostMapping("/signup")
   public ResponseEntity<BaseResponse<?>> signUp(@RequestBody AdminAuthRequest.AdminSignUp request) {
     var adminAccount =
@@ -44,6 +45,7 @@ public class AdminAuthController {
         SUCCESS_SIGN_UP, AdminAuthResponse.SignUpResult.from(adminAccount));
   }
 
+  @Override
   @PostMapping("/login")
   public ResponseEntity<BaseResponse<?>> login(@RequestBody AdminAuthRequest.AdminLogin request) {
     LoginResult loginResult = adminAuthService.login(request.email(), request.password());
@@ -52,6 +54,7 @@ public class AdminAuthController {
         SUCCESS_LOGIN, headers, AdminAuthResponse.LoginBody.of(loginResult));
   }
 
+  @Override
   @PostMapping("/refresh")
   public ResponseEntity<BaseResponse<?>> refresh(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken,
@@ -62,6 +65,7 @@ public class AdminAuthController {
         SUCCESS_REFRESH_TOKEN, headers, AdminAuthResponse.RefreshResult.from(tokenPair));
   }
 
+  @Override
   @PatchMapping("/password")
   public ResponseEntity<BaseResponse<?>> changePassword(
       @CurrentUserId Long adminId, @RequestBody AdminAuthRequest.ChangePassword request) {
