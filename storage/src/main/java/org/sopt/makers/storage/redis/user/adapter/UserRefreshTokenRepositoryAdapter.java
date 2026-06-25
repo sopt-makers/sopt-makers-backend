@@ -3,6 +3,8 @@ package org.sopt.makers.storage.redis.user.adapter;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.auth.port.UserRefreshTokenRepositoryPort;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,24 +18,32 @@ public class UserRefreshTokenRepositoryAdapter implements UserRefreshTokenReposi
 
   @Override
   public void save(Long userId, String refreshToken, Duration ttl) {
-    String key = KEY_PREFIX + userId;
-    stringRedisTemplate.opsForSet().add(key, refreshToken);
-    stringRedisTemplate.expire(key, ttl);
+    stringRedisTemplate.opsForValue().set(key(userId, refreshToken), refreshToken, ttl);
   }
 
   @Override
   public boolean exists(Long userId, String refreshToken) {
-    return Boolean.TRUE.equals(
-        stringRedisTemplate.opsForSet().isMember(KEY_PREFIX + userId, refreshToken));
+    return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key(userId, refreshToken)));
   }
 
   @Override
   public void delete(Long userId, String refreshToken) {
-    stringRedisTemplate.opsForSet().remove(KEY_PREFIX + userId, refreshToken);
+    stringRedisTemplate.delete(key(userId, refreshToken));
   }
 
   @Override
   public void deleteAll(Long userId) {
-    stringRedisTemplate.delete(KEY_PREFIX + userId);
+    ScanOptions scanOptions =
+        ScanOptions.scanOptions().match(KEY_PREFIX + userId + ":*").count(1000).build();
+
+    try (Cursor<String> keys = stringRedisTemplate.scan(scanOptions)) {
+      while (keys.hasNext()) {
+        stringRedisTemplate.delete(keys.next());
+      }
+    }
+  }
+
+  private String key(Long userId, String refreshToken) {
+    return KEY_PREFIX + userId + ":" + refreshToken;
   }
 }
