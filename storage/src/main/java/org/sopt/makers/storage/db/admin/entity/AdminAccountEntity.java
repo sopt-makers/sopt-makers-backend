@@ -19,7 +19,7 @@ import org.sopt.makers.domain.admin.auth.AdminAccountType;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "admin")
+@Table(name = "admin_accounts")
 public class AdminAccountEntity {
 
   @Id
