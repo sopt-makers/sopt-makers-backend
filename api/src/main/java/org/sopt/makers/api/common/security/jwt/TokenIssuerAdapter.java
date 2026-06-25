@@ -1,5 +1,7 @@
 package org.sopt.makers.api.common.security.jwt;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.security.jwt.JwtTokenRotator.JwtTokenPair;
 import org.sopt.makers.domain.auth.port.TokenIssuerPort;
@@ -12,6 +14,8 @@ import org.springframework.stereotype.Component;
 public class TokenIssuerAdapter implements TokenIssuerPort {
 
   private static final String TOKEN_TYPE = "USER";
+  private static final List<String> USER_AUTHORITIES =
+      Arrays.stream(Role.values()).map(Role::name).toList();
 
   private final JwtTokenRotator jwtTokenRotator;
   private final UserRefreshTokenRepositoryPort userRefreshTokenRepositoryPort;
@@ -31,6 +35,7 @@ public class TokenIssuerAdapter implements TokenIssuerPort {
             expiredAccessToken,
             refreshToken,
             TOKEN_TYPE,
+            USER_AUTHORITIES,
             userRefreshTokenRepositoryPort::delete,
             userRefreshTokenRepositoryPort::save);
     return new TokenPair(tokenPair.accessToken(), tokenPair.refreshToken());

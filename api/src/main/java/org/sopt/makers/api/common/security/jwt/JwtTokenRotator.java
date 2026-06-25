@@ -5,10 +5,12 @@ import static org.sopt.makers.api.common.security.exception.TokenFailureCode.INV
 import static org.sopt.makers.api.common.security.exception.TokenFailureCode.INVALID_TOKEN_TYPE;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.security.authentication.CustomAuthentication;
 import org.sopt.makers.api.common.security.exception.TokenException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +37,7 @@ public class JwtTokenRotator {
       String expiredAccessToken,
       String refreshToken,
       String tokenType,
+      Collection<String> allowedAuthorities,
       RefreshTokenDeleter refreshTokenDeleter,
       RefreshTokenSaver refreshTokenSaver) {
     JwtRefreshToken parsedRefreshToken = jwtRefreshTokenService.parse(refreshToken);
@@ -47,6 +50,7 @@ public class JwtTokenRotator {
     if (!auth.getPrincipal().equals(parsedRefreshToken.subject())) {
       throw new TokenException(INVALID_SUBJECT);
     }
+    validateAuthorities(auth, allowedAuthorities);
 
     Long subjectId = Long.parseLong(auth.getPrincipal());
     boolean isDeleted = refreshTokenDeleter.delete(subjectId, refreshToken);
@@ -60,6 +64,16 @@ public class JwtTokenRotator {
     refreshTokenSaver.save(subjectId, newRefreshToken, ttl);
 
     return new JwtTokenPair(newAccessToken, newRefreshToken);
+  }
+
+  private void validateAuthorities(
+      CustomAuthentication authentication, Collection<String> allowedAuthorities) {
+    List<String> authorities =
+        authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+
+    if (authorities.isEmpty() || !allowedAuthorities.containsAll(authorities)) {
+      throw new TokenException(INVALID_TOKEN_TYPE);
+    }
   }
 
   public record JwtTokenPair(String accessToken, String refreshToken) {}
