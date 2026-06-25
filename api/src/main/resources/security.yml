@@ -4,6 +4,7 @@ security:
       monitoring: ${MONITORING_X_API_KEY}
     secured-endpoints:
       - ${ACTUATOR_PATH}
+      - /api/v1/admin/auth/signup
 
   jwt:
     secret:

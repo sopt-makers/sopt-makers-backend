@@ -5,7 +5,6 @@ import static lombok.AccessLevel.PRIVATE;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.code.SuccessCode;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)

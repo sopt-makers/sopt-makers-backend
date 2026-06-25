@@ -22,7 +22,7 @@ public class JwtRefreshTokenService {
   private final SecretKey jwtSecretKey;
   private final SecurityProperty securityProperty;
 
-  public String generateJwt(final String subject) {
+  public String generateJwt(final String subject, final String tokenType) {
     Date now = new Date();
     Date expiration =
         new Date(
@@ -35,8 +35,13 @@ public class JwtRefreshTokenService {
         .issuer(securityProperty.jwt().secret().issuer().issuerName())
         .issuedAt(now)
         .expiration(expiration)
+        .claim(JwtRefreshToken.CLAIM_TOKEN_TYPE, tokenType)
         .signWith(jwtSecretKey)
         .compact();
+  }
+
+  public long refreshTokenExpirationSeconds() {
+    return securityProperty.jwt().secret().expiration().refreshTokenExpiration();
   }
 
   public JwtRefreshToken parse(final String requestToken) {

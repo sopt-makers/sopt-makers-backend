@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/admin/news")
+@RequestMapping("/api/v1/official/news")
 @RequiredArgsConstructor
 @Validated
 public class NewsController {

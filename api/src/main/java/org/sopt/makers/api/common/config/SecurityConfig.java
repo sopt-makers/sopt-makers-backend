@@ -1,5 +1,6 @@
 package org.sopt.makers.api.common.config;
 
+import static org.sopt.makers.api.common.security.SecurityConstant.ADMIN;
 import static org.sopt.makers.api.common.security.SecurityConstant.INTERNAL_SERVICE;
 import static org.sopt.makers.api.common.security.SecurityConstant.PATTERN_ALL;
 
@@ -81,6 +82,10 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/api/v1/social/accounts/**")
               .permitAll()
+              .requestMatchers("/api/v1/admin/auth/login", "/api/v1/admin/auth/refresh")
+              .permitAll()
+              .requestMatchers("/api/v1/admin/**")
+              .hasAuthority(ADMIN)
               .requestMatchers("/error/**")
               .permitAll();
           if (includeSwagger) {
