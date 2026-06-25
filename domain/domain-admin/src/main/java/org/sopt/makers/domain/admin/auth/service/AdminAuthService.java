@@ -10,6 +10,7 @@ import org.sopt.makers.domain.admin.auth.AdminAccount;
 import org.sopt.makers.domain.admin.auth.AdminAccountType;
 import org.sopt.makers.domain.admin.auth.exception.AdminAuthException;
 import org.sopt.makers.domain.admin.auth.port.AdminAccountRepositoryPort;
+import org.sopt.makers.domain.admin.auth.port.AdminRefreshTokenRepositoryPort;
 import org.sopt.makers.domain.admin.auth.port.AdminTokenIssuerPort;
 import org.sopt.makers.domain.admin.auth.port.AdminTokenIssuerPort.AdminTokenPair;
 import org.sopt.makers.domain.admin.auth.port.PasswordHashPort;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminAuthService {
 
   private final AdminAccountRepositoryPort adminAccountRepositoryPort;
+  private final AdminRefreshTokenRepositoryPort adminRefreshTokenRepositoryPort;
   private final AdminTokenIssuerPort adminTokenIssuerPort;
   private final PasswordHashPort passwordHashPort;
 
@@ -76,6 +78,7 @@ public class AdminAuthService {
             adminAccount.name(),
             adminAccount.accountType());
     adminAccountRepositoryPort.save(updated);
+    adminRefreshTokenRepositoryPort.deleteAll(adminId);
   }
 
   private AdminAccount findByEmailOrThrow(String email) {

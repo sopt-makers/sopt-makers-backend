@@ -51,11 +51,10 @@ public class TokenIssuerAdapter implements TokenIssuerPort {
     }
 
     Long userId = Long.parseLong(auth.getPrincipal());
-    if (!userRefreshTokenRepositoryPort.exists(userId, refreshToken)) {
+    boolean isDeleted = userRefreshTokenRepositoryPort.delete(userId, refreshToken);
+    if (!isDeleted) {
       throw new TokenException(INVALID_REFRESH_TOKEN);
     }
-
-    userRefreshTokenRepositoryPort.delete(userId, refreshToken);
 
     String newAccessToken = jwtAccessTokenService.generateJwt(auth);
     String newRefreshToken = jwtRefreshTokenService.generateJwt(auth.getPrincipal(), TOKEN_TYPE);

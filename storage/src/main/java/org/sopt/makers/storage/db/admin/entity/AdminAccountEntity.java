@@ -27,7 +27,7 @@ public class AdminAccountEntity {
   @Column(name = "admin_id")
   private Long id;
 
-  @Column(name = "email")
+  @Column(name = "email", nullable = false, unique = true)
   private String email;
 
   @Column(name = "password")
@@ -49,8 +49,11 @@ public class AdminAccountEntity {
     this.accountType = accountType;
   }
 
-  public void updatePassword(String encodedPassword) {
-    this.password = encodedPassword;
+  public void update(AdminAccount adminAccount) {
+    this.email = adminAccount.email();
+    this.password = adminAccount.encodedPassword();
+    this.name = adminAccount.name();
+    this.accountType = adminAccount.accountType();
   }
 
   public AdminAccount toDomain() {

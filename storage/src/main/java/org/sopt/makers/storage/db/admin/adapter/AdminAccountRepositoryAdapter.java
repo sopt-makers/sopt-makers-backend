@@ -21,7 +21,7 @@ public class AdminAccountRepositoryAdapter implements AdminAccountRepositoryPort
   public AdminAccount save(AdminAccount adminAccount) {
     if (adminAccount.id() != null) {
       AdminAccountEntity entity = findEntityByIdOrThrow(adminAccount.id());
-      entity.updatePassword(adminAccount.encodedPassword());
+      entity.update(adminAccount);
       return entity.toDomain();
     }
     return adminAccountJpaRepository.save(AdminAccountEntity.from(adminAccount)).toDomain();

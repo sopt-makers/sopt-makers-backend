@@ -22,13 +22,8 @@ public class AdminRefreshTokenRepositoryAdapter implements AdminRefreshTokenRepo
   }
 
   @Override
-  public boolean exists(Long adminId, String refreshToken) {
-    return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key(adminId, refreshToken)));
-  }
-
-  @Override
-  public void delete(Long adminId, String refreshToken) {
-    stringRedisTemplate.delete(key(adminId, refreshToken));
+  public boolean delete(Long adminId, String refreshToken) {
+    return Boolean.TRUE.equals(stringRedisTemplate.delete(key(adminId, refreshToken)));
   }
 
   @Override

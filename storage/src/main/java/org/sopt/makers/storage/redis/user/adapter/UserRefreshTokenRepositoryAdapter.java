@@ -22,13 +22,8 @@ public class UserRefreshTokenRepositoryAdapter implements UserRefreshTokenReposi
   }
 
   @Override
-  public boolean exists(Long userId, String refreshToken) {
-    return Boolean.TRUE.equals(stringRedisTemplate.hasKey(key(userId, refreshToken)));
-  }
-
-  @Override
-  public void delete(Long userId, String refreshToken) {
-    stringRedisTemplate.delete(key(userId, refreshToken));
+  public boolean delete(Long userId, String refreshToken) {
+    return Boolean.TRUE.equals(stringRedisTemplate.delete(key(userId, refreshToken)));
   }
 
   @Override

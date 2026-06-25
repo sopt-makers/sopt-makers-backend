@@ -51,11 +51,10 @@ public class AdminTokenIssuerAdapter implements AdminTokenIssuerPort {
     }
 
     Long adminId = Long.parseLong(auth.getPrincipal());
-    if (!adminRefreshTokenRepositoryPort.exists(adminId, refreshToken)) {
+    boolean isDeleted = adminRefreshTokenRepositoryPort.delete(adminId, refreshToken);
+    if (!isDeleted) {
       throw new TokenException(INVALID_REFRESH_TOKEN);
     }
-
-    adminRefreshTokenRepositoryPort.delete(adminId, refreshToken);
 
     String newAccessToken = jwtAccessTokenService.generateJwt(auth);
     String newRefreshToken = jwtRefreshTokenService.generateJwt(auth.getPrincipal(), TOKEN_TYPE);
