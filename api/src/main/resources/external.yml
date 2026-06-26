@@ -15,3 +15,6 @@ external:
     bucket: ${S3_BUCKET}
     region: ${S3_REGION}
     base-dir: ${S3_BASE_DIR}
+  playground:
+    url: ${PLAYGROUND_URL}
+    token: ${PLAYGROUND_TOKEN}

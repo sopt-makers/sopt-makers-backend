@@ -48,7 +48,7 @@ public class NaverLinkCrawler implements LinkCrawler {
   }
 
   private Document scrapIframe(Document target) throws IOException {
-    Element iframe = target.selectFirst("iframe");
+    Element iframe = target.selectFirst("iframe#mainFrame");
     if (iframe == null) {
       log.error("네이버 블로그 iframe이 존재하지 않습니다.");
       throw new IOException();
