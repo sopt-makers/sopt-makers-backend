@@ -3,7 +3,6 @@ package org.sopt.makers.api.controller.auth;
 import static org.sopt.makers.api.controller.auth.SocialAccountSuccessCode.GET_SOCIAL_ACCOUNT_PLATFORM;
 import static org.sopt.makers.api.controller.auth.SocialAccountSuccessCode.UPDATE_SOCIAL_ACCOUNT;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -21,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "소셜 계정", description = "소셜 계정 API")
 @RequestMapping("/api/v1/social/accounts")
 @RequiredArgsConstructor
-public class SocialAccountController {
+public class SocialAccountController implements SocialAccountApi {
 
   private final AuthFacade authFacade;
 
+  @Override
   @PostMapping("/platform")
   public ResponseEntity<BaseResponse<?>> getSocialPlatform(
       @Valid @RequestBody GetSocialAccountPlatformRequest request) {
@@ -36,6 +35,7 @@ public class SocialAccountController {
         GET_SOCIAL_ACCOUNT_PLATFORM, new AuthResponse.SocialAccountPlatform(platform.name()));
   }
 
+  @Override
   @PatchMapping
   public ResponseEntity<BaseResponse<?>> updateSocialAccount(
       @Valid @RequestBody SocialAccountRequest.UpdateSocialAccount request) {
