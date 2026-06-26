@@ -4,6 +4,7 @@ spring:
       - classpath:storage.yml
       - classpath:security.yml
       - classpath:external.yml
+      - classpath:sentry.yml
 
 auth:
   bypass-login:

@@ -3,6 +3,7 @@ plugins {
     id("org.springframework.boot") version "4.0.6" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
     id("com.diffplug.spotless") version "6.25.0" apply false
+    id("io.sentry.jvm.gradle") version "5.12.2" apply false
 }
 
 allprojects {

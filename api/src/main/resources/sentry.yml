@@ -1,0 +1,8 @@
+sentry:
+  dsn: ${SENTRY_DSN}
+  traces-sample-rate: 1.0
+  send-default-pii: false
+  enable-tracing: true
+  logging:
+    minimum-event-level: warn
+    minimum-breadcrumb-level: info
