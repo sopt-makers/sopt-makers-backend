@@ -6,8 +6,6 @@ import static org.sopt.makers.api.controller.official.soptstory.SoptStorySuccess
 import static org.sopt.makers.api.controller.official.soptstory.SoptStorySuccessCode.UNLIKE_SOPT_STORY;
 import static org.sopt.makers.domain.official.soptstory.exception.SoptStoryFailure.INVALID_CLIENT_IP;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -36,16 +34,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "솝트스토리", description = "공식 홈페이지 솝트스토리 API")
 @RestController
 @RequestMapping("/api/v1/official/soptstories")
 @RequiredArgsConstructor
-public class SoptStoryController {
+public class SoptStoryController implements SoptStoryApi {
 
   private final SoptStoryService soptStoryService;
 
+  @Override
   @PostMapping
-  @Operation(summary = "솝트스토리 생성", description = "솝트스토리를 생성합니다.")
   public ResponseEntity<BaseResponse<?>> createSoptStory(
       @Valid @RequestBody CreateSoptStoryRequest request) {
     ScrapedArticle article = soptStoryService.createSoptStory(request.link());
@@ -53,8 +50,8 @@ public class SoptStoryController {
     return ResponseFactory.success(CREATE_SOPT_STORY, CreateSoptStoryResponse.from(article));
   }
 
+  @Override
   @PostMapping("/{id}/like")
-  @Operation(summary = "솝트스토리 좋아요 누르기")
   public ResponseEntity<BaseResponse<?>> likeSoptStory(
       @PathVariable Long id, HttpServletRequest request) {
     String ip = extractAndValidateIp(request);
@@ -63,8 +60,8 @@ public class SoptStoryController {
     return ResponseFactory.success(LIKE_SOPT_STORY, new LikeSoptStoryResponse(likeId, id, ip));
   }
 
+  @Override
   @PostMapping("/{id}/unlike")
-  @Operation(summary = "솝트스토리 좋아요 취소하기")
   public ResponseEntity<BaseResponse<?>> unlikeSoptStory(
       @PathVariable Long id, HttpServletRequest request) {
     String ip = extractAndValidateIp(request);
@@ -73,8 +70,8 @@ public class SoptStoryController {
     return ResponseFactory.success(UNLIKE_SOPT_STORY, new LikeSoptStoryResponse(likeId, id, ip));
   }
 
+  @Override
   @GetMapping
-  @Operation(summary = "솝트스토리 리스트 조회")
   public ResponseEntity<BaseResponse<?>> getSoptStoryList(
       @ParameterObject @Valid @ModelAttribute GetSoptStoryListRequest request,
       HttpServletRequest httpRequest) {
