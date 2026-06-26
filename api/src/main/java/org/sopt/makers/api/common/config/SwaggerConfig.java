@@ -68,4 +68,12 @@ public class SwaggerConfig {
         .packagesToScan("org.sopt.makers.api.controller.user")
         .build();
   }
+
+  @Bean
+  public GroupedOpenApi internalApi() {
+    return GroupedOpenApi.builder()
+        .group("Internal")
+        .packagesToScan("org.sopt.makers.api.controller.internal")
+        .build();
+  }
 }
