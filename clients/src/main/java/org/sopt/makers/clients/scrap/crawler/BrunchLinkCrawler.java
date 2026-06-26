@@ -28,7 +28,8 @@ public class BrunchLinkCrawler implements LinkCrawler {
     Document target = scrap(link);
     String title = fetchMeta(target, "title");
     String url = fetchMeta(target, "url");
-    String image = "https:" + fetchMeta(target, "image");
+    String rawImage = fetchMeta(target, "image");
+    String image = (rawImage != null && rawImage.startsWith("//")) ? "https:" + rawImage : rawImage;
     String description = fetchMeta(target, "description");
     return new ScrapedArticle(image, title, description, url, "브런치");
   }
