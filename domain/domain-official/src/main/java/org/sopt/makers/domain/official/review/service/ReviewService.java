@@ -4,12 +4,11 @@ import static org.sopt.makers.domain.official.review.exception.ReviewFailure.DUP
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.review.CreateReviewCommand;
 import org.sopt.makers.domain.official.review.Review;
 import org.sopt.makers.domain.official.review.ReviewAuthorReviews;
-import org.sopt.makers.domain.official.review.ReviewSearchCondition;
 import org.sopt.makers.domain.official.review.ReviewPart;
+import org.sopt.makers.domain.official.review.ReviewSearchCondition;
 import org.sopt.makers.domain.official.review.ScrapedReviewArticle;
 import org.sopt.makers.domain.official.review.exception.ReviewException;
 import org.sopt.makers.domain.official.review.port.ReviewRepositoryPort;

@@ -4,3 +4,9 @@ spring:
       - classpath:storage.yml
       - classpath:security.yml
       - classpath:external.yml
+
+auth:
+  bypass-login:
+    phone: ${BYPASS_LOGIN_PHONE}
+    code: ${BYPASS_LOGIN_CODE}
+    name: ${BYPASS_LOGIN_NAME}

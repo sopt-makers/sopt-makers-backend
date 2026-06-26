@@ -24,9 +24,7 @@ public class NotificationRepositoryAdapter implements NotificationRepositoryPort
   @Transactional
   @Override
   public Notification save(Notification notification) {
-    return notificationJpaRepository
-        .save(NotificationEntity.fromDomain(notification))
-        .toDomain();
+    return notificationJpaRepository.save(NotificationEntity.fromDomain(notification)).toDomain();
   }
 
   @Override

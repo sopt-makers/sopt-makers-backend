@@ -5,13 +5,13 @@ import static org.sopt.makers.domain.official.soptstory.exception.SoptStoryFailu
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
-import org.sopt.makers.domain.official.soptstory.exception.SoptStoryException;
-import org.sopt.makers.domain.official.soptstory.port.SoptStoryScraperPort;
 import org.sopt.makers.domain.official.review.ScrapedReviewArticle;
 import org.sopt.makers.domain.official.review.exception.ReviewException;
 import org.sopt.makers.domain.official.review.exception.ReviewFailure;
 import org.sopt.makers.domain.official.review.port.ReviewScraperPort;
+import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
+import org.sopt.makers.domain.official.soptstory.exception.SoptStoryException;
+import org.sopt.makers.domain.official.soptstory.port.SoptStoryScraperPort;
 import org.springframework.stereotype.Component;
 
 @Slf4j

@@ -20,8 +20,7 @@ public final class ReviewRequest {
       @Schema(description = "기수", example = "34") @NotNull @Positive Integer generation,
       @Schema(description = "파트", example = "SERVER") @NotBlank String part,
       @Schema(description = "메인 카테고리", example = "전체 활동") @NotBlank String mainCategory,
-      @Schema(description = "세부 활동 목록", example = "[\"세미나\", \"프로젝트\"]")
-          List<String> subActivities,
+      @Schema(description = "세부 활동 목록", example = "[\"세미나\", \"프로젝트\"]") List<String> subActivities,
       @Schema(description = "세부 리크루팅", example = "서류") String subRecruiting,
       @Schema(description = "작성자명", example = "홍길동") @NotBlank String author,
       @Schema(description = "작성자 프로필 이미지 URL") String authorProfileImageUrl,
@@ -53,7 +52,8 @@ public final class ReviewRequest {
     private static final int DEFAULT_LIMIT = 10;
 
     public ReviewSearchCondition toCondition() {
-      return new ReviewSearchCondition(category, activity, ReviewPart.fromNullable(part), generation);
+      return new ReviewSearchCondition(
+          category, activity, ReviewPart.fromNullable(part), generation);
     }
 
     public int pageNoOrDefault() {
@@ -70,6 +70,5 @@ public final class ReviewRequest {
   }
 
   @Schema(description = "작성자별 활동후기 조회 요청")
-  public record Author(
-      @Schema(description = "작성자명", example = "홍길동") @NotBlank String name) {}
+  public record Author(@Schema(description = "작성자명", example = "홍길동") @NotBlank String name) {}
 }

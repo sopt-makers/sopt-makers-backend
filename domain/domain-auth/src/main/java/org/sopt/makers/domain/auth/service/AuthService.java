@@ -26,6 +26,12 @@ public class AuthService {
     return phoneVerificationRepositoryPort.save(verification);
   }
 
+  public PhoneVerification createVerifiedVerification(
+      String name, String phone, PhoneVerificationType type) {
+    PhoneVerification verification = PhoneVerification.create(name, phone, type).verify();
+    return phoneVerificationRepositoryPort.save(verification);
+  }
+
   public PhoneVerification verifyCode(String phone, String code, PhoneVerificationType type) {
     PhoneVerification verification = findLatestOrThrow(phone, type);
 

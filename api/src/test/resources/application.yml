@@ -28,6 +28,12 @@ security:
         issuer-name: sopt-makers
       secret-key: test-secret-key-that-is-long-enough-for-hmac
 
+auth:
+  bypass-login:
+    phone: "01000000000"
+    code: "000000"
+    name: test-bypass-login
+
 external:
   oauth:
     apple:
