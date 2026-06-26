@@ -2,6 +2,7 @@ package org.sopt.makers.domain.auth.facade;
 
 import static org.sopt.makers.domain.auth.exception.AuthFailure.ALREADY_REGISTERED_SOCIAL_ACCOUNT;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.ALREADY_REGISTER_PHONE_NUMBER;
+import static org.sopt.makers.domain.auth.exception.AuthFailure.INVALID_PHONE_VERIFICATION_CODE;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_REGISTER_INFO;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.NOT_FOUND_USER_WITH_SOCIAL_ACCOUNT;
 
@@ -11,6 +12,7 @@ import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.domain.auth.PhoneVerification;
 import org.sopt.makers.domain.auth.PhoneVerificationType;
 import org.sopt.makers.domain.auth.exception.AuthException;
+import org.sopt.makers.domain.auth.port.BypassLoginPort;
 import org.sopt.makers.domain.auth.port.OAuthAuthenticatorPort;
 import org.sopt.makers.domain.auth.port.SmsSenderPort;
 import org.sopt.makers.domain.auth.port.TokenIssuerPort;
@@ -42,6 +44,7 @@ public class AuthFacade {
   private final OAuthAuthenticatorPort oAuthAuthenticatorPort;
   private final TokenIssuerPort tokenIssuerPort;
   private final SmsSenderPort smsSenderPort;
+  private final BypassLoginPort bypassLoginPort;
 
   private final AuthUserPort authUserPort;
   private final UserRegisterInfoRepositoryPort userRegisterInfoRepositoryPort;
@@ -84,6 +87,11 @@ public class AuthFacade {
 
   @Transactional
   public void signUp(String idToken, String phone, OAuthPlatform platform) {
+    if (isBypassLoginPhone(phone)) {
+      signUpForBypassLogin(idToken, platform);
+      return;
+    }
+
     authService.validateVerified(phone, PhoneVerificationType.REGISTER);
 
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
@@ -130,6 +138,9 @@ public class AuthFacade {
 
   @Transactional
   public void createPhoneVerification(Long userId, String phone, PhoneVerificationType type) {
+    if (isBypassLoginPhone(phone)) {
+      return;
+    }
     String name = resolveVerificationName(userId, phone, type);
     PhoneVerification verification = authService.createVerification(name, phone, type);
     String message =
@@ -139,6 +150,9 @@ public class AuthFacade {
 
   @Transactional
   public VerifyResult verifyPhoneCode(String phone, String code, PhoneVerificationType type) {
+    if (isBypassLoginVerification(phone, code)) {
+      return new VerifyResult(bypassLoginPort.name(), bypassLoginPort.phone());
+    }
     PhoneVerification verified = authService.verifyCode(phone, code, type);
     return new VerifyResult(verified.name(), verified.phone());
   }
@@ -175,6 +189,27 @@ public class AuthFacade {
     SocialAccount newAccount = SocialAccount.of(platformId, platform);
 
     authUserPort.updateSocialAccount(user.id(), newAccount);
+  }
+
+  private boolean isBypassLoginPhone(String phone) {
+    return phone.equals(bypassLoginPort.phone());
+  }
+
+  private boolean isBypassLoginVerification(String phone, String code) {
+    if (!phone.equals(bypassLoginPort.phone())) {
+      return false;
+    }
+    if (!code.equals(bypassLoginPort.code())) {
+      throw new AuthException(INVALID_PHONE_VERIFICATION_CODE);
+    }
+    return true;
+  }
+
+  private void signUpForBypassLogin(String idToken, OAuthPlatform platform) {
+    User bypassLoginUser = authUserPort.getByPhone(bypassLoginPort.phone());
+    String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
+    SocialAccount newAccount = SocialAccount.of(platformId, platform);
+    authUserPort.updateSocialAccount(bypassLoginUser.id(), newAccount);
   }
 
   private boolean isSocialAccountConstraintViolation(DataIntegrityViolationException e) {
