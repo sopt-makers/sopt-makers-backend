@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.user.dto.UserRequest;
 import org.sopt.makers.core.response.BaseResponse;
@@ -12,5 +12,5 @@ public interface UserApi {
 
   @Operation(summary = "유저 프로필 수정")
   ResponseEntity<BaseResponse<?>> updateUserProfile(
-      @Schema(hidden = true) Long userId, UserRequest.UserProfileInfo request);
+      @Parameter(hidden = true) Long userId, UserRequest.UserProfileInfo request);
 }

@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.app.attendance;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.app.attendance.dto.AttendRequest;
 import org.sopt.makers.core.response.BaseResponse;
@@ -11,5 +11,6 @@ import org.springframework.http.ResponseEntity;
 public interface AppAttendanceApi {
 
   @Operation(summary = "출석 체크")
-  ResponseEntity<BaseResponse<?>> attend(@Schema(hidden = true) Long userId, AttendRequest request);
+  ResponseEntity<BaseResponse<?>> attend(
+      @Parameter(hidden = true) Long userId, AttendRequest request);
 }

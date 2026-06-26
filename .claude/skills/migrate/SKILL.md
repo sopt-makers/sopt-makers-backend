@@ -213,23 +213,23 @@ public record User(Long id) {
 마이그레이션 후 허용되는 의존 방향:
 
 ```text
-api          → domain-*, storage, clients, core   ✅
-domain-*     → core                               ✅
-domain-auth/playground/app/admin → domain-user Port/domain model only ✅
-storage      → domain-* (Port 구현용), core        ✅
-clients      → domain-* (Port 구현용), core        ✅
-core         → 아무것도 의존하지 않음              ✅
+api          → domain-*, storage, clients, core
+domain-*     → core
+domain-auth/playground/app/admin → domain-user Port/domain model only
+storage      → domain-* (Port 구현용), core
+clients      → domain-* (Port 구현용), core
+core         → 아무것도 의존하지 않음
 ```
 
 금지되는 의존:
 
 ```text
-domain-* → storage             ❌
-domain-* → clients             ❌
-domain-* → JPA Entity          ❌
-domain-* → JpaRepository       ❌
-domain-* → 다른 domain-* 직접 의존 ❌
-core     → 다른 모듈             ❌
+domain-* → storage
+domain-* → clients
+domain-* → JPA Entity
+domain-* → JpaRepository
+domain-* → 다른 domain-* 직접 의존 
+core     → 다른 모듈
 ```
 
 예외:
