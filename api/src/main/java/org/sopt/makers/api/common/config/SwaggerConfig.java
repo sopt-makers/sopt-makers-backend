@@ -57,7 +57,9 @@ public class SwaggerConfig {
   public GroupedOpenApi officialApi() {
     return GroupedOpenApi.builder()
         .group("Official")
-        .packagesToScan("org.sopt.makers.api.controller.official")
+        .packagesToScan(
+            "org.sopt.makers.api.controller.official",
+            "org.sopt.makers.api.controller.internal")
         .build();
   }
 
@@ -69,11 +71,4 @@ public class SwaggerConfig {
         .build();
   }
 
-  @Bean
-  public GroupedOpenApi internalApi() {
-    return GroupedOpenApi.builder()
-        .group("Internal")
-        .packagesToScan("org.sopt.makers.api.controller.internal")
-        .build();
-  }
 }
