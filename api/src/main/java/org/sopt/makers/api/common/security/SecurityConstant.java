@@ -19,6 +19,8 @@ public final class SecurityConstant {
       List.of(
           "/api/v1/auth",
           "/api/v1/social/accounts",
+          "/api/v1/notification/register",
+          "/api/v1/visitor",
           "/api/v1/admin/auth/login",
           "/api/v1/admin/auth/refresh",
           "/error",

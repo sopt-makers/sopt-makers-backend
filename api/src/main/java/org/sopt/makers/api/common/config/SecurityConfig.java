@@ -7,6 +7,7 @@ import static org.sopt.makers.api.common.security.SecurityConstant.PATTERN_ALL;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.security.filter.ApiKeyAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 import org.sopt.makers.api.common.security.filter.AuthenticationExceptionFilter;
 import org.sopt.makers.api.common.security.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -87,6 +88,10 @@ public class SecurityConfig {
               .requestMatchers("/api/v1/admin/**")
               .hasAuthority(ADMIN)
               .requestMatchers("/error/**")
+              .permitAll()
+              .requestMatchers(HttpMethod.POST, "/api/v1/notification/register")
+              .permitAll()
+              .requestMatchers("/api/v1/visitor/**")
               .permitAll();
           if (includeSwagger) {
             authorize
