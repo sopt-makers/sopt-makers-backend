@@ -21,10 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
-public class ProjectController {
+public class ProjectController implements ProjectApi {
 
   private final ProjectService projectService;
 
+  @Override
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getProjects(
       @RequestParam(required = false) ProjectCategory filter,
@@ -35,6 +36,7 @@ public class ProjectController {
     return ResponseFactory.success(GET_PROJECTS, ProjectResponse.ProjectList.of(result));
   }
 
+  @Override
   @GetMapping("/{projectId}")
   public ResponseEntity<BaseResponse<?>> getProjectDetail(@PathVariable Long projectId) {
     ProjectDetail detail = projectService.getProjectDetail(projectId);
