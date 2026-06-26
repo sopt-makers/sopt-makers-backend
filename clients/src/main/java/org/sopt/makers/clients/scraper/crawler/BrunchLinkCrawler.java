@@ -15,8 +15,10 @@ class BrunchLinkCrawler extends BasicLinkCrawler {
   @Override
   public ScraperResult crawl(String link) throws IOException {
     Document doc = fetch(link);
+    String ogImage = fetchOg(doc, "image");
+    String thumbnailUrl = ogImage.startsWith("//") ? "https:" + ogImage : ogImage;
     return new ScraperResult(
-        "https:" + fetchOg(doc, "image"),
+        thumbnailUrl,
         fetchOg(doc, "title"),
         fetchOg(doc, "description"),
         fetchOg(doc, "url"));
