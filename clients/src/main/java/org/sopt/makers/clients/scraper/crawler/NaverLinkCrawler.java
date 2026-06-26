@@ -29,7 +29,7 @@ class NaverLinkCrawler extends BasicLinkCrawler {
   }
 
   private Document fetchIframe(Document doc) throws IOException {
-    Element iframe = doc.selectFirst("iframe");
+    Element iframe = doc.selectFirst("iframe#mainFrame");
     if (iframe == null) {
       log.error("네이버 블로그 iframe이 존재하지 않습니다.");
       throw new IOException("네이버 블로그 iframe을 찾을 수 없습니다.");
