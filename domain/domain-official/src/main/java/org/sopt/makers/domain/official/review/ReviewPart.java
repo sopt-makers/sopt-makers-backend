@@ -19,7 +19,10 @@ public final class ReviewPart {
     }
 
     return Arrays.stream(Part.values())
-        .filter(part -> part.name().equalsIgnoreCase(input.trim()) || part.getName().equalsIgnoreCase(input.trim()))
+        .filter(
+            part ->
+                part.name().equalsIgnoreCase(input.trim())
+                    || part.getName().equalsIgnoreCase(input.trim()))
         .findFirst()
         .orElseThrow(() -> new ReviewException(ReviewFailure.INVALID_PART));
   }

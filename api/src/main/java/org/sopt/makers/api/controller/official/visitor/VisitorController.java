@@ -34,7 +34,8 @@ public class VisitorController {
 
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getTodayVisitor() {
-    return ResponseFactory.success(GET_TODAY_VISITOR, VisitorResponse.TodayCount.of(visitorService.getTodayCount()));
+    return ResponseFactory.success(
+        GET_TODAY_VISITOR, VisitorResponse.TodayCount.of(visitorService.getTodayCount()));
   }
 
   private String extractClientIp(HttpServletRequest request) {

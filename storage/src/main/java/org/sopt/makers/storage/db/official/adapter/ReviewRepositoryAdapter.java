@@ -52,7 +52,9 @@ public class ReviewRepositoryAdapter implements ReviewRepositoryPort {
 
   @Override
   public List<Review> findAllByAuthor(String author) {
-    return reviewJpaRepository.findAllByAuthor(author).stream().map(ReviewEntity::toDomain).toList();
+    return reviewJpaRepository.findAllByAuthor(author).stream()
+        .map(ReviewEntity::toDomain)
+        .toList();
   }
 
   private List<Review> filteredReviews(ReviewSearchCondition condition) {
@@ -65,7 +67,9 @@ public class ReviewRepositoryAdapter implements ReviewRepositoryPort {
             review ->
                 condition.generation() == null
                     || review.generation().equals(condition.generation()))
-        .sorted(Comparator.comparing(Review::createdAt, Comparator.nullsLast(Comparator.reverseOrder())))
+        .sorted(
+            Comparator.comparing(
+                Review::createdAt, Comparator.nullsLast(Comparator.reverseOrder())))
         .toList();
   }
 

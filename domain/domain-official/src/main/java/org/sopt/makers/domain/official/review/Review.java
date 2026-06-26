@@ -35,7 +35,18 @@ public record Review(
       List<String> subjects,
       String url) {
     List<String> safeSubjects = subjects == null ? List.of() : List.copyOf(subjects);
-    validate(title, description, thumbnailUrl, platform, author, authorProfileImageUrl, generation, part, category, safeSubjects, url);
+    validate(
+        title,
+        description,
+        thumbnailUrl,
+        platform,
+        author,
+        authorProfileImageUrl,
+        generation,
+        part,
+        category,
+        safeSubjects,
+        url);
     return new Review(
         null,
         title,

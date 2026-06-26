@@ -22,7 +22,8 @@ public enum CategoryType {
   private final boolean recruiting;
 
   public static CategoryType from(String displayName) {
-    return fromSafely(displayName).orElseThrow(() -> new ReviewException(ReviewFailure.INVALID_CATEGORY));
+    return fromSafely(displayName)
+        .orElseThrow(() -> new ReviewException(ReviewFailure.INVALID_CATEGORY));
   }
 
   public static Optional<CategoryType> fromSafely(String displayName) {
