@@ -192,19 +192,20 @@ public class AuthFacade {
   }
 
   private boolean isBypassLoginPhone(String phone) {
-    boolean matchesBypassLoginPhone = bypassLoginPort.phone().equals(phone);
-    return matchesBypassLoginPhone;
+    return bypassLoginPort.phone().equals(phone);
   }
 
   private boolean isBypassLoginVerification(String phone, String code) {
-    boolean matchesBypassLoginPhone = bypassLoginPort.phone().equals(phone);
-    if (!matchesBypassLoginPhone) {
+    boolean isNotBypassLoginPhone = !bypassLoginPort.phone().equals(phone);
+    if (isNotBypassLoginPhone) {
       return false;
     }
-    boolean matchesBypassLoginCode = bypassLoginPort.code().equals(code);
-    if (!matchesBypassLoginCode) {
+
+    boolean isNotBypassLoginCode = !bypassLoginPort.code().equals(code);
+    if (isNotBypassLoginCode) {
       throw new AuthException(INVALID_PHONE_VERIFICATION_CODE);
     }
+
     return true;
   }
 
