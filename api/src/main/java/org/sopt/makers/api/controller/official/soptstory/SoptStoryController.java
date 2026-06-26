@@ -23,7 +23,6 @@ import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
 import org.sopt.makers.domain.official.soptstory.SoptStory;
 import org.sopt.makers.domain.official.soptstory.exception.SoptStoryException;
 import org.sopt.makers.domain.official.soptstory.service.SoptStoryService;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,8 +72,7 @@ public class SoptStoryController implements SoptStoryApi {
   @Override
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getSoptStoryList(
-      @ParameterObject @Valid @ModelAttribute GetSoptStoryListRequest request,
-      HttpServletRequest httpRequest) {
+      @Valid @ModelAttribute GetSoptStoryListRequest request, HttpServletRequest httpRequest) {
     Page<SoptStory> page =
         soptStoryService.getSoptStoryList(
             request.sort(), request.pageNoOrDefault(), request.limitOrDefault());

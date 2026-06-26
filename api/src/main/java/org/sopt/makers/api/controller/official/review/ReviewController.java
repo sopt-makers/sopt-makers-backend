@@ -16,7 +16,6 @@ import org.sopt.makers.domain.official.review.Review;
 import org.sopt.makers.domain.official.review.ReviewAuthorReviews;
 import org.sopt.makers.domain.official.review.ReviewSearchCondition;
 import org.sopt.makers.domain.official.review.service.ReviewService;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -43,7 +42,7 @@ public class ReviewController implements ReviewApi {
   @Override
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getReviews(
-      @ParameterObject @Valid @ModelAttribute ReviewRequest.Search request) {
+      @Valid @ModelAttribute ReviewRequest.Search request) {
     ReviewSearchCondition condition = request.toCondition();
     List<Review> reviews =
         reviewService.search(condition, request.offset(), request.limitOrDefault());
@@ -69,7 +68,7 @@ public class ReviewController implements ReviewApi {
   @Override
   @GetMapping("/internal")
   public ResponseEntity<BaseResponse<?>> getReviewsByAuthor(
-      @ParameterObject @Valid @ModelAttribute ReviewRequest.Author request) {
+      @Valid @ModelAttribute ReviewRequest.Author request) {
     ReviewAuthorReviews result = reviewService.getReviewsByAuthor(request.name());
     return ResponseFactory.success(GET_REVIEWS_BY_AUTHOR, ReviewResponse.AuthorReviews.of(result));
   }
