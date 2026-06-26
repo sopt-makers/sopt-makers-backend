@@ -13,4 +13,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("software.amazon.awssdk:s3:2.29.52")
+    implementation("org.jsoup:jsoup:1.18.3")
 }
