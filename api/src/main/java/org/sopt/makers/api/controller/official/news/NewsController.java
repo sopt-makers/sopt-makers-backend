@@ -6,7 +6,6 @@ import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.GET_N
 import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.GET_NEWS_LIST;
 import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.UPDATE_NEWS;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -30,14 +29,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "뉴스", description = "공식 홈페이지 뉴스 API")
 @RequestMapping("/api/v1/official/news")
 @RequiredArgsConstructor
 @Validated
-public class NewsController {
+public class NewsController implements NewsApi {
 
   private final NewsService newsService;
 
+  @Override
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<?>> createNews(
       @Valid @ModelAttribute NewsRequest.CreateWithFile request) throws IOException {
@@ -45,6 +44,7 @@ public class NewsController {
     return ResponseFactory.success(CREATE_NEWS, NewsResponse.of(result));
   }
 
+  @Override
   @PostMapping("/v2")
   public ResponseEntity<BaseResponse<?>> createNewsV2(
       @Valid @RequestBody NewsRequest.Create request) {
@@ -52,6 +52,7 @@ public class NewsController {
     return ResponseFactory.success(CREATE_NEWS, NewsResponse.of(result));
   }
 
+  @Override
   @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<?>> editNews(
       @PathVariable Integer id, @Valid @ModelAttribute NewsRequest.EditWithFile request)
@@ -60,6 +61,7 @@ public class NewsController {
     return ResponseFactory.success(UPDATE_NEWS, NewsResponse.of(result));
   }
 
+  @Override
   @PatchMapping("/{id}/v2")
   public ResponseEntity<BaseResponse<?>> editNewsV2(
       @PathVariable Integer id, @Valid @RequestBody NewsRequest.Edit request) {
@@ -67,6 +69,7 @@ public class NewsController {
     return ResponseFactory.success(UPDATE_NEWS, NewsResponse.of(result));
   }
 
+  @Override
   @PostMapping("/delete")
   public ResponseEntity<BaseResponse<?>> deleteNews(
       @Valid @RequestBody NewsRequest.Delete request) {
@@ -74,12 +77,14 @@ public class NewsController {
     return ResponseFactory.success(DELETE_NEWS);
   }
 
+  @Override
   @GetMapping("/news")
   public ResponseEntity<BaseResponse<?>> getNews(@Valid @ModelAttribute NewsRequest.Get request) {
     News result = newsService.getById(request.id());
     return ResponseFactory.success(GET_NEWS, NewsResponse.of(result));
   }
 
+  @Override
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getNewsList() {
     List<News> result = newsService.findAll();

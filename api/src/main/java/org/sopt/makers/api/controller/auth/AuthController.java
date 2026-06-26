@@ -7,7 +7,6 @@ import static org.sopt.makers.api.controller.auth.AuthSuccessCode.SIGNUP;
 import static org.sopt.makers.api.controller.auth.AuthSuccessCode.VERIFY_PHONE_VERIFICATION;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.REFRESH_TOKEN_NOT_FOUND;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.CookieFactory;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -29,16 +28,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "인증", description = "인증 API")
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthApi {
 
   private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
   private final AuthFacade authFacade;
   private final CookieFactory cookieFactory;
 
+  @Override
   @PostMapping("/phone")
   public ResponseEntity<BaseResponse<?>> createPhoneVerification(
       @RequestBody AuthRequest.CreatePhoneVerification request) {
@@ -47,6 +46,7 @@ public class AuthController {
     return ResponseFactory.success(CREATE_PHONE_VERIFICATION);
   }
 
+  @Override
   @PostMapping("/verify/phone")
   public ResponseEntity<BaseResponse<?>> verifyPhoneVerification(
       @RequestBody AuthRequest.VerifyPhoneVerification request) {
@@ -57,6 +57,7 @@ public class AuthController {
         VERIFY_PHONE_VERIFICATION, AuthResponse.VerifyPhoneResult.from(result));
   }
 
+  @Override
   @PostMapping("/login/web")
   public ResponseEntity<BaseResponse<?>> loginFromWeb(@RequestBody AuthRequest.Login request) {
     OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
@@ -65,6 +66,7 @@ public class AuthController {
     return ResponseFactory.success(LOGIN, headers, AuthResponse.LoginForWebResult.from(result));
   }
 
+  @Override
   @PostMapping("/login/app")
   public ResponseEntity<BaseResponse<?>> loginFromApp(@RequestBody AuthRequest.Login request) {
     OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
@@ -72,6 +74,7 @@ public class AuthController {
     return ResponseFactory.success(LOGIN, AuthResponse.LoginForAppResult.from(result));
   }
 
+  @Override
   @PostMapping("/signup")
   public ResponseEntity<BaseResponse<?>> signUp(@RequestBody AuthRequest.SignUp request) {
     OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
@@ -79,6 +82,7 @@ public class AuthController {
     return ResponseFactory.success(SIGNUP);
   }
 
+  @Override
   @PostMapping("/refresh/web")
   public ResponseEntity<BaseResponse<?>> refreshFromWeb(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken,
@@ -92,6 +96,7 @@ public class AuthController {
         REFRESH_TOKEN, headers, AuthResponse.RefreshForWebResult.from(tokenPair));
   }
 
+  @Override
   @PostMapping("/refresh/app")
   public ResponseEntity<BaseResponse<?>> refreshFromApp(
       @RequestBody AuthRequest.TokenRefreshForApp request) {

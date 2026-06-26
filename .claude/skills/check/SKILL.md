@@ -31,6 +31,7 @@ tools: Read, Grep, Glob, Bash
 * 패키지 구조 검토
 * 모듈 의존성 검토
 * build.gradle.kts 의존성 검토
+* API 인터페이스와 Controller 구현체 분리 검토
 * Controller 책임 검토
 * Service 책임 검토
 * Facade 필요 여부 검토
@@ -44,7 +45,7 @@ tools: Read, Grep, Glob, Bash
 
 | 모듈         | 책임                                                                                   |
 | ---------- | ------------------------------------------------------------------------------------ |
-| `api`      | HTTP 진입점, Controller, HTTP DTO, Security, Filter, Resolver, Global Exception Handler |
+| `api`      | HTTP 진입점, API 인터페이스, Controller 구현체, HTTP DTO, Security, Filter, Resolver, Global Exception Handler |
 | `domain-*` | 비즈니스 로직, 유스케이스, 도메인 모델, Port 인터페이스, 도메인 예외                                           |
 | `storage`  | JPA Entity, JpaRepository, QueryDSL, DB/Redis Adapter                                |
 | `clients`  | SMS, S3, EventBridge, OAuth, 외부 API Adapter                                          |
@@ -56,8 +57,9 @@ tools: Read, Grep, Glob, Bash
 
 | 코드 유형                    | 올바른 위치                                     |
 | ------------------------ | ------------------------------------------ |
-| REST Controller          | `api/controller/<domain>/`                 |
-| HTTP DTO                 | `api/controller/<domain>/dto/`             |
+| API 문서 인터페이스          | `api/controller/<channel>/XxxApi`          |
+| REST Controller 구현체      | `api/controller/<channel>/XxxController`   |
+| HTTP DTO                 | `api/controller/<channel>/dto/`            |
 | Security, Filter         | `api/common/security/`                     |
 | Resolver                 | `api/common/resolver/`                     |
 | Global Exception Handler | `api/common/exception/`                    |
@@ -112,6 +114,28 @@ core     → 다른 모듈             ❌
 ## Step 5. 계층별 검토 기준
 
 ### Controller
+
+HTTP API는 `refactor/#21` 구조처럼 API 인터페이스와 구현체를 분리합니다.
+
+Controller 패키지의 `<channel>`은 API 노출 채널이며, 비즈니스 도메인과 반드시 1:1로 매핑되지 않습니다.
+
+* 가능한 채널명은 기존 controller 패키지 기준으로 `auth`, `user`, `official`, `app`, `admin`, `playground`, `crew` 등을 사용합니다.
+* 채널명이 도메인명과 같을 수는 있지만, 항상 같아야 하는 것은 아닙니다.
+* 출석 API처럼 앱에 노출되는 기능은 `api/controller/app/attendance/`에 둘 수 있습니다.
+* Controller/HTTP DTO 위치는 노출 채널 기준으로, Service/Port/Model 위치는 비즈니스 책임 기준으로 검토합니다.
+
+`XxxApi` 인터페이스:
+
+* `api/controller/<channel>/`에 둡니다.
+* `@Tag`, `@Operation`, `@Schema(hidden = true)`, `@ParameterObject` 등 Swagger/OpenAPI 문서 애노테이션을 담당합니다.
+* 메서드 시그니처만 선언합니다.
+* Service/Facade 주입, ResponseFactory 호출, 구현 로직을 가지면 안 됩니다.
+
+`XxxController` 구현체:
+
+* 같은 패키지에서 `XxxApi`를 `implements`합니다.
+* `@RestController`, `@RequestMapping`, `@GetMapping`, `@PostMapping`, `@RequestBody`, `@ModelAttribute`, `@PathVariable`, `@RequestHeader`, `@CookieValue`, `@Valid` 등 실제 Spring MVC 매핑과 검증 애노테이션을 담당합니다.
+* HTTP 요청 처리, 인증 사용자 식별, Service/Facade 호출, Response DTO 변환을 담당합니다.
 
 Controller는 다음만 담당합니다.
 
@@ -228,6 +252,9 @@ core에 두면 안 되는 것:
 | Domain Service가 JPA Entity를 사용    | domain이 JPA에 묶임                 | Domain Model로 변환해서 사용                   |
 | Domain Service가 SMS/S3 Client를 호출 | domain이 clients에 묶임             | 외부 기능 Port 생성 후 clients Adapter 구현      |
 | Controller가 비즈니스 검증 수행            | HTTP 계층에 정책이 섞임                 | Domain Service로 이동                      |
+| Controller 채널을 도메인과 무조건 동일시        | 노출 표면과 비즈니스 책임 판단이 섞임       | `api/controller/<channel>/...`와 `domain-<name>/...`를 따로 판단 |
+| Controller에 Swagger 문서 애노테이션과 구현 로직 혼재 | 문서 책임과 실행 책임이 섞임              | `XxxApi` 인터페이스로 문서 애노테이션 분리         |
+| `XxxController`가 `XxxApi`를 구현하지 않음      | API 문서 인터페이스 패턴이 깨짐            | 같은 패키지의 `XxxApi`를 만들고 implements 적용  |
 | Facade가 단일 Service만 위임            | 불필요한 계층 증가                      | Facade 제거                               |
 | core에 도메인 전용 enum 배치              | core가 도메인에 오염됨                  | 해당 domain 모듈로 이동                        |
 | 다른 도메인 Service 직접 주입              | 도메인 내부 구현에 결합됨                  | 목적별 Port 생성 후 Adapter에서 Service 호출       |
@@ -335,8 +362,10 @@ dependencies {
 ### 권장 콜체인
 
 ```text
-Controller
-  └→ Service/Facade
+HTTP Request
+  └→ XxxController implements XxxApi
+       (API 문서 계약: XxxApi)
+       └→ Service/Facade
        └→ Port
             └→ Adapter
 ```
@@ -355,6 +384,10 @@ Controller
 - 위반이 없다면 왜 괜찮은지 설명합니다.
 - 애매한 경우에는 유지보수성과 의존 방향 기준으로 판단합니다.
 - Facade가 필요한지 여부를 명확히 판단합니다.
+- Controller 위치 검토 시 도메인명이 아니라 API 노출 채널 기준으로 `api/controller/<channel>/...`에 있는지 확인합니다.
+- domain 모듈 위치는 Controller 채널과 별개로 데이터 생명주기와 비즈니스 책임 기준으로 확인합니다.
+- HTTP API 구조 검토 시 `XxxApi` 인터페이스와 `XxxController implements XxxApi` 분리가 되어 있는지 확인합니다.
+- Swagger/OpenAPI 애노테이션은 `XxxApi`, Spring MVC 매핑과 실제 구현 로직은 `XxxController`에 있는지 확인합니다.
 - Port가 필요한 경우 어떤 Port를 만들지 제안합니다.
 - `domain-*`에서 `storage`, `clients`, JPA Entity, JpaRepository import가 없어야 한다는 점을 우선 확인합니다.
 - 가능한 경우 권장 패키지 구조와 콜체인을 함께 제시합니다.

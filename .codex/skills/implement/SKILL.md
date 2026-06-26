@@ -57,8 +57,9 @@ description: 'sopt-makers Spring Boot 멀티모듈 프로젝트에서 신규 기
 
 | 코드 유형                      | 위치                                         |
 | -------------------------- | ------------------------------------------ |
-| REST Controller            | `api/controller/<domain>/`                 |
-| HTTP Request/Response DTO  | `api/controller/<domain>/dto/`             |
+| API 문서 인터페이스              | `api/controller/<channel>/XxxApi`          |
+| REST Controller 구현체          | `api/controller/<channel>/XxxController`   |
+| HTTP Request/Response DTO  | `api/controller/<channel>/dto/`            |
 | Security, Filter           | `api/common/security/`                     |
 | Resolver                   | `api/common/resolver/`                     |
 | Global Exception Handler   | `api/common/exception/`                    |
@@ -83,13 +84,45 @@ description: 'sopt-makers Spring Boot 멀티모듈 프로젝트에서 신규 기
 
 ## Step 3. 콜체인 설계
 
+### Controller 채널과 도메인 구분
+
+Controller 패키지의 `<channel>`은 API가 노출되는 채널 또는 표면을 뜻하며, 비즈니스 도메인과 반드시 1:1로 매핑되지 않는다.
+
+* 가능한 채널명은 기존 controller 패키지 기준으로 `auth`, `user`, `official`, `app`, `admin`, `playground`, `crew` 등을 사용한다.
+* 채널명이 도메인명과 같을 수는 있지만, 항상 같아야 하는 것은 아니다.
+* 예를 들어 출석 기능의 비즈니스 로직은 attendance/admin/app 쪽 유스케이스를 따져 배치하되, 앱에 노출되는 출석 API는 `api/controller/app/attendance/`에 둘 수 있다.
+* `api/controller/<channel>/...` 위치는 HTTP 노출 표면 기준으로 결정하고, `domain-<name>/...` 위치는 데이터 생명주기와 비즈니스 책임 기준으로 결정한다.
+* 같은 도메인 기능도 `official`, `app`, `admin` 등 서로 다른 채널에 별도 Controller를 가질 수 있다.
+
+### API 인터페이스와 Controller 구현체
+
+신규 HTTP API는 `refactor/#21` 구조를 따른다.
+
+* `XxxApi` 인터페이스를 같은 controller 패키지에 만들고 Swagger/OpenAPI 문서 책임을 둔다.
+* `XxxApi`에는 `@Tag`, `@Operation`, `@Schema(hidden = true)`, `@ParameterObject` 등 API 문서화를 위한 애노테이션을 둔다.
+* `XxxController`는 `XxxApi`를 `implements`한다.
+* `XxxController`에는 `@RestController`, `@RequestMapping`, `@GetMapping`, `@PostMapping`, `@RequestBody`, `@ModelAttribute`, `@PathVariable`, `@RequestHeader`, `@CookieValue`, `@Valid` 등 실제 Spring MVC 매핑과 검증 애노테이션을 둔다.
+* `XxxController`는 HTTP 요청 처리, 인증 사용자 식별, Service/Facade 호출, Response DTO 변환만 담당한다.
+* API 인터페이스는 구현 로직, Service/Facade 주입, ResponseFactory 호출을 가지지 않는다.
+
+예시:
+
+```text
+api/controller/<channel>/XxxApi
+api/controller/<channel>/XxxController implements XxxApi
+api/controller/<channel>/dto/XxxRequest
+api/controller/<channel>/dto/XxxResponse
+api/controller/<channel>/XxxSuccessCode
+```
+
 ### 단일 도메인 기능
 
 하나의 도메인 안에서 비즈니스 로직이 끝나면 Facade를 만들지 않는다.
 
 ```text
 HTTP Request
-  → api/controller/<domain>/XxxController
+  → api/controller/<channel>/XxxController implements XxxApi
+    (API 문서 계약: api/controller/<channel>/XxxApi)
   → domain-<name>/service/XxxService
   → domain-<name>/port/XxxRepositoryPort
   → storage/db/<domain>/adapter/XxxRepositoryAdapter
@@ -101,7 +134,8 @@ HTTP Request
 
 ```text
 HTTP Request
-  → api/controller/<domain>/XxxController
+  → api/controller/<channel>/XxxController implements XxxApi
+    (API 문서 계약: api/controller/<channel>/XxxApi)
   → domain-<name>/facade/XxxFacade
   → domain-<name>/service/XxxService
   → domain-user/port/<Purpose>UserPort
@@ -306,9 +340,10 @@ Banner
 - Port 필요 여부:
 
 ### 생성할 파일
-- `api/controller/<domain>/XxxController`
-- `api/controller/<domain>/dto/XxxRequest`
-- `api/controller/<domain>/dto/XxxResponse`
+- `api/controller/<channel>/XxxApi`
+- `api/controller/<channel>/XxxController`
+- `api/controller/<channel>/dto/XxxRequest`
+- `api/controller/<channel>/dto/XxxResponse`
 - `domain-<name>/service/XxxService`
 - `domain-<name>/port/XxxRepositoryPort`
 - `storage/db/<domain>/adapter/XxxRepositoryAdapter`
@@ -343,6 +378,10 @@ public interface XxxRepositoryPort {
 ## Step 9. 답변 원칙
 
 - 파일 경로를 가능한 한 구체적으로 제안한다.
+- Controller 경로의 `<channel>`과 domain 모듈의 `<name>`을 분리해서 판단한다.
+- Controller 채널은 API 노출 표면 기준으로 정하고, 도메인 배치는 비즈니스 책임 기준으로 정한다.
+- HTTP API를 만들 때는 `XxxApi` 인터페이스와 `XxxController implements XxxApi`를 함께 제안한다.
+- Swagger/OpenAPI 애노테이션은 `XxxApi`에, Spring MVC 매핑과 실제 구현 로직은 `XxxController`에 둔다.
 - 단순히 “서비스에 둔다”고 하지 말고 어떤 모듈의 어떤 서비스인지 명시한다.
 - Port가 필요한 경우 Port와 Adapter를 함께 제안한다.
 - Entity와 Domain Model을 혼동하지 않는다.

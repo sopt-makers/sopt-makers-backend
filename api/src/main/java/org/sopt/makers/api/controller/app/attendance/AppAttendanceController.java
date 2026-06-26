@@ -2,7 +2,6 @@ package org.sopt.makers.api.controller.app.attendance;
 
 import static org.sopt.makers.api.controller.app.attendance.AppAttendanceSuccessCode.SUCCESS_ATTEND;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -17,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "앱 출석", description = "앱 출석 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/app/attendances")
-public class AppAttendanceController {
+public class AppAttendanceController implements AppAttendanceApi {
 
   private final AttendanceService attendanceService;
 
+  @Override
   @PostMapping("/attend")
   public ResponseEntity<BaseResponse<?>> attend(
       @CurrentUserId Long userId, @RequestBody @Valid AttendRequest request) {
