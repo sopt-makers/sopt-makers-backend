@@ -20,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/internal")
 @RequiredArgsConstructor
 @Validated
-public class InternalScrapController {
+public class InternalScrapController implements InternalScrapApi {
 
   private final ArticleScraperPort articleScraperPort;
 
+  @Override
   @PostMapping("/scrap")
   public ResponseEntity<BaseResponse<?>> scrap(
       @Valid @RequestBody InternalScrapRequest.Scrap request) {
