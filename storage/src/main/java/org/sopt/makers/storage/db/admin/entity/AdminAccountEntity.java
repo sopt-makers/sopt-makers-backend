@@ -6,19 +6,26 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.admin.auth.AdminAccount;
 import org.sopt.makers.domain.admin.auth.AdminAccountType;
-import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "admin_accounts")
-public class AdminAccountEntity extends BaseEntity {
+public class AdminAccountEntity {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "admin_id")
+  private Long id;
 
   @Column(name = "email", nullable = false, unique = true)
   private String email;
@@ -50,7 +57,7 @@ public class AdminAccountEntity extends BaseEntity {
   }
 
   public AdminAccount toDomain() {
-    return new AdminAccount(getId(), email, password, name, accountType);
+    return new AdminAccount(id, email, password, name, accountType);
   }
 
   public static AdminAccountEntity from(AdminAccount adminAccount) {
