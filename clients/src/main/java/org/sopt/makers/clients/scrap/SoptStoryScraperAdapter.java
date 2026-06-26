@@ -8,12 +8,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
 import org.sopt.makers.domain.official.soptstory.exception.SoptStoryException;
 import org.sopt.makers.domain.official.soptstory.port.SoptStoryScraperPort;
+import org.sopt.makers.domain.official.review.ScrapedReviewArticle;
+import org.sopt.makers.domain.official.review.exception.ReviewException;
+import org.sopt.makers.domain.official.review.exception.ReviewFailure;
+import org.sopt.makers.domain.official.review.port.ReviewScraperPort;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SoptStoryScraperAdapter implements SoptStoryScraperPort {
+public class SoptStoryScraperAdapter implements SoptStoryScraperPort, ReviewScraperPort {
 
   private final CrawlerComposite crawlerComposite;
 
@@ -25,6 +29,23 @@ public class SoptStoryScraperAdapter implements SoptStoryScraperPort {
     } catch (IOException e) {
       log.error("Scraping failed for URL: {}", articleUrl, e);
       throw new SoptStoryException(SCRAP_FAILED);
+    }
+  }
+
+  @Override
+  public ScrapedReviewArticle scrapReview(String articleUrl) {
+    try {
+      LinkSource source = LinkSource.parseSource(articleUrl);
+      ScrapedArticle article = normalize(crawlerComposite.crawl(source, articleUrl), articleUrl);
+      return new ScrapedReviewArticle(
+          article.thumbnailUrl(),
+          article.title(),
+          article.description(),
+          article.articleUrl(),
+          article.platform());
+    } catch (IOException e) {
+      log.error("Review scraping failed for URL: {}", articleUrl, e);
+      throw new ReviewException(ReviewFailure.SCRAP_FAILED);
     }
   }
 

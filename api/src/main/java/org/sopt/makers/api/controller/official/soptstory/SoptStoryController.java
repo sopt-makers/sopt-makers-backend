@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "SoptStory", description = "SoptStory 생성, 좋아요, 조회 API")
+@Tag(name = "솝트스토리", description = "공식 홈페이지 솝트스토리 API")
 @RestController
 @RequestMapping("/api/v1/official/soptstories")
 @RequiredArgsConstructor

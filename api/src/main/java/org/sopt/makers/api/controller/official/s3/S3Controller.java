@@ -2,6 +2,7 @@ package org.sopt.makers.api.controller.official.s3;
 
 import static org.sopt.makers.api.controller.official.s3.S3SuccessCode.CREATE_PRESIGNED_URL;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
+@Tag(name = "파일", description = "공식 홈페이지 파일 업로드 API")
 @RequestMapping("/api/v1/s3")
 @RequiredArgsConstructor
 @Validated

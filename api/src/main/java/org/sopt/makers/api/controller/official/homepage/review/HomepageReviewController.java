@@ -4,6 +4,7 @@ import static org.sopt.makers.api.controller.official.homepage.review.HomepageRe
 import static org.sopt.makers.api.controller.official.homepage.review.HomepageReviewSuccessCode.GET_HOMEPAGE_REVIEWS;
 import static org.sopt.makers.api.controller.official.homepage.review.HomepageReviewSuccessCode.UPDATE_HOMEPAGE_REVIEW;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "메인 리뷰", description = "공식 홈페이지 메인 리뷰 API")
 @RequestMapping("/api/v1/official/homepage-reviews")
 @RequiredArgsConstructor
 @Validated

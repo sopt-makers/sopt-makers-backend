@@ -4,6 +4,7 @@ import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuc
 import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuccessCode.SUCCESS_UPDATE_ATTENDANCE_SCORE;
 import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuccessCode.SUCCESS_UPDATE_SUB_ATTENDANCE;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "어드민 출석", description = "어드민 출석 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/attendances")
 public class AdminAttendanceController {

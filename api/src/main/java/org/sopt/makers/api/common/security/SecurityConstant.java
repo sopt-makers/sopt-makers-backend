@@ -18,6 +18,7 @@ public final class SecurityConstant {
   public static final List<String> JWT_WHITELIST =
       List.of(
           "/api/v1/auth",
+          "/api/v1/official",
           "/api/v1/social/accounts",
           "/api/v1/notification/register",
           "/api/v1/visitor",

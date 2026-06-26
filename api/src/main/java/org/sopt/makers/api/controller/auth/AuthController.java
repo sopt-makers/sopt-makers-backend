@@ -7,6 +7,7 @@ import static org.sopt.makers.api.controller.auth.AuthSuccessCode.SIGNUP;
 import static org.sopt.makers.api.controller.auth.AuthSuccessCode.VERIFY_PHONE_VERIFICATION;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.REFRESH_TOKEN_NOT_FOUND;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.CookieFactory;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "인증", description = "인증 API")
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
