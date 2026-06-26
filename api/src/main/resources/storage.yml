@@ -8,3 +8,8 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:validate}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}

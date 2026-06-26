@@ -1,6 +1,6 @@
 spring:
   config:
     import:
-      - classpath:jpa.yml
+      - classpath:storage.yml
       - classpath:security.yml
       - classpath:external.yml
