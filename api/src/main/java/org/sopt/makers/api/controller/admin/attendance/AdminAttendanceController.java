@@ -4,7 +4,6 @@ import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuc
 import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuccessCode.SUCCESS_UPDATE_ATTENDANCE_SCORE;
 import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuccessCode.SUCCESS_UPDATE_SUB_ATTENDANCE;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "어드민 출석", description = "어드민 출석 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/attendances")
-public class AdminAttendanceController {
+public class AdminAttendanceController implements AdminAttendanceApi {
 
   private final AttendanceService attendanceService;
 
+  @Override
   @GetMapping("/users/{userId}")
   public ResponseEntity<BaseResponse<?>> getAttendancesByUser(@PathVariable Long userId) {
     List<Attendance> attendances = attendanceService.getAttendancesByUserId(userId);
@@ -38,6 +37,7 @@ public class AdminAttendanceController {
         SUCCESS_GET_ATTENDANCES_BY_USER, AttendancesByUserResponse.from(attendances));
   }
 
+  @Override
   @PatchMapping("/sub-attendances")
   public ResponseEntity<BaseResponse<?>> updateSubAttendance(
       @RequestBody @Valid SubAttendanceUpdateRequest request) {
@@ -45,6 +45,7 @@ public class AdminAttendanceController {
     return ResponseFactory.success(SUCCESS_UPDATE_SUB_ATTENDANCE);
   }
 
+  @Override
   @PatchMapping("/users/{userId}/score")
   public ResponseEntity<BaseResponse<?>> updateAttendanceScore(
       @PathVariable Long userId, @RequestParam int generation) {
