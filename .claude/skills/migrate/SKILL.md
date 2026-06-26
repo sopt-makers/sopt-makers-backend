@@ -27,8 +27,9 @@ tools: Read, Grep, Glob, Bash
 
 | 기존 코드 유형                        | 새 위치                                       |
 | ------------------------------- | ------------------------------------------ |
-| Controller                      | `api/controller/<domain>/`                 |
-| Request/Response DTO            | `api/controller/<domain>/dto/`             |
+| API 문서 인터페이스                   | `api/controller/<channel>/XxxApi`          |
+| Controller 구현체                  | `api/controller/<channel>/XxxController`   |
+| Request/Response DTO            | `api/controller/<channel>/dto/`            |
 | 인증/인가 관련 코드                     | `api/common/security/`                     |
 | Resolver                        | `api/common/resolver/`                     |
 | Global Exception Handler        | `api/common/exception/`                    |
@@ -68,7 +69,36 @@ tools: Read, Grep, Glob, Bash
 
 ---
 
-## Step 3. Port 추출 기준
+## Step 3. API 인터페이스와 Controller 구현체 분리
+
+Controller를 마이그레이션할 때는 `refactor/#21` 구조를 따릅니다.
+
+* Controller 패키지의 `<channel>`은 API 노출 채널이며, 비즈니스 도메인과 반드시 1:1로 매핑되지 않습니다.
+* 가능한 채널명은 기존 controller 패키지 기준으로 `auth`, `user`, `official`, `app`, `admin`, `playground`, `crew` 등을 사용합니다.
+* 채널명이 도메인명과 같을 수는 있지만, 항상 같아야 하는 것은 아닙니다.
+* 출석처럼 앱에 노출되는 API는 비즈니스 도메인과 별개로 `api/controller/app/attendance/`에 둘 수 있습니다.
+* Controller/HTTP DTO 이동 위치는 노출 채널 기준으로 정하고, Service/Port/Model 이동 위치는 데이터 생명주기와 비즈니스 책임 기준으로 정합니다.
+* 기존 Controller에 섞여 있던 Swagger/OpenAPI 문서 애노테이션을 `XxxApi` 인터페이스로 분리합니다.
+* `XxxApi`는 기존 Controller와 같은 `api/controller/<channel>/` 패키지에 둡니다.
+* `XxxApi`에는 `@Tag`, `@Operation`, `@Schema(hidden = true)`, `@ParameterObject` 등 API 문서화 애노테이션과 메서드 시그니처만 둡니다.
+* `XxxController`는 `XxxApi`를 `implements`하고 기존 HTTP 엔드포인트 구현을 담당합니다.
+* `XxxController`에는 `@RestController`, `@RequestMapping`, `@GetMapping`, `@PostMapping`, `@RequestBody`, `@ModelAttribute`, `@PathVariable`, `@RequestHeader`, `@CookieValue`, `@Valid` 등 Spring MVC 매핑과 검증 애노테이션을 둡니다.
+* `XxxController`에 남길 책임은 HTTP 요청 처리, 인증 사용자 식별, Service/Facade 호출, Response DTO 변환입니다.
+* `XxxApi`에는 Service/Facade 주입, ResponseFactory 호출, 비즈니스 로직을 두지 않습니다.
+
+예시:
+
+```text
+api/controller/<channel>/XxxApi
+api/controller/<channel>/XxxController implements XxxApi
+api/controller/<channel>/dto/XxxRequest
+api/controller/<channel>/dto/XxxResponse
+api/controller/<channel>/XxxSuccessCode
+```
+
+---
+
+## Step 4. Port 추출 기준
 
 기존 Service 안에 다음 코드가 있으면 Port로 분리합니다.
 
@@ -103,7 +133,7 @@ public interface XxxSenderPort {
 
 ---
 
-## Step 4. Adapter 이동 기준
+## Step 5. Adapter 이동 기준
 
 Port 구현체는 의존하는 기술에 따라 위치를 결정합니다.
 
@@ -135,7 +165,7 @@ public class XxxRepositoryAdapter implements XxxRepositoryPort {
 
 ---
 
-## Step 5. Entity와 Domain Model 분리
+## Step 6. Entity와 Domain Model 분리
 
 마이그레이션 시 JPA Entity와 Domain Model을 분리합니다.
 
@@ -178,7 +208,7 @@ public record User(Long id) {
 
 ---
 
-## Step 6. 의존성 규칙
+## Step 7. 의존성 규칙
 
 마이그레이션 후 허용되는 의존 방향:
 
@@ -210,28 +240,30 @@ core     → 다른 모듈             ❌
 
 ---
 
-## Step 7. 마이그레이션 기본 순서
+## Step 8. 마이그레이션 기본 순서
 
 기본적으로 다음 순서로 제안합니다.
 
 1. 기존 코드의 책임을 분류합니다.
 2. 도메인을 식별합니다.
-3. Controller와 HTTP DTO를 `api`로 이동합니다.
-4. 비즈니스 로직을 `domain-<name>/service/`로 이동합니다.
-5. JPA Entity를 `storage/db/<domain>/entity/`로 이동합니다.
-6. JpaRepository를 `storage/db/<domain>/repository/`로 이동합니다.
-7. domain service가 필요로 하는 Repository Port를 정의합니다.
-8. `storage/db/<domain>/adapter/`에서 Repository Port를 구현합니다.
-9. 외부 시스템 호출이 있으면 외부 기능 Port를 정의합니다.
-10. `clients/<provider>/`에서 외부 기능 Port를 구현합니다.
-11. Controller → Service/Facade → Port → Adapter 콜체인을 연결합니다.
-12. build.gradle.kts 의존성을 정리합니다.
-13. domain에서 storage/clients/JPA import가 사라졌는지 확인합니다.
-14. 테스트를 보완합니다.
+3. 노출 채널을 식별해 Controller와 HTTP DTO를 `api/controller/<channel>/`로 이동합니다.
+4. Controller의 Swagger/OpenAPI 문서 애노테이션을 `XxxApi` 인터페이스로 분리합니다.
+5. `XxxController implements XxxApi` 구조로 실제 Spring MVC 매핑과 호출 로직을 둡니다.
+6. 비즈니스 로직을 `domain-<name>/service/`로 이동합니다.
+7. JPA Entity를 `storage/db/<domain>/entity/`로 이동합니다.
+8. JpaRepository를 `storage/db/<domain>/repository/`로 이동합니다.
+9. domain service가 필요로 하는 Repository Port를 정의합니다.
+10. `storage/db/<domain>/adapter/`에서 Repository Port를 구현합니다.
+11. 외부 시스템 호출이 있으면 외부 기능 Port를 정의합니다.
+12. `clients/<provider>/`에서 외부 기능 Port를 구현합니다.
+13. Controller → Service/Facade → Port → Adapter 콜체인을 연결합니다.
+14. build.gradle.kts 의존성을 정리합니다.
+15. domain에서 storage/clients/JPA import가 사라졌는지 확인합니다.
+16. 테스트를 보완합니다.
 
 ---
 
-## Step 8. build.gradle.kts 점검
+## Step 9. build.gradle.kts 점검
 
 마이그레이션 시 다음 방향을 유지합니다.
 
@@ -251,7 +283,7 @@ implementation(project(":clients"))
 
 ---
 
-## Step 9. 자주 발생하는 마이그레이션 위반
+## Step 10. 자주 발생하는 마이그레이션 위반
 
 | 기존 패턴                                     | 수정 방향                                     |
 | ----------------------------------------- | ----------------------------------------- |
@@ -259,6 +291,7 @@ implementation(project(":clients"))
 | Service에서 JPA Entity 사용                   | Domain Model로 변환해서 사용                     |
 | Service에서 SMS/S3/EventBridge Client 직접 호출 | 외부 기능 Port 생성 후 clients Adapter에서 구현      |
 | Controller에서 비즈니스 검증 처리                   | Domain Service로 이동                        |
+| Controller에 Swagger 문서 애노테이션과 구현 로직 혼재     | `XxxApi` 인터페이스로 문서 책임 분리                  |
 | domain 코드가 storage 패키지를 import            | Port를 통해 역전                               |
 | domain 코드가 clients 패키지를 import            | Port를 통해 역전                               |
 | core에 도메인 전용 정책 이동                        | 해당 domain 모듈로 이동                          |
@@ -266,7 +299,7 @@ implementation(project(":clients"))
 
 ---
 
-## Step 10. 마이그레이션 플랜 출력 형식
+## Step 11. 마이그레이션 플랜 출력 형식
 
 마이그레이션 요청에는 아래 형식으로 답변합니다.
 
@@ -286,7 +319,9 @@ implementation(project(":clients"))
 
 ### 새 패키지 구조
 ```text
-api/controller/<domain>/
+api/controller/<channel>/
+api/controller/<channel>/XxxApi
+api/controller/<channel>/XxxController
 domain-<name>/service/
 domain-<name>/port/
 storage/db/<domain>/entity/
@@ -326,9 +361,13 @@ public interface XxxRepositoryPort {
 
 ---
 
-## Step 11. 답변 원칙
+## Step 12. 답변 원칙
 
 - 기존 코드의 책임과 이동 위치를 표로 정리합니다.
+- Controller/HTTP DTO는 노출 채널 기준, Service/Port/Model은 비즈니스 도메인 기준으로 이동 위치를 판단합니다.
+- 채널과 도메인이 1:1로 맞지 않아도 되며, 필요한 경우 `app`, `official`, `admin` 같은 채널 아래에 도메인별 하위 패키지를 둡니다.
+- Controller 마이그레이션에는 `XxxApi` 인터페이스 생성과 `XxxController implements XxxApi` 전환을 포함합니다.
+- Swagger/OpenAPI 애노테이션은 `XxxApi`에, Spring MVC 매핑과 실제 구현 로직은 `XxxController`에 둡니다.
 - 마이그레이션 순서는 안전한 단계별 흐름으로 제안합니다.
 - Port와 Adapter를 반드시 함께 설명합니다.
 - Entity와 Domain Model의 분리를 명확히 합니다.
