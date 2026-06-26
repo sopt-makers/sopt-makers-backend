@@ -87,12 +87,12 @@ public class AuthFacade {
 
   @Transactional
   public void signUp(String idToken, String phone, OAuthPlatform platform) {
+    authService.validateVerified(phone, PhoneVerificationType.REGISTER);
+
     if (isBypassLoginPhone(phone)) {
       signUpForBypassLogin(idToken, platform);
       return;
     }
-
-    authService.validateVerified(phone, PhoneVerificationType.REGISTER);
 
     String platformId = oAuthAuthenticatorPort.getIdentifier(idToken, platform);
     SocialAccount socialAccount = SocialAccount.of(platformId, platform);
@@ -151,7 +151,10 @@ public class AuthFacade {
   @Transactional
   public VerifyResult verifyPhoneCode(String phone, String code, PhoneVerificationType type) {
     if (isBypassLoginVerification(phone, code)) {
-      return new VerifyResult(bypassLoginPort.name(), bypassLoginPort.phone());
+      PhoneVerification verified =
+          authService.createVerifiedVerification(
+              bypassLoginPort.name(), bypassLoginPort.phone(), type);
+      return new VerifyResult(verified.name(), verified.phone());
     }
     PhoneVerification verified = authService.verifyCode(phone, code, type);
     return new VerifyResult(verified.name(), verified.phone());
