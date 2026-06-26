@@ -83,6 +83,8 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/api/v1/social/accounts/**")
               .permitAll()
+              .requestMatchers("/api/v1/official/**")
+              .permitAll()
               .requestMatchers("/api/v1/admin/auth/login", "/api/v1/admin/auth/refresh")
               .permitAll()
               .requestMatchers("/api/v1/admin/**")
@@ -93,6 +95,7 @@ public class SecurityConfig {
               .permitAll()
               .requestMatchers("/api/v1/visitor/**")
               .permitAll();
+
           if (includeSwagger) {
             authorize
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
