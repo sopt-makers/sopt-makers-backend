@@ -20,7 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/official/projects")
 @RequiredArgsConstructor
 @Validated
 public class ProjectController implements ProjectApi {

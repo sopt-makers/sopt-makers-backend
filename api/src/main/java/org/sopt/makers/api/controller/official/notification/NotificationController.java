@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/notification")
+@RequestMapping("/api/v1/official/notification")
 @RequiredArgsConstructor
 @Validated
 public class NotificationController implements NotificationApi {
