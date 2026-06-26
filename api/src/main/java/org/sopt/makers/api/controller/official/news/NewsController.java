@@ -6,6 +6,7 @@ import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.GET_N
 import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.GET_NEWS_LIST;
 import static org.sopt.makers.api.controller.official.news.NewsSuccessCode.UPDATE_NEWS;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "뉴스", description = "공식 홈페이지 뉴스 API")
 @RequestMapping("/api/v1/official/news")
 @RequiredArgsConstructor
 @Validated

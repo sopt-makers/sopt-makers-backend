@@ -2,6 +2,7 @@ package org.sopt.makers.api.controller.user;
 
 import static org.sopt.makers.api.controller.user.UserSuccessCode.UPDATE_USER_PROFILE;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "유저", description = "유저 API")
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Validated

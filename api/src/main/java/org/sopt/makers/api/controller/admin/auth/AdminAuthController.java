@@ -5,6 +5,7 @@ import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUC
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_REFRESH_TOKEN;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_SIGN_UP;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.CookieFactory;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "어드민 인증", description = "어드민 인증 API")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/auth")
 public class AdminAuthController implements AdminAuthApi {

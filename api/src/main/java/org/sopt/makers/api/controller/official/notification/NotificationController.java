@@ -3,6 +3,7 @@ package org.sopt.makers.api.controller.official.notification;
 import static org.sopt.makers.api.controller.official.notification.NotificationSuccessCode.GET_NOTIFICATION_LIST;
 import static org.sopt.makers.api.controller.official.notification.NotificationSuccessCode.REGISTER_NOTIFICATION;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "알림 신청", description = "공식 홈페이지 알림 신청 API")
 @RequestMapping("/api/v1/notification")
 @RequiredArgsConstructor
 @Validated

@@ -3,6 +3,7 @@ package org.sopt.makers.api.controller.official.visitor;
 import static org.sopt.makers.api.controller.official.visitor.VisitorSuccessCode.GET_TODAY_VISITOR;
 import static org.sopt.makers.api.controller.official.visitor.VisitorSuccessCode.VISITOR_COUNT_UP;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "방문자", description = "공식 홈페이지 방문자 API")
 @RequestMapping("/api/v1/visitor")
 @RequiredArgsConstructor
 public class VisitorController {
