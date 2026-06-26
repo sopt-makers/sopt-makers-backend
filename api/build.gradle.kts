@@ -29,7 +29,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.17.0")
+    implementation("io.sentry:sentry-spring-boot-4:8.22.0")
+    implementation("io.sentry:sentry-spring-7:8.22.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
