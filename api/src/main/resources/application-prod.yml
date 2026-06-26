@@ -1,0 +1,9 @@
+sentry:
+  dsn: ${PROD_SENTRY_DSN}
+  environment: prod
+  traces-sample-rate: 1.0
+  send-default-pii: false
+  enable-tracing: true
+  logging:
+    minimum-event-level: error
+    minimum-breadcrumb-level: info
