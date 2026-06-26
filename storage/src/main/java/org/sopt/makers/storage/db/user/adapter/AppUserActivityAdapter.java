@@ -23,6 +23,10 @@ public class AppUserActivityAdapter implements AppUserActivityPort {
 
   private AppUserActivity toCurrentActivity(UserActivityHistoryEntity activity) {
     return new AppUserActivity(
-        activity.getUser().getId(), activity.getGeneration(), activity.getPart());
+        activity.getUser().getId(),
+        activity.getUser().getName(),
+        activity.getGeneration(),
+        activity.getPart(),
+        activity.getAttendanceScore());
   }
 }

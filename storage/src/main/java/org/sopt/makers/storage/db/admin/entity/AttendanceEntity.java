@@ -46,6 +46,8 @@ public class AttendanceEntity {
         id,
         userId,
         lecture.getId(),
+        lecture.getName(),
+        lecture.getStartDate(),
         lecture.getAttribute(),
         lecture.getStatus() == LectureStatus.END,
         status,
