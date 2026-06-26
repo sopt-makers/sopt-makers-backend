@@ -13,6 +13,7 @@ public enum Part {
   DESIGN("디자인"),
   PLAN("기획"),
   WEB("웹"),
+  COMMON("공통"),
 
   // SOPT MAKERS 챕터
   PM("PM"),
