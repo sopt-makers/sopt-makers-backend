@@ -237,6 +237,16 @@ class SoptStoryServiceTest {
         .containsExactly(story2);
   }
 
+  @Test
+  @DisplayName("IP가 없으면 좋아요한 SoptStory ID 목록은 빈 값으로 조회")
+  void getLikedSoptStoryIdsWithoutIp() {
+    Long storyId = createSoptStoryWithTitle("제목1", "https://example.com/1");
+    SoptStory story = soptStoryRepositoryPort.findById(storyId).orElseThrow();
+
+    assertThat(soptStoryService.getLikedSoptStoryIds(null, List.of(story))).isEmpty();
+    assertThat(soptStoryService.getLikedSoptStoryIds("", List.of(story))).isEmpty();
+  }
+
   private Long createSoptStory() {
     return createSoptStoryWithTitle("기본 제목", "https://example.com/default");
   }

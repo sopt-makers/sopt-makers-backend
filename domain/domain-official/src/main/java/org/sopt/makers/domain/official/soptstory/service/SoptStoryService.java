@@ -82,7 +82,7 @@ public class SoptStoryService {
   }
 
   public Set<Long> getLikedSoptStoryIds(String ip, List<SoptStory> soptStories) {
-    if (soptStories.isEmpty()) {
+    if (ip == null || ip.isBlank() || soptStories.isEmpty()) {
       return Set.of();
     }
 

@@ -78,12 +78,11 @@ public class SoptStoryController {
   public ResponseEntity<BaseResponse<?>> getSoptStoryList(
       @ParameterObject @Valid @ModelAttribute GetSoptStoryListRequest request,
       HttpServletRequest httpRequest) {
-    String ip = extractAndValidateIp(httpRequest);
-
     Page<SoptStory> page =
         soptStoryService.getSoptStoryList(
             request.sort(), request.pageNoOrDefault(), request.limitOrDefault());
 
+    String ip = extractClientIp(httpRequest);
     Set<Long> likedIds = soptStoryService.getLikedSoptStoryIds(ip, page.getContent());
     List<SoptStoryResponse> content =
         page.getContent().stream()
@@ -101,6 +100,14 @@ public class SoptStoryController {
   }
 
   private String extractAndValidateIp(HttpServletRequest request) {
+    String ip = extractClientIp(request);
+    if (ip == null || ip.isBlank()) {
+      throw new SoptStoryException(INVALID_CLIENT_IP);
+    }
+    return ip;
+  }
+
+  private String extractClientIp(HttpServletRequest request) {
     String ip = request.getHeader("X-Real-IP");
     if (ip == null || ip.isBlank()) {
       String xff = request.getHeader("X-Forwarded-For");
@@ -110,9 +117,6 @@ public class SoptStoryController {
     }
     if (ip == null || ip.isBlank()) {
       ip = request.getRemoteAddr();
-    }
-    if (ip == null || ip.isBlank()) {
-      throw new SoptStoryException(INVALID_CLIENT_IP);
     }
     return ip;
   }
