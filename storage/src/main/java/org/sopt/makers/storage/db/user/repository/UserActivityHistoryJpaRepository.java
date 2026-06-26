@@ -1,6 +1,7 @@
 package org.sopt.makers.storage.db.user.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,6 +14,8 @@ public interface UserActivityHistoryJpaRepository
   List<UserActivityHistoryEntity> findByUserId(Long userId);
 
   List<UserActivityHistoryEntity> findAllByUserIdIn(List<Long> userIds);
+
+  Optional<UserActivityHistoryEntity> findFirstByUserIdOrderByGenerationDesc(Long userId);
 
   void deleteByUserId(Long userId);
 

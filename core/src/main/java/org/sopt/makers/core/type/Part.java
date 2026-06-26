@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum Part {
+  ALL("전체"),
   ANDROID("안드로이드"),
   IOS("iOS"),
   SERVER("서버"),

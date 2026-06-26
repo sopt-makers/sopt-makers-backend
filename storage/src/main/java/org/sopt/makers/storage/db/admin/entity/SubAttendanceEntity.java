@@ -43,7 +43,14 @@ public class SubAttendanceEntity {
   }
 
   public SubAttendance toDomain() {
-    return new SubAttendance(id, attendance.getId(), subLecture.getRound(), status);
+    return new SubAttendance(
+        id,
+        attendance.getId(),
+        subLecture.getId(),
+        subLecture.getRound(),
+        subLecture.getStartAt(),
+        status,
+        null);
   }
 
   public static SubAttendanceEntity fromDomain(
