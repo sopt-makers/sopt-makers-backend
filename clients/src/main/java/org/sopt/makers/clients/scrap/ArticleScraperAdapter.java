@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.official.scrap.exception.ScrapException;
 import org.sopt.makers.domain.official.scrap.exception.ScrapFailure;
 import org.sopt.makers.domain.official.scrap.port.ArticleScraperPort;
-import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -20,7 +19,7 @@ public class ArticleScraperAdapter implements ArticleScraperPort {
   public ArticleScraperPort.ScrapedArticle scrap(String url) {
     try {
       LinkSource source = LinkSource.parseSource(url);
-      ScrapedArticle result = crawlerComposite.crawl(source, url);
+      var result = crawlerComposite.crawl(source, url);
       String articleUrl = (result.articleUrl() == null || result.articleUrl().isBlank()) ? url : result.articleUrl();
       return new ArticleScraperPort.ScrapedArticle(
           result.thumbnailUrl(), result.title(), result.description(), articleUrl);
