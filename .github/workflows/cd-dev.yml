@@ -1,4 +1,4 @@
-name: Continuous Deployment for SOPT Makers Backend Development EC2 Server
+name: Continuous Deployment for SOPT Makers Backend Dev EC2 Server
 
 on:
   workflow_dispatch:
