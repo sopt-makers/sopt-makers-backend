@@ -16,6 +16,7 @@ spring:
 security:
   api:
     keys:
+      monitoring: test-monitoring-key
       developer: test-developer-key
     secured-endpoints:
       - /actuator
