@@ -56,14 +56,20 @@ public class AppScheduleService {
   private void putScheduleToMap(
       Map<LocalDate, List<AppSchedule>> scheduleMap, AppSchedule schedule) {
     long duration = DAYS.between(schedule.startAt().toLocalDate(), schedule.endAt().toLocalDate());
-    scheduleMap
-        .computeIfAbsent(schedule.startAt().toLocalDate(), key -> new ArrayList<>())
-        .add(schedule);
+    scheduleMap.computeIfPresent(
+        schedule.startAt().toLocalDate(),
+        (key, list) -> {
+          list.add(schedule);
+          return list;
+        });
 
     if (duration >= DAY_DURATION) {
-      scheduleMap
-          .computeIfAbsent(schedule.endAt().toLocalDate(), key -> new ArrayList<>())
-          .add(schedule);
+      scheduleMap.computeIfPresent(
+          schedule.endAt().toLocalDate(),
+          (key, list) -> {
+            list.add(schedule);
+            return list;
+          });
       if (duration >= TWO_DAYS_DURATION) {
         putScheduleMapBetween(scheduleMap, schedule, (int) duration);
       }
@@ -78,6 +84,11 @@ public class AppScheduleService {
   private void putScheduleAtDayCount(
       Map<LocalDate, List<AppSchedule>> scheduleMap, AppSchedule schedule, int dayCount) {
     LocalDate date = schedule.startAt().plusDays(dayCount).toLocalDate();
-    scheduleMap.computeIfAbsent(date, key -> new ArrayList<>()).add(schedule);
+    scheduleMap.computeIfPresent(
+        date,
+        (key, list) -> {
+          list.add(schedule);
+          return list;
+        });
   }
 }
