@@ -2,11 +2,9 @@ security:
   api:
     keys:
       monitoring: ${MONITORING_X_API_KEY}
-      internal: ${INTERNAL_API_KEY}
+      developer: ${DEVELOPER_API_KEY}
     secured-endpoints:
       - ${ACTUATOR_PATH}
-      - /api/v1/admin/auth/signup
-      - /api/v1/internal
 
   jwt:
     secret:
