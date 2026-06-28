@@ -4,9 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -20,16 +17,13 @@ import org.sopt.makers.domain.user.enums.FeedbackStyle;
 import org.sopt.makers.domain.user.enums.IdeationStyle;
 import org.sopt.makers.domain.user.enums.WorkPlace;
 import org.sopt.makers.domain.user.enums.WorkTime;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_work_preferences")
-public class UserWorkPreferenceEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class UserWorkPreferenceEntity extends BaseEntity {
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)

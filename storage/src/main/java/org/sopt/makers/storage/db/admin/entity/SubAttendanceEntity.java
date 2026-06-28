@@ -6,26 +6,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "sub_attendances")
-public class SubAttendanceEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class SubAttendanceEntity extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "attendance_id", nullable = false)
@@ -38,12 +33,25 @@ public class SubAttendanceEntity {
   @Enumerated(EnumType.STRING)
   private AttendanceStatus status;
 
+  private LocalDateTime attendedAt;
+
   public void updateStatus(AttendanceStatus status) {
     this.status = status;
   }
 
+  public void updateAttendedAt(LocalDateTime attendedAt) {
+    this.attendedAt = attendedAt;
+  }
+
   public SubAttendance toDomain() {
-    return new SubAttendance(id, attendance.getId(), subLecture.getRound(), status);
+    return new SubAttendance(
+        getId(),
+        attendance.getId(),
+        subLecture.getId(),
+        subLecture.getRound(),
+        subLecture.getStartAt(),
+        status,
+        attendedAt);
   }
 
   public static SubAttendanceEntity fromDomain(
@@ -54,6 +62,7 @@ public class SubAttendanceEntity {
     entity.attendance = attendanceEntity;
     entity.subLecture = subLectureEntity;
     entity.status = subAttendance.status();
+    entity.attendedAt = subAttendance.attendedAt();
     return entity;
   }
 }

@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.admin.attendance;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
@@ -8,6 +9,8 @@ public record Attendance(
     Long id,
     Long userId,
     Long lectureId,
+    String lectureName,
+    LocalDateTime lectureStartAt,
     LectureAttribute attribute,
     boolean isEnded,
     AttendanceStatus status,

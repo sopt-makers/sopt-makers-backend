@@ -31,6 +31,7 @@ public class SubAttendanceRepositoryAdapter implements SubAttendanceRepositoryPo
             .findById(subAttendance.id())
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_SUB_ATTENDANCE));
     entity.updateStatus(subAttendance.status());
+    entity.updateAttendedAt(subAttendance.attendedAt());
     return subAttendanceJpaRepository.save(entity).toDomain();
   }
 }

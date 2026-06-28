@@ -7,9 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -20,16 +17,13 @@ import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.LectureStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "attendances")
-public class AttendanceEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class AttendanceEntity extends BaseEntity {
 
   @Column(name = "user_id", nullable = false)
   private Long userId;
@@ -43,9 +37,11 @@ public class AttendanceEntity {
 
   public Attendance toDomain(List<SubAttendance> subAttendances) {
     return new Attendance(
-        id,
+        getId(),
         userId,
         lecture.getId(),
+        lecture.getName(),
+        lecture.getStartDate(),
         lecture.getAttribute(),
         lecture.getStatus() == LectureStatus.END,
         status,

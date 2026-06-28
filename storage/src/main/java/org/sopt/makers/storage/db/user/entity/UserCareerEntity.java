@@ -1,25 +1,19 @@
 package org.sopt.makers.storage.db.user.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.user.UserCareer;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_careers")
-public class UserCareerEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class UserCareerEntity extends BaseEntity {
 
   private Long userId;
 
@@ -61,6 +55,6 @@ public class UserCareerEntity {
   }
 
   public UserCareer toDomain() {
-    return UserCareer.of(id, userId, companyName, title, startDate, endDate, isCurrent);
+    return UserCareer.of(getId(), userId, companyName, title, startDate, endDate, isCurrent);
   }
 }

@@ -1,25 +1,19 @@
 package org.sopt.makers.storage.db.user.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.user.UserLink;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_links")
-public class UserLinkEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class UserLinkEntity extends BaseEntity {
 
   private Long userId;
 
@@ -51,6 +45,6 @@ public class UserLinkEntity {
   }
 
   public UserLink toDomain() {
-    return UserLink.of(id, userId, title, url);
+    return UserLink.of(getId(), userId, title, url);
   }
 }

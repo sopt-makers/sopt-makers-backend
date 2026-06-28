@@ -10,4 +10,6 @@ public interface SubLectureJpaRepository extends JpaRepository<SubLectureEntity,
 
   @Query("SELECT sl FROM SubLectureEntity sl JOIN FETCH sl.lecture WHERE sl.id = :id")
   Optional<SubLectureEntity> findByIdWithLecture(@Param("id") Long id);
+
+  Optional<SubLectureEntity> findByLectureIdAndRound(Long lectureId, int round);
 }

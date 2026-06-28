@@ -8,9 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -22,6 +19,7 @@ import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.domain.user.Team;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
@@ -33,11 +31,7 @@ import org.sopt.makers.domain.user.Team;
           name = "UK_USER_ID_AND_GENERATION",
           columnNames = {"user_id", "generation", "is_sopt"})
     })
-public class UserActivityHistoryEntity {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class UserActivityHistoryEntity extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
@@ -100,6 +94,6 @@ public class UserActivityHistoryEntity {
   }
 
   public Activity toDomain() {
-    return Activity.of(id, generation, team, part, role, isSopt, attendanceScore);
+    return Activity.of(getId(), generation, team, part, role, isSopt, attendanceScore);
   }
 }

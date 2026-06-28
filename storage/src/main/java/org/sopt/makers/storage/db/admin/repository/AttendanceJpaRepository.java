@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
+import org.sopt.makers.storage.db.admin.querydsl.AttendanceQuerydslRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AttendanceJpaRepository extends JpaRepository<AttendanceEntity, Long> {
+public interface AttendanceJpaRepository
+    extends JpaRepository<AttendanceEntity, Long>, AttendanceQuerydslRepository {
 
   @Query("SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture WHERE a.id = :id")
   Optional<AttendanceEntity> findByIdWithLecture(@Param("id") Long id);
