@@ -25,8 +25,10 @@ public record TodayLectureResponse(
   public static TodayLectureResponse from(AppLectureResult result) {
     AppLecture lecture = result.lecture();
     if (lecture == null) {
-      return new TodayLectureResponse(result.type(), 0L, "", "", "", "", "", List.of());
+      return new TodayLectureResponse(
+          result.type(), 0L, "", "", "", "", result.message(), List.of());
     }
+
     return new TodayLectureResponse(
         result.type(),
         lecture.id(),
