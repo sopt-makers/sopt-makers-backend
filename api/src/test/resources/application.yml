@@ -17,6 +17,7 @@ security:
   api:
     keys:
       monitoring: test-monitoring-key
+      developer: test-developer-key
     secured-endpoints:
       - /actuator
   jwt:
@@ -51,3 +52,6 @@ external:
     bucket: test-bucket
     region: ap-northeast-2
     base-dir: test/
+  playground:
+    url: http://localhost
+    token: test-playground-token
