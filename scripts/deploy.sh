@@ -4,9 +4,13 @@
 cd "$(dirname "$0")/.."
 
 # Load environment variables for shell scripts (port values etc.)
-set -a
-source .env
-set +a
+while read -r line; do
+  [[ -z "$line" || "$line" == \#* ]] && continue
+  key="${line%%=*}"
+  value="${line#*=}"
+  [[ -z "$key" || "$key" == "$line" ]] && continue
+  export "$key=$value"
+done < .env
 
 # Load modular deployment functions
 source ./scripts/check_running_container.sh
