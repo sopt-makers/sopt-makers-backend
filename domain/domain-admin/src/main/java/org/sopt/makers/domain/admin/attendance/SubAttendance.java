@@ -23,6 +23,6 @@ public record SubAttendance(
         round,
         subLectureStartAt,
         AttendanceStatus.ATTENDANCE,
-        attendedAt);
+        this.attendedAt != null ? this.attendedAt : attendedAt);
   }
 }
