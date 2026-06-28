@@ -57,7 +57,7 @@ public class AppScheduleService {
 
   private void putScheduleToMap(
       Map<LocalDate, List<AppSchedule>> scheduleMap, AppSchedule schedule) {
-    long duration = DAYS.between(schedule.startAt(), schedule.endAt());
+    long duration = DAYS.between(schedule.startAt().toLocalDate(), schedule.endAt().toLocalDate());
     scheduleMap
         .computeIfAbsent(schedule.startAt().toLocalDate(), key -> new ArrayList<>())
         .add(schedule);
