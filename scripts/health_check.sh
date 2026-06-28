@@ -2,21 +2,28 @@
 
 health_check() {
   local PORT=$1
+  local URL="http://localhost:${PORT}${ACTUATOR_PATH}/health"
 
-  echo "▶️ Health Check on port ${PORT}..."
+  echo "▶️ Health Check"
+
   for retry_count in {1..20}; do
-    { set +x; } 2>/dev/null
-    response=$(curl -s \
+    response=$(curl -s -w "\n%{http_code}" \
       -H "X-Api-Key: ${DEVELOPER_API_KEY}" \
       -H "X-Service-Name: developer" \
-      http://localhost:${PORT}${ACTUATOR_PATH}/health)
+      "$URL")
 
-    if echo "$response" | grep -q '^{"status":"UP"'; then
+    body=$(echo "$response" | sed '$d')
+    status_code=$(echo "$response" | tail -n1)
+
+    if [[ "$status_code" == "200" ]] && echo "$body" | grep -q '"status":"UP"'; then
       echo "✅ Health check successful"
       return 0
-    else
-      echo "❌ Health check failed (try $retry_count)"
     fi
+
+    echo "❌ Health check failed (try $retry_count)"
+    echo "HTTP Status: $status_code"
+    echo "Response: $body"
+
     sleep 5
   done
 
