@@ -58,8 +58,7 @@ public class SwaggerConfig {
     return GroupedOpenApi.builder()
         .group("Official")
         .packagesToScan(
-            "org.sopt.makers.api.controller.official",
-            "org.sopt.makers.api.controller.internal")
+            "org.sopt.makers.api.controller.official", "org.sopt.makers.api.controller.internal")
         .build();
   }
 
@@ -70,5 +69,4 @@ public class SwaggerConfig {
         .packagesToScan("org.sopt.makers.api.controller.user")
         .build();
   }
-
 }

@@ -1,6 +1,7 @@
 package org.sopt.makers.api.common.security.filter;
 
 import static org.sopt.makers.api.common.security.SecurityConstant.API_KEY_HEADER;
+import static org.sopt.makers.api.common.security.SecurityConstant.API_KEY_SECURED_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.SERVICE_NAME_HEADER;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.INVALID_API_KEY;
 
@@ -41,7 +42,13 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private boolean isSecuredEndpoint(final String uri) {
-    return securityProperty.api().securedEndpoints().stream().anyMatch(uri::startsWith);
+    return securityProperty.api().securedEndpoints().stream()
+            .anyMatch(path -> matchesPath(uri, path))
+        || API_KEY_SECURED_PATHS.stream().anyMatch(path -> matchesPath(uri, path));
+  }
+
+  private boolean matchesPath(final String uri, final String path) {
+    return uri.equals(path) || uri.startsWith(path + "/");
   }
 
   private void handleApiKeyAuthentication(final HttpServletRequest request) {

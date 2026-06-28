@@ -1,10 +1,12 @@
 package org.sopt.makers.api.common.config;
 
 import static org.sopt.makers.api.common.security.SecurityConstant.ADMIN;
+import static org.sopt.makers.api.common.security.SecurityConstant.API_KEY_SECURED_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.INTERNAL_SERVICE;
+import static org.sopt.makers.api.common.security.SecurityConstant.JWT_WHITELIST;
 import static org.sopt.makers.api.common.security.SecurityConstant.PATTERN_ALL;
 
-import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.security.filter.ApiKeyAuthenticationFilter;
 import org.sopt.makers.api.common.security.filter.AuthenticationExceptionFilter;
@@ -74,29 +76,29 @@ public class SecurityConfig {
 
   private void setSecuredHttp(final HttpSecurity http, final boolean includeSwagger)
       throws Exception {
-    List<String> securedEndpoints = securityProperty.api().securedEndpoints();
+    String[] publicPatterns =
+        JWT_WHITELIST.stream()
+            .filter(p -> !p.startsWith("/swagger") && !p.startsWith("/v3/api-docs"))
+            .flatMap(p -> Stream.of(p, p + PATTERN_ALL))
+            .toArray(String[]::new);
+
     http.authorizeHttpRequests(
         authorize -> {
-          authorize
-              .requestMatchers("/api/v1/auth/**")
-              .permitAll()
-              .requestMatchers("/api/v1/social/accounts/**")
-              .permitAll()
-              .requestMatchers("/api/v1/official/**")
-              .permitAll()
-              .requestMatchers("/api/v1/admin/auth/login", "/api/v1/admin/auth/refresh")
-              .permitAll()
-              .requestMatchers("/api/v1/admin/**")
-              .hasAuthority(ADMIN)
-              .requestMatchers("/error/**")
-              .permitAll();
+          authorize.requestMatchers(publicPatterns).permitAll();
 
           if (includeSwagger) {
             authorize
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
                 .permitAll();
           }
-          for (String endpoint : securedEndpoints) {
+
+          for (String path : API_KEY_SECURED_PATHS) {
+            authorize.requestMatchers(path, path + PATTERN_ALL).hasRole(INTERNAL_SERVICE);
+          }
+
+          authorize.requestMatchers("/api/v1/admin/**").hasAuthority(ADMIN);
+
+          for (String endpoint : securityProperty.api().securedEndpoints()) {
             authorize.requestMatchers(endpoint + PATTERN_ALL).hasRole(INTERNAL_SERVICE);
           }
 

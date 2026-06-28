@@ -83,8 +83,7 @@ public class PlaygroundProjectAdapter implements ProjectClientPort {
   }
 
   private ProjectDetail toProjectDetail(PlaygroundProjectDetailResponse r) {
-    String projectImage =
-        (r.images() != null && !r.images().isEmpty()) ? r.images().get(0) : null;
+    String projectImage = (r.images() != null && !r.images().isEmpty()) ? r.images().get(0) : null;
     List<ProjectDetail.ProjectLink> links =
         r.links() == null
             ? List.of()
@@ -95,7 +94,10 @@ public class PlaygroundProjectAdapter implements ProjectClientPort {
         r.members() == null
             ? List.of()
             : r.members().stream()
-                .map(m -> new ProjectMember(m.memberName(), parseMemberRole(m.memberRole()), m.memberDescription()))
+                .map(
+                    m ->
+                        new ProjectMember(
+                            m.memberName(), parseMemberRole(m.memberRole()), m.memberDescription()))
                 .toList();
     return new ProjectDetail(
         r.id(),
@@ -130,14 +132,15 @@ public class PlaygroundProjectAdapter implements ProjectClientPort {
   private List<ProjectServiceType> parseServiceTypes(List<String> types) {
     if (types == null) return List.of();
     return types.stream()
-        .map(t -> {
-          try {
-            return ProjectServiceType.valueOf(t);
-          } catch (IllegalArgumentException e) {
-            log.warn("알 수 없는 서비스 타입: {}", t);
-            return null;
-          }
-        })
+        .map(
+            t -> {
+              try {
+                return ProjectServiceType.valueOf(t);
+              } catch (IllegalArgumentException e) {
+                log.warn("알 수 없는 서비스 타입: {}", t);
+                return null;
+              }
+            })
         .filter(java.util.Objects::nonNull)
         .toList();
   }

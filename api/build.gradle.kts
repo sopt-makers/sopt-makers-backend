@@ -2,6 +2,8 @@ plugins {
     id("org.springframework.boot")
 }
 
+tasks.jar { enabled = false }
+
 dependencies {
     implementation(project(":core"))
     implementation(project(":domain:domain-user"))
@@ -21,6 +23,8 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
+
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

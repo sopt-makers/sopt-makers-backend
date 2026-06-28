@@ -5,6 +5,12 @@ spring:
       - classpath:security.yml
       - classpath:external.yml
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 auth:
   bypass-login:
     phone: ${BYPASS_LOGIN_PHONE}
