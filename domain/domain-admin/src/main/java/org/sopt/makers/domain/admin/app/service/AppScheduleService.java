@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.app.AppSchedule;
 import org.sopt.makers.domain.admin.app.exception.AppException;
@@ -73,9 +72,7 @@ public class AppScheduleService {
 
   private void putScheduleMapBetween(
       Map<LocalDate, List<AppSchedule>> scheduleMap, AppSchedule schedule, int duration) {
-    Stream.iterate(1, day -> day + 1)
-        .limit(duration - 1L)
-        .forEach(day -> putScheduleAtDayCount(scheduleMap, schedule, day));
+    IntStream.range(1, duration).forEach(day -> putScheduleAtDayCount(scheduleMap, schedule, day));
   }
 
   private void putScheduleAtDayCount(
