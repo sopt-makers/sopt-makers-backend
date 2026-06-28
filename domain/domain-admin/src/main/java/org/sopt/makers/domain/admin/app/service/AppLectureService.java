@@ -76,7 +76,7 @@ public class AppLectureService {
   }
 
   private void validateLectureCount(List<AppLecture> lectures) {
-    if (lectures.size() > SUB_LECTURE_MAX_ROUND) {
+    if (lectures.size() > MAX_LECTURE_COUNT) {
       throw new AttendanceException(AttendanceFailure.INVALID_SESSION_COUNT);
     }
   }
