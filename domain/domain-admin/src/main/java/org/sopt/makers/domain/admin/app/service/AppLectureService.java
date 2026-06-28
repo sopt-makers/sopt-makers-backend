@@ -2,7 +2,6 @@ package org.sopt.makers.domain.admin.app.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.app.AppLecture;
@@ -150,9 +149,9 @@ public class AppLectureService {
 
   private void validateTodayLecture(AppLecture lecture) {
     LocalDate today = LocalDate.now();
-    LocalDateTime startOfDay = today.atStartOfDay();
-    LocalDateTime endOfDay = LocalDateTime.of(today, LocalTime.MAX);
-    if (lecture.startAt().isBefore(startOfDay) || lecture.startAt().isAfter(endOfDay)) {
+    boolean isNotTodayLecture = !lecture.startAt().toLocalDate().equals(today);
+
+    if (isNotTodayLecture) {
       throw new AttendanceException(AttendanceFailure.NOT_FOUND_TODAY_LECTURE);
     }
   }
