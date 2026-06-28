@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  makers-backend-blue:
+    image: ${ECR_IMAGE}:latest
+    container_name: makers-backend-blue
+    ports:
+      - "${MAKERS_BACKEND_BLUE_PORT:-8081}:8080"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  makers-backend-green:
+    image: ${ECR_IMAGE}:latest
+    container_name: makers-backend-green
+    ports:
+      - "${MAKERS_BACKEND_GREEN_PORT:-8082}:8080"
+    env_file:
+      - .env
+    restart: unless-stopped
