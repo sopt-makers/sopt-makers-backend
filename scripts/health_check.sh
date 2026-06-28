@@ -3,8 +3,9 @@
 health_check() {
   local PORT=$1
 
-  echo "▶️ Health Check : http://localhost:${PORT}${ACTUATOR_PATH}/health"
+  echo "▶️ Health Check on port ${PORT}..."
   for retry_count in {1..20}; do
+    { set +x; } 2>/dev/null
     response=$(curl -s \
       -H "X-Api-Key: ${MONITORING_X_API_KEY}" \
       -H "X-Service-Name: monitoring" \
