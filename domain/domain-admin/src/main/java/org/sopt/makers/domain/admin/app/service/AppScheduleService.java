@@ -2,7 +2,6 @@ package org.sopt.makers.domain.admin.app.service;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class AppScheduleService {
   }
 
   private int getDuration(LocalDateTime startAt, LocalDateTime endAt) {
-    long duration = Duration.between(startAt, endAt).toDays() + 1;
+    long duration = DAYS.between(startAt.toLocalDate(), endAt.toLocalDate()) + 1;
     if (duration < MIN_SCHEDULE_DURATION || duration > MAX_SCHEDULE_DURATION) {
       throw new AppException(AppFailure.INVALID_SCHEDULE_DATE_RANGE);
     }
