@@ -24,7 +24,9 @@ public class ProjectService {
         all.stream()
             .filter(p -> category == null || Objects.equals(p.category(), category))
             .filter(p -> serviceType == null || p.serviceType().contains(serviceType))
-            .sorted(Comparator.comparing(Project::generation, Comparator.nullsLast(Comparator.reverseOrder())))
+            .sorted(
+                Comparator.comparing(
+                    Project::generation, Comparator.nullsLast(Comparator.reverseOrder())))
             .toList();
     int total = filtered.size();
     int fromIndex = (pageNo - 1) * limit;

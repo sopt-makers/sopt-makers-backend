@@ -21,8 +21,7 @@ public record PlaygroundProjectDetailResponse(
     LocalDateTime uploadedAt,
     LocalDateTime updatedAt,
     List<ProjectLinkDto> links,
-    List<ProjectMemberDto> members
-) {
+    List<ProjectMemberDto> members) {
   public record ProjectLinkDto(Long linkId, String linkTitle, String linkUrl) {}
 
   public record ProjectMemberDto(
@@ -33,6 +32,5 @@ public record PlaygroundProjectDetailResponse(
       boolean isTeamMember,
       List<Integer> memberGenerations,
       String memberProfileImage,
-      boolean memberHasProfile
-  ) {}
+      boolean memberHasProfile) {}
 }

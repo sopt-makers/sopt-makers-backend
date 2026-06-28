@@ -7,5 +7,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties({OAuthProperty.class, GabiaSmsProperty.class, S3Property.class, PlaygroundProperty.class})
+@EnableConfigurationProperties({
+  OAuthProperty.class,
+  GabiaSmsProperty.class,
+  S3Property.class,
+  PlaygroundProperty.class
+})
 public class ClientsConfig {}
