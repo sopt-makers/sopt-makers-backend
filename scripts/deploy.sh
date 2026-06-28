@@ -27,14 +27,19 @@ pull_and_run_container $NEW_CONTAINER
 
 # 3. Run health check on the new container
 if ! health_check $NEW_PORT; then
-  echo "❌ Health check failed. Deployment aborted."
+  echo "❌ Health check failed. Cleaning up and aborting deployment."
+  stop_and_clean_container $NEW_CONTAINER
   exit 1
 fi
 
-# 4. Stop and remove the previous container
-stop_and_clean_container $RUNNING_CONTAINER
+# 4. Reload Nginx to apply port switching
+if ! reload_nginx $NEW_PORT; then
+  echo "❌ Nginx reload failed. Aborting deployment."
+  stop_and_clean_container $NEW_CONTAINER
+  exit 1
+fi
 
-# 5. Reload Nginx to apply port switching
-reload_nginx $NEW_PORT
+# 5. Stop and remove the previous container
+stop_and_clean_container $RUNNING_CONTAINER
 
 echo "✅ Finish Deploy"
