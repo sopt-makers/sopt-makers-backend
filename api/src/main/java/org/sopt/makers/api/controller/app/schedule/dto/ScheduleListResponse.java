@@ -15,7 +15,7 @@ public record ScheduleListResponse(List<DateResponse> dates) {
     return new ScheduleListResponse(
         scheduleMap.keySet().stream()
             .sorted()
-            .map(date -> DateResponse.from(date, scheduleMap.get(date)))
+            .map(date -> DateResponse.from(date, scheduleMap.getOrDefault(date, List.of())))
             .toList());
   }
 
