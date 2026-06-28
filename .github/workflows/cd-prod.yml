@@ -114,7 +114,9 @@ jobs:
           username: ec2-user
           key: ${{ secrets.PEM_KEY_PROD }}
           port: 22
+          envs: GITHUB_SHA
           script: |
+            export IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-8)
             sudo chmod +x /home/ec2-user/makers-backend/scripts/*.sh
             cd /home/ec2-user/makers-backend/scripts
             ./deploy.sh
