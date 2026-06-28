@@ -2,6 +2,8 @@ plugins {
     id("org.springframework.boot")
 }
 
+tasks.jar { enabled = false }
+
 dependencies {
     implementation(project(":core"))
     implementation(project(":domain:domain-user"))

@@ -11,7 +11,7 @@ health_check() {
       -H "X-Service-Name: developer" \
       http://localhost:${PORT}${ACTUATOR_PATH}/health)
 
-    if echo "$response" | grep -q 'UP'; then
+    if echo "$response" | grep -q '^{"status":"UP"'; then
       echo "✅ Health check successful"
       return 0
     else

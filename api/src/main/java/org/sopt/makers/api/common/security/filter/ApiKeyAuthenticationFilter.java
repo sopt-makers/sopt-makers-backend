@@ -42,8 +42,12 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
   }
 
   private boolean isSecuredEndpoint(final String uri) {
-    return securityProperty.api().securedEndpoints().stream().anyMatch(uri::startsWith)
-        || API_KEY_SECURED_PATHS.stream().anyMatch(uri::startsWith);
+    return securityProperty.api().securedEndpoints().stream().anyMatch(path -> matchesPath(uri, path))
+        || API_KEY_SECURED_PATHS.stream().anyMatch(path -> matchesPath(uri, path));
+  }
+
+  private boolean matchesPath(final String uri, final String path) {
+    return uri.equals(path) || uri.startsWith(path + "/");
   }
 
   private void handleApiKeyAuthentication(final HttpServletRequest request) {
