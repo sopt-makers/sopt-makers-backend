@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
@@ -32,8 +33,14 @@ public class SubAttendanceEntity extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private AttendanceStatus status;
 
+  private LocalDateTime attendedAt;
+
   public void updateStatus(AttendanceStatus status) {
     this.status = status;
+  }
+
+  public void updateAttendedAt(LocalDateTime attendedAt) {
+    this.attendedAt = attendedAt;
   }
 
   public SubAttendance toDomain() {
@@ -44,7 +51,7 @@ public class SubAttendanceEntity extends BaseEntity {
         subLecture.getRound(),
         subLecture.getStartAt(),
         status,
-        null);
+        attendedAt);
   }
 
   public static SubAttendanceEntity fromDomain(
@@ -55,6 +62,7 @@ public class SubAttendanceEntity extends BaseEntity {
     entity.attendance = attendanceEntity;
     entity.subLecture = subLectureEntity;
     entity.status = subAttendance.status();
+    entity.attendedAt = subAttendance.attendedAt();
     return entity;
   }
 }

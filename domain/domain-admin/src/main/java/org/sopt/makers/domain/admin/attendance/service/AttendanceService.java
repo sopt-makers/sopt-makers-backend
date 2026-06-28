@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.admin.attendance.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.attendance.Attendance;
@@ -46,7 +47,7 @@ public class AttendanceService {
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
 
     SubAttendance subAttendance = attendance.getSubAttendanceByRound(subLecture.round());
-    SubAttendance marked = subAttendance.withStatus(AttendanceStatus.ATTENDANCE);
+    SubAttendance marked = subAttendance.markAttendance(LocalDateTime.now());
 
     subAttendanceRepositoryPort.save(marked);
 

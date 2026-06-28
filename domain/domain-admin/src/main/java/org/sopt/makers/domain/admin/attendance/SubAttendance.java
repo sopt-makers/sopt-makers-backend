@@ -14,4 +14,15 @@ public record SubAttendance(
     return new SubAttendance(
         id, attendanceId, subLectureId, round, subLectureStartAt, newStatus, attendedAt);
   }
+
+  public SubAttendance markAttendance(LocalDateTime attendedAt) {
+    return new SubAttendance(
+        id,
+        attendanceId,
+        subLectureId,
+        round,
+        subLectureStartAt,
+        AttendanceStatus.ATTENDANCE,
+        attendedAt);
+  }
 }
