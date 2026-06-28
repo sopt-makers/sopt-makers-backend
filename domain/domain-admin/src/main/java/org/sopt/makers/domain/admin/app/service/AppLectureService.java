@@ -109,7 +109,8 @@ public class AppLectureService {
     SubAttendance current = getCurrentSubAttendance(lecture);
 
     if (isOnAttendanceAbsence(current)) {
-      List<SubAttendance> attendances = lecture.isFirst() ? List.of() : List.of(current);
+      List<SubAttendance> attendances =
+          lecture.subAttendances().stream().filter(sa -> sa.round() < current.round()).toList();
       return new AppLectureResult(responseType, lecture, message, attendances);
     }
 
