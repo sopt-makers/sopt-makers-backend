@@ -25,8 +25,7 @@ public record ProjectDetail(
     LocalDateTime uploadedAt,
     LocalDateTime updatedAt,
     List<ProjectLink> links,
-    List<ProjectMember> members
-) {
+    List<ProjectMember> members) {
   public record ProjectLink(ProjectLinkType linkType, String linkUrl) {}
 
   public record ProjectMember(String name, ProjectMemberRole role, String description) {}

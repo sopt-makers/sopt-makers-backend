@@ -5,19 +5,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.official.project.Project;
 import org.sopt.makers.domain.official.project.ProjectDetail;
+import org.sopt.makers.domain.official.project.service.ProjectService;
 import org.sopt.makers.domain.official.project.type.ProjectCategory;
 import org.sopt.makers.domain.official.project.type.ProjectLinkType;
 import org.sopt.makers.domain.official.project.type.ProjectMemberRole;
 import org.sopt.makers.domain.official.project.type.ProjectServiceType;
-import org.sopt.makers.domain.official.project.service.ProjectService;
 
 public class ProjectResponse {
 
   public record ProjectList(List<ProjectItem> projects, int total) {
     public static ProjectList of(ProjectService.ProjectsResult result) {
       return new ProjectList(
-          result.projects().stream().map(ProjectItem::of).toList(),
-          result.total());
+          result.projects().stream().map(ProjectItem::of).toList(), result.total());
     }
   }
 
@@ -31,8 +30,7 @@ public class ProjectResponse {
       String logoImage,
       String thumbnailImage,
       boolean isFounding,
-      List<LinkItem> links
-  ) {
+      List<LinkItem> links) {
     public static ProjectItem of(Project p) {
       return new ProjectItem(
           p.id(),
@@ -67,8 +65,7 @@ public class ProjectResponse {
       LocalDateTime uploadedAt,
       LocalDateTime updatedAt,
       List<LinkItem> links,
-      List<MemberItem> members
-  ) {
+      List<MemberItem> members) {
     public static ProjectDetailItem of(ProjectDetail pd) {
       return new ProjectDetailItem(
           pd.id(),

@@ -6,7 +6,6 @@ import static org.sopt.makers.api.common.security.SecurityConstant.INTERNAL_SERV
 import static org.sopt.makers.api.common.security.SecurityConstant.JWT_WHITELIST;
 import static org.sopt.makers.api.common.security.SecurityConstant.PATTERN_ALL;
 
-import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.security.filter.ApiKeyAuthenticationFilter;

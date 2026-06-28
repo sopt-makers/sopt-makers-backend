@@ -12,7 +12,6 @@ public record PlaygroundProjectResponse(
     String logoImage,
     String thumbnailImage,
     boolean isFounding,
-    List<ProjectLinkDto> links
-) {
+    List<ProjectLinkDto> links) {
   public record ProjectLinkDto(Long linkId, String linkTitle, String linkUrl) {}
 }

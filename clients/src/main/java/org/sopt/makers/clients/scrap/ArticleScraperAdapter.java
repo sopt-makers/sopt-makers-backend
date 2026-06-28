@@ -20,7 +20,10 @@ public class ArticleScraperAdapter implements ArticleScraperPort {
     try {
       LinkSource source = LinkSource.parseSource(url);
       var result = crawlerComposite.crawl(source, url);
-      String articleUrl = (result.articleUrl() == null || result.articleUrl().isBlank()) ? url : result.articleUrl();
+      String articleUrl =
+          (result.articleUrl() == null || result.articleUrl().isBlank())
+              ? url
+              : result.articleUrl();
       return new ArticleScraperPort.ScrapedArticle(
           result.thumbnailUrl(), result.title(), result.description(), articleUrl);
     } catch (IOException e) {
