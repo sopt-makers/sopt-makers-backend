@@ -21,20 +21,20 @@ import org.sopt.makers.domain.official.faq.Faq;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"FAQ\"")
+@Table(name = "faq")
 public class FaqEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "\"part\"", nullable = false, length = 20)
+  @Column(name = "part", nullable = false, length = 20)
   private Part part;
 
   @JdbcTypeCode(SqlTypes.JSON)
-  @Column(name = "\"questions\"", nullable = false, columnDefinition = "text")
+  @Column(name = "questions", nullable = false, columnDefinition = "text")
   private List<Faq.QuestionAnswer> questions;
 
   public Faq toDomain() {

@@ -20,30 +20,30 @@ import org.sopt.makers.domain.official.homepage.review.HomepageReview;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"HomepageReview\"")
+@Table(name = "homepage_review")
 // DB 스키마명 불일치 이슈로 BaseEntity 상속하지 않음
 public class HomepageReviewEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"title\"", nullable = false)
+  @Column(name = "title", nullable = false)
   private String title;
 
-  @Column(name = "\"content\"", nullable = false, length = 200)
+  @Column(name = "content", nullable = false, length = 200)
   private String content;
 
-  @Column(name = "\"authorInfo\"", nullable = false)
+  @Column(name = "author_info", nullable = false)
   private String authorInfo;
 
   @CreationTimestamp
-  @Column(name = "\"createdAt\"", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
-  @Column(name = "\"updatedAt\"", nullable = false)
+  @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
   @Builder(access = PRIVATE)

@@ -15,30 +15,30 @@ import org.sopt.makers.domain.official.corevalue.CoreValue;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"CoreValue\"")
+@Table(name = "core_value")
 public class CoreValueEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"generationId\"", nullable = false)
+  @Column(name = "generation_id", nullable = false)
   private Integer generationId;
 
-  @Column(name = "\"value\"", nullable = false, length = 50)
+  @Column(name = "value", nullable = false, length = 50)
   private String value;
 
-  @Column(name = "\"description\"", nullable = false, length = 500)
+  @Column(name = "description", nullable = false, length = 500)
   private String description;
 
-  @Column(name = "\"detailDescription\"", nullable = false, length = 100)
+  @Column(name = "detail_description", nullable = false, length = 100)
   private String detailDescription;
 
-  @Column(name = "\"imageUrl\"", nullable = false, length = 500)
+  @Column(name = "image_url", nullable = false, length = 500)
   private String imageUrl;
 
-  @Column(name = "\"displayOrder\"", nullable = false)
+  @Column(name = "display_order", nullable = false)
   private Integer displayOrder;
 
   public CoreValue toDomain() {

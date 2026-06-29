@@ -19,19 +19,19 @@ import org.sopt.makers.domain.official.recruit.RecruitPartIntroduction;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"RecruitPartIntroduction\"")
+@Table(name = "recruit_part_introduction")
 public class RecruitPartIntroductionEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"generationId\"", nullable = false)
+  @Column(name = "generation_id", nullable = false)
   private Integer generationId;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "\"part\"", nullable = false, length = 20)
+  @Column(name = "part", nullable = false, length = 20)
   private Part part;
 
   @Embedded private PartIntroductionEmbeddable introduction;

@@ -21,26 +21,26 @@ import org.sopt.makers.domain.official.recruit.RecruitPartInfo;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"PartType\"")
+@Table(name = "part_type")
 public class RecruitPartEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"generationId\"", nullable = false)
+  @Column(name = "generation_id", nullable = false)
   private Integer generationId;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "\"partType\"", nullable = false, length = 20)
+  @Column(name = "part_type", nullable = false, length = 20)
   private Part partType;
 
-  @Column(name = "\"description\"", nullable = false, length = 1000)
+  @Column(name = "description", nullable = false, length = 1000)
   private String description;
 
   @JdbcTypeCode(SqlTypes.JSON)
-  @Column(name = "\"curriculums\"", nullable = false, columnDefinition = "text")
+  @Column(name = "curriculums", nullable = false, columnDefinition = "text")
   private List<String> curriculums;
 
   public RecruitPartInfo toDomain() {

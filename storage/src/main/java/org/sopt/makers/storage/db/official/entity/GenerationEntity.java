@@ -15,23 +15,23 @@ import org.sopt.makers.domain.official.generation.Generation;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"Generation\"")
+@Table(name = "generation")
 public class GenerationEntity {
 
   @Id
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Integer id;
 
-  @Column(name = "\"name\"", nullable = false, length = 50)
+  @Column(name = "name", nullable = false, length = 50)
   private String name;
 
-  @Column(name = "\"headerImage\"", nullable = false, length = 500)
+  @Column(name = "header_image", nullable = false, length = 500)
   private String headerImage;
 
-  @Column(name = "\"recruitHeaderImage\"", nullable = false, length = 500)
+  @Column(name = "recruit_header_image", nullable = false, length = 500)
   private String recruitHeaderImage;
 
-  @Column(name = "\"homeHeaderImage\"", nullable = false, length = 500)
+  @Column(name = "home_header_image", nullable = false, length = 500)
   private String homeHeaderImage;
 
   @Embedded private BrandingColorEmbeddable brandingColor;

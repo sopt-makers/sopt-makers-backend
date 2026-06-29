@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PROTECTED)
 public class BrandingColorEmbeddable {
 
-  @Column(name = "\"darkModeKeyColor\"", length = 7)
+  @Column(name = "dark_mode_key_color", length = 7)
   String darkModeKeyColor;
 
-  @Column(name = "\"darkModeTextColor\"", length = 5)
+  @Column(name = "dark_mode_text_color", length = 5)
   String darkModeTextColor;
 
-  @Column(name = "\"lightModeKeyColor\"", length = 7)
+  @Column(name = "light_mode_key_color", length = 7)
   String lightModeKeyColor;
 
-  @Column(name = "\"lightModeTextColor\"", length = 5)
+  @Column(name = "light_mode_text_color", length = 5)
   String lightModeTextColor;
 }

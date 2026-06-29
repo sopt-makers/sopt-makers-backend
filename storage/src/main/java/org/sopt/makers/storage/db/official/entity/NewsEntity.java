@@ -20,30 +20,30 @@ import org.sopt.makers.domain.official.news.News;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"MainNews\"")
+@Table(name = "main_news")
 // DB 스키마명 불일치 이슈로 BaseEntity 상속하지 않음
 public class NewsEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Integer id;
 
-  @Column(name = "\"image\"", nullable = false)
+  @Column(name = "image", nullable = false)
   private String image;
 
-  @Column(name = "\"title\"", nullable = false)
+  @Column(name = "title", nullable = false)
   private String title;
 
-  @Column(name = "\"link\"", nullable = false)
+  @Column(name = "link", nullable = false)
   private String link;
 
   @CreationTimestamp
-  @Column(name = "\"createdAt\"", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
-  @Column(name = "\"updatedAt\"", nullable = false)
+  @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
   @Builder(access = PRIVATE)
