@@ -119,3 +119,81 @@ BEGIN
       RENAME CONSTRAINT uk_soptstory_like_ip TO uk_sopt_story_like_ip;
   END IF;
 END $$;
+
+DO $$
+BEGIN
+  IF to_regclass('recruit_part_introduction') IS NOT NULL
+      AND to_regclass('part_type') IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = 'recruit_part_introduction'
+          AND column_name = 'introduction_content'
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = 'part_type'
+          AND column_name = 'description'
+      ) THEN
+    UPDATE recruit_part_introduction introduction
+    SET introduction_content = part.description
+    FROM part_type part
+    WHERE introduction.introduction_content IS NULL
+      AND introduction.generation_id = part.generation_id
+      AND introduction.part = part.part_type
+      AND part.description IS NOT NULL;
+  END IF;
+
+  IF to_regclass('recruit_part_introduction') IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = 'recruit_part_introduction'
+          AND column_name = 'introduction_preference'
+      ) THEN
+    UPDATE recruit_part_introduction
+    SET introduction_preference = ''
+    WHERE introduction_preference IS NULL;
+  END IF;
+END $$;
+
+DO $$
+DECLARE
+  not_null_column record;
+BEGIN
+  FOR not_null_column IN
+    SELECT *
+    FROM (VALUES
+      ('core_value', 'display_order'),
+      ('faq', 'part'),
+      ('faq', 'questions'),
+      ('part_type', 'generation_id'),
+      ('part_type', 'part_type'),
+      ('part_type', 'description'),
+      ('part_type', 'curriculums'),
+      ('recruit_part_introduction', 'generation_id'),
+      ('recruit_part_introduction', 'part'),
+      ('recruit_part_introduction', 'introduction_content'),
+      ('recruit_part_introduction', 'introduction_preference')
+    ) AS columns(table_name, column_name)
+  LOOP
+    IF to_regclass(not_null_column.table_name) IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_schema = current_schema()
+            AND table_name = not_null_column.table_name
+            AND column_name = not_null_column.column_name
+        ) THEN
+      EXECUTE format(
+          'ALTER TABLE %I ALTER COLUMN %I SET NOT NULL',
+          not_null_column.table_name,
+          not_null_column.column_name
+      );
+    END IF;
+  END LOOP;
+END $$;
