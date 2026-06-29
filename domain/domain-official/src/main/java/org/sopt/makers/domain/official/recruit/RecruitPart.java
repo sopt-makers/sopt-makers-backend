@@ -17,7 +17,11 @@ public final class RecruitPart {
     return Arrays.stream(Part.values())
         .filter(part -> part.name().equalsIgnoreCase(input.trim()))
         .findFirst()
-        .or(() -> Arrays.stream(Part.values()).filter(part -> part.getName().equalsIgnoreCase(input.trim())).findFirst())
+        .or(
+            () ->
+                Arrays.stream(Part.values())
+                    .filter(part -> part.getName().equalsIgnoreCase(input.trim()))
+                    .findFirst())
         .orElseThrow(() -> new RecruitException(RecruitFailure.INVALID_PART));
   }
 

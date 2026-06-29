@@ -58,7 +58,8 @@ public final class RecruitPageResponse {
       String lightModeKeyColor,
       String lightModeTextColor) {
 
-    public static BrandingColor from(org.sopt.makers.domain.official.generation.BrandingColor color) {
+    public static BrandingColor from(
+        org.sopt.makers.domain.official.generation.BrandingColor color) {
       return new BrandingColor(
           color.darkModeKeyColor(),
           color.darkModeTextColor(),

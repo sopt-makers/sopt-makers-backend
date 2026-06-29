@@ -26,7 +26,8 @@ public class RecruitPageController implements RecruitPageApi {
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getRecruitMainPage() {
     RecruitPageFacade.RecruitMainPage result = recruitPageFacade.getRecruitMainPage();
-    return ResponseFactory.success(GET_RECRUIT_MAIN_PAGE, RecruitPageResponse.MainPage.from(result));
+    return ResponseFactory.success(
+        GET_RECRUIT_MAIN_PAGE, RecruitPageResponse.MainPage.from(result));
   }
 
   @Override

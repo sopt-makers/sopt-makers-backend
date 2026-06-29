@@ -19,7 +19,8 @@ public class RecruitPartIntroductionRepositoryAdapter
   private final RecruitPartIntroductionJpaRepository recruitPartIntroductionJpaRepository;
 
   @Override
-  public Optional<RecruitPartIntroduction> findByGenerationAndPart(Integer generationId, Part part) {
+  public Optional<RecruitPartIntroduction> findByGenerationAndPart(
+      Integer generationId, Part part) {
     return recruitPartIntroductionJpaRepository
         .findByGenerationIdAndPart(generationId, part)
         .map(RecruitPartIntroductionEntity::toDomain);
