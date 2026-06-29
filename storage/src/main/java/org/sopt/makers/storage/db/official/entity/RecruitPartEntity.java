@@ -10,7 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -41,10 +40,9 @@ public class RecruitPartEntity {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "curriculums", nullable = false, columnDefinition = "text")
-  private List<String> curriculums;
+  private java.util.List<String> curriculums;
 
   public RecruitPartInfo toDomain() {
-    return new RecruitPartInfo(
-        id, generationId, partType, description, curriculums == null ? List.of() : curriculums);
+    return new RecruitPartInfo(id, generationId, partType, description, curriculums);
   }
 }

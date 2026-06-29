@@ -35,20 +35,7 @@ public final class RecruitPageResponse {
 
     public static PartDetail from(RecruitPageFacade.RecruitPartDetail partDetail) {
       return new PartDetail(
-          partDetail.introduction(),
-          parsePreferences(partDetail.preference()),
-          partDetail.partCurriculum());
-    }
-
-    private static List<String> parsePreferences(String preference) {
-      if (preference == null || preference.isBlank()) {
-        return List.of();
-      }
-      return preference
-          .lines()
-          .map(line -> line.replaceFirst("^-\\s*", "").trim())
-          .filter(line -> !line.isBlank())
-          .toList();
+          partDetail.introduction(), partDetail.preferences(), partDetail.partCurriculum());
     }
   }
 
