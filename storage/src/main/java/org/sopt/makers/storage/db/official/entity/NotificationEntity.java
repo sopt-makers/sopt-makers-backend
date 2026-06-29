@@ -19,22 +19,22 @@ import org.sopt.makers.domain.official.notification.Notification;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"Notification\"")
+@Table(name = "notification")
 public class NotificationEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"email\"", nullable = false)
+  @Column(name = "email", nullable = false)
   private String email;
 
-  @Column(name = "\"generation\"", nullable = false)
+  @Column(name = "generation", nullable = false)
   private Integer generation;
 
   @CreationTimestamp
-  @Column(name = "\"createdAt\"", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @Builder(access = PRIVATE)

@@ -19,31 +19,31 @@ import org.sopt.makers.domain.official.soptstory.SoptStory;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"SoptStory\"")
+@Table(name = "sopt_story")
 public class SoptStoryEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"title\"", nullable = false, length = 100)
+  @Column(name = "title", nullable = false, length = 100)
   private String title;
 
-  @Column(name = "\"description\"", nullable = false, length = 600)
+  @Column(name = "description", nullable = false, length = 600)
   private String description;
 
-  @Column(name = "\"thumbnailUrl\"", length = 500)
+  @Column(name = "thumbnail_url", length = 500)
   private String thumbnailUrl;
 
-  @Column(name = "\"soptStoryUrl\"", nullable = false, length = 500)
+  @Column(name = "sopt_story_url", nullable = false, length = 500)
   private String url;
 
-  @Column(name = "\"likeCount\"", nullable = false)
+  @Column(name = "like_count", nullable = false)
   private int likeCount;
 
   @CreationTimestamp
-  @Column(name = "\"createdAt\"", nullable = false)
+  @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
   @Builder(access = PRIVATE)

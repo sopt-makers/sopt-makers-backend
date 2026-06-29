@@ -29,56 +29,56 @@ import org.sopt.makers.storage.db.official.converter.CategoryTypeConverter;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "\"Review\"")
+@Table(name = "review")
 public class ReviewEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
-  @Column(name = "\"title\"", nullable = false, length = 1000)
+  @Column(name = "title", nullable = false, length = 1000)
   private String title;
 
-  @Column(name = "\"description\"", nullable = false, length = 2000)
+  @Column(name = "description", nullable = false, length = 2000)
   private String description;
 
-  @Column(name = "\"thumbnailUrl\"", length = 500)
+  @Column(name = "thumbnail_url", length = 500)
   private String thumbnailUrl;
 
-  @Column(name = "\"platform\"", nullable = false, length = 50)
+  @Column(name = "platform", nullable = false, length = 50)
   private String platform;
 
-  @Column(name = "\"author\"", nullable = false, length = 20)
+  @Column(name = "author", nullable = false, length = 20)
   private String author;
 
-  @Column(name = "\"authorProfileImageUrl\"", length = 500)
+  @Column(name = "author_profile_image_url", length = 500)
   private String authorProfileImageUrl;
 
-  @Column(name = "\"generation\"", nullable = false)
+  @Column(name = "generation", nullable = false)
   private Integer generation;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "\"part\"", nullable = false, length = 20)
+  @Column(name = "part", nullable = false, length = 20)
   private Part part;
 
   @Convert(converter = CategoryTypeConverter.class)
-  @Column(name = "\"category\"", nullable = false, length = 20)
+  @Column(name = "category", nullable = false, length = 20)
   private CategoryType category;
 
   @JdbcTypeCode(SqlTypes.JSON)
-  @Column(name = "\"subject\"", nullable = false, columnDefinition = "text")
+  @Column(name = "subject", nullable = false, columnDefinition = "text")
   private List<String> subjects;
 
-  @Column(name = "\"url\"", nullable = false, length = 500)
+  @Column(name = "url", nullable = false, length = 500)
   private String url;
 
   @CreationTimestamp
-  @Column(name = "\"createdAt\"", nullable = false, updatable = false)
+  @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
-  @Column(name = "\"updatedAt\"", nullable = false)
+  @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
   @Builder(access = PRIVATE)

@@ -22,24 +22,24 @@ import org.sopt.makers.domain.official.soptstory.SoptStoryLike;
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(
-    name = "\"SoptStoryLike\"",
+    name = "sopt_story_like",
     uniqueConstraints = {
       @UniqueConstraint(
-          name = "uk_soptstory_like_ip",
-          columnNames = {"\"soptStoryId\"", "\"ip\""})
+          name = "uk_sopt_story_like_ip",
+          columnNames = {"sopt_story_id", "ip"})
     })
 public class SoptStoryLikeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "\"id\"", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"soptStoryId\"", nullable = false)
+  @JoinColumn(name = "sopt_story_id", nullable = false)
   private SoptStoryEntity soptStory;
 
-  @Column(name = "\"ip\"", nullable = false, length = 45)
+  @Column(name = "ip", nullable = false, length = 45)
   private String ip;
 
   @Builder(access = PRIVATE)
