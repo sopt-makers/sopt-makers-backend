@@ -60,11 +60,14 @@ public final class RecruitPageResponse {
 
     public static BrandingColor from(
         org.sopt.makers.domain.official.generation.BrandingColor color) {
+      if (color == null) {
+        return null;
+      }
       return new BrandingColor(
-          color.darkModeKeyColor(),
-          color.darkModeTextColor(),
-          color.lightModeKeyColor(),
-          color.lightModeTextColor());
+              color.darkModeKeyColor(),
+              color.darkModeTextColor(),
+              color.lightModeKeyColor(),
+              color.lightModeTextColor());
     }
   }
 
