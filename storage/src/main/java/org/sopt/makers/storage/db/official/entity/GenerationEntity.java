@@ -38,15 +38,17 @@ public class GenerationEntity {
 
   public Generation toDomain() {
     return new Generation(
-            id,
-            name,
-            headerImage,
-            recruitHeaderImage,
-            homeHeaderImage,
-            brandingColor == null ? null : new BrandingColor(
-                    brandingColor.darkModeKeyColor,
-                    brandingColor.darkModeTextColor,
-                    brandingColor.lightModeKeyColor,
-                    brandingColor.lightModeTextColor));
+        id,
+        name,
+        headerImage,
+        recruitHeaderImage,
+        homeHeaderImage,
+        brandingColor == null
+            ? null
+            : new BrandingColor(
+                brandingColor.darkModeKeyColor,
+                brandingColor.darkModeTextColor,
+                brandingColor.lightModeKeyColor,
+                brandingColor.lightModeTextColor));
   }
 }

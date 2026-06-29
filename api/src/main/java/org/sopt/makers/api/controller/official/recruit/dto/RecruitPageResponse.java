@@ -64,10 +64,10 @@ public final class RecruitPageResponse {
         return null;
       }
       return new BrandingColor(
-              color.darkModeKeyColor(),
-              color.darkModeTextColor(),
-              color.lightModeKeyColor(),
-              color.lightModeTextColor());
+          color.darkModeKeyColor(),
+          color.darkModeTextColor(),
+          color.lightModeKeyColor(),
+          color.lightModeTextColor());
     }
   }
 
