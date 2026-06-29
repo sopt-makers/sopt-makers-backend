@@ -8,6 +8,12 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:validate}
+  flyway:
+    enabled: true
+    schemas: ${DB_SCHEMA:dev}
+    default-schema: ${DB_SCHEMA:dev}
+    baseline-on-migrate: true
+    baseline-version: 8
   data:
     redis:
       host: ${REDIS_HOST}
