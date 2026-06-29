@@ -37,7 +37,7 @@ public class RecruitPartIntroductionEntity {
   @Embedded private PartIntroductionEmbeddable introduction;
 
   public RecruitPartIntroduction toDomain() {
-    return new RecruitPartIntroduction(
+    return RecruitPartIntroduction.from(
         id, generationId, part, introduction.content, introduction.preference);
   }
 }

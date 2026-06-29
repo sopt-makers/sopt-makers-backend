@@ -38,6 +38,6 @@ public class FaqEntity {
   private List<Faq.QuestionAnswer> questions;
 
   public Faq toDomain() {
-    return new Faq(id, part, questions == null ? List.of() : questions);
+    return new Faq(id, part, questions);
   }
 }
