@@ -46,7 +46,7 @@ public class RecruitPageFacade {
         recruitPartIntroductionService.findByGenerationAndPart(generationId, part);
 
     return new RecruitPartDetail(
-        partInfo.description(), introduction.preference(), partInfo.curriculums());
+        introduction.content(), introduction.preference(), partInfo.curriculums());
   }
 
   public record RecruitMainPage(
