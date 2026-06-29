@@ -39,7 +39,7 @@ public class CoreValueEntity {
   private String imageUrl;
 
   @Column(name = "display_order", nullable = false)
-  private Integer displayOrder;
+  private int displayOrder;
 
   public CoreValue toDomain() {
     return new CoreValue(

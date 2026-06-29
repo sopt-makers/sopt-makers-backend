@@ -7,4 +7,4 @@ public record CoreValue(
     String description,
     String detailDescription,
     String imageUrl,
-    Integer displayOrder) {}
+    int displayOrder) {}
