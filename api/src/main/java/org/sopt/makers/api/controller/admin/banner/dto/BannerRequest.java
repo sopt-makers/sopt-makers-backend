@@ -40,6 +40,9 @@ public final class BannerRequest {
   }
 
   private static BannerFileStoragePort.UploadFile toUploadFile(MultipartFile file) {
+    if (file == null || file.isEmpty()) {
+      throw new BannerException(BannerFailure.FILE_UPLOAD_FAILED);
+    }
     try {
       return new BannerFileStoragePort.UploadFile(
           file.getOriginalFilename(), file.getContentType(), file.getSize(), file.getInputStream());
