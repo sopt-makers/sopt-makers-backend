@@ -28,7 +28,7 @@ public class FaqService {
                 data ->
                     new Faq(
                         null,
-                        Part.valueOf(data.part()),
+                        Part.fromString(data.part()),
                         data.questions().stream()
                             .map(q -> new Faq.QuestionAnswer(q.question(), q.answer()))
                             .toList()))

@@ -465,7 +465,7 @@ public class AdminOfficialFacade {
                     String content =
                         rpc.introduction() != null ? rpc.introduction().content() : null;
                     return RecruitPartIntroduction.from(
-                        null, generationId, Part.valueOf(rpc.part()), content, preference);
+                        null, generationId, Part.fromString(rpc.part()), content, preference);
                   })
               .toList();
       recruitPartIntroductionService.bulkCreate(generationId, introductions);
@@ -510,7 +510,7 @@ public class AdminOfficialFacade {
                         .map(AdminCachePort.PartCurriculumData::curriculums)
                         .orElse(List.of());
                 return new RecruitPartInfo(
-                    null, generationId, Part.valueOf(pi.part()), pi.description(), curriculums);
+                    null, generationId, Part.fromString(pi.part()), pi.description(), curriculums);
               })
           .toList();
     }
@@ -522,7 +522,7 @@ public class AdminOfficialFacade {
           .collect(Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::curriculums));
       return cached.partIntroductions().stream()
           .map(pi -> {
-            Part part = Part.valueOf(pi.part());
+            Part part = Part.fromString(pi.part());
             return new RecruitPartInfo(
                 null, generationId, part, pi.description(),
                 existingCurriculums.getOrDefault(part, List.of()));
@@ -534,7 +534,7 @@ public class AdminOfficialFacade {
         .collect(Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::description));
     return cached.partCurriculums().stream()
         .map(pc -> {
-          Part part = Part.valueOf(pc.part());
+          Part part = Part.fromString(pc.part());
           return new RecruitPartInfo(
               null, generationId, part,
               existingDescriptions.getOrDefault(part, part.name() + " 파트입니다."),

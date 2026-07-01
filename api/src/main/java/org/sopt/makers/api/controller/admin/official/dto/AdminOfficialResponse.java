@@ -64,7 +64,7 @@ public class AdminOfficialResponse {
           data.partInfos() == null
               ? null
               : data.partInfos().stream()
-                  .map(p -> new PartIntroductionData(p.part() != null ? p.part().name() : null, p.description()))
+                  .map(p -> new PartIntroductionData(p.part() != null ? p.part().getName() : null, p.description()))
                   .toList();
 
       List<LatestNewsData> latestNews =
@@ -85,7 +85,7 @@ public class AdminOfficialResponse {
           data.partInfos() == null
               ? null
               : data.partInfos().stream()
-                  .map(p -> new PartCurriculumData(p.part() != null ? p.part().name() : null, p.curriculums()))
+                  .map(p -> new PartCurriculumData(p.part() != null ? p.part().getName() : null, p.curriculums()))
                   .toList();
 
       List<MemberData> member =
@@ -103,7 +103,7 @@ public class AdminOfficialResponse {
                                     m.snsLinks().github(),
                                     m.snsLinks().behance());
                         return new MemberData(
-                            m.role() != null ? m.role().name() : null,
+                            m.role() != null ? m.role().getDisplayName() : null,
                             m.name(),
                             m.affiliation(),
                             m.introduction(),
@@ -125,7 +125,7 @@ public class AdminOfficialResponse {
                                     .map(p -> "- " + p)
                                     .toList());
                         return new RecruitPartCurriculumData(
-                            rpi.part() != null ? rpi.part().name() : null,
+                            rpi.part() != null ? rpi.part().getName() : null,
                             new IntroductionData(rpi.content(), preference));
                       })
                   .toList();
@@ -137,7 +137,7 @@ public class AdminOfficialResponse {
                   .map(
                       faq ->
                           new RecruitQuestionData(
-                              faq.part() != null ? faq.part().name() : null,
+                              faq.part() != null ? faq.part().getName() : null,
                               faq.questions() == null
                                   ? null
                                   : faq.questions().stream()
