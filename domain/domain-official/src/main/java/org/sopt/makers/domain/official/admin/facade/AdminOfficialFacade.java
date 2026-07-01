@@ -326,6 +326,9 @@ public class AdminOfficialFacade {
                             : (existingCvImageByValue != null
                                 ? existingCvImageByValue.get(cv.value())
                                 : null);
+                    if (imageUrl == null) {
+                      throw new OfficialAdminException(OfficialAdminFailure.CORE_VALUE_IMAGE_REQUIRED);
+                    }
                     return new CoreValue(
                         null, generationId, cv.value(), cv.description(), cv.detailDescription(),
                         imageUrl, i);
@@ -355,6 +358,9 @@ public class AdminOfficialFacade {
                             : (existingMemberImageByKey != null
                                 ? existingMemberImageByKey.get(MemberRole.fromString(m.role()).name() + "_" + m.name())
                                 : null);
+                    if (profileImageUrl == null) {
+                      throw new OfficialAdminException(OfficialAdminFailure.MEMBER_IMAGE_REQUIRED);
+                    }
                     return new Member(
                         null,
                         generationId,
