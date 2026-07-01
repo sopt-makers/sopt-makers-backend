@@ -15,7 +15,7 @@ import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.admin.official.dto.AdminOfficialRequest;
 import org.sopt.makers.api.controller.admin.official.dto.AdminOfficialResponse;
 import org.sopt.makers.core.response.BaseResponse;
-import org.sopt.makers.domain.official.admin.AdminOfficialFacade;
+import org.sopt.makers.domain.official.admin.facade.AdminOfficialFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -3,7 +3,7 @@ package org.sopt.makers.api.controller.admin.official.dto;
 import java.time.LocalDate;
 import java.util.List;
 import org.sopt.makers.domain.official.activityschedule.ActivitySchedule;
-import org.sopt.makers.domain.official.admin.AdminOfficialFacade;
+import org.sopt.makers.domain.official.admin.facade.AdminOfficialFacade;
 import org.sopt.makers.domain.official.admin.port.AdminCachePort;
 import org.sopt.makers.domain.official.corevalue.CoreValue;
 import org.sopt.makers.domain.official.faq.Faq;

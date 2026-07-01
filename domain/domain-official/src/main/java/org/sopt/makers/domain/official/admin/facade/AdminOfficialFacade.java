@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.official.admin;
+package org.sopt.makers.domain.official.admin.facade;
 
 import java.time.LocalDate;
 import java.util.List;
