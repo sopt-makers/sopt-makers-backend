@@ -51,4 +51,34 @@ public class GenerationEntity {
                 brandingColor.lightModeKeyColor,
                 brandingColor.lightModeTextColor));
   }
+
+  public static GenerationEntity create(Integer id, String name, BrandingColor brandingColor) {
+    GenerationEntity entity = new GenerationEntity();
+    entity.id = id;
+    entity.name = name;
+    entity.headerImage = "";
+    entity.recruitHeaderImage = "";
+    entity.homeHeaderImage = "";
+    entity.brandingColor =
+        brandingColor != null ? BrandingColorEmbeddable.of(brandingColor) : null;
+    return entity;
+  }
+
+  public void update(String name, BrandingColor brandingColor) {
+    this.name = name;
+    this.brandingColor =
+        brandingColor != null ? BrandingColorEmbeddable.of(brandingColor) : this.brandingColor;
+  }
+
+  public void updateHeaderImage(String headerImage) {
+    this.headerImage = headerImage;
+  }
+
+  public void updateHomeHeaderImage(String homeHeaderImage) {
+    this.homeHeaderImage = homeHeaderImage;
+  }
+
+  public void updateRecruitHeaderImage(String recruitHeaderImage) {
+    this.recruitHeaderImage = recruitHeaderImage;
+  }
 }

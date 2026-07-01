@@ -22,4 +22,17 @@ public class CoreValueRepositoryAdapter implements CoreValueRepositoryPort {
         .map(CoreValueEntity::toDomain)
         .toList();
   }
+
+  @Transactional
+  @Override
+  public List<CoreValue> saveAll(List<CoreValue> coreValues) {
+    List<CoreValueEntity> entities = coreValues.stream().map(CoreValueEntity::fromDomain).toList();
+    return coreValueJpaRepository.saveAll(entities).stream().map(CoreValueEntity::toDomain).toList();
+  }
+
+  @Transactional
+  @Override
+  public void deleteByGenerationId(Integer generationId) {
+    coreValueJpaRepository.deleteByGenerationId(generationId);
+  }
 }

@@ -45,4 +45,10 @@ public class NewsRepositoryAdapter implements NewsRepositoryPort {
   public void delete(News news) {
     newsJpaRepository.delete(NewsEntity.fromDomain(news));
   }
+
+  @Transactional
+  @Override
+  public void deleteAll() {
+    newsJpaRepository.deleteAll();
+  }
 }

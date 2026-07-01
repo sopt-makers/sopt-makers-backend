@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface CoreValueJpaRepository extends JpaRepository<CoreValueEntity, Long> {
 
   List<CoreValueEntity> findByGenerationIdOrderByDisplayOrderAsc(Integer generationId);
+
+  void deleteByGenerationId(Integer generationId);
 }

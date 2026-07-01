@@ -45,4 +45,14 @@ public class RecruitPartEntity {
   public RecruitPartInfo toDomain() {
     return new RecruitPartInfo(id, generationId, partType, description, curriculums);
   }
+
+  public static RecruitPartEntity fromDomain(RecruitPartInfo part) {
+    RecruitPartEntity entity = new RecruitPartEntity();
+    entity.id = part.id();
+    entity.generationId = part.generationId();
+    entity.partType = part.part();
+    entity.description = part.description();
+    entity.curriculums = part.curriculums();
+    return entity;
+  }
 }

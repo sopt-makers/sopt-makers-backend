@@ -40,4 +40,12 @@ public class FaqEntity {
   public Faq toDomain() {
     return new Faq(id, part, questions);
   }
+
+  public static FaqEntity fromDomain(Faq faq) {
+    FaqEntity entity = new FaqEntity();
+    entity.id = faq.id();
+    entity.part = faq.part();
+    entity.questions = faq.questions();
+    return entity;
+  }
 }

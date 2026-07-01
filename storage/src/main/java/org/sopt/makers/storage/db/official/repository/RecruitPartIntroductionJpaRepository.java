@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.official.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.storage.db.official.entity.RecruitPartIntroductionEntity;
@@ -10,4 +11,8 @@ public interface RecruitPartIntroductionJpaRepository
 
   Optional<RecruitPartIntroductionEntity> findByGenerationIdAndPart(
       Integer generationId, Part part);
+
+  List<RecruitPartIntroductionEntity> findByGenerationId(Integer generationId);
+
+  void deleteByGenerationId(Integer generationId);
 }
