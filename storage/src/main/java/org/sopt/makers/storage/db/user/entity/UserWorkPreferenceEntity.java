@@ -1,5 +1,7 @@
 package org.sopt.makers.storage.db.user.entity;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.sopt.makers.domain.user.WorkPreference;
@@ -9,8 +11,6 @@ import org.sopt.makers.domain.user.enums.IdeationStyle;
 import org.sopt.makers.domain.user.enums.WorkPlace;
 import org.sopt.makers.domain.user.enums.WorkTime;
 import org.sopt.makers.storage.db.common.BaseEntity;
-
-import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter

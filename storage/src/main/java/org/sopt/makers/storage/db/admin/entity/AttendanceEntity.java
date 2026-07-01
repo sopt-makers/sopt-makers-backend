@@ -3,7 +3,6 @@ package org.sopt.makers.storage.db.admin.entity;
 import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.*;
-
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,11 +1,11 @@
 package org.sopt.makers.storage.db.user.entity;
 
+import static lombok.AccessLevel.PROTECTED;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.sopt.makers.domain.user.UserLink;
 import org.sopt.makers.storage.db.common.BaseEntity;
-
-import static lombok.AccessLevel.PROTECTED;
 
 @Entity
 @Getter

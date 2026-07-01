@@ -4,7 +4,6 @@ import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;
