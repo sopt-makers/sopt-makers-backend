@@ -26,6 +26,8 @@ import org.sopt.makers.domain.official.recruit.RecruitPartInfo;
 import org.sopt.makers.domain.official.recruit.RecruitPartIntroduction;
 import org.sopt.makers.domain.official.recruit.service.RecruitPartIntroductionService;
 import org.sopt.makers.domain.official.recruitment.Recruitment;
+import org.sopt.makers.domain.official.admin.exception.OfficialAdminException;
+import org.sopt.makers.domain.official.admin.exception.OfficialAdminFailure;
 import org.sopt.makers.domain.official.recruitment.service.RecruitmentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +92,7 @@ public class AdminOfficialFacade {
   public ConfirmResult addCommonDataConfirm(Integer generationId) {
     AdminCachePort.CommonCacheData cached = adminCachePort.getCommon(generationId);
     if (cached == null) {
-      throw new IllegalStateException("공통 탭 캐시 데이터 없음. generation=" + generationId);
+      throw new OfficialAdminException(OfficialAdminFailure.COMMON_CACHE_NOT_FOUND);
     }
 
     BrandingColor brandingColor =
@@ -172,7 +174,7 @@ public class AdminOfficialFacade {
   public ConfirmResult addHomeDataConfirm(Integer generationId) {
     AdminCachePort.HomeCacheData cached = adminCachePort.getHome(generationId);
     if (cached == null) {
-      throw new IllegalStateException("홈 탭 캐시 데이터 없음. generation=" + generationId);
+      throw new OfficialAdminException(OfficialAdminFailure.HOME_CACHE_NOT_FOUND);
     }
 
     if (cached.homeHeaderImageUrl() != null) {
@@ -290,7 +292,7 @@ public class AdminOfficialFacade {
   public ConfirmResult addAboutDataConfirm(Integer generationId) {
     AdminCachePort.AboutCacheData cached = adminCachePort.getAbout(generationId);
     if (cached == null) {
-      throw new IllegalStateException("소개 탭 캐시 데이터 없음. generation=" + generationId);
+      throw new OfficialAdminException(OfficialAdminFailure.ABOUT_CACHE_NOT_FOUND);
     }
 
     if (cached.headerImageUrl() != null) {
@@ -406,7 +408,7 @@ public class AdminOfficialFacade {
   public ConfirmResult addRecruitDataConfirm(Integer generationId) {
     AdminCachePort.RecruitCacheData cached = adminCachePort.getRecruit(generationId);
     if (cached == null) {
-      throw new IllegalStateException("모집안내 탭 캐시 데이터 없음. generation=" + generationId);
+      throw new OfficialAdminException(OfficialAdminFailure.RECRUIT_CACHE_NOT_FOUND);
     }
 
     if (cached.recruitHeaderImageUrl() != null) {
