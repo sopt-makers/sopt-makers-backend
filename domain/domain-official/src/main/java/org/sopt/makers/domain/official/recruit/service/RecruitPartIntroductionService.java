@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.official.recruit.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.recruit.RecruitPartIntroduction;
@@ -21,5 +22,15 @@ public class RecruitPartIntroductionService {
         .findByGenerationAndPart(generationId, part)
         .orElseThrow(
             () -> new RecruitException(RecruitFailure.RECRUIT_PART_INTRODUCTION_NOT_FOUND));
+  }
+
+  public List<RecruitPartIntroduction> findByGeneration(Integer generationId) {
+    return recruitPartIntroductionRepositoryPort.findByGenerationId(generationId);
+  }
+
+  @Transactional
+  public void bulkCreate(Integer generationId, List<RecruitPartIntroduction> introductions) {
+    recruitPartIntroductionRepositoryPort.deleteByGenerationId(generationId);
+    recruitPartIntroductionRepositoryPort.saveAll(introductions);
   }
 }

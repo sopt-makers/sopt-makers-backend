@@ -35,6 +35,12 @@ public class HomepageReviewService {
     return homepageReviewRepositoryPort.saveAll(reviews);
   }
 
+  @Transactional
+  public List<HomepageReview> replaceAll(BulkCreateHomepageReviewsCommand command) {
+    homepageReviewRepositoryPort.deleteAll();
+    return createAll(command);
+  }
+
   public List<HomepageReview> getReviews() {
     return homepageReviewRepositoryPort.findAllByOrderByIdAsc();
   }

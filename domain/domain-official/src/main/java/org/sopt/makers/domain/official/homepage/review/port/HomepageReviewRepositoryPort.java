@@ -13,4 +13,6 @@ public interface HomepageReviewRepositoryPort {
   Optional<HomepageReview> findById(Long id);
 
   List<HomepageReview> findAllByOrderByIdAsc();
+
+  void deleteAll();
 }
