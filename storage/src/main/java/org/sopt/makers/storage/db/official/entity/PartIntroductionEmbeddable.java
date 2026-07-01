@@ -4,6 +4,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.NoArgsConstructor;
 
 @Embeddable
@@ -15,4 +17,14 @@ public class PartIntroductionEmbeddable {
 
   @Column(name = "introduction_preference", nullable = false, length = 1000)
   String preference;
+
+  static PartIntroductionEmbeddable of(String content, List<String> preferences) {
+    PartIntroductionEmbeddable e = new PartIntroductionEmbeddable();
+    e.content = content != null ? content : "";
+    e.preference =
+        preferences == null || preferences.isEmpty()
+            ? ""
+            : preferences.stream().map(p -> "- " + p).collect(Collectors.joining("\n"));
+    return e;
+  }
 }

@@ -44,4 +44,10 @@ public class HomepageReviewRepositoryAdapter implements HomepageReviewRepository
         .map(HomepageReviewEntity::toDomain)
         .toList();
   }
+
+  @Transactional
+  @Override
+  public void deleteAll() {
+    homepageReviewJpaRepository.deleteAll();
+  }
 }

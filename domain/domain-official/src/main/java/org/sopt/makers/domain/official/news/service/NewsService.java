@@ -52,6 +52,12 @@ public class NewsService {
   }
 
   @Transactional
+  public List<News> replaceAll(BulkCreateNewsCommand command) {
+    newsRepositoryPort.deleteAll();
+    return createAll(command);
+  }
+
+  @Transactional
   public News edit(Integer id, EditNewsCommand command) {
     News news = getById(id);
     News saved =

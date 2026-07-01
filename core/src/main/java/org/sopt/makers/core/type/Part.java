@@ -37,4 +37,16 @@ public enum Part {
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파트입니다: " + part));
   }
+
+  public static Part fromString(final String value) {
+    if (value == null || value.isBlank()) {
+      throw new IllegalArgumentException("Part 값은 필수입니다.");
+    }
+    for (Part part : values()) {
+      if (part.name().equalsIgnoreCase(value) || part.getName().equalsIgnoreCase(value)) {
+        return part;
+      }
+    }
+    throw new IllegalArgumentException("존재하지 않는 파트입니다: " + value);
+  }
 }

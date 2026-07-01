@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.official.generation.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.official.generation.BrandingColor;
 import org.sopt.makers.domain.official.generation.Generation;
 import org.sopt.makers.domain.official.generation.port.GenerationRepositoryPort;
 import org.sopt.makers.domain.official.recruit.exception.RecruitException;
@@ -19,5 +20,34 @@ public class GenerationService {
     return generationRepositoryPort
         .findLatest()
         .orElseThrow(() -> new RecruitException(RecruitFailure.GENERATION_NOT_FOUND));
+  }
+
+  public Generation findById(Integer id) {
+    return generationRepositoryPort
+        .findById(id)
+        .orElseThrow(() -> new RecruitException(RecruitFailure.GENERATION_NOT_FOUND));
+  }
+
+  @Transactional
+  public Generation createOrUpdate(Integer id, String name, BrandingColor brandingColor) {
+    return generationRepositoryPort.createOrUpdate(id, name, brandingColor);
+  }
+
+  @Transactional
+  public void updateHeaderImage(Integer id, String headerImage) {
+    findById(id);
+    generationRepositoryPort.updateHeaderImage(id, headerImage);
+  }
+
+  @Transactional
+  public void updateHomeHeaderImage(Integer id, String homeHeaderImage) {
+    findById(id);
+    generationRepositoryPort.updateHomeHeaderImage(id, homeHeaderImage);
+  }
+
+  @Transactional
+  public void updateRecruitHeaderImage(Integer id, String recruitHeaderImage) {
+    findById(id);
+    generationRepositoryPort.updateRecruitHeaderImage(id, recruitHeaderImage);
   }
 }

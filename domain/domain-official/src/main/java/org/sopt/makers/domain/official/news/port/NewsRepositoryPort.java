@@ -15,4 +15,6 @@ public interface NewsRepositoryPort {
   List<News> findAll();
 
   void delete(News news);
+
+  void deleteAll();
 }

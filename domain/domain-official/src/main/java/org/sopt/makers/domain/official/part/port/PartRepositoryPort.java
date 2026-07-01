@@ -10,4 +10,8 @@ public interface PartRepositoryPort {
   List<RecruitPartInfo> findByGeneration(Integer generationId);
 
   Optional<RecruitPartInfo> findByGenerationAndPart(Integer generationId, Part part);
+
+  List<RecruitPartInfo> saveAll(List<RecruitPartInfo> parts);
+
+  void deleteByGenerationId(Integer generationId);
 }

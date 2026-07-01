@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.clients.s3.exception.S3Exception;
 import org.sopt.makers.clients.s3.exception.S3Failure;
 import org.sopt.makers.domain.admin.banner.port.BannerFileStoragePort;
+import org.sopt.makers.domain.official.admin.port.AdminFileStoragePort;
 import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -24,7 +25,8 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class S3FileStorageAdapter implements NewsFileStoragePort, BannerFileStoragePort {
+public class S3FileStorageAdapter
+    implements NewsFileStoragePort, BannerFileStoragePort, AdminFileStoragePort {
 
   private static final long PRESIGNED_URL_EXPIRATION_MINUTES = 10;
   private static final Set<String> ALLOWED_CONTENT_TYPES =

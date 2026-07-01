@@ -17,4 +17,10 @@ public class CoreValueService {
   public List<CoreValue> findByGeneration(Integer generationId) {
     return coreValueRepositoryPort.findByGeneration(generationId);
   }
+
+  @Transactional
+  public void bulkCreate(Integer generationId, List<CoreValue> coreValues) {
+    coreValueRepositoryPort.deleteByGenerationId(generationId);
+    coreValueRepositoryPort.saveAll(coreValues);
+  }
 }

@@ -40,4 +40,13 @@ public class RecruitPartIntroductionEntity {
     return RecruitPartIntroduction.from(
         id, generationId, part, introduction.content, introduction.preference);
   }
+
+  public static RecruitPartIntroductionEntity fromDomain(RecruitPartIntroduction intro) {
+    RecruitPartIntroductionEntity entity = new RecruitPartIntroductionEntity();
+    entity.id = intro.id();
+    entity.generationId = intro.generationId();
+    entity.part = intro.part();
+    entity.introduction = PartIntroductionEmbeddable.of(intro.content(), intro.preferences());
+    return entity;
+  }
 }

@@ -31,4 +31,19 @@ public class PartRepositoryAdapter implements PartRepositoryPort {
         .findByGenerationIdAndPartType(generationId, part)
         .map(RecruitPartEntity::toDomain);
   }
+
+  @Transactional
+  @Override
+  public List<RecruitPartInfo> saveAll(List<RecruitPartInfo> parts) {
+    List<RecruitPartEntity> entities = parts.stream().map(RecruitPartEntity::fromDomain).toList();
+    return recruitPartJpaRepository.saveAll(entities).stream()
+        .map(RecruitPartEntity::toDomain)
+        .toList();
+  }
+
+  @Transactional
+  @Override
+  public void deleteByGenerationId(Integer generationId) {
+    recruitPartJpaRepository.deleteByGenerationId(generationId);
+  }
 }

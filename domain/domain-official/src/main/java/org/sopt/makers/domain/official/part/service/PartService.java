@@ -26,4 +26,10 @@ public class PartService {
         .findByGenerationAndPart(generationId, part)
         .orElseThrow(() -> new RecruitException(RecruitFailure.PART_NOT_FOUND));
   }
+
+  @Transactional
+  public void bulkCreate(Integer generationId, List<RecruitPartInfo> parts) {
+    partRepositoryPort.deleteByGenerationId(generationId);
+    partRepositoryPort.saveAll(parts);
+  }
 }

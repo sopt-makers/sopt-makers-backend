@@ -45,4 +45,16 @@ public class CoreValueEntity {
     return new CoreValue(
         id, generationId, value, description, detailDescription, imageUrl, displayOrder);
   }
+
+  public static CoreValueEntity fromDomain(CoreValue coreValue) {
+    CoreValueEntity entity = new CoreValueEntity();
+    entity.id = coreValue.id();
+    entity.generationId = coreValue.generationId();
+    entity.value = coreValue.value();
+    entity.description = coreValue.description();
+    entity.detailDescription = coreValue.detailDescription();
+    entity.imageUrl = coreValue.imageUrl() != null ? coreValue.imageUrl() : "";
+    entity.displayOrder = coreValue.displayOrder();
+    return entity;
+  }
 }

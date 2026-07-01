@@ -11,4 +11,6 @@ public interface RecruitPartJpaRepository extends JpaRepository<RecruitPartEntit
   List<RecruitPartEntity> findByGenerationIdOrderByPartTypeAsc(Integer generationId);
 
   Optional<RecruitPartEntity> findByGenerationIdAndPartType(Integer generationId, Part partType);
+
+  void deleteByGenerationId(Integer generationId);
 }

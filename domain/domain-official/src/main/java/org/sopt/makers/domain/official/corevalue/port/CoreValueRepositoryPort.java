@@ -6,4 +6,8 @@ import org.sopt.makers.domain.official.corevalue.CoreValue;
 public interface CoreValueRepositoryPort {
 
   List<CoreValue> findByGeneration(Integer generationId);
+
+  List<CoreValue> saveAll(List<CoreValue> coreValues);
+
+  void deleteByGenerationId(Integer generationId);
 }

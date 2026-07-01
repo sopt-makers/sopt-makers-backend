@@ -20,4 +20,17 @@ public class FaqRepositoryAdapter implements FaqRepositoryPort {
   public List<Faq> findAll() {
     return faqJpaRepository.findAllOrderByPart().stream().map(FaqEntity::toDomain).toList();
   }
+
+  @Transactional
+  @Override
+  public List<Faq> saveAll(List<Faq> faqs) {
+    List<FaqEntity> entities = faqs.stream().map(FaqEntity::fromDomain).toList();
+    return faqJpaRepository.saveAll(entities).stream().map(FaqEntity::toDomain).toList();
+  }
+
+  @Transactional
+  @Override
+  public void deleteAll() {
+    faqJpaRepository.deleteAll();
+  }
 }
