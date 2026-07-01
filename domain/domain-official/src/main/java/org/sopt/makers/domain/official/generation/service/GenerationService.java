@@ -35,16 +35,19 @@ public class GenerationService {
 
   @Transactional
   public void updateHeaderImage(Integer id, String headerImage) {
+    findById(id);
     generationRepositoryPort.updateHeaderImage(id, headerImage);
   }
 
   @Transactional
   public void updateHomeHeaderImage(Integer id, String homeHeaderImage) {
+    findById(id);
     generationRepositoryPort.updateHomeHeaderImage(id, homeHeaderImage);
   }
 
   @Transactional
   public void updateRecruitHeaderImage(Integer id, String recruitHeaderImage) {
+    findById(id);
     generationRepositoryPort.updateRecruitHeaderImage(id, recruitHeaderImage);
   }
 }
