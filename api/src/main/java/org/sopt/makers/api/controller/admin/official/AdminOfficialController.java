@@ -34,10 +34,10 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getAdminMain(
-      @RequestParam("generation") Integer generationId) {
+      @RequestParam("generation") Integer generation) {
     return ResponseFactory.success(
         SUCCESS_GET_ADMIN_MAIN,
-        AdminOfficialResponse.AdminMainResponse.from(adminOfficialFacade.getMain(generationId)));
+        AdminOfficialResponse.AdminMainResponse.from(adminOfficialFacade.getMain(generation)));
   }
 
   @Override
@@ -53,11 +53,11 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/common/confirm")
   public ResponseEntity<BaseResponse<?>> confirmCommonData(
-      @RequestParam("generation") Integer generationId) {
+      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_COMMON,
         AdminOfficialResponse.ConfirmResponse.from(
-            adminOfficialFacade.addCommonDataConfirm(generationId)));
+            adminOfficialFacade.addCommonDataConfirm(request.generation())));
   }
 
   @Override
@@ -73,11 +73,11 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/home/confirm")
   public ResponseEntity<BaseResponse<?>> confirmHomeData(
-      @RequestParam("generation") Integer generationId) {
+      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_HOME,
         AdminOfficialResponse.ConfirmResponse.from(
-            adminOfficialFacade.addHomeDataConfirm(generationId)));
+            adminOfficialFacade.addHomeDataConfirm(request.generation())));
   }
 
   @Override
@@ -93,11 +93,11 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/about/confirm")
   public ResponseEntity<BaseResponse<?>> confirmAboutData(
-      @RequestParam("generation") Integer generationId) {
+      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_ABOUT,
         AdminOfficialResponse.ConfirmResponse.from(
-            adminOfficialFacade.addAboutDataConfirm(generationId)));
+            adminOfficialFacade.addAboutDataConfirm(request.generation())));
   }
 
   @Override
@@ -113,10 +113,10 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/recruit/confirm")
   public ResponseEntity<BaseResponse<?>> confirmRecruitData(
-      @RequestParam("generation") Integer generationId) {
+      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_RECRUIT,
         AdminOfficialResponse.ConfirmResponse.from(
-            adminOfficialFacade.addRecruitDataConfirm(generationId)));
+            adminOfficialFacade.addRecruitDataConfirm(request.generation())));
   }
 }

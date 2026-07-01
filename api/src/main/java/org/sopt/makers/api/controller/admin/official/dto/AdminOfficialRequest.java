@@ -8,13 +8,13 @@ import org.sopt.makers.domain.official.admin.port.AdminCachePort;
 public class AdminOfficialRequest {
 
   public record AddCommonRequest(
-      Integer generationId,
+      Integer generation,
       String name,
       String darkModeKeyColor,
       String darkModeTextColor,
       String lightModeKeyColor,
       String lightModeTextColor,
-      List<RecruitScheduleRequest> recruitSchedules) {
+      List<RecruitScheduleRequest> recruitSchedule) {
 
     public record RecruitScheduleRequest(String type, ScheduleRequest schedule) {}
 
@@ -28,9 +28,9 @@ public class AdminOfficialRequest {
 
     public AdminOfficialFacade.AddCommonRequest toCommand() {
       List<AdminCachePort.RecruitScheduleData> schedules =
-          recruitSchedules == null
+          recruitSchedule == null
               ? null
-              : recruitSchedules.stream()
+              : recruitSchedule.stream()
                   .map(
                       rs ->
                           new AdminCachePort.RecruitScheduleData(
@@ -46,7 +46,7 @@ public class AdminOfficialRequest {
                                       rs.schedule().finalResultTime())))
                   .toList();
       return new AdminOfficialFacade.AddCommonRequest(
-          generationId,
+          generation,
           name,
           darkModeKeyColor,
           darkModeTextColor,
@@ -57,10 +57,10 @@ public class AdminOfficialRequest {
   }
 
   public record AddHomeRequest(
-      Integer generationId,
+      Integer generation,
       String homeHeaderImageFileName,
       List<NewsRequest> news,
-      List<ReviewRequest> reviews) {
+      List<ReviewRequest> review) {
 
     public record NewsRequest(String title, String link, String imageFileName) {}
 
@@ -74,22 +74,22 @@ public class AdminOfficialRequest {
                   .map(n -> new AdminOfficialFacade.AddHomeRequest.NewsFileRequest(n.title(), n.link(), n.imageFileName()))
                   .toList();
       List<AdminOfficialFacade.AddHomeRequest.ReviewRequest> reviewRequests =
-          reviews == null
+          review == null
               ? null
-              : reviews.stream()
+              : review.stream()
                   .map(r -> new AdminOfficialFacade.AddHomeRequest.ReviewRequest(r.title(), r.content(), r.authorInfo()))
                   .toList();
       return new AdminOfficialFacade.AddHomeRequest(
-          generationId, homeHeaderImageFileName, newsRequests, reviewRequests);
+          generation, homeHeaderImageFileName, newsRequests, reviewRequests);
     }
   }
 
   public record AddAboutRequest(
-      Integer generationId,
+      Integer generation,
       String headerImageFileName,
-      List<CoreValueRequest> coreValues,
-      List<MemberRequest> members,
-      List<ActivityScheduleRequest> activitySchedules) {
+      List<CoreValueRequest> coreValue,
+      List<MemberRequest> member,
+      List<ActivityScheduleRequest> activitySchedule) {
 
     public record CoreValueRequest(
         String value, String description, String detailDescription, String imageFileName) {}
@@ -109,18 +109,18 @@ public class AdminOfficialRequest {
 
     public AdminOfficialFacade.AddAboutRequest toCommand() {
       List<AdminOfficialFacade.AddAboutRequest.CoreValueRequest> cvRequests =
-          coreValues == null
+          coreValue == null
               ? null
-              : coreValues.stream()
+              : coreValue.stream()
                   .map(
                       cv ->
                           new AdminOfficialFacade.AddAboutRequest.CoreValueRequest(
                               cv.value(), cv.description(), cv.detailDescription(), cv.imageFileName()))
                   .toList();
       List<AdminOfficialFacade.AddAboutRequest.MemberRequest> memberRequests =
-          members == null
+          member == null
               ? null
-              : members.stream()
+              : member.stream()
                   .map(
                       m ->
                           new AdminOfficialFacade.AddAboutRequest.MemberRequest(
@@ -135,26 +135,26 @@ public class AdminOfficialRequest {
                               m.snsBehance()))
                   .toList();
       List<AdminOfficialFacade.AddAboutRequest.ActivityScheduleRequest> scheduleRequests =
-          activitySchedules == null
+          activitySchedule == null
               ? null
-              : activitySchedules.stream()
+              : activitySchedule.stream()
                   .map(
                       s ->
                           new AdminOfficialFacade.AddAboutRequest.ActivityScheduleRequest(
                               s.name(), s.startDate(), s.endDate()))
                   .toList();
       return new AdminOfficialFacade.AddAboutRequest(
-          generationId, headerImageFileName, cvRequests, memberRequests, scheduleRequests);
+          generation, headerImageFileName, cvRequests, memberRequests, scheduleRequests);
     }
   }
 
   public record AddRecruitRequest(
-      Integer generationId,
+      Integer generation,
       String recruitHeaderImageFileName,
-      List<PartIntroductionRequest> partIntroductions,
-      List<PartCurriculumRequest> partCurriculums,
-      List<RecruitPartCurriculumRequest> recruitPartCurriculums,
-      List<RecruitQuestionRequest> recruitQuestions) {
+      List<PartIntroductionRequest> partIntroduction,
+      List<PartCurriculumRequest> partCurriculum,
+      List<RecruitPartCurriculumRequest> recruitPartCurriculum,
+      List<RecruitQuestionRequest> recruitQuestion) {
 
     public record PartIntroductionRequest(String part, String description) {}
 
@@ -170,21 +170,21 @@ public class AdminOfficialRequest {
 
     public AdminOfficialFacade.AddRecruitRequest toCommand() {
       List<AdminCachePort.PartIntroductionData> piData =
-          partIntroductions == null
+          partIntroduction == null
               ? null
-              : partIntroductions.stream()
+              : partIntroduction.stream()
                   .map(pi -> new AdminCachePort.PartIntroductionData(pi.part(), pi.description()))
                   .toList();
       List<AdminCachePort.PartCurriculumData> pcData =
-          partCurriculums == null
+          partCurriculum == null
               ? null
-              : partCurriculums.stream()
+              : partCurriculum.stream()
                   .map(pc -> new AdminCachePort.PartCurriculumData(pc.part(), pc.curriculums()))
                   .toList();
       List<AdminCachePort.RecruitPartCurriculumData> rpcData =
-          recruitPartCurriculums == null
+          recruitPartCurriculum == null
               ? null
-              : recruitPartCurriculums.stream()
+              : recruitPartCurriculum.stream()
                   .map(
                       rpc ->
                           new AdminCachePort.RecruitPartCurriculumData(
@@ -196,9 +196,9 @@ public class AdminOfficialRequest {
                                       rpc.introduction().preference())))
                   .toList();
       List<AdminCachePort.RecruitQuestionData> rqData =
-          recruitQuestions == null
+          recruitQuestion == null
               ? null
-              : recruitQuestions.stream()
+              : recruitQuestion.stream()
                   .map(
                       rq ->
                           new AdminCachePort.RecruitQuestionData(
@@ -210,9 +210,11 @@ public class AdminOfficialRequest {
                                       .toList()))
                   .toList();
       return new AdminOfficialFacade.AddRecruitRequest(
-          generationId, recruitHeaderImageFileName, piData, pcData, rpcData, rqData);
+          generation, recruitHeaderImageFileName, piData, pcData, rpcData, rqData);
     }
   }
+
+  public record ConfirmRequest(Integer generation) {}
 
   private AdminOfficialRequest() {}
 }
