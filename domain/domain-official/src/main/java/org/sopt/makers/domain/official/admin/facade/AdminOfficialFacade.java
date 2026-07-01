@@ -2,6 +2,8 @@ package org.sopt.makers.domain.official.admin.facade;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
@@ -301,6 +303,13 @@ public class AdminOfficialFacade {
     }
 
     if (cached.coreValues() != null) {
+      boolean hasNullCvImage = cached.coreValues().stream().anyMatch(cv -> cv.imageUrl() == null);
+      Map<String, String> existingCvImageByValue = hasNullCvImage
+          ? coreValueService.findByGeneration(generationId).stream()
+              .filter(cv -> cv.imageUrl() != null)
+              .collect(Collectors.toMap(CoreValue::value, CoreValue::imageUrl, (a, b) -> a))
+          : null;
+
       List<CoreValue> coreValues =
           IntStream.range(0, cached.coreValues().size())
               .mapToObj(
@@ -309,7 +318,9 @@ public class AdminOfficialFacade {
                     String imageUrl =
                         cv.imageUrl() != null
                             ? adminFileStoragePort.getOriginalUrl(cv.imageUrl())
-                            : null;
+                            : (existingCvImageByValue != null
+                                ? existingCvImageByValue.get(cv.value())
+                                : null);
                     return new CoreValue(
                         null, generationId, cv.value(), cv.description(), cv.detailDescription(),
                         imageUrl, i);
@@ -319,6 +330,16 @@ public class AdminOfficialFacade {
     }
 
     if (cached.members() != null) {
+      boolean hasNullMemberImage = cached.members().stream().anyMatch(m -> m.profileImageUrl() == null);
+      Map<String, String> existingMemberImageByKey = hasNullMemberImage
+          ? memberService.findByGeneration(generationId).stream()
+              .filter(m -> m.profileImageUrl() != null)
+              .collect(Collectors.toMap(
+                  m -> m.role().name() + "_" + m.name(),
+                  Member::profileImageUrl,
+                  (a, b) -> a))
+          : null;
+
       List<Member> members =
           cached.members().stream()
               .map(
@@ -326,7 +347,9 @@ public class AdminOfficialFacade {
                     String profileImageUrl =
                         m.profileImageUrl() != null
                             ? adminFileStoragePort.getOriginalUrl(m.profileImageUrl())
-                            : null;
+                            : (existingMemberImageByKey != null
+                                ? existingMemberImageByKey.get(m.role() + "_" + m.name())
+                                : null);
                     return new Member(
                         null,
                         generationId,
@@ -480,23 +503,32 @@ public class AdminOfficialFacade {
               })
           .toList();
     }
+
+    List<RecruitPartInfo> existingParts = partService.findByGeneration(generationId);
+
     if (cached.partIntroductions() != null) {
+      Map<Part, List<String>> existingCurriculums = existingParts.stream()
+          .collect(Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::curriculums));
       return cached.partIntroductions().stream()
-          .map(
-              pi ->
-                  new RecruitPartInfo(
-                      null, generationId, Part.valueOf(pi.part()), pi.description(), List.of()))
+          .map(pi -> {
+            Part part = Part.valueOf(pi.part());
+            return new RecruitPartInfo(
+                null, generationId, part, pi.description(),
+                existingCurriculums.getOrDefault(part, List.of()));
+          })
           .toList();
     }
+
+    Map<Part, String> existingDescriptions = existingParts.stream()
+        .collect(Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::description));
     return cached.partCurriculums().stream()
-        .map(
-            pc ->
-                new RecruitPartInfo(
-                    null,
-                    generationId,
-                    Part.valueOf(pc.part()),
-                    pc.part() + " 파트입니다.",
-                    pc.curriculums()))
+        .map(pc -> {
+          Part part = Part.valueOf(pc.part());
+          return new RecruitPartInfo(
+              null, generationId, part,
+              existingDescriptions.getOrDefault(part, part.name() + " 파트입니다."),
+              pc.curriculums());
+        })
         .toList();
   }
 
