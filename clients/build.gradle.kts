@@ -1,11 +1,8 @@
 dependencies {
     implementation(project(":core"))
     implementation(project(":domain:domain-auth"))
+    implementation(project(":domain:domain-admin"))
     implementation(project(":domain:domain-official"))
-
-    // Add a domain dependency here only when that domain defines a capability port to implement.
-    //          implementation(project(":domain:domain-app"))    // when FileUploader is added
-    //          implementation(project(":domain:domain-crew"))   // when EventPublisher is added
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")

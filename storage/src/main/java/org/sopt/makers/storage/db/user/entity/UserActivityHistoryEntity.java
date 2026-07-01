@@ -3,18 +3,11 @@ package org.sopt.makers.storage.db.user.entity;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.Role;
@@ -32,6 +25,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
           columnNames = {"user_id", "generation", "is_sopt"})
     })
 public class UserActivityHistoryEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)

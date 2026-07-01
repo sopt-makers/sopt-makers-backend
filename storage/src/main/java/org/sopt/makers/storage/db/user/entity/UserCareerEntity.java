@@ -1,11 +1,9 @@
 package org.sopt.makers.storage.db.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import static lombok.AccessLevel.PROTECTED;
+
+import jakarta.persistence.*;
+import lombok.*;
 import org.sopt.makers.domain.user.UserCareer;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
@@ -14,6 +12,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_careers")
 public class UserCareerEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   private Long userId;
 

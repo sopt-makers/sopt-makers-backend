@@ -2,17 +2,11 @@ package org.sopt.makers.storage.db.admin.entity;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.LectureStatus;
@@ -24,6 +18,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "attendances")
 public class AttendanceEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "attendance_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @Column(name = "user_id", nullable = false)
   private Long userId;

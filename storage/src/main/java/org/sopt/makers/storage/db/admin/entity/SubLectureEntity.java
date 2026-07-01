@@ -2,15 +2,11 @@ package org.sopt.makers.storage.db.admin.entity;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.domain.admin.attendance.SubLecture;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
@@ -21,6 +17,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
     name = "sub_lectures",
     uniqueConstraints = @UniqueConstraint(columnNames = {"lecture_id", "round"}))
 public class SubLectureEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "sub_lecture_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "lecture_id", nullable = false)

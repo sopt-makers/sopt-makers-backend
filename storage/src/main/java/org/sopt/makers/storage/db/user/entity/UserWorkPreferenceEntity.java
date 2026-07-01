@@ -1,16 +1,9 @@
 package org.sopt.makers.storage.db.user.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import static lombok.AccessLevel.PROTECTED;
+
+import jakarta.persistence.*;
+import lombok.*;
 import org.sopt.makers.domain.user.WorkPreference;
 import org.sopt.makers.domain.user.enums.CommunicationStyle;
 import org.sopt.makers.domain.user.enums.FeedbackStyle;
@@ -24,6 +17,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user_work_preferences")
 public class UserWorkPreferenceEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
