@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.clients.s3.exception.S3Exception;
 import org.sopt.makers.clients.s3.exception.S3Failure;
+import org.sopt.makers.domain.admin.banner.port.BannerFileStoragePort;
 import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -23,7 +24,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class S3FileStorageAdapter implements NewsFileStoragePort {
+public class S3FileStorageAdapter implements NewsFileStoragePort, BannerFileStoragePort {
 
   private static final long PRESIGNED_URL_EXPIRATION_MINUTES = 10;
   private static final Set<String> ALLOWED_CONTENT_TYPES =
@@ -45,7 +46,27 @@ public class S3FileStorageAdapter implements NewsFileStoragePort {
   private final S3Property property;
 
   @Override
-  public String upload(UploadFile file, String directory) {
+  public String upload(NewsFileStoragePort.UploadFile file, String directory) {
+    String fileName = createFileName(file.originalFilename());
+    String fileKey = buildFileKey(directory, fileName);
+
+    try {
+      PutObjectRequest request =
+          PutObjectRequest.builder()
+              .bucket(property.bucket())
+              .key(fileKey)
+              .contentType(file.contentType())
+              .build();
+      s3Client.putObject(request, RequestBody.fromInputStream(file.inputStream(), file.size()));
+      return fileKey;
+    } catch (Exception e) {
+      log.error("S3 파일 업로드 실패 - fileKey={}", fileKey, e);
+      throw new S3Exception(S3Failure.FILE_UPLOAD_FAILED);
+    }
+  }
+
+  @Override
+  public String upload(BannerFileStoragePort.UploadFile file, String directory) {
     String fileName = createFileName(file.originalFilename());
     String fileKey = buildFileKey(directory, fileName);
 
@@ -59,7 +80,7 @@ public class S3FileStorageAdapter implements NewsFileStoragePort {
       s3Client.putObject(request, RequestBody.fromInputStream(file.inputStream(), file.size()));
       return getFileUrl(fileKey);
     } catch (Exception e) {
-      log.error("S3 파일 업로드 실패 - fileKey={}", fileKey, e);
+      log.error("S3 배너 이미지 업로드 실패 - fileKey={}", fileKey, e);
       throw new S3Exception(S3Failure.FILE_UPLOAD_FAILED);
     }
   }
@@ -74,6 +95,17 @@ public class S3FileStorageAdapter implements NewsFileStoragePort {
       log.error("S3 파일 삭제 실패 - fileUrl={}", fileUrl, e);
       throw new S3Exception(S3Failure.FILE_DELETE_FAILED);
     }
+  }
+
+  @Override
+  public String getUrl(String fileUrl) {
+    if (fileUrl == null || fileUrl.isBlank()) {
+      return fileUrl;
+    }
+    if (isCompleteS3Url(fileUrl)) {
+      return fileUrl;
+    }
+    return getFileUrl(fileUrl);
   }
 
   @Override
@@ -163,6 +195,9 @@ public class S3FileStorageAdapter implements NewsFileStoragePort {
   }
 
   private String extractKey(String fileUrl) {
+    if (!isCompleteS3Url(fileUrl)) {
+      return fileUrl;
+    }
     try {
       return resolveKey(new URI(fileUrl));
     } catch (Exception e) {
