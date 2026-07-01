@@ -34,9 +34,7 @@ public class RecruitmentRepositoryAdapter implements RecruitmentRepositoryPort {
 
   @Override
   public List<Recruitment> findByGenerationId(Integer generationId) {
-    return recruitmentJpaRepository
-        .findByGenerationIdOrderByRecruitTypeAsc(generationId)
-        .stream()
+    return recruitmentJpaRepository.findByGenerationIdOrderByRecruitTypeAsc(generationId).stream()
         .map(RecruitmentEntity::toDomain)
         .toList();
   }

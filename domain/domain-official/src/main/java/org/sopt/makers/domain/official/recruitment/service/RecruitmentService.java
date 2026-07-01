@@ -2,8 +2,8 @@ package org.sopt.makers.domain.official.recruitment.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.official.recruitment.Recruitment;
 import org.sopt.makers.domain.official.recruitment.RecruitType;
+import org.sopt.makers.domain.official.recruitment.Recruitment;
 import org.sopt.makers.domain.official.recruitment.Schedule;
 import org.sopt.makers.domain.official.recruitment.port.RecruitmentRepositoryPort;
 import org.springframework.stereotype.Service;
@@ -28,13 +28,15 @@ public class RecruitmentService {
                         null,
                         command.generationId(),
                         RecruitType.fromString(data.type()),
-                        new Schedule(
-                            data.schedule().applicationStartTime(),
-                            data.schedule().applicationEndTime(),
-                            data.schedule().applicationResultTime(),
-                            data.schedule().interviewStartTime(),
-                            data.schedule().interviewEndTime(),
-                            data.schedule().finalResultTime())))
+                        data.schedule() == null
+                            ? null
+                            : new Schedule(
+                                data.schedule().applicationStartTime(),
+                                data.schedule().applicationEndTime(),
+                                data.schedule().applicationResultTime(),
+                                data.schedule().interviewStartTime(),
+                                data.schedule().interviewEndTime(),
+                                data.schedule().finalResultTime())))
             .toList();
 
     recruitmentRepositoryPort.saveAll(recruitments);

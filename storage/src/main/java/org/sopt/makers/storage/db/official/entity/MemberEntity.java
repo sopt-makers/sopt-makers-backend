@@ -76,7 +76,8 @@ public class MemberEntity {
         snsLinks != null
             ? SnsLinks.of(snsLinks.email, snsLinks.linkedin, snsLinks.github, snsLinks.behance)
             : SnsLinks.empty();
-    return new Member(id, generationId, role, name, affiliation, introduction, profileImageUrl, sns);
+    return new Member(
+        id, generationId, role, name, affiliation, introduction, profileImageUrl, sns);
   }
 
   public static MemberEntity fromDomain(Member member) {

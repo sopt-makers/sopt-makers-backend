@@ -15,8 +15,8 @@ import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.makers.domain.official.recruitment.Recruitment;
 import org.sopt.makers.domain.official.recruitment.RecruitType;
+import org.sopt.makers.domain.official.recruitment.Recruitment;
 import org.sopt.makers.domain.official.recruitment.Schedule;
 
 @Entity

@@ -24,7 +24,11 @@ public class ActivityScheduleService {
             .map(
                 data ->
                     new ActivitySchedule(
-                        null, command.generationId(), data.name(), data.startDate(), data.endDate()))
+                        null,
+                        command.generationId(),
+                        data.name(),
+                        data.startDate(),
+                        data.endDate()))
             .toList();
 
     activityScheduleRepositoryPort.saveAll(schedules);

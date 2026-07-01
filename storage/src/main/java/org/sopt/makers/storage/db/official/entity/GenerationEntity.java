@@ -59,8 +59,7 @@ public class GenerationEntity {
     entity.headerImage = "";
     entity.recruitHeaderImage = "";
     entity.homeHeaderImage = "";
-    entity.brandingColor =
-        brandingColor != null ? BrandingColorEmbeddable.of(brandingColor) : null;
+    entity.brandingColor = brandingColor != null ? BrandingColorEmbeddable.of(brandingColor) : null;
     return entity;
   }
 

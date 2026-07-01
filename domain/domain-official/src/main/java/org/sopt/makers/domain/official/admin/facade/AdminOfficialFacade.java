@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.activityschedule.ActivitySchedule;
 import org.sopt.makers.domain.official.activityschedule.service.ActivityScheduleService;
+import org.sopt.makers.domain.official.admin.exception.OfficialAdminException;
+import org.sopt.makers.domain.official.admin.exception.OfficialAdminFailure;
 import org.sopt.makers.domain.official.admin.port.AdminCachePort;
 import org.sopt.makers.domain.official.admin.port.AdminFileStoragePort;
 import org.sopt.makers.domain.official.corevalue.CoreValue;
@@ -29,8 +31,6 @@ import org.sopt.makers.domain.official.recruit.RecruitPartInfo;
 import org.sopt.makers.domain.official.recruit.RecruitPartIntroduction;
 import org.sopt.makers.domain.official.recruit.service.RecruitPartIntroductionService;
 import org.sopt.makers.domain.official.recruitment.Recruitment;
-import org.sopt.makers.domain.official.admin.exception.OfficialAdminException;
-import org.sopt.makers.domain.official.admin.exception.OfficialAdminFailure;
 import org.sopt.makers.domain.official.recruitment.service.RecruitmentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -116,13 +116,16 @@ public class AdminOfficialFacade {
                       rs ->
                           new RecruitmentService.BulkCreateRecruitmentsCommand.RecruitmentData(
                               rs.type(),
-                              new RecruitmentService.BulkCreateRecruitmentsCommand.ScheduleData(
-                                  rs.schedule().applicationStartTime(),
-                                  rs.schedule().applicationEndTime(),
-                                  rs.schedule().applicationResultTime(),
-                                  rs.schedule().interviewStartTime(),
-                                  rs.schedule().interviewEndTime(),
-                                  rs.schedule().finalResultTime())))
+                              rs.schedule() == null
+                                  ? null
+                                  : new RecruitmentService.BulkCreateRecruitmentsCommand
+                                      .ScheduleData(
+                                      rs.schedule().applicationStartTime(),
+                                      rs.schedule().applicationEndTime(),
+                                      rs.schedule().applicationResultTime(),
+                                      rs.schedule().interviewStartTime(),
+                                      rs.schedule().interviewEndTime(),
+                                      rs.schedule().finalResultTime())))
                   .toList()));
     }
 
@@ -206,8 +209,10 @@ public class AdminOfficialFacade {
       homepageReviewService.replaceAll(
           new HomepageReviewService.BulkCreateHomepageReviewsCommand(
               cached.reviews().stream()
-                  .map(r -> new HomepageReviewService.BulkCreateHomepageReviewsCommand.ReviewData(
-                      r.title(), r.content(), r.authorInfo()))
+                  .map(
+                      r ->
+                          new HomepageReviewService.BulkCreateHomepageReviewsCommand.ReviewData(
+                              r.title(), r.content(), r.authorInfo()))
                   .toList()));
     }
 
@@ -292,7 +297,8 @@ public class AdminOfficialFacade {
             activityScheduleDataList);
     adminCachePort.putAbout(request.generationId(), cacheData);
 
-    return new AboutResult(request.generationId(), headerImageUrl, coreValueDataList, memberDataList);
+    return new AboutResult(
+        request.generationId(), headerImageUrl, coreValueDataList, memberDataList);
   }
 
   @Transactional
@@ -309,11 +315,12 @@ public class AdminOfficialFacade {
 
     if (cached.coreValues() != null) {
       boolean hasNullCvImage = cached.coreValues().stream().anyMatch(cv -> cv.imageUrl() == null);
-      Map<String, String> existingCvImageByValue = hasNullCvImage
-          ? coreValueService.findByGeneration(generationId).stream()
-              .filter(cv -> cv.imageUrl() != null)
-              .collect(Collectors.toMap(CoreValue::value, CoreValue::imageUrl, (a, b) -> a))
-          : null;
+      Map<String, String> existingCvImageByValue =
+          hasNullCvImage
+              ? coreValueService.findByGeneration(generationId).stream()
+                  .filter(cv -> cv.imageUrl() != null)
+                  .collect(Collectors.toMap(CoreValue::value, CoreValue::imageUrl, (a, b) -> a))
+              : null;
 
       List<CoreValue> coreValues =
           IntStream.range(0, cached.coreValues().size())
@@ -327,26 +334,35 @@ public class AdminOfficialFacade {
                                 ? existingCvImageByValue.get(cv.value())
                                 : null);
                     if (imageUrl == null) {
-                      throw new OfficialAdminException(OfficialAdminFailure.CORE_VALUE_IMAGE_REQUIRED);
+                      throw new OfficialAdminException(
+                          OfficialAdminFailure.CORE_VALUE_IMAGE_REQUIRED);
                     }
                     return new CoreValue(
-                        null, generationId, cv.value(), cv.description(), cv.detailDescription(),
-                        imageUrl, i);
+                        null,
+                        generationId,
+                        cv.value(),
+                        cv.description(),
+                        cv.detailDescription(),
+                        imageUrl,
+                        i);
                   })
               .toList();
       coreValueService.bulkCreate(generationId, coreValues);
     }
 
     if (cached.members() != null) {
-      boolean hasNullMemberImage = cached.members().stream().anyMatch(m -> m.profileImageUrl() == null);
-      Map<String, String> existingMemberImageByKey = hasNullMemberImage
-          ? memberService.findByGeneration(generationId).stream()
-              .filter(m -> m.profileImageUrl() != null)
-              .collect(Collectors.toMap(
-                  m -> m.role().name() + "_" + m.name(),
-                  Member::profileImageUrl,
-                  (a, b) -> a))
-          : null;
+      boolean hasNullMemberImage =
+          cached.members().stream().anyMatch(m -> m.profileImageUrl() == null);
+      Map<String, String> existingMemberImageByKey =
+          hasNullMemberImage
+              ? memberService.findByGeneration(generationId).stream()
+                  .filter(m -> m.profileImageUrl() != null)
+                  .collect(
+                      Collectors.toMap(
+                          m -> m.role().name() + "_" + m.name(),
+                          Member::profileImageUrl,
+                          (a, b) -> a))
+              : null;
 
       List<Member> members =
           cached.members().stream()
@@ -356,7 +372,8 @@ public class AdminOfficialFacade {
                         m.profileImageUrl() != null
                             ? adminFileStoragePort.getOriginalUrl(m.profileImageUrl())
                             : (existingMemberImageByKey != null
-                                ? existingMemberImageByKey.get(MemberRole.fromString(m.role()).name() + "_" + m.name())
+                                ? existingMemberImageByKey.get(
+                                    MemberRole.fromString(m.role()).name() + "_" + m.name())
                                 : null);
                     if (profileImageUrl == null) {
                       throw new OfficialAdminException(OfficialAdminFailure.MEMBER_IMAGE_REQUIRED);
@@ -405,7 +422,8 @@ public class AdminOfficialFacade {
                               s.endDate() != null ? LocalDate.parse(s.endDate()) : null))
                   .toList();
       activityScheduleService.bulkCreate(
-          new ActivityScheduleService.BulkCreateActivitySchedulesCommand(generationId, scheduleData));
+          new ActivityScheduleService.BulkCreateActivitySchedulesCommand(
+              generationId, scheduleData));
     }
 
     adminCachePort.evictAbout(generationId);
@@ -518,28 +536,40 @@ public class AdminOfficialFacade {
     List<RecruitPartInfo> existingParts = partService.findByGeneration(generationId);
 
     if (cached.partIntroductions() != null) {
-      Map<Part, List<String>> existingCurriculums = existingParts.stream()
-          .collect(Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::curriculums));
+      Map<Part, List<String>> existingCurriculums =
+          existingParts.stream()
+              .collect(
+                  Collectors.toMap(
+                      RecruitPartInfo::part, RecruitPartInfo::curriculums, (a, b) -> a));
       return cached.partIntroductions().stream()
-          .map(pi -> {
-            Part part = Part.fromString(pi.part());
-            return new RecruitPartInfo(
-                null, generationId, part, pi.description(),
-                existingCurriculums.getOrDefault(part, List.of()));
-          })
+          .map(
+              pi -> {
+                Part part = Part.fromString(pi.part());
+                return new RecruitPartInfo(
+                    null,
+                    generationId,
+                    part,
+                    pi.description(),
+                    existingCurriculums.getOrDefault(part, List.of()));
+              })
           .toList();
     }
 
-    Map<Part, String> existingDescriptions = existingParts.stream()
-        .collect(Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::description));
+    Map<Part, String> existingDescriptions =
+        existingParts.stream()
+            .collect(
+                Collectors.toMap(RecruitPartInfo::part, RecruitPartInfo::description, (a, b) -> a));
     return cached.partCurriculums().stream()
-        .map(pc -> {
-          Part part = Part.fromString(pc.part());
-          return new RecruitPartInfo(
-              null, generationId, part,
-              existingDescriptions.getOrDefault(part, part.name() + " 파트입니다."),
-              pc.curriculums());
-        })
+        .map(
+            pc -> {
+              Part part = Part.fromString(pc.part());
+              return new RecruitPartInfo(
+                  null,
+                  generationId,
+                  part,
+                  existingDescriptions.getOrDefault(part, part.name() + " 파트입니다."),
+                  pc.curriculums());
+            })
         .toList();
   }
 

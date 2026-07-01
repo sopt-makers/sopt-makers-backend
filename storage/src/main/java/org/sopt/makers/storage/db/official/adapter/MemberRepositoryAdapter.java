@@ -31,9 +31,7 @@ public class MemberRepositoryAdapter implements MemberRepositoryPort {
 
   @Override
   public List<Member> findByGenerationId(Integer generationId) {
-    return memberJpaRepository
-        .findByGenerationIdOrderByRoleAsc(generationId)
-        .stream()
+    return memberJpaRepository.findByGenerationIdOrderByRoleAsc(generationId).stream()
         .map(MemberEntity::toDomain)
         .toList();
   }

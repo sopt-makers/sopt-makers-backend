@@ -2,7 +2,6 @@ package org.sopt.makers.api.controller.admin.official.dto;
 
 import java.util.List;
 import org.sopt.makers.domain.official.admin.facade.AdminOfficialFacade;
-import org.sopt.makers.domain.official.admin.port.AdminCachePort;
 
 public class AdminOfficialResponse {
 
@@ -64,28 +63,35 @@ public class AdminOfficialResponse {
           data.partInfos() == null
               ? null
               : data.partInfos().stream()
-                  .map(p -> new PartIntroductionData(p.part() != null ? p.part().getName() : null, p.description()))
+                  .map(
+                      p ->
+                          new PartIntroductionData(
+                              p.part() != null ? p.part().getName() : null, p.description()))
                   .toList();
 
       List<LatestNewsData> latestNews =
           data.news() == null
               ? null
-              : data.news().stream()
-                  .map(n -> new LatestNewsData(n.id(), n.title()))
-                  .toList();
+              : data.news().stream().map(n -> new LatestNewsData(n.id(), n.title())).toList();
 
       List<CoreValueData> coreValue =
           data.coreValues() == null
               ? null
               : data.coreValues().stream()
-                  .map(cv -> new CoreValueData(cv.value(), cv.description(), cv.detailDescription(), cv.imageUrl()))
+                  .map(
+                      cv ->
+                          new CoreValueData(
+                              cv.value(), cv.description(), cv.detailDescription(), cv.imageUrl()))
                   .toList();
 
       List<PartCurriculumData> partCurriculum =
           data.partInfos() == null
               ? null
               : data.partInfos().stream()
-                  .map(p -> new PartCurriculumData(p.part() != null ? p.part().getName() : null, p.curriculums()))
+                  .map(
+                      p ->
+                          new PartCurriculumData(
+                              p.part() != null ? p.part().getName() : null, p.curriculums()))
                   .toList();
 
       List<MemberData> member =
@@ -121,9 +127,8 @@ public class AdminOfficialResponse {
                         String preference =
                             rpi.preferences() == null || rpi.preferences().isEmpty()
                                 ? null
-                                : String.join("\n", rpi.preferences().stream()
-                                    .map(p -> "- " + p)
-                                    .toList());
+                                : String.join(
+                                    "\n", rpi.preferences().stream().map(p -> "- " + p).toList());
                         return new RecruitPartCurriculumData(
                             rpi.part() != null ? rpi.part().getName() : null,
                             new IntroductionData(rpi.content(), preference));
@@ -243,9 +248,7 @@ public class AdminOfficialResponse {
   }
 
   public record AddHomeResponse(
-      int generation,
-      String homeHeaderImage,
-      List<NewsPresignedData> news) {
+      int generation, String homeHeaderImage, List<NewsPresignedData> news) {
 
     public static AddHomeResponse from(AdminOfficialFacade.HomeResult result) {
       List<NewsPresignedData> newsData =
@@ -254,7 +257,8 @@ public class AdminOfficialResponse {
               : result.news().stream()
                   .map(n -> new NewsPresignedData(n.title(), n.imageUrl()))
                   .toList();
-      return new AddHomeResponse(result.generationId(), result.homeHeaderImagePresignedUrl(), newsData);
+      return new AddHomeResponse(
+          result.generationId(), result.homeHeaderImagePresignedUrl(), newsData);
     }
   }
 

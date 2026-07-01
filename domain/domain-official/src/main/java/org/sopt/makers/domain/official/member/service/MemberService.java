@@ -48,8 +48,7 @@ public class MemberService {
   public List<Member> findByGeneration(Integer generationId) {
     return memberRepositoryPort.findByGenerationId(generationId).stream()
         .sorted(
-            Comparator.comparingInt((Member m) -> m.role().getOrder())
-                .thenComparing(Member::name))
+            Comparator.comparingInt((Member m) -> m.role().getOrder()).thenComparing(Member::name))
         .toList();
   }
 

@@ -71,13 +71,19 @@ public class AdminOfficialRequest {
           news == null
               ? null
               : news.stream()
-                  .map(n -> new AdminOfficialFacade.AddHomeRequest.NewsFileRequest(n.title(), n.link(), n.imageFileName()))
+                  .map(
+                      n ->
+                          new AdminOfficialFacade.AddHomeRequest.NewsFileRequest(
+                              n.title(), n.link(), n.imageFileName()))
                   .toList();
       List<AdminOfficialFacade.AddHomeRequest.ReviewRequest> reviewRequests =
           review == null
               ? null
               : review.stream()
-                  .map(r -> new AdminOfficialFacade.AddHomeRequest.ReviewRequest(r.title(), r.content(), r.authorInfo()))
+                  .map(
+                      r ->
+                          new AdminOfficialFacade.AddHomeRequest.ReviewRequest(
+                              r.title(), r.content(), r.authorInfo()))
                   .toList();
       return new AdminOfficialFacade.AddHomeRequest(
           generation, homeHeaderImageFileName, newsRequests, reviewRequests);
@@ -115,7 +121,10 @@ public class AdminOfficialRequest {
                   .map(
                       cv ->
                           new AdminOfficialFacade.AddAboutRequest.CoreValueRequest(
-                              cv.value(), cv.description(), cv.detailDescription(), cv.imageFileName()))
+                              cv.value(),
+                              cv.description(),
+                              cv.detailDescription(),
+                              cv.imageFileName()))
                   .toList();
       List<AdminOfficialFacade.AddAboutRequest.MemberRequest> memberRequests =
           member == null
@@ -206,7 +215,10 @@ public class AdminOfficialRequest {
                               rq.questions() == null
                                   ? null
                                   : rq.questions().stream()
-                                      .map(q -> new AdminCachePort.QuestionData(q.question(), q.answer()))
+                                      .map(
+                                          q ->
+                                              new AdminCachePort.QuestionData(
+                                                  q.question(), q.answer()))
                                       .toList()))
                   .toList();
       return new AdminOfficialFacade.AddRecruitRequest(

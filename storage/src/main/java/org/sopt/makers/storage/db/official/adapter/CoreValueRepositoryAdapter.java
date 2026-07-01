@@ -27,7 +27,9 @@ public class CoreValueRepositoryAdapter implements CoreValueRepositoryPort {
   @Override
   public List<CoreValue> saveAll(List<CoreValue> coreValues) {
     List<CoreValueEntity> entities = coreValues.stream().map(CoreValueEntity::fromDomain).toList();
-    return coreValueJpaRepository.saveAll(entities).stream().map(CoreValueEntity::toDomain).toList();
+    return coreValueJpaRepository.saveAll(entities).stream()
+        .map(CoreValueEntity::toDomain)
+        .toList();
   }
 
   @Transactional
