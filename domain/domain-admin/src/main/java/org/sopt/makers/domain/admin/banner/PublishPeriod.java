@@ -10,7 +10,7 @@ public record PublishPeriod(LocalDate startDate, LocalDate endDate) {
 
   @Builder
   public PublishPeriod {
-    if (endDate.isBefore(startDate)) {
+    if (startDate == null || endDate == null || endDate.isBefore(startDate)) {
       throw new BannerException(INVALID_BANNER_PERIOD);
     }
   }
