@@ -20,6 +20,7 @@ import org.sopt.makers.domain.official.generation.Generation;
 import org.sopt.makers.domain.official.generation.service.GenerationService;
 import org.sopt.makers.domain.official.homepage.review.service.HomepageReviewService;
 import org.sopt.makers.domain.official.member.Member;
+import org.sopt.makers.domain.official.member.MemberRole;
 import org.sopt.makers.domain.official.member.SnsLinks;
 import org.sopt.makers.domain.official.member.service.MemberService;
 import org.sopt.makers.domain.official.news.service.NewsService;
@@ -348,7 +349,7 @@ public class AdminOfficialFacade {
                         m.profileImageUrl() != null
                             ? adminFileStoragePort.getOriginalUrl(m.profileImageUrl())
                             : (existingMemberImageByKey != null
-                                ? existingMemberImageByKey.get(m.role() + "_" + m.name())
+                                ? existingMemberImageByKey.get(MemberRole.fromString(m.role()).name() + "_" + m.name())
                                 : null);
                     return new Member(
                         null,
