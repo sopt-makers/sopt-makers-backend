@@ -3,14 +3,11 @@ package org.sopt.makers.storage.db.auth.entity;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.domain.auth.PhoneVerification;
 import org.sopt.makers.domain.auth.PhoneVerificationType;
 import org.sopt.makers.storage.db.common.BaseEntity;
@@ -20,6 +17,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "phone_verifications")
 public class PhoneVerificationEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   private String name;
 

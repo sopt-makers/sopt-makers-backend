@@ -2,14 +2,11 @@ package org.sopt.makers.storage.db.admin.entity;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.domain.admin.auth.AdminAccount;
 import org.sopt.makers.domain.admin.auth.AdminAccountType;
 import org.sopt.makers.storage.db.common.BaseEntity;
@@ -19,6 +16,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "admin")
 public class AdminAccountEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "admin_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @Column(name = "email", nullable = false, unique = true)
   private String email;

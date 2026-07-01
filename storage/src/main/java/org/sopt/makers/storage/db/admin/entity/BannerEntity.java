@@ -2,17 +2,11 @@ package org.sopt.makers.storage.db.admin.entity;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.AttributeOverrides;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.domain.admin.banner.Banner;
 import org.sopt.makers.domain.admin.banner.ContentType;
 import org.sopt.makers.domain.admin.banner.PublishLocation;
@@ -23,6 +17,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Table(name = "banners")
 @NoArgsConstructor(access = PROTECTED)
 public class BannerEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)

@@ -22,12 +22,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor(access = PROTECTED)
 public abstract class BaseEntity {
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Setter(value = PROTECTED)
-  private Long id;
-
   @CreatedDate
   @Column(updatable = false, name = "created_at")
   private LocalDateTime createdAt;

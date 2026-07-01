@@ -3,17 +3,14 @@ package org.sopt.makers.storage.db.user.entity;
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.domain.user.ActivityList;
 import org.sopt.makers.domain.user.Profile;
@@ -33,6 +30,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
           columnNames = {"auth_platform_id", "auth_platform_type"})
     })
 public class UserEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @Column(nullable = false)
   private String name;

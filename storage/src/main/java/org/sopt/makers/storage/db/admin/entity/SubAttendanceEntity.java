@@ -2,16 +2,12 @@ package org.sopt.makers.storage.db.admin.entity;
 
 import static lombok.AccessLevel.PROTECTED;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
 import org.sopt.makers.storage.db.common.BaseEntity;
@@ -21,6 +17,12 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "sub_attendances")
 public class SubAttendanceEntity extends BaseEntity {
+
+  @Id
+  @Column(name = "sub_attendance_id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Setter(value = PROTECTED)
+  private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "attendance_id", nullable = false)
