@@ -148,12 +148,16 @@ public class AdminOfficialFacade {
       newsDataList =
           request.news().stream()
               .map(
-                  n ->
-                      new AdminCachePort.NewsData(
-                          n.title(),
-                          n.link(),
-                          adminFileStoragePort.generatePresignedUrl(
-                              n.imageFileName(), request.generationId() + "/news/")))
+                  n -> {
+                    if (!hasText(n.imageFileName())) {
+                      throw new OfficialAdminException(OfficialAdminFailure.NEWS_IMAGE_REQUIRED);
+                    }
+                    return new AdminCachePort.NewsData(
+                        n.title(),
+                        n.link(),
+                        adminFileStoragePort.generatePresignedUrl(
+                            n.imageFileName(), request.generationId() + "/news/"));
+                  })
               .toList();
     }
 
