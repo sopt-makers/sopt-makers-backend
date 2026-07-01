@@ -17,7 +17,7 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "admin_accounts")
+@Table(name = "admin")
 public class AdminAccountEntity extends BaseEntity {
 
   @Column(name = "email", nullable = false, unique = true)
