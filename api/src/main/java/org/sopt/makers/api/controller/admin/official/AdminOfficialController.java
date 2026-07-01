@@ -34,7 +34,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getAdminMain(
-      @RequestParam("generationId") Integer generationId) {
+      @RequestParam("generation") Integer generationId) {
     return ResponseFactory.success(
         SUCCESS_GET_ADMIN_MAIN,
         AdminOfficialResponse.AdminMainResponse.from(adminOfficialFacade.getMain(generationId)));
@@ -53,7 +53,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/common/confirm")
   public ResponseEntity<BaseResponse<?>> confirmCommonData(
-      @RequestParam("generationId") Integer generationId) {
+      @RequestParam("generation") Integer generationId) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_COMMON,
         AdminOfficialResponse.ConfirmResponse.from(
@@ -73,7 +73,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/home/confirm")
   public ResponseEntity<BaseResponse<?>> confirmHomeData(
-      @RequestParam("generationId") Integer generationId) {
+      @RequestParam("generation") Integer generationId) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_HOME,
         AdminOfficialResponse.ConfirmResponse.from(
@@ -93,7 +93,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/about/confirm")
   public ResponseEntity<BaseResponse<?>> confirmAboutData(
-      @RequestParam("generationId") Integer generationId) {
+      @RequestParam("generation") Integer generationId) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_ABOUT,
         AdminOfficialResponse.ConfirmResponse.from(
@@ -113,7 +113,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/recruit/confirm")
   public ResponseEntity<BaseResponse<?>> confirmRecruitData(
-      @RequestParam("generationId") Integer generationId) {
+      @RequestParam("generation") Integer generationId) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_RECRUIT,
         AdminOfficialResponse.ConfirmResponse.from(
