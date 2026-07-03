@@ -1,7 +1,5 @@
 package org.sopt.makers.clients.eventbridge;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -21,6 +19,8 @@ import software.amazon.awssdk.services.scheduler.model.CreateScheduleRequest;
 import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindow;
 import software.amazon.awssdk.services.scheduler.model.FlexibleTimeWindowMode;
 import software.amazon.awssdk.services.scheduler.model.Target;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -47,9 +47,8 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
               .target(target)
               .scheduleExpression(cronExpression)
               .actionAfterCompletion("DELETE")
-              .flexibleTimeWindow(FlexibleTimeWindow.builder()
-                  .mode(FlexibleTimeWindowMode.OFF)
-                  .build())
+              .flexibleTimeWindow(
+                  FlexibleTimeWindow.builder().mode(FlexibleTimeWindowMode.OFF).build())
               .build());
     } catch (Exception e) {
       throw new AlarmException(AlarmFailure.FAIL_SCHEDULE_ALARM);
@@ -57,41 +56,42 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
   }
 
   private String buildEventName(Alarm alarm) {
-    String dateData = alarm.intendedAt().toLocalDate()
-        .format(DateTimeFormatter.ofPattern(DATE_FORMAT));
-    String timeData = alarm.intendedAt().toLocalTime()
-        .format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
+    String dateData =
+        alarm.intendedAt().toLocalDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String timeData =
+        alarm.intendedAt().toLocalTime().format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
     return String.format("%s_%s_%d", dateData, timeData, alarm.id());
   }
 
   private String buildCronExpression(Alarm alarm) {
-    var utc = alarm.intendedAt()
-        .atZone(ZoneId.systemDefault())
-        .withZoneSameInstant(ZoneId.of("UTC"));
-    return String.format("cron(%d %d %d %d ? %d)",
-        utc.getMinute(), utc.getHour(), utc.getDayOfMonth(),
-        utc.getMonthValue(), utc.getYear());
+    var utc =
+        alarm.intendedAt().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
+    return String.format(
+        "cron(%d %d %d %d ? %d)",
+        utc.getMinute(), utc.getHour(), utc.getDayOfMonth(), utc.getMonthValue(), utc.getYear());
   }
 
   private String buildEventJson(Alarm alarm) throws JacksonException {
-    AlarmScheduleEventBridgeHeader header = AlarmScheduleEventBridgeHeader.builder()
-        .alarmId(alarm.id())
-        .action(alarm.target().sendAction().getValue())
-        .xApiKey(alarmProperty.key())
-        .transactionId(UUID.randomUUID().toString())
-        .service(alarmProperty.headerService())
-        .build();
+    AlarmScheduleEventBridgeHeader header =
+        AlarmScheduleEventBridgeHeader.builder()
+            .alarmId(alarm.id())
+            .action(alarm.target().sendAction().getValue())
+            .xApiKey(alarmProperty.key())
+            .transactionId(UUID.randomUUID().toString())
+            .service(alarmProperty.headerService())
+            .build();
 
     boolean isAppLink = AlarmLinkType.APP.equals(alarm.content().linkType());
     boolean isWebLink = AlarmLinkType.WEB.equals(alarm.content().linkType());
-    AlarmScheduleEventBridgeBody body = AlarmScheduleEventBridgeBody.builder()
-        .userIds(alarm.target().targetIds())
-        .title(alarm.content().title())
-        .content(alarm.content().content())
-        .category(alarm.content().category())
-        .deepLink(isAppLink ? alarm.content().linkPath() : null)
-        .webLink(isWebLink ? alarm.content().linkPath() : null)
-        .build();
+    AlarmScheduleEventBridgeBody body =
+        AlarmScheduleEventBridgeBody.builder()
+            .userIds(alarm.target().targetIds())
+            .title(alarm.content().title())
+            .content(alarm.content().content())
+            .category(alarm.content().category())
+            .deepLink(isAppLink ? alarm.content().linkPath() : null)
+            .webLink(isWebLink ? alarm.content().linkPath() : null)
+            .build();
 
     AlarmScheduleEventBridgeRequest request = AlarmScheduleEventBridgeRequest.of(header, body);
     return String.format("{\"detail\": %s}", objectMapper.writeValueAsString(request));

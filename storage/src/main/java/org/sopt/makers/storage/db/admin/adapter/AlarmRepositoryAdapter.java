@@ -21,14 +21,17 @@ public class AlarmRepositoryAdapter implements AlarmRepositoryPort {
   @Override
   @Transactional
   public Alarm save(Alarm alarm) {
-    AlarmEntity entity = alarm.id() != null
-        ? alarmJpaRepository.findById(alarm.id())
-            .map(e -> {
-              e.updateStatus(alarm.status(), alarm.sendAt());
-              return e;
-            })
-            .orElse(AlarmEntity.from(alarm))
-        : AlarmEntity.from(alarm);
+    AlarmEntity entity =
+        alarm.id() != null
+            ? alarmJpaRepository
+                .findById(alarm.id())
+                .map(
+                    e -> {
+                      e.updateStatus(alarm.status(), alarm.sendAt());
+                      return e;
+                    })
+                .orElse(AlarmEntity.from(alarm))
+            : AlarmEntity.from(alarm);
     return alarmJpaRepository.save(entity).toDomain();
   }
 
@@ -39,8 +42,7 @@ public class AlarmRepositoryAdapter implements AlarmRepositoryPort {
 
   @Override
   public List<Alarm> findAllOrdered(Integer generation, AlarmStatus status, int page, int size) {
-    return alarmJpaRepository.findOrderByCreatedAt(generation, status, page, size)
-        .stream()
+    return alarmJpaRepository.findOrderByCreatedAt(generation, status, page, size).stream()
         .map(AlarmEntity::toDomain)
         .toList();
   }

@@ -13,11 +13,21 @@ public record Alarm(
     LocalDateTime createdAt) {
 
   public static Alarm instant(AlarmTarget target, AlarmContent content) {
-    return new Alarm(null, AlarmStatus.COMPLETED, AlarmType.INSTANT, target, content, LocalDateTime.now(), null, null);
+    return new Alarm(
+        null,
+        AlarmStatus.COMPLETED,
+        AlarmType.INSTANT,
+        target,
+        content,
+        LocalDateTime.now(),
+        null,
+        null);
   }
 
-  public static Alarm scheduled(AlarmTarget target, AlarmContent content, LocalDateTime intendedAt) {
-    return new Alarm(null, AlarmStatus.SCHEDULED, AlarmType.RESERVED, target, content, intendedAt, null, null);
+  public static Alarm scheduled(
+      AlarmTarget target, AlarmContent content, LocalDateTime intendedAt) {
+    return new Alarm(
+        null, AlarmStatus.SCHEDULED, AlarmType.RESERVED, target, content, intendedAt, null, null);
   }
 
   public Alarm withTarget(AlarmTarget resolvedTarget) {
@@ -25,7 +35,8 @@ public record Alarm(
   }
 
   public Alarm complete(LocalDateTime successAt) {
-    return new Alarm(id, AlarmStatus.COMPLETED, type, target, content, intendedAt, successAt, createdAt);
+    return new Alarm(
+        id, AlarmStatus.COMPLETED, type, target, content, intendedAt, successAt, createdAt);
   }
 
   public boolean isScheduled() {

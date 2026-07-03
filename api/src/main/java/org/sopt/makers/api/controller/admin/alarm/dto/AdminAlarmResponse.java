@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.admin.alarm.dto;
 
-import tools.jackson.annotation.JsonInclude;
-import tools.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -9,10 +9,10 @@ import java.util.Objects;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.service.AlarmService.AlarmListResult;
 
-public sealed interface AdminAlarmResponse permits
-    AdminAlarmResponse.AlarmCreated,
-    AdminAlarmResponse.AlarmDetail,
-    AdminAlarmResponse.AlarmList {
+public sealed interface AdminAlarmResponse
+    permits AdminAlarmResponse.AlarmCreated,
+        AdminAlarmResponse.AlarmDetail,
+        AdminAlarmResponse.AlarmList {
 
   record AlarmCreated(long id) implements AdminAlarmResponse {
 
@@ -37,7 +37,8 @@ public sealed interface AdminAlarmResponse permits
       String content,
       String category,
       String link,
-      String linkType) implements AdminAlarmResponse {
+      String linkType)
+      implements AdminAlarmResponse {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final String TIME_FORMAT = "HH:mm";
@@ -49,9 +50,12 @@ public sealed interface AdminAlarmResponse permits
           alarm.target().targetType().getName(),
           alarm.target().targetPart().getName(),
           alarm.target().generation(),
-          toDate(alarm.createdAt()), toTime(alarm.createdAt()),
-          toDate(alarm.intendedAt()), toTime(alarm.intendedAt()),
-          toDate(alarm.sendAt()), toTime(alarm.sendAt()),
+          toDate(alarm.createdAt()),
+          toTime(alarm.createdAt()),
+          toDate(alarm.intendedAt()),
+          toTime(alarm.intendedAt()),
+          toDate(alarm.sendAt()),
+          toTime(alarm.sendAt()),
           alarm.content().title(),
           alarm.content().content(),
           alarm.content().category().getName(),
@@ -72,8 +76,7 @@ public sealed interface AdminAlarmResponse permits
 
     public static AlarmList from(AlarmListResult result) {
       return new AlarmList(
-          result.alarms().stream().map(AlarmItem::from).toList(),
-          result.totalCount());
+          result.alarms().stream().map(AlarmItem::from).toList(), result.totalCount());
     }
 
     record AlarmItem(

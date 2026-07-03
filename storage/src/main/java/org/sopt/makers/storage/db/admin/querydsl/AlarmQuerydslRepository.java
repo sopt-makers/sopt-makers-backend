@@ -6,7 +6,8 @@ import org.sopt.makers.storage.db.admin.entity.AlarmEntity;
 
 public interface AlarmQuerydslRepository {
 
-  List<AlarmEntity> findOrderByCreatedAt(Integer generation, AlarmStatus status, int page, int size);
+  List<AlarmEntity> findOrderByCreatedAt(
+      Integer generation, AlarmStatus status, int page, int size);
 
   int count(Integer generation, AlarmStatus status);
 }

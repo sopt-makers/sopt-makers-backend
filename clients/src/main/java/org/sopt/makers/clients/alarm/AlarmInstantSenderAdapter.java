@@ -32,7 +32,8 @@ public class AlarmInstantSenderAdapter implements AlarmInstantSenderPort {
     try {
       Map<Object, Object> body = buildBody(alarm);
       HttpHeaders headers = buildHeaders(alarm);
-      restTemplate.postForEntity(alarmProperty.url(), new HttpEntity<>(body, headers), Object.class);
+      restTemplate.postForEntity(
+          alarmProperty.url(), new HttpEntity<>(body, headers), Object.class);
     } catch (HttpServerErrorException | HttpClientErrorException e) {
       throw new AlarmException(AlarmFailure.FAIL_SEND_ALARM);
     }

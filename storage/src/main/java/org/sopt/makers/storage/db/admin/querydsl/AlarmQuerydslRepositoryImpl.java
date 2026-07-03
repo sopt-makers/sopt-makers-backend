@@ -18,7 +18,8 @@ public class AlarmQuerydslRepositoryImpl implements AlarmQuerydslRepository {
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public List<AlarmEntity> findOrderByCreatedAt(Integer generation, AlarmStatus status, int page, int size) {
+  public List<AlarmEntity> findOrderByCreatedAt(
+      Integer generation, AlarmStatus status, int page, int size) {
     return queryFactory
         .selectFrom(alarmEntity)
         .where(generationEq(generation), statusEq(status))
@@ -30,11 +31,12 @@ public class AlarmQuerydslRepositoryImpl implements AlarmQuerydslRepository {
 
   @Override
   public int count(Integer generation, AlarmStatus status) {
-    Long result = queryFactory
-        .select(alarmEntity.count())
-        .from(alarmEntity)
-        .where(generationEq(generation), statusEq(status))
-        .fetchFirst();
+    Long result =
+        queryFactory
+            .select(alarmEntity.count())
+            .from(alarmEntity)
+            .where(generationEq(generation), statusEq(status))
+            .fetchFirst();
     return result == null ? 0 : Math.toIntExact(result);
   }
 

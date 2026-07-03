@@ -30,8 +30,10 @@ public class AlarmScheduleDeleterAdapter implements AlarmScheduleDeleterPort {
   }
 
   private String buildEventName(long alarmId, LocalDateTime scheduleDateTime) {
-    String dateData = scheduleDateTime.toLocalDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
-    String timeData = scheduleDateTime.toLocalTime().format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
+    String dateData =
+        scheduleDateTime.toLocalDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String timeData =
+        scheduleDateTime.toLocalTime().format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
     return String.format("%s_%s_%d", dateData, timeData, alarmId);
   }
 }

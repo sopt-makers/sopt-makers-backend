@@ -9,14 +9,14 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.alarm.Alarm;
+import org.sopt.makers.domain.admin.alarm.AlarmCategory;
 import org.sopt.makers.domain.admin.alarm.AlarmContent;
+import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
 import org.sopt.makers.domain.admin.alarm.AlarmStatus;
 import org.sopt.makers.domain.admin.alarm.AlarmTarget;
 import org.sopt.makers.domain.admin.alarm.AlarmTargetPart;
 import org.sopt.makers.domain.admin.alarm.AlarmTargetType;
 import org.sopt.makers.domain.admin.alarm.exception.AlarmException;
-import org.sopt.makers.domain.admin.alarm.AlarmCategory;
-import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
 import org.sopt.makers.domain.admin.alarm.exception.AlarmFailure;
 import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
 import org.sopt.makers.domain.admin.alarm.port.AlarmMemberQueryPort;
@@ -85,9 +85,10 @@ public class AlarmService {
 
   @Transactional
   public void deleteAlarm(long alarmId) {
-    Alarm alarm = alarmRepositoryPort
-        .findById(alarmId)
-        .orElseThrow(() -> new AlarmException(AlarmFailure.NOT_FOUND_ALARM));
+    Alarm alarm =
+        alarmRepositoryPort
+            .findById(alarmId)
+            .orElseThrow(() -> new AlarmException(AlarmFailure.NOT_FOUND_ALARM));
     boolean wasScheduled = alarm.isScheduled();
     alarmRepositoryPort.delete(alarm);
     if (wasScheduled) {
@@ -97,10 +98,12 @@ public class AlarmService {
 
   @Transactional
   public void updateAlarmStatus(long alarmId, String sendAt) {
-    Alarm alarm = alarmRepositoryPort
-        .findById(alarmId)
-        .orElseThrow(() -> new AlarmException(AlarmFailure.NOT_FOUND_ALARM));
-    LocalDateTime sendAtDateTime = LocalDateTime.parse(sendAt, DateTimeFormatter.ofPattern(DATETIME_FORMAT));
+    Alarm alarm =
+        alarmRepositoryPort
+            .findById(alarmId)
+            .orElseThrow(() -> new AlarmException(AlarmFailure.NOT_FOUND_ALARM));
+    LocalDateTime sendAtDateTime =
+        LocalDateTime.parse(sendAt, DateTimeFormatter.ofPattern(DATETIME_FORMAT));
     alarmRepositoryPort.save(alarm.complete(sendAtDateTime));
   }
 
@@ -110,21 +113,20 @@ public class AlarmService {
       return target.targetIds();
     }
 
-    List<Long> memberIds = switch (targetType) {
-      case ALL -> alarmMemberQueryPort.findAllUserIds();
-      case ACTIVE -> {
-        Part part = target.targetPart().equals(AlarmTargetPart.ALL)
-            ? null
-            : target.targetPart().toPart();
-        yield alarmMemberQueryPort.findActiveUserIdsByGenerationAndPart(
-            target.generation(), part != null ? part : Part.ALL);
-      }
-      default -> throw new AlarmException(AlarmFailure.INVALID_ALARM_TARGET_TYPE);
-    };
-    return memberIds.stream()
-        .filter(Objects::nonNull)
-        .map(String::valueOf)
-        .toList();
+    List<Long> memberIds =
+        switch (targetType) {
+          case ALL -> alarmMemberQueryPort.findAllUserIds();
+          case ACTIVE -> {
+            Part part =
+                target.targetPart().equals(AlarmTargetPart.ALL)
+                    ? null
+                    : target.targetPart().toPart();
+            yield alarmMemberQueryPort.findActiveUserIdsByGenerationAndPart(
+                target.generation(), part != null ? part : Part.ALL);
+          }
+          default -> throw new AlarmException(AlarmFailure.INVALID_ALARM_TARGET_TYPE);
+        };
+    return memberIds.stream().filter(Objects::nonNull).map(String::valueOf).toList();
   }
 
   private LocalDateTime parseDateTime(String date, String time) {
@@ -150,9 +152,10 @@ public class AlarmService {
 
     public AlarmTarget toTarget() {
       return switch (targetType) {
-        case ALL -> part.equals(AlarmTargetPart.ALL)
-            ? AlarmTarget.all(createdGeneration)
-            : AlarmTarget.partialForAll(createdGeneration, part, targetList);
+        case ALL ->
+            part.equals(AlarmTargetPart.ALL)
+                ? AlarmTarget.all(createdGeneration)
+                : AlarmTarget.partialForAll(createdGeneration, part, targetList);
         case ACTIVE -> AlarmTarget.partialForActive(createdGeneration, part, targetList);
         case CSV -> AlarmTarget.partialForCsv(createdGeneration, targetList);
       };
@@ -182,9 +185,10 @@ public class AlarmService {
 
     public AlarmTarget toTarget() {
       return switch (targetType) {
-        case ALL -> part.equals(AlarmTargetPart.ALL)
-            ? AlarmTarget.all(createdGeneration)
-            : AlarmTarget.partialForAll(createdGeneration, part, targetList);
+        case ALL ->
+            part.equals(AlarmTargetPart.ALL)
+                ? AlarmTarget.all(createdGeneration)
+                : AlarmTarget.partialForAll(createdGeneration, part, targetList);
         case ACTIVE -> AlarmTarget.partialForActive(createdGeneration, part, targetList);
         case CSV -> AlarmTarget.partialForCsv(createdGeneration, targetList);
       };

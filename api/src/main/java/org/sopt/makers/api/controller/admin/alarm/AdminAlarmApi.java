@@ -25,5 +25,6 @@ public interface AdminAlarmApi {
   ResponseEntity<BaseResponse<?>> deleteAlarm(long alarmId);
 
   @Operation(summary = "예약 알림 상태 업데이트")
-  ResponseEntity<BaseResponse<?>> updateAlarmStatus(long alarmId, AdminAlarmRequest.ScheduleStatusUpdateRequest request);
+  ResponseEntity<BaseResponse<?>> updateAlarmStatus(
+      long alarmId, AdminAlarmRequest.ScheduleStatusUpdateRequest request);
 }

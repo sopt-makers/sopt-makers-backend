@@ -9,10 +9,10 @@ import org.sopt.makers.domain.admin.alarm.AlarmTargetType;
 import org.sopt.makers.domain.admin.alarm.service.AlarmService.SendInstantAlarmCommand;
 import org.sopt.makers.domain.admin.alarm.service.AlarmService.SendScheduleAlarmCommand;
 
-public sealed interface AdminAlarmRequest permits
-    AdminAlarmRequest.InstantSendRequest,
-    AdminAlarmRequest.ScheduleSendRequest,
-    AdminAlarmRequest.ScheduleStatusUpdateRequest {
+public sealed interface AdminAlarmRequest
+    permits AdminAlarmRequest.InstantSendRequest,
+        AdminAlarmRequest.ScheduleSendRequest,
+        AdminAlarmRequest.ScheduleStatusUpdateRequest {
 
   record InstantSendRequest(
       @NotNull String title,
@@ -23,10 +23,20 @@ public sealed interface AdminAlarmRequest permits
       Integer createdGeneration,
       List<String> targetList,
       AlarmLinkType linkType,
-      String link) implements AdminAlarmRequest {
+      String link)
+      implements AdminAlarmRequest {
 
     public SendInstantAlarmCommand toCommand() {
-      return new SendInstantAlarmCommand(title, content, category, targetType, part, createdGeneration, targetList, linkType, link);
+      return new SendInstantAlarmCommand(
+          title,
+          content,
+          category,
+          targetType,
+          part,
+          createdGeneration,
+          targetList,
+          linkType,
+          link);
     }
   }
 
@@ -41,10 +51,22 @@ public sealed interface AdminAlarmRequest permits
       AlarmLinkType linkType,
       String link,
       @NotNull String postDate,
-      @NotNull String postTime) implements AdminAlarmRequest {
+      @NotNull String postTime)
+      implements AdminAlarmRequest {
 
     public SendScheduleAlarmCommand toCommand() {
-      return new SendScheduleAlarmCommand(title, content, category, targetType, targetList, part, createdGeneration, linkType, link, postDate, postTime);
+      return new SendScheduleAlarmCommand(
+          title,
+          content,
+          category,
+          targetType,
+          targetList,
+          part,
+          createdGeneration,
+          linkType,
+          link,
+          postDate,
+          postTime);
     }
   }
 

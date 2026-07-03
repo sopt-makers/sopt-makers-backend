@@ -21,9 +21,7 @@ public class AlarmMemberQueryAdapter implements AlarmMemberQueryPort {
 
   @Override
   public List<Long> findAllUserIds() {
-    return userJpaRepository.findAll().stream()
-        .map(UserEntity::getId)
-        .toList();
+    return userJpaRepository.findAll().stream().map(UserEntity::getId).toList();
   }
 
   @Override
@@ -31,9 +29,8 @@ public class AlarmMemberQueryAdapter implements AlarmMemberQueryPort {
     List<UserActivityHistoryEntity> activities =
         part.equals(Part.ALL)
             ? userActivityHistoryJpaRepository.findByGenerationAndIsSopt(generation, true)
-            : userActivityHistoryJpaRepository.findByGenerationAndPartAndIsSopt(generation, part, true);
-    return activities.stream()
-        .map(a -> a.getUser().getId())
-        .toList();
+            : userActivityHistoryJpaRepository.findByGenerationAndPartAndIsSopt(
+                generation, part, true);
+    return activities.stream().map(a -> a.getUser().getId()).toList();
   }
 }

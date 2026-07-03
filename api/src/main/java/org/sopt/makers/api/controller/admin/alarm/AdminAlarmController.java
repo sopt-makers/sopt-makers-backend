@@ -46,7 +46,8 @@ public class AdminAlarmController implements AdminAlarmApi {
   public ResponseEntity<BaseResponse<?>> sendScheduleAlarm(
       @Valid @RequestBody AdminAlarmRequest.ScheduleSendRequest request) {
     long id = alarmService.sendScheduleAlarm(request.toCommand());
-    return ResponseFactory.success(SUCCESS_SCHEDULE_ALARM, AdminAlarmResponse.AlarmCreated.from(id));
+    return ResponseFactory.success(
+        SUCCESS_SCHEDULE_ALARM, AdminAlarmResponse.AlarmCreated.from(id));
   }
 
   @Override
@@ -59,13 +60,15 @@ public class AdminAlarmController implements AdminAlarmApi {
     AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
     return ResponseFactory.success(
         SUCCESS_GET_ALARMS,
-        AdminAlarmResponse.AlarmList.from(alarmService.getAlarms(generation, alarmStatus, page, size)));
+        AdminAlarmResponse.AlarmList.from(
+            alarmService.getAlarms(generation, alarmStatus, page, size)));
   }
 
   @Override
   @GetMapping("/{alarmId}")
   public ResponseEntity<BaseResponse<?>> getAlarm(@PathVariable long alarmId) {
-    return ResponseFactory.success(SUCCESS_GET_ALARM, AdminAlarmResponse.AlarmDetail.from(alarmService.getAlarm(alarmId)));
+    return ResponseFactory.success(
+        SUCCESS_GET_ALARM, AdminAlarmResponse.AlarmDetail.from(alarmService.getAlarm(alarmId)));
   }
 
   @Override
