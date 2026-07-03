@@ -2,6 +2,7 @@ package org.sopt.makers.storage.db.user.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,6 +19,10 @@ public interface UserActivityHistoryJpaRepository
   Optional<UserActivityHistoryEntity> findFirstByUserIdOrderByGenerationDesc(Long userId);
 
   void deleteByUserId(Long userId);
+
+  List<UserActivityHistoryEntity> findByGenerationAndIsSopt(int generation, boolean isSopt);
+
+  List<UserActivityHistoryEntity> findByGenerationAndPartAndIsSopt(int generation, Part part, boolean isSopt);
 
   @Query(
       "SELECT COUNT(DISTINCT a.user.id) FROM UserActivityHistoryEntity a"
