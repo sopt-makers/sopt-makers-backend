@@ -1,6 +1,6 @@
 CREATE TABLE member
 (
-    id                BIGINT       NOT NULL AUTO_INCREMENT,
+    id                BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
     generation_id     INT          NOT NULL,
     role              VARCHAR(50)  NOT NULL,
     name              VARCHAR(50)  NOT NULL,
@@ -16,21 +16,21 @@ CREATE TABLE member
 
 CREATE TABLE recruitment
 (
-    id                       BIGINT      NOT NULL AUTO_INCREMENT,
-    generation_id            INT         NOT NULL,
-    recruit_type             VARCHAR(10) NOT NULL,
-    application_start_time   VARCHAR(50) NOT NULL,
-    application_end_time     VARCHAR(50) NOT NULL,
-    application_result_time  VARCHAR(50) NOT NULL,
-    interview_start_time     VARCHAR(50) NOT NULL,
-    interview_end_time       VARCHAR(50) NOT NULL,
-    final_result_time        VARCHAR(50) NOT NULL,
+    id                      BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    generation_id           INT         NOT NULL,
+    recruit_type            VARCHAR(10) NOT NULL,
+    application_start_time  VARCHAR(50) NOT NULL,
+    application_end_time    VARCHAR(50) NOT NULL,
+    application_result_time VARCHAR(50) NOT NULL,
+    interview_start_time    VARCHAR(50) NOT NULL,
+    interview_end_time      VARCHAR(50) NOT NULL,
+    final_result_time       VARCHAR(50) NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE activity_schedule
 (
-    id            BIGINT       NOT NULL AUTO_INCREMENT,
+    id            BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
     generation_id INT          NOT NULL,
     name          VARCHAR(100) NOT NULL,
     start_date    DATE         NOT NULL,
