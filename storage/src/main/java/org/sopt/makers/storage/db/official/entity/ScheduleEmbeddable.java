@@ -12,21 +12,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScheduleEmbeddable {
 
-  @Column(name = "application_start_time", nullable = false, length = 50)
+  @Column(name = "application_start_time", length = 50)
   public String applicationStartTime;
 
-  @Column(name = "application_end_time", nullable = false, length = 50)
+  @Column(name = "application_end_time", length = 50)
   public String applicationEndTime;
 
-  @Column(name = "application_result_time", nullable = false, length = 50)
+  @Column(name = "application_result_time", length = 50)
   public String applicationResultTime;
 
-  @Column(name = "interview_start_time", nullable = false, length = 50)
+  @Column(name = "interview_start_time", length = 50)
   public String interviewStartTime;
 
-  @Column(name = "interview_end_time", nullable = false, length = 50)
+  @Column(name = "interview_end_time", length = 50)
   public String interviewEndTime;
 
-  @Column(name = "final_result_time", nullable = false, length = 50)
+  @Column(name = "final_result_time", length = 50)
   public String finalResultTime;
 }
