@@ -18,3 +18,17 @@ external:
   playground:
     url: ${PLAYGROUND_URL}
     token: ${PLAYGROUND_TOKEN}
+  alarm:
+    url: ${ALARM_NOTIFICATION_URL}
+    key: ${ALARM_NOTIFICATION_KEY}
+    arn: ${ALARM_NOTIFICATION_ARN}
+    header-service: operation
+  eventbridge:
+    role-arn: ${AWS_EVENTBRIDGE_ROLE_ARN}
+    region: ${AWS_REGION}
+  auth:
+    url: ${AUTH_API_URL}
+    api-key: ${AUTH_API_KEY}
+    service-name: ${AUTH_SERVICE_NAME}
+  crew:
+    url: ${CREW_API_URL}
