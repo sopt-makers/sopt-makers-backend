@@ -153,7 +153,7 @@ public class AlarmService {
     public AlarmTarget toTarget() {
       return switch (targetType) {
         case ALL ->
-            part.equals(AlarmTargetPart.ALL)
+            AlarmTargetPart.ALL.equals(part)
                 ? AlarmTarget.all(createdGeneration)
                 : AlarmTarget.partialForAll(createdGeneration, part, targetList);
         case ACTIVE -> AlarmTarget.partialForActive(createdGeneration, part, targetList);
@@ -186,7 +186,7 @@ public class AlarmService {
     public AlarmTarget toTarget() {
       return switch (targetType) {
         case ALL ->
-            part.equals(AlarmTargetPart.ALL)
+            AlarmTargetPart.ALL.equals(part)
                 ? AlarmTarget.all(createdGeneration)
                 : AlarmTarget.partialForAll(createdGeneration, part, targetList);
         case ACTIVE -> AlarmTarget.partialForActive(createdGeneration, part, targetList);

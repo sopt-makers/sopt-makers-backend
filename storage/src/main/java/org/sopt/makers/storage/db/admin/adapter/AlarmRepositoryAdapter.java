@@ -5,6 +5,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.AlarmStatus;
+import org.sopt.makers.domain.admin.alarm.exception.AlarmException;
+import org.sopt.makers.domain.admin.alarm.exception.AlarmFailure;
 import org.sopt.makers.domain.admin.alarm.port.AlarmRepositoryPort;
 import org.sopt.makers.storage.db.admin.entity.AlarmEntity;
 import org.sopt.makers.storage.db.admin.repository.AlarmJpaRepository;
@@ -30,7 +32,7 @@ public class AlarmRepositoryAdapter implements AlarmRepositoryPort {
                       e.updateStatus(alarm.status(), alarm.sendAt());
                       return e;
                     })
-                .orElse(AlarmEntity.from(alarm))
+                .orElseThrow(() -> new AlarmException(AlarmFailure.NOT_FOUND_ALARM))
             : AlarmEntity.from(alarm);
     return alarmJpaRepository.save(entity).toDomain();
   }
