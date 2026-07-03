@@ -22,7 +22,8 @@ public interface UserActivityHistoryJpaRepository
 
   List<UserActivityHistoryEntity> findByGenerationAndIsSopt(int generation, boolean isSopt);
 
-  List<UserActivityHistoryEntity> findByGenerationAndPartAndIsSopt(int generation, Part part, boolean isSopt);
+  List<UserActivityHistoryEntity> findByGenerationAndPartAndIsSopt(
+      int generation, Part part, boolean isSopt);
 
   @Query(
       "SELECT COUNT(DISTINCT a.user.id) FROM UserActivityHistoryEntity a"
