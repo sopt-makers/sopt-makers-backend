@@ -13,6 +13,7 @@ import org.sopt.makers.domain.admin.user.UserActivity;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
 import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
+import org.sopt.makers.storage.db.user.querydsl.UserActivityHistoryQuerydslRepository;
 import org.sopt.makers.storage.db.user.repository.UserActivityHistoryJpaRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -24,12 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminUserActivityAdapter implements AdminUserActivityPort {
 
   private final UserActivityHistoryJpaRepository activityJpaRepository;
+  private final UserActivityHistoryQuerydslRepository activityQuerydslRepository;
   private final AttendanceJpaRepository attendanceJpaRepository;
 
   @Override
   public List<AdminUser> findByGenerationAndPart(int generation, Part part, int page, int limit) {
     List<UserActivityHistoryEntity> activities =
-        activityJpaRepository.findByGenerationAndPartWithUser(
+        activityQuerydslRepository.findByGenerationAndPartWithUser(
             generation, part, PageRequest.of(page, limit));
 
     List<Long> userIds = activities.stream().map(a -> a.getUser().getId()).toList();
@@ -41,12 +43,12 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
 
   @Override
   public int countByGenerationAndPart(int generation, Part part) {
-    return activityJpaRepository.countByGenerationAndPart(generation, part);
+    return activityQuerydslRepository.countByGenerationAndPart(generation, part);
   }
 
   @Override
   public List<Long> findUserIdsByGenerationAndPart(int generation, Part part) {
-    return activityJpaRepository.findUserIdsByGenerationAndPart(generation, part);
+    return activityQuerydslRepository.findUserIdsByGenerationAndPart(generation, part);
   }
 
   @Transactional

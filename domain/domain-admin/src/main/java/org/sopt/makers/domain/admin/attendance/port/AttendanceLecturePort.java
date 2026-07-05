@@ -3,7 +3,7 @@ package org.sopt.makers.domain.admin.attendance.port;
 import java.util.List;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 
-public interface AdminAttendanceLecturePort {
+public interface AttendanceLecturePort {
 
   List<Long> saveAllForUsers(Long lectureId, List<Long> userIds);
 

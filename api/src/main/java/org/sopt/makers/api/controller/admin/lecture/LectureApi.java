@@ -10,7 +10,7 @@ import org.sopt.makers.core.type.Part;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "어드민 세션", description = "어드민 세션 관리 API")
-public interface AdminLectureApi {
+public interface LectureApi {
 
   @Operation(summary = "세션 생성")
   ResponseEntity<BaseResponse<?>> createLecture(@Valid LectureCreateRequest request);

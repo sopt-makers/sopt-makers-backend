@@ -9,6 +9,7 @@ import static org.sopt.makers.api.common.exception.CommonFailureCode.MISSING_REQ
 import static org.sopt.makers.api.common.exception.CommonFailureCode.NOT_FOUND_URL;
 import static org.sopt.makers.api.common.exception.CommonFailureCode.NO_RESOURCE_FOUND;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,21 @@ public class GlobalExceptionHandler {
           error.getDefaultMessage() != null ? error.getDefaultMessage() : "유효하지 않은 입력값입니다";
       errorDetails.put(String.format(VALIDATION_KEY_FORMAT, error.getField()), message);
     }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(BaseResponse.ofFailure(INVALID_INPUT_VALUE, errorDetails));
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<BaseResponse<?>> handleConstraintViolationException(
+      final ConstraintViolationException e) {
+    log.warn(e.getMessage());
+    Map<String, String> errorDetails = new HashMap<>();
+    e.getConstraintViolations()
+        .forEach(
+            v -> {
+              String paramName = v.getPropertyPath().toString();
+              errorDetails.put(String.format(VALIDATION_KEY_FORMAT, paramName), v.getMessage());
+            });
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(BaseResponse.ofFailure(INVALID_INPUT_VALUE, errorDetails));
   }

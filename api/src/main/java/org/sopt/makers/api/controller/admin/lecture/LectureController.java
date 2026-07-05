@@ -1,12 +1,12 @@
 package org.sopt.makers.api.controller.admin.lecture;
 
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_CREATE_LECTURE;
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_DELETE_LECTURE;
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_END_LECTURE;
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_GET_LECTURE;
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_GET_LECTURES;
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_GET_LECTURE_DETAIL;
-import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCode.SUCCESS_START_ATTENDANCE;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_CREATE_LECTURE;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_DELETE_LECTURE;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_END_LECTURE;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_GET_LECTURE;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_GET_LECTURES;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_GET_LECTURE_DETAIL;
+import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SUCCESS_START_ATTENDANCE;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/lectures")
-public class AdminLectureController implements AdminLectureApi {
+public class LectureController implements LectureApi {
 
   private final LectureService lectureService;
 

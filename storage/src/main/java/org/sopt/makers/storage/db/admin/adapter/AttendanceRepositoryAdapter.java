@@ -34,9 +34,7 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
 
   @Override
   public List<Attendance> findAllByUserId(Long userId) {
-    return attendanceJpaRepository.findAllByUserId(userId).stream()
-        .map(this::toAttendanceDomain)
-        .toList();
+    return toBatchAttendanceDomain(attendanceJpaRepository.findAllByUserId(userId));
   }
 
   @Override
@@ -48,33 +46,14 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
 
   @Override
   public List<Attendance> findAllEndedByUserId(Long userId, int generation) {
-    return attendanceJpaRepository
-        .findAllEndedByUserId(userId, generation, LectureStatus.END)
-        .stream()
-        .map(this::toAttendanceDomain)
-        .toList();
+    return toBatchAttendanceDomain(
+        attendanceJpaRepository.findAllEndedByUserId(userId, generation, LectureStatus.END));
   }
 
   @Override
   public List<Attendance> findAllEndedByUserIds(List<Long> userIds, int generation) {
-    List<AttendanceEntity> entities =
-        attendanceJpaRepository.findAllEndedByUserIds(userIds, generation, LectureStatus.END);
-
-    List<Long> attendanceIds = entities.stream().map(AttendanceEntity::getId).toList();
-    Map<Long, List<SubAttendanceEntity>> subsByAttendanceId =
-        subAttendanceJpaRepository.findAllByAttendanceIdIn(attendanceIds).stream()
-            .collect(Collectors.groupingBy(sa -> sa.getAttendance().getId()));
-
-    return entities.stream()
-        .map(
-            entity -> {
-              List<SubAttendance> subs =
-                  subsByAttendanceId.getOrDefault(entity.getId(), List.of()).stream()
-                      .map(SubAttendanceEntity::toDomain)
-                      .toList();
-              return entity.toDomain(subs);
-            })
-        .toList();
+    return toBatchAttendanceDomain(
+        attendanceJpaRepository.findAllEndedByUserIds(userIds, generation, LectureStatus.END));
   }
 
   @Transactional
@@ -86,15 +65,21 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
   @Override
   public List<Attendance> findAllByLectureIdAndPart(
       Long lectureId, Part part, int page, int limit) {
-    List<AttendanceEntity> entities =
+    return toBatchAttendanceDomain(
         attendanceJpaRepository.findAllByLectureIdAndPart(
-            lectureId, part, PageRequest.of(page, limit));
+            lectureId, part, PageRequest.of(page, limit)));
+  }
 
+  @Override
+  public int countByLectureIdAndPart(Long lectureId, Part part) {
+    return attendanceJpaRepository.countByLectureIdAndPart(lectureId, part);
+  }
+
+  private List<Attendance> toBatchAttendanceDomain(List<AttendanceEntity> entities) {
     List<Long> attendanceIds = entities.stream().map(AttendanceEntity::getId).toList();
     Map<Long, List<SubAttendanceEntity>> subsByAttendanceId =
         subAttendanceJpaRepository.findAllByAttendanceIdIn(attendanceIds).stream()
             .collect(Collectors.groupingBy(sa -> sa.getAttendance().getId()));
-
     return entities.stream()
         .map(
             entity -> {
@@ -105,11 +90,6 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
               return entity.toDomain(subs);
             })
         .toList();
-  }
-
-  @Override
-  public int countByLectureIdAndPart(Long lectureId, Part part) {
-    return attendanceJpaRepository.countByLectureIdAndPart(lectureId, part);
   }
 
   private Attendance toAttendanceDomain(AttendanceEntity entity) {

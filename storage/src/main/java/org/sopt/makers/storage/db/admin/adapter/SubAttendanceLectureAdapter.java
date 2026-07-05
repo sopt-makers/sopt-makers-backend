@@ -2,7 +2,7 @@ package org.sopt.makers.storage.db.admin.adapter;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.admin.attendance.port.AdminSubAttendanceLecturePort;
+import org.sopt.makers.domain.admin.attendance.port.SubAttendanceLecturePort;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.SubAttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.SubLectureEntity;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminSubAttendanceLectureAdapter implements AdminSubAttendanceLecturePort {
+public class SubAttendanceLectureAdapter implements SubAttendanceLecturePort {
 
   private final SubAttendanceJpaRepository subAttendanceJpaRepository;
   private final AttendanceJpaRepository attendanceJpaRepository;

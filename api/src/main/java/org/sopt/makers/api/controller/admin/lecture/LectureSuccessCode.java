@@ -8,7 +8,7 @@ import org.sopt.makers.core.code.SuccessCode;
 
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
-public enum AdminLectureSuccessCode implements SuccessCode {
+public enum LectureSuccessCode implements SuccessCode {
   SUCCESS_CREATE_LECTURE(201, "세션 생성이 완료되었습니다"),
   SUCCESS_GET_LECTURES(200, "세션 리스트 조회가 완료되었습니다"),
   SUCCESS_GET_LECTURE(200, "세션 단일 조회가 완료되었습니다"),

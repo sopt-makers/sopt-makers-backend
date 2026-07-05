@@ -13,8 +13,8 @@ import org.sopt.makers.domain.admin.alarm.AlarmTarget;
 import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.port.AdminAttendanceLecturePort;
-import org.sopt.makers.domain.admin.attendance.port.AdminSubAttendanceLecturePort;
+import org.sopt.makers.domain.admin.attendance.port.AttendanceLecturePort;
+import org.sopt.makers.domain.admin.attendance.port.SubAttendanceLecturePort;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
 import org.sopt.makers.domain.admin.lecture.AttendanceStatusSummary;
 import org.sopt.makers.domain.admin.lecture.Lecture;
@@ -41,8 +41,8 @@ public class LectureService {
 
   private final LectureRepositoryPort lectureRepositoryPort;
   private final SubLecturePort subLecturePort;
-  private final AdminAttendanceLecturePort adminAttendanceLecturePort;
-  private final AdminSubAttendanceLecturePort adminSubAttendanceLecturePort;
+  private final AttendanceLecturePort attendanceLecturePort;
+  private final SubAttendanceLecturePort subAttendanceLecturePort;
   private final AdminUserActivityPort adminUserActivityPort;
   private final AttendanceRepositoryPort attendanceRepositoryPort;
   private final AlarmInstantSenderPort alarmInstantSenderPort;
@@ -68,11 +68,11 @@ public class LectureService {
     subLecturePort.saveAll(lecture.id(), rounds);
 
     List<Long> userIds = adminUserActivityPort.findUserIdsByGenerationAndPart(generation, part);
-    List<Long> attendanceIds = adminAttendanceLecturePort.saveAllForUsers(lecture.id(), userIds);
+    List<Long> attendanceIds = attendanceLecturePort.saveAllForUsers(lecture.id(), userIds);
 
     List<Long> subLectureIds =
         subLecturePort.findAllByLectureId(lecture.id()).stream().map(SubLecture::id).toList();
-    adminSubAttendanceLecturePort.saveAllForAttendances(attendanceIds, subLectureIds);
+    subAttendanceLecturePort.saveAllForAttendances(attendanceIds, subLectureIds);
 
     return lectureRepositoryPort
         .findById(lecture.id())
@@ -132,7 +132,7 @@ public class LectureService {
 
     lectureRepositoryPort.updateStatus(lectureId, LectureStatus.END);
 
-    List<Long> userIds = adminAttendanceLecturePort.getUserIdsByLectureId(lectureId);
+    List<Long> userIds = attendanceLecturePort.getUserIdsByLectureId(lectureId);
     Map<Long, Float> userScores = computeUserScores(userIds, lecture.generation());
     adminUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
 
@@ -145,15 +145,15 @@ public class LectureService {
 
     List<Long> userIds = List.of();
     if (lecture.isEnd()) {
-      userIds = adminAttendanceLecturePort.getUserIdsByLectureId(lectureId);
+      userIds = attendanceLecturePort.getUserIdsByLectureId(lectureId);
     }
 
     List<Long> subLectureIds =
         subLecturePort.findAllByLectureId(lectureId).stream().map(SubLecture::id).toList();
 
-    adminSubAttendanceLecturePort.deleteAllBySubLectureIds(subLectureIds);
+    subAttendanceLecturePort.deleteAllBySubLectureIds(subLectureIds);
     subLecturePort.deleteAllByLectureId(lectureId);
-    adminAttendanceLecturePort.deleteByLectureId(lectureId);
+    attendanceLecturePort.deleteByLectureId(lectureId);
     lectureRepositoryPort.deleteById(lectureId);
 
     if (lecture.isEnd()) {
@@ -196,12 +196,12 @@ public class LectureService {
   public AttendanceStatusSummary getAttendanceSummary(Lecture lecture) {
     boolean isEnded = lecture.isEnd();
     int absentCount =
-        adminAttendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.ABSENT);
+        attendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.ABSENT);
     return new AttendanceStatusSummary(
-        adminAttendanceLecturePort.countByLectureIdAndStatus(
+        attendanceLecturePort.countByLectureIdAndStatus(
             lecture.id(), AttendanceStatus.ATTENDANCE),
         isEnded ? absentCount : 0,
-        adminAttendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.TARDY),
+        attendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.TARDY),
         isEnded ? 0 : absentCount);
   }
 }

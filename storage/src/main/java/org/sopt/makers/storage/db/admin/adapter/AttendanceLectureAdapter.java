@@ -3,7 +3,7 @@ package org.sopt.makers.storage.db.admin.adapter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.port.AdminAttendanceLecturePort;
+import org.sopt.makers.domain.admin.attendance.port.AttendanceLecturePort;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.LectureEntity;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminAttendanceLectureAdapter implements AdminAttendanceLecturePort {
+public class AttendanceLectureAdapter implements AttendanceLecturePort {
 
   private final AttendanceJpaRepository attendanceJpaRepository;
   private final LectureJpaRepository lectureJpaRepository;
