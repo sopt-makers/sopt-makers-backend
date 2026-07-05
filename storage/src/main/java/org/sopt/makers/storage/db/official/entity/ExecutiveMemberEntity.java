@@ -22,8 +22,8 @@ import org.sopt.makers.domain.official.member.SnsLinks;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "member")
-public class MemberEntity {
+@Table(name = "executive_member")
+public class ExecutiveMemberEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,7 +52,7 @@ public class MemberEntity {
   @Embedded private SnsLinksEmbeddable snsLinks;
 
   @Builder(access = PRIVATE)
-  private MemberEntity(
+  private ExecutiveMemberEntity(
       Long id,
       Integer generationId,
       MemberRole role,
@@ -80,7 +80,7 @@ public class MemberEntity {
         id, generationId, role, name, affiliation, introduction, profileImageUrl, sns);
   }
 
-  public static MemberEntity fromDomain(Member member) {
+  public static ExecutiveMemberEntity fromDomain(Member member) {
     SnsLinksEmbeddable sns =
         member.snsLinks() != null
             ? new SnsLinksEmbeddable(
@@ -89,7 +89,7 @@ public class MemberEntity {
                 member.snsLinks().github(),
                 member.snsLinks().behance())
             : new SnsLinksEmbeddable("", "", "", "");
-    return MemberEntity.builder()
+    return ExecutiveMemberEntity.builder()
         .id(member.id())
         .generationId(member.generationId())
         .role(member.role())
