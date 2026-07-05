@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity

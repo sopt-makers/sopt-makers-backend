@@ -2,9 +2,9 @@ package org.sopt.makers.domain.admin.app;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
 
 public record AppLecture(
     Long id,

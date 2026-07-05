@@ -3,7 +3,7 @@ package org.sopt.makers.storage.db.admin.repository;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.storage.db.admin.entity.LectureEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

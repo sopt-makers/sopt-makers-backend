@@ -2,8 +2,8 @@ package org.sopt.makers.storage.db.admin.adapter;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
-import org.sopt.makers.domain.admin.attendance.port.SubLectureRepositoryPort;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
+import org.sopt.makers.domain.admin.lecture.port.SubLectureRepositoryPort;
 import org.sopt.makers.storage.db.admin.entity.SubLectureEntity;
 import org.sopt.makers.storage.db.admin.repository.SubLectureJpaRepository;
 import org.springframework.stereotype.Repository;

@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.AdminLecture;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
-import org.sopt.makers.domain.admin.attendance.port.AdminLectureRepositoryPort;
+import org.sopt.makers.domain.admin.lecture.Lecture;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
+import org.sopt.makers.domain.admin.lecture.port.LectureRepositoryPort;
 import org.sopt.makers.storage.db.admin.entity.LectureEntity;
 import org.sopt.makers.storage.db.admin.entity.SubLectureEntity;
 import org.sopt.makers.storage.db.admin.repository.LectureJpaRepository;
@@ -20,14 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminLectureRepositoryAdapter implements AdminLectureRepositoryPort {
+public class LectureRepositoryAdapter implements LectureRepositoryPort {
 
   private final LectureJpaRepository lectureJpaRepository;
   private final SubLectureJpaRepository subLectureJpaRepository;
 
   @Override
   @Transactional
-  public AdminLecture save(
+  public Lecture save(
       String name,
       Part part,
       int generation,
@@ -48,11 +48,11 @@ public class AdminLectureRepositoryAdapter implements AdminLectureRepositoryPort
             .status(status)
             .build();
     LectureEntity saved = lectureJpaRepository.save(entity);
-    return toAdminLecture(saved, List.of());
+    return toLecture(saved, List.of());
   }
 
   @Override
-  public Optional<AdminLecture> findById(Long lectureId) {
+  public Optional<Lecture> findById(Long lectureId) {
     return lectureJpaRepository
         .findById(lectureId)
         .map(
@@ -61,12 +61,12 @@ public class AdminLectureRepositoryAdapter implements AdminLectureRepositoryPort
                   subLectureJpaRepository.findAllByLectureId(entity.getId()).stream()
                       .map(SubLectureEntity::toDomain)
                       .toList();
-              return toAdminLecture(entity, subLectures);
+              return toLecture(entity, subLectures);
             });
   }
 
   @Override
-  public List<AdminLecture> findAllByGenerationAndPart(int generation, Part part) {
+  public List<Lecture> findAllByGenerationAndPart(int generation, Part part) {
     return lectureJpaRepository.findAllByGenerationAndPart(generation, part).stream()
         .map(
             entity -> {
@@ -74,7 +74,7 @@ public class AdminLectureRepositoryAdapter implements AdminLectureRepositoryPort
                   subLectureJpaRepository.findAllByLectureId(entity.getId()).stream()
                       .map(SubLectureEntity::toDomain)
                       .toList();
-              return toAdminLecture(entity, subLectures);
+              return toLecture(entity, subLectures);
             })
         .toList();
   }
@@ -91,8 +91,8 @@ public class AdminLectureRepositoryAdapter implements AdminLectureRepositoryPort
     lectureJpaRepository.deleteById(lectureId);
   }
 
-  private AdminLecture toAdminLecture(LectureEntity entity, List<SubLecture> subLectures) {
-    return new AdminLecture(
+  private Lecture toLecture(LectureEntity entity, List<SubLecture> subLectures) {
+    return new Lecture(
         entity.getId(),
         entity.getName(),
         entity.getPart(),

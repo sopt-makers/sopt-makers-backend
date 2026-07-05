@@ -1,12 +1,13 @@
-package org.sopt.makers.domain.admin.attendance;
+package org.sopt.makers.domain.admin.lecture;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.sopt.makers.core.type.Part;
 
-public record AdminLecture(
+public record Lecture(
     Long id,
     String name,
-    org.sopt.makers.core.type.Part part,
+    Part part,
     int generation,
     String place,
     LocalDateTime startDate,

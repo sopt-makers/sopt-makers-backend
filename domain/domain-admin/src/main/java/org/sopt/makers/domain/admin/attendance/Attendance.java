@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 
 public record Attendance(
     Long id,

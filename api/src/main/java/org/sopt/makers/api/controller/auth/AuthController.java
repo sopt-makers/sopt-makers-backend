@@ -59,7 +59,8 @@ public class AuthController implements AuthApi {
   public ResponseEntity<BaseResponse<?>> verifyPhoneVerification(
       @RequestBody VerifyPhoneVerificationRequest request) {
     PhoneVerificationType type = PhoneVerificationType.find(request.type());
-    AuthFacade.VerifyResult result = authFacade.verifyPhoneCode(request.phone(), request.code(), type);
+    AuthFacade.VerifyResult result =
+        authFacade.verifyPhoneCode(request.phone(), request.code(), type);
     return ResponseFactory.success(VERIFY_PHONE_VERIFICATION, VerifyPhoneResponse.from(result));
   }
 

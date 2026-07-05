@@ -26,11 +26,11 @@ public class AdminSubAttendanceLectureAdapter implements AdminSubAttendanceLectu
   public void saveAllForAttendances(List<Long> attendanceIds, List<Long> subLectureIds) {
     List<AttendanceEntity> attendances = attendanceJpaRepository.findAllById(attendanceIds);
     List<SubLectureEntity> subLectures = subLectureJpaRepository.findAllById(subLectureIds);
-    for (AttendanceEntity attendance : attendances) {
-      for (SubLectureEntity subLecture : subLectures) {
-        subAttendanceJpaRepository.save(SubAttendanceEntity.create(attendance, subLecture));
-      }
-    }
+    List<SubAttendanceEntity> entities =
+        attendances.stream()
+            .flatMap(a -> subLectures.stream().map(sl -> SubAttendanceEntity.create(a, sl)))
+            .toList();
+    subAttendanceJpaRepository.saveAll(entities);
   }
 
   @Override

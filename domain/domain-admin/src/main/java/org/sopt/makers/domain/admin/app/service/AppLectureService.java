@@ -8,15 +8,17 @@ import org.sopt.makers.domain.admin.app.AppLecture;
 import org.sopt.makers.domain.admin.app.AppLectureResponseType;
 import org.sopt.makers.domain.admin.app.AppLectureResult;
 import org.sopt.makers.domain.admin.app.AppSubLecture;
-import org.sopt.makers.domain.admin.app.AppUserActivity;
 import org.sopt.makers.domain.admin.app.port.AppLectureRepositoryPort;
-import org.sopt.makers.domain.admin.app.port.AppUserActivityPort;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
+import org.sopt.makers.domain.admin.lecture.exception.LectureException;
+import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
+import org.sopt.makers.domain.admin.user.UserActivity;
+import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,11 +36,11 @@ public class AppLectureService {
   private static final String ETC_MESSAGE = "별도 출석이 없는 세션입니다";
 
   private final AppLectureRepositoryPort appLectureRepositoryPort;
-  private final AppUserActivityPort appUserActivityPort;
+  private final AdminUserActivityPort adminUserActivityPort;
 
   public AppLectureResult getTodayLecture(Long userId) {
-    AppUserActivity activity =
-        appUserActivityPort
+    UserActivity activity =
+        adminUserActivityPort
             .findCurrentActivity(userId)
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
 
@@ -65,7 +67,7 @@ public class AppLectureService {
     AppLecture lecture =
         appLectureRepositoryPort
             .findById(lectureId)
-            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_LECTURE));
+            .orElseThrow(() -> new LectureException(LectureFailure.NOT_FOUND_LECTURE));
 
     AppSubLecture subLecture =
         appLectureRepositoryPort
@@ -77,7 +79,7 @@ public class AppLectureService {
 
   private void validateLectureCount(List<AppLecture> lectures) {
     if (lectures.size() > MAX_LECTURE_COUNT) {
-      throw new AttendanceException(AttendanceFailure.INVALID_SESSION_COUNT);
+      throw new LectureException(LectureFailure.INVALID_SESSION_COUNT);
     }
   }
 
@@ -138,13 +140,13 @@ public class AppLectureService {
   private void validateLectureRound(AppLecture lecture, AppSubLecture subLecture) {
     validateTodayLecture(lecture);
     if (lecture.isBefore()) {
-      throw new AttendanceException(AttendanceFailure.LECTURE_NOT_STARTED);
+      throw new LectureException(LectureFailure.LECTURE_NOT_STARTED);
     }
     if (isAttendanceEnded(subLecture)) {
-      throw new AttendanceException(AttendanceFailure.ATTENDANCE_ENDED);
+      throw new LectureException(LectureFailure.ATTENDANCE_ENDED);
     }
     if (lecture.isEnd()) {
-      throw new AttendanceException(AttendanceFailure.LECTURE_ENDED);
+      throw new LectureException(LectureFailure.LECTURE_ENDED);
     }
   }
 
@@ -153,7 +155,7 @@ public class AppLectureService {
     boolean isNotTodayLecture = !lecture.startAt().toLocalDate().equals(today);
 
     if (isNotTodayLecture) {
-      throw new AttendanceException(AttendanceFailure.NOT_FOUND_TODAY_LECTURE);
+      throw new LectureException(LectureFailure.NOT_FOUND_TODAY_LECTURE);
     }
   }
 

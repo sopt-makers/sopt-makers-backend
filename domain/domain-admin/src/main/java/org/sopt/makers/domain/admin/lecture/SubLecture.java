@@ -1,9 +1,9 @@
-package org.sopt.makers.domain.admin.attendance;
+package org.sopt.makers.domain.admin.lecture;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
-import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
+import org.sopt.makers.domain.admin.lecture.exception.LectureException;
+import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
 
 public record SubLecture(
     Long id,
@@ -20,13 +20,13 @@ public record SubLecture(
     LocalDateTime now = LocalDateTime.now();
 
     if (isNotStarted(now)) {
-      throw new AttendanceException(AttendanceFailure.ATTENDANCE_NOT_STARTED);
+      throw new LectureException(LectureFailure.ATTENDANCE_NOT_STARTED);
     }
     if (isEnded(now)) {
-      throw new AttendanceException(AttendanceFailure.ATTENDANCE_ENDED);
+      throw new LectureException(LectureFailure.ATTENDANCE_ENDED);
     }
     if (!isMatchCode(inputCode)) {
-      throw new AttendanceException(AttendanceFailure.INVALID_ATTENDANCE_CODE);
+      throw new LectureException(LectureFailure.INVALID_ATTENDANCE_CODE);
     }
   }
 

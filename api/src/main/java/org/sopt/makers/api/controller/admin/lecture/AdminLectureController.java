@@ -10,6 +10,8 @@ import static org.sopt.makers.api.controller.admin.lecture.AdminLectureSuccessCo
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.admin.lecture.dto.LectureCreateRequest;
@@ -21,9 +23,10 @@ import org.sopt.makers.api.controller.admin.lecture.dto.SubLectureStartRequest;
 import org.sopt.makers.api.controller.admin.lecture.dto.SubLectureStartResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.AdminLecture;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
-import org.sopt.makers.domain.admin.attendance.service.AdminLectureService;
+import org.sopt.makers.domain.admin.lecture.AttendanceStatusSummary;
+import org.sopt.makers.domain.admin.lecture.Lecture;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
+import org.sopt.makers.domain.admin.lecture.service.LectureService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,14 +43,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin/lectures")
 public class AdminLectureController implements AdminLectureApi {
 
-  private final AdminLectureService adminLectureService;
+  private final LectureService lectureService;
 
   @Override
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createLecture(
       @RequestBody @Valid LectureCreateRequest request) {
-    AdminLecture lecture =
-        adminLectureService.createLecture(
+    Lecture lecture =
+        lectureService.createLecture(
             request.part(),
             request.name(),
             request.generation(),
@@ -62,17 +65,20 @@ public class AdminLectureController implements AdminLectureApi {
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getLectures(
       @RequestParam int generation, @RequestParam(required = false) Part part) {
-    List<AdminLecture> lectures = adminLectureService.getLectures(generation, part);
+    List<Lecture> lectures = lectureService.getLectures(generation, part);
+    Map<Long, AttendanceStatusSummary> summaries =
+        lectures.stream()
+            .collect(Collectors.toMap(Lecture::id, lectureService::getAttendanceSummary));
     return ResponseFactory.success(
-        SUCCESS_GET_LECTURES, LecturesGetResponse.from(generation, lectures, adminLectureService));
+        SUCCESS_GET_LECTURES, LecturesGetResponse.from(generation, lectures, summaries));
   }
 
   @Override
   @GetMapping("/{lectureId}")
   public ResponseEntity<BaseResponse<?>> getLecture(@PathVariable Long lectureId) {
-    AdminLecture lecture = adminLectureService.getLecture(lectureId);
-    return ResponseFactory.success(
-        SUCCESS_GET_LECTURE, LectureGetResponse.from(lecture, adminLectureService));
+    Lecture lecture = lectureService.getLecture(lectureId);
+    AttendanceStatusSummary summary = lectureService.getAttendanceSummary(lecture);
+    return ResponseFactory.success(SUCCESS_GET_LECTURE, LectureGetResponse.from(lecture, summary));
   }
 
   @Override
@@ -80,7 +86,7 @@ public class AdminLectureController implements AdminLectureApi {
   public ResponseEntity<BaseResponse<?>> startSubLecture(
       @RequestBody @Valid SubLectureStartRequest request) {
     SubLecture subLecture =
-        adminLectureService.startSubLecture(request.lectureId(), request.round(), request.code());
+        lectureService.startSubLecture(request.lectureId(), request.round(), request.code());
     return ResponseFactory.success(
         SUCCESS_START_ATTENDANCE, SubLectureStartResponse.from(request.lectureId(), subLecture));
   }
@@ -88,21 +94,21 @@ public class AdminLectureController implements AdminLectureApi {
   @Override
   @PatchMapping("/{lectureId}")
   public ResponseEntity<BaseResponse<?>> endLecture(@PathVariable Long lectureId) {
-    adminLectureService.endLecture(lectureId);
+    lectureService.endLecture(lectureId);
     return ResponseFactory.success(SUCCESS_END_LECTURE);
   }
 
   @Override
   @DeleteMapping("/{lectureId}")
   public ResponseEntity<BaseResponse<?>> deleteLecture(@PathVariable Long lectureId) {
-    adminLectureService.deleteLecture(lectureId);
+    lectureService.deleteLecture(lectureId);
     return ResponseFactory.success(SUCCESS_DELETE_LECTURE);
   }
 
   @Override
   @GetMapping("/detail/{lectureId}")
   public ResponseEntity<BaseResponse<?>> getLectureDetail(@PathVariable Long lectureId) {
-    AdminLecture lecture = adminLectureService.getLectureDetail(lectureId);
+    Lecture lecture = lectureService.getLectureDetail(lectureId);
     return ResponseFactory.success(SUCCESS_GET_LECTURE_DETAIL, LectureDetailResponse.from(lecture));
   }
 }

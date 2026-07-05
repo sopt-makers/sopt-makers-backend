@@ -2,11 +2,11 @@ package org.sopt.makers.api.controller.admin.lecture.dto;
 
 import java.util.List;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.AdminLecture;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
-import org.sopt.makers.domain.admin.attendance.service.AdminLectureService;
+import org.sopt.makers.domain.admin.lecture.AttendanceStatusSummary;
+import org.sopt.makers.domain.admin.lecture.Lecture;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
 
 public record LectureGetResponse(
     Long lectureId,
@@ -15,10 +15,10 @@ public record LectureGetResponse(
     Part part,
     LectureAttribute attribute,
     List<SubLectureVo> subLectures,
-    AttendanceStatusSummaryVo attendances,
+    AttendanceStatusSummary attendances,
     LectureStatus status) {
 
-  public static LectureGetResponse from(AdminLecture lecture, AdminLectureService service) {
+  public static LectureGetResponse from(Lecture lecture, AttendanceStatusSummary summary) {
     return new LectureGetResponse(
         lecture.id(),
         lecture.name(),
@@ -26,7 +26,7 @@ public record LectureGetResponse(
         lecture.part(),
         lecture.attribute(),
         lecture.subLectures().stream().map(SubLectureVo::from).toList(),
-        AttendanceStatusSummaryVo.from(lecture, service),
+        summary,
         lecture.status());
   }
 

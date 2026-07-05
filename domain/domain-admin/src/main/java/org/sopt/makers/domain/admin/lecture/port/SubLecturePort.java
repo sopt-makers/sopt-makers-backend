@@ -1,10 +1,10 @@
-package org.sopt.makers.domain.admin.attendance.port;
+package org.sopt.makers.domain.admin.lecture.port;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
 
-public interface AdminSubLectureLecturePort {
+public interface SubLecturePort {
 
   void saveAll(Long lectureId, List<Integer> rounds);
 

@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sopt.makers.domain.admin.app.AppSchedule;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity

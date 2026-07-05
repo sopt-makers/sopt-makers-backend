@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 
 public record LectureCreateRequest(
     @NotNull Part part,

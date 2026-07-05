@@ -3,8 +3,8 @@ package org.sopt.makers.storage.db.admin.adapter;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
-import org.sopt.makers.domain.admin.attendance.port.AdminSubLectureLecturePort;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
+import org.sopt.makers.domain.admin.lecture.port.SubLecturePort;
 import org.sopt.makers.storage.db.admin.entity.LectureEntity;
 import org.sopt.makers.storage.db.admin.entity.SubLectureEntity;
 import org.sopt.makers.storage.db.admin.repository.LectureJpaRepository;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminSubLectureLectureAdapter implements AdminSubLectureLecturePort {
+public class SubLectureAdapter implements SubLecturePort {
 
   private final SubLectureJpaRepository subLectureJpaRepository;
   private final LectureJpaRepository lectureJpaRepository;
@@ -24,7 +24,9 @@ public class AdminSubLectureLectureAdapter implements AdminSubLectureLecturePort
   @Transactional
   public void saveAll(Long lectureId, List<Integer> rounds) {
     LectureEntity lecture = lectureJpaRepository.getReferenceById(lectureId);
-    rounds.forEach(round -> subLectureJpaRepository.save(SubLectureEntity.create(lecture, round)));
+    List<SubLectureEntity> entities =
+        rounds.stream().map(round -> SubLectureEntity.create(lecture, round)).toList();
+    subLectureJpaRepository.saveAll(entities);
   }
 
   @Override

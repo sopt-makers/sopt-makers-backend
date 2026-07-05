@@ -10,6 +10,7 @@ import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.SubAttendanceEntity;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
@@ -47,7 +48,9 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
 
   @Override
   public List<Attendance> findAllEndedByUserId(Long userId, int generation) {
-    return attendanceJpaRepository.findAllEndedByUserId(userId, generation).stream()
+    return attendanceJpaRepository
+        .findAllEndedByUserId(userId, generation, LectureStatus.END)
+        .stream()
         .map(this::toAttendanceDomain)
         .toList();
   }
@@ -55,7 +58,7 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
   @Override
   public List<Attendance> findAllEndedByUserIds(List<Long> userIds, int generation) {
     List<AttendanceEntity> entities =
-        attendanceJpaRepository.findAllEndedByUserIds(userIds, generation);
+        attendanceJpaRepository.findAllEndedByUserIds(userIds, generation, LectureStatus.END);
 
     List<Long> attendanceIds = entities.stream().map(AttendanceEntity::getId).toList();
     Map<Long, List<SubAttendanceEntity>> subsByAttendanceId =

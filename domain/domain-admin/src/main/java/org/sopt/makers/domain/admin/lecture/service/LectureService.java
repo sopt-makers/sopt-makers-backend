@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.admin.attendance.service;
+package org.sopt.makers.domain.admin.lecture.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,45 +11,44 @@ import org.sopt.makers.domain.admin.alarm.AlarmCategory;
 import org.sopt.makers.domain.admin.alarm.AlarmContent;
 import org.sopt.makers.domain.admin.alarm.AlarmTarget;
 import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
-import org.sopt.makers.domain.admin.attendance.AdminLecture;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
-import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
-import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AdminAttendanceLecturePort;
-import org.sopt.makers.domain.admin.attendance.port.AdminLectureRepositoryPort;
-import org.sopt.makers.domain.admin.attendance.port.AdminLectureUserPort;
 import org.sopt.makers.domain.admin.attendance.port.AdminSubAttendanceLecturePort;
-import org.sopt.makers.domain.admin.attendance.port.AdminSubLectureLecturePort;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
-import org.sopt.makers.domain.admin.attendance.port.AttendanceUserActivityPort;
+import org.sopt.makers.domain.admin.lecture.AttendanceStatusSummary;
+import org.sopt.makers.domain.admin.lecture.Lecture;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
+import org.sopt.makers.domain.admin.lecture.exception.LectureException;
+import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
+import org.sopt.makers.domain.admin.lecture.port.LectureRepositoryPort;
+import org.sopt.makers.domain.admin.lecture.port.SubLecturePort;
+import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminLectureService {
+public class LectureService {
 
   private static final int SUB_LECTURE_MAX_ROUND = 2;
   private static final float BASE_ATTENDANCE_SCORE = 2.0f;
   private static final String ALARM_TITLE_SUFFIX = " 출석점수 반영";
   private static final String ALARM_CONTENT = "출석점수가 새롭게 반영되었어요! 내 점수를 확인해 볼까요?";
 
-  private final AdminLectureRepositoryPort adminLectureRepositoryPort;
-  private final AdminSubLectureLecturePort adminSubLectureLecturePort;
+  private final LectureRepositoryPort lectureRepositoryPort;
+  private final SubLecturePort subLecturePort;
   private final AdminAttendanceLecturePort adminAttendanceLecturePort;
   private final AdminSubAttendanceLecturePort adminSubAttendanceLecturePort;
-  private final AdminLectureUserPort adminLectureUserPort;
+  private final AdminUserActivityPort adminUserActivityPort;
   private final AttendanceRepositoryPort attendanceRepositoryPort;
-  private final AttendanceUserActivityPort attendanceUserActivityPort;
   private final AlarmInstantSenderPort alarmInstantSenderPort;
 
   @Transactional
-  public AdminLecture createLecture(
+  public Lecture createLecture(
       Part part,
       String name,
       int generation,
@@ -57,59 +56,59 @@ public class AdminLectureService {
       LocalDateTime startDate,
       LocalDateTime endDate,
       LectureAttribute attribute) {
-    AdminLecture lecture =
-        adminLectureRepositoryPort.save(
+    if (!startDate.isBefore(endDate)) {
+      throw new LectureException(LectureFailure.INVALID_LECTURE_TIME);
+    }
+    Lecture lecture =
+        lectureRepositoryPort.save(
             name, part, generation, place, startDate, endDate, attribute, LectureStatus.BEFORE);
 
     List<Integer> rounds =
         java.util.stream.IntStream.rangeClosed(1, SUB_LECTURE_MAX_ROUND).boxed().toList();
-    adminSubLectureLecturePort.saveAll(lecture.id(), rounds);
+    subLecturePort.saveAll(lecture.id(), rounds);
 
-    List<Long> userIds = adminLectureUserPort.findUserIdsByGenerationAndPart(generation, part);
+    List<Long> userIds = adminUserActivityPort.findUserIdsByGenerationAndPart(generation, part);
     List<Long> attendanceIds = adminAttendanceLecturePort.saveAllForUsers(lecture.id(), userIds);
 
     List<Long> subLectureIds =
-        adminSubLectureLecturePort.findAllByLectureId(lecture.id()).stream()
-            .map(SubLecture::id)
-            .toList();
+        subLecturePort.findAllByLectureId(lecture.id()).stream().map(SubLecture::id).toList();
     adminSubAttendanceLecturePort.saveAllForAttendances(attendanceIds, subLectureIds);
 
-    return adminLectureRepositoryPort
+    return lectureRepositoryPort
         .findById(lecture.id())
-        .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_LECTURE));
+        .orElseThrow(() -> new LectureException(LectureFailure.NOT_FOUND_LECTURE));
   }
 
-  public List<AdminLecture> getLectures(int generation, Part part) {
-    return adminLectureRepositoryPort.findAllByGenerationAndPart(generation, part);
+  public List<Lecture> getLectures(int generation, Part part) {
+    return lectureRepositoryPort.findAllByGenerationAndPart(generation, part);
   }
 
-  public AdminLecture getLecture(Long lectureId) {
-    return adminLectureRepositoryPort
+  public Lecture getLecture(Long lectureId) {
+    return lectureRepositoryPort
         .findById(lectureId)
-        .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_LECTURE));
+        .orElseThrow(() -> new LectureException(LectureFailure.NOT_FOUND_LECTURE));
   }
 
   @Transactional
   public SubLecture startSubLecture(Long lectureId, int round, String code) {
-    AdminLecture lecture = getLecture(lectureId);
+    Lecture lecture = getLecture(lectureId);
     if (lecture.isEnd()) {
-      throw new AttendanceException(AttendanceFailure.LECTURE_ENDED);
+      throw new LectureException(LectureFailure.LECTURE_ENDED);
     }
     if (round == 2 && lecture.isBefore()) {
-      throw new AttendanceException(AttendanceFailure.FIRST_ATTENDANCE_NOT_STARTED);
+      throw new LectureException(LectureFailure.FIRST_ATTENDANCE_NOT_STARTED);
     }
     SubLecture subLecture =
         lecture.subLectures().stream()
             .filter(sl -> sl.round() == round)
             .findFirst()
-            .orElseThrow(
-                () -> new AttendanceException(AttendanceFailure.NO_MATCHING_SUB_LECTURE_ROUND));
+            .orElseThrow(() -> new LectureException(LectureFailure.NO_MATCHING_SUB_LECTURE_ROUND));
 
     LocalDateTime startAt = LocalDateTime.now();
-    adminSubLectureLecturePort.updateCodeAndStartAt(subLecture.id(), code, startAt);
+    subLecturePort.updateCodeAndStartAt(subLecture.id(), code, startAt);
 
     LectureStatus newStatus = (round == 1) ? LectureStatus.FIRST : LectureStatus.SECOND;
-    adminLectureRepositoryPort.updateStatus(lectureId, newStatus);
+    lectureRepositoryPort.updateStatus(lectureId, newStatus);
 
     return new SubLecture(
         subLecture.id(),
@@ -123,26 +122,26 @@ public class AdminLectureService {
 
   @Transactional
   public void endLecture(Long lectureId) {
-    AdminLecture lecture = getLecture(lectureId);
+    Lecture lecture = getLecture(lectureId);
     if (lecture.isNotYetToEnd()) {
-      throw new AttendanceException(AttendanceFailure.LECTURE_NOT_YET_ENDED);
+      throw new LectureException(LectureFailure.LECTURE_NOT_YET_ENDED);
     }
     if (lecture.isEnd()) {
-      throw new AttendanceException(AttendanceFailure.LECTURE_ENDED);
+      throw new LectureException(LectureFailure.LECTURE_ENDED);
     }
 
-    adminLectureRepositoryPort.updateStatus(lectureId, LectureStatus.END);
+    lectureRepositoryPort.updateStatus(lectureId, LectureStatus.END);
 
     List<Long> userIds = adminAttendanceLecturePort.getUserIdsByLectureId(lectureId);
     Map<Long, Float> userScores = computeUserScores(userIds, lecture.generation());
-    attendanceUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
+    adminUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
 
     sendAttendanceAlarm(lecture, userIds);
   }
 
   @Transactional
   public void deleteLecture(Long lectureId) {
-    AdminLecture lecture = getLecture(lectureId);
+    Lecture lecture = getLecture(lectureId);
 
     List<Long> userIds = List.of();
     if (lecture.isEnd()) {
@@ -150,18 +149,16 @@ public class AdminLectureService {
     }
 
     List<Long> subLectureIds =
-        adminSubLectureLecturePort.findAllByLectureId(lectureId).stream()
-            .map(SubLecture::id)
-            .toList();
+        subLecturePort.findAllByLectureId(lectureId).stream().map(SubLecture::id).toList();
 
     adminSubAttendanceLecturePort.deleteAllBySubLectureIds(subLectureIds);
-    adminSubLectureLecturePort.deleteAllByLectureId(lectureId);
+    subLecturePort.deleteAllByLectureId(lectureId);
     adminAttendanceLecturePort.deleteByLectureId(lectureId);
-    adminLectureRepositoryPort.deleteById(lectureId);
+    lectureRepositoryPort.deleteById(lectureId);
 
     if (lecture.isEnd()) {
       Map<Long, Float> userScores = computeUserScores(userIds, lecture.generation());
-      attendanceUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
+      adminUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
     }
   }
 
@@ -178,13 +175,12 @@ public class AdminLectureService {
                   List<Attendance> userAttendances =
                       attendancesByUser.getOrDefault(userId, List.of());
                   return BASE_ATTENDANCE_SCORE
-                      + (float) userAttendances.stream()
-                          .mapToDouble(Attendance::computeScore)
-                          .sum();
+                      + (float)
+                          userAttendances.stream().mapToDouble(Attendance::computeScore).sum();
                 }));
   }
 
-  private void sendAttendanceAlarm(AdminLecture lecture, List<Long> userIds) {
+  private void sendAttendanceAlarm(Lecture lecture, List<Long> userIds) {
     List<String> targetIds = userIds.stream().map(String::valueOf).toList();
     AlarmTarget target = AlarmTarget.partialForCsv(lecture.generation(), targetIds);
     AlarmContent content =
@@ -193,11 +189,19 @@ public class AdminLectureService {
     alarmInstantSenderPort.send(Alarm.instant(target, content));
   }
 
-  public AdminLecture getLectureDetail(Long lectureId) {
+  public Lecture getLectureDetail(Long lectureId) {
     return getLecture(lectureId);
   }
 
-  public int countAttendanceByStatus(Long lectureId, AttendanceStatus status) {
-    return adminAttendanceLecturePort.countByLectureIdAndStatus(lectureId, status);
+  public AttendanceStatusSummary getAttendanceSummary(Lecture lecture) {
+    boolean isEnded = lecture.isEnd();
+    int absentCount =
+        adminAttendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.ABSENT);
+    return new AttendanceStatusSummary(
+        adminAttendanceLecturePort.countByLectureIdAndStatus(
+            lecture.id(), AttendanceStatus.ATTENDANCE),
+        isEnded ? absentCount : 0,
+        adminAttendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.TARDY),
+        isEnded ? 0 : absentCount);
   }
 }

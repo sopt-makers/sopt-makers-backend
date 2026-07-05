@@ -23,11 +23,9 @@ public class AdminAttendanceLectureAdapter implements AdminAttendanceLecturePort
   @Transactional
   public List<Long> saveAllForUsers(Long lectureId, List<Long> userIds) {
     LectureEntity lecture = lectureJpaRepository.getReferenceById(lectureId);
-    return userIds.stream()
-        .map(
-            userId ->
-                attendanceJpaRepository.save(AttendanceEntity.create(userId, lecture)).getId())
-        .toList();
+    List<AttendanceEntity> entities =
+        userIds.stream().map(userId -> AttendanceEntity.create(userId, lecture)).toList();
+    return attendanceJpaRepository.saveAll(entities).stream().map(AttendanceEntity::getId).toList();
   }
 
   @Override

@@ -1,6 +1,6 @@
 package org.sopt.makers.api.controller.admin.lecture.dto;
 
-import org.sopt.makers.domain.admin.attendance.SubLecture;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
 
 public record SubLectureStartResponse(Long lectureId, Long subLectureId) {
 
