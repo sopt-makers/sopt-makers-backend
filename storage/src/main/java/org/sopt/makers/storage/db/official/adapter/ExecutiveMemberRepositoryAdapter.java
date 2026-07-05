@@ -19,8 +19,11 @@ public class ExecutiveMemberRepositoryAdapter implements MemberRepositoryPort {
   @Transactional
   @Override
   public List<Member> saveAll(Integer generationId, List<Member> members) {
-    List<ExecutiveMemberEntity> entities = members.stream().map(ExecutiveMemberEntity::fromDomain).toList();
-    return memberJpaRepository.saveAll(entities).stream().map(ExecutiveMemberEntity::toDomain).toList();
+    List<ExecutiveMemberEntity> entities =
+        members.stream().map(ExecutiveMemberEntity::fromDomain).toList();
+    return memberJpaRepository.saveAll(entities).stream()
+        .map(ExecutiveMemberEntity::toDomain)
+        .toList();
   }
 
   @Transactional
