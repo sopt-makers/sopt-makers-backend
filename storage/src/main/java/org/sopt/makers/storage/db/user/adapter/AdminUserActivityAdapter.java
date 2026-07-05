@@ -46,11 +46,7 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
 
   @Override
   public List<Long> findUserIdsByGenerationAndPart(int generation, Part part) {
-    List<UserActivityHistoryEntity> activities =
-        (part == null || part == Part.ALL)
-            ? activityJpaRepository.findByGenerationAndIsSopt(generation, true)
-            : activityJpaRepository.findByGenerationAndPartAndIsSopt(generation, part, true);
-    return activities.stream().map(a -> a.getUser().getId()).toList();
+    return activityJpaRepository.findUserIdsByGenerationAndPart(generation, part);
   }
 
   @Transactional

@@ -45,6 +45,13 @@ public interface UserActivityHistoryJpaRepository
   int countDistinctUserByGenerationAndIsSopt(
       @Param("generation") int generation, @Param("isSopt") boolean isSopt);
 
+  @Query(
+      "SELECT a.user.id FROM UserActivityHistoryEntity a"
+          + " WHERE a.generation = :generation AND a.isSopt = true"
+          + " AND (:part IS NULL OR a.part = :part OR :part = org.sopt.makers.core.type.Part.ALL)")
+  List<Long> findUserIdsByGenerationAndPart(
+      @Param("generation") int generation, @Param("part") Part part);
+
   @Modifying(clearAutomatically = true)
   @Query(
       "UPDATE UserActivityHistoryEntity u SET u.attendanceScore = :score"
