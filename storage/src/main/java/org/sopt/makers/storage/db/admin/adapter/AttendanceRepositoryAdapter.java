@@ -3,6 +3,7 @@ package org.sopt.makers.storage.db.admin.adapter;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
@@ -11,6 +12,7 @@ import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.SubAttendanceEntity;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
 import org.sopt.makers.storage.db.admin.repository.SubAttendanceJpaRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +54,21 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
   @Override
   public void updateStatus(Long attendanceId, AttendanceStatus status) {
     attendanceJpaRepository.updateStatus(attendanceId, status);
+  }
+
+  @Override
+  public List<Attendance> findAllByLectureIdAndPart(
+      Long lectureId, Part part, int page, int limit) {
+    return attendanceJpaRepository
+        .findAllByLectureIdAndPart(lectureId, part, PageRequest.of(page, limit))
+        .stream()
+        .map(this::toAttendanceDomain)
+        .toList();
+  }
+
+  @Override
+  public int countByLectureIdAndPart(Long lectureId, Part part) {
+    return attendanceJpaRepository.countByLectureIdAndPart(lectureId, part);
   }
 
   private Attendance toAttendanceDomain(AttendanceEntity entity) {

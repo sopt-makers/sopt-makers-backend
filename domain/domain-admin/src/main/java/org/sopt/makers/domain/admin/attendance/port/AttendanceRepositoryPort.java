@@ -2,6 +2,7 @@ package org.sopt.makers.domain.admin.attendance.port;
 
 import java.util.List;
 import java.util.Optional;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 
@@ -16,4 +17,8 @@ public interface AttendanceRepositoryPort {
   List<Attendance> findAllEndedByUserId(Long userId, int generation);
 
   void updateStatus(Long attendanceId, AttendanceStatus status);
+
+  List<Attendance> findAllByLectureIdAndPart(Long lectureId, Part part, int page, int limit);
+
+  int countByLectureIdAndPart(Long lectureId, Part part);
 }

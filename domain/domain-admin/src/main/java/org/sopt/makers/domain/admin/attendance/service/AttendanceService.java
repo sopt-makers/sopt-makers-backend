@@ -3,6 +3,7 @@ package org.sopt.makers.domain.admin.attendance.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
@@ -30,6 +31,15 @@ public class AttendanceService {
 
   public List<Attendance> getAttendancesByUserId(Long userId) {
     return attendanceRepositoryPort.findAllByUserId(userId);
+  }
+
+  public List<Attendance> getAttendancesByLectureId(
+      Long lectureId, Part part, int page, int limit) {
+    return attendanceRepositoryPort.findAllByLectureIdAndPart(lectureId, part, page, limit);
+  }
+
+  public int countAttendancesByLecture(Long lectureId, Part part) {
+    return attendanceRepositoryPort.countByLectureIdAndPart(lectureId, part);
   }
 
   @Transactional
