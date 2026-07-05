@@ -34,6 +34,13 @@ public interface AttendanceJpaRepository
   List<AttendanceEntity> findAllEndedByUserId(
       @Param("userId") Long userId, @Param("generation") int generation);
 
+  @Query(
+      "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture"
+          + " WHERE a.userId IN :userIds AND a.lecture.generation = :generation"
+          + " AND a.lecture.status = 'END'")
+  List<AttendanceEntity> findAllEndedByUserIds(
+      @Param("userIds") List<Long> userIds, @Param("generation") int generation);
+
   @Modifying(clearAutomatically = true)
   @Query("UPDATE AttendanceEntity a SET a.status = :status WHERE a.id = :id")
   void updateStatus(@Param("id") Long id, @Param("status") AttendanceStatus status);
@@ -76,4 +83,12 @@ public interface AttendanceJpaRepository
       @Param("userId") Long userId,
       @Param("generation") int generation,
       @Param("status") AttendanceStatus status);
+
+  @Query(
+      "SELECT a.userId, a.status, COUNT(a) FROM AttendanceEntity a"
+          + " WHERE a.userId IN :userIds AND a.lecture.generation = :generation"
+          + " AND a.lecture.status = 'END'"
+          + " GROUP BY a.userId, a.status")
+  List<Object[]> countByUserIdsAndGenerationGroupByStatus(
+      @Param("userIds") List<Long> userIds, @Param("generation") int generation);
 }

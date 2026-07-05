@@ -16,6 +16,8 @@ public interface AttendanceRepositoryPort {
 
   List<Attendance> findAllEndedByUserId(Long userId, int generation);
 
+  List<Attendance> findAllEndedByUserIds(List<Long> userIds, int generation);
+
   void updateStatus(Long attendanceId, AttendanceStatus status);
 
   List<Attendance> findAllByLectureIdAndPart(Long lectureId, Part part, int page, int limit);

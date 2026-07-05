@@ -1,6 +1,8 @@
 package org.sopt.makers.storage.db.user.adapter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
@@ -24,7 +26,12 @@ public class AdminUserQueryAdapter implements AdminUserQueryPort {
     List<UserActivityHistoryEntity> activities =
         activityJpaRepository.findByGenerationAndPartWithUser(
             generation, part, PageRequest.of(page, limit));
-    return activities.stream().map(a -> toAdminUser(a, generation)).toList();
+
+    List<Long> userIds = activities.stream().map(a -> a.getUser().getId()).toList();
+    Map<Long, Map<AttendanceStatus, Integer>> countsByUser =
+        fetchAttendanceCountsByUser(userIds, generation);
+
+    return activities.stream().map(a -> toAdminUser(a, countsByUser)).toList();
   }
 
   @Override
@@ -32,26 +39,31 @@ public class AdminUserQueryAdapter implements AdminUserQueryPort {
     return activityJpaRepository.countByGenerationAndPart(generation, part);
   }
 
-  private AdminUser toAdminUser(UserActivityHistoryEntity activity, int generation) {
+  private Map<Long, Map<AttendanceStatus, Integer>> fetchAttendanceCountsByUser(
+      List<Long> userIds, int generation) {
+    return attendanceJpaRepository
+        .countByUserIdsAndGenerationGroupByStatus(userIds, generation)
+        .stream()
+        .collect(
+            Collectors.groupingBy(
+                row -> (Long) row[0],
+                Collectors.toMap(
+                    row -> (AttendanceStatus) row[1], row -> ((Long) row[2]).intValue())));
+  }
+
+  private AdminUser toAdminUser(
+      UserActivityHistoryEntity activity,
+      Map<Long, Map<AttendanceStatus, Integer>> countsByUser) {
     Long userId = activity.getUser().getId();
-    String name = activity.getUser().getName();
-    Part part = activity.getPart();
-    float score = activity.getAttendanceScore() != null ? activity.getAttendanceScore() : 2.0f;
-
-    int attendanceCount =
-        attendanceJpaRepository.countByUserIdAndGenerationAndStatus(
-            userId, generation, AttendanceStatus.ATTENDANCE);
-    int absentCount =
-        attendanceJpaRepository.countByUserIdAndGenerationAndStatus(
-            userId, generation, AttendanceStatus.ABSENT);
-    int tardyCount =
-        attendanceJpaRepository.countByUserIdAndGenerationAndStatus(
-            userId, generation, AttendanceStatus.TARDY);
-    int participateCount =
-        attendanceJpaRepository.countByUserIdAndGenerationAndStatus(
-            userId, generation, AttendanceStatus.PARTICIPATE);
-
+    Map<AttendanceStatus, Integer> counts = countsByUser.getOrDefault(userId, Map.of());
     return new AdminUser(
-        userId, name, part, score, attendanceCount, absentCount, tardyCount, participateCount);
+        userId,
+        activity.getUser().getName(),
+        activity.getPart(),
+        activity.getAttendanceScore() != null ? activity.getAttendanceScore() : 2.0f,
+        counts.getOrDefault(AttendanceStatus.ATTENDANCE, 0),
+        counts.getOrDefault(AttendanceStatus.ABSENT, 0),
+        counts.getOrDefault(AttendanceStatus.TARDY, 0),
+        counts.getOrDefault(AttendanceStatus.PARTICIPATE, 0));
   }
 }

@@ -2,6 +2,8 @@ package org.sopt.makers.domain.admin.attendance.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.alarm.Alarm;
@@ -10,6 +12,7 @@ import org.sopt.makers.domain.admin.alarm.AlarmContent;
 import org.sopt.makers.domain.admin.alarm.AlarmTarget;
 import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
 import org.sopt.makers.domain.admin.attendance.AdminLecture;
+import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.LectureAttribute;
 import org.sopt.makers.domain.admin.attendance.LectureStatus;
@@ -131,16 +134,8 @@ public class AdminLectureService {
     adminLectureRepositoryPort.updateStatus(lectureId, LectureStatus.END);
 
     List<Long> userIds = adminAttendanceLecturePort.getUserIdsByLectureId(lectureId);
-    userIds.forEach(
-        userId -> {
-          List<org.sopt.makers.domain.admin.attendance.Attendance> endedAttendances =
-              attendanceRepositoryPort.findAllEndedByUserId(userId, lecture.generation());
-          float totalScore =
-              BASE_ATTENDANCE_SCORE
-                  + (float) endedAttendances.stream().mapToDouble(a -> a.computeScore()).sum();
-          attendanceUserActivityPort.updateAttendanceScore(
-              userId, lecture.generation(), totalScore);
-        });
+    Map<Long, Float> userScores = computeUserScores(userIds, lecture.generation());
+    attendanceUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
 
     sendAttendanceAlarm(lecture, userIds);
   }
@@ -165,15 +160,28 @@ public class AdminLectureService {
     adminLectureRepositoryPort.deleteById(lectureId);
 
     if (lecture.isEnd()) {
-      for (Long userId : userIds) {
-        List<org.sopt.makers.domain.admin.attendance.Attendance> endedAttendances =
-            attendanceRepositoryPort.findAllEndedByUserId(userId, lecture.generation());
-        float totalScore =
-            BASE_ATTENDANCE_SCORE
-                + (float) endedAttendances.stream().mapToDouble(a -> a.computeScore()).sum();
-        attendanceUserActivityPort.updateAttendanceScore(userId, lecture.generation(), totalScore);
-      }
+      Map<Long, Float> userScores = computeUserScores(userIds, lecture.generation());
+      attendanceUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
     }
+  }
+
+  private Map<Long, Float> computeUserScores(List<Long> userIds, int generation) {
+    List<Attendance> allEndedAttendances =
+        attendanceRepositoryPort.findAllEndedByUserIds(userIds, generation);
+    Map<Long, List<Attendance>> attendancesByUser =
+        allEndedAttendances.stream().collect(Collectors.groupingBy(Attendance::userId));
+    return userIds.stream()
+        .collect(
+            Collectors.toMap(
+                userId -> userId,
+                userId -> {
+                  List<Attendance> userAttendances =
+                      attendancesByUser.getOrDefault(userId, List.of());
+                  return BASE_ATTENDANCE_SCORE
+                      + (float) userAttendances.stream()
+                          .mapToDouble(Attendance::computeScore)
+                          .sum();
+                }));
   }
 
   private void sendAttendanceAlarm(AdminLecture lecture, List<Long> userIds) {
