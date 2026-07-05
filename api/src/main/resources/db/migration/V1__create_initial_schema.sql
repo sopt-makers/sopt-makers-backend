@@ -327,6 +327,7 @@ CREATE TABLE attendances
     created_at    TIMESTAMP   NOT NULL,
     updated_at    TIMESTAMP   NOT NULL,
     PRIMARY KEY (attendance_id),
+    CONSTRAINT fk_attendances_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_attendances_lecture FOREIGN KEY (lecture_id) REFERENCES lectures (lecture_id)
 );
 
@@ -382,7 +383,8 @@ CREATE TABLE user_careers
     is_current   BOOLEAN,
     created_at   TIMESTAMP    NOT NULL,
     updated_at   TIMESTAMP    NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    CONSTRAINT fk_user_careers_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE user_links
@@ -393,7 +395,8 @@ CREATE TABLE user_links
     url        VARCHAR(255),
     created_at TIMESTAMP    NOT NULL,
     updated_at TIMESTAMP    NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    CONSTRAINT fk_user_links_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE user_work_preferences
