@@ -44,4 +44,16 @@ public class SubLectureEntity extends BaseEntity {
         startAt,
         code);
   }
+
+  public static SubLectureEntity create(LectureEntity lecture, int round) {
+    SubLectureEntity entity = new SubLectureEntity();
+    entity.lecture = lecture;
+    entity.round = round;
+    return entity;
+  }
+
+  public void updateCodeAndStartAt(String newCode, LocalDateTime newStartAt) {
+    this.code = newCode;
+    this.startAt = newStartAt;
+  }
 }

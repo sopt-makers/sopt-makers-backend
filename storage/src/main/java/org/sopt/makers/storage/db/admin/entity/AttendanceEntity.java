@@ -47,4 +47,12 @@ public class AttendanceEntity extends BaseEntity {
         status,
         subAttendances);
   }
+
+  public static AttendanceEntity create(Long userId, LectureEntity lecture) {
+    AttendanceEntity entity = new AttendanceEntity();
+    entity.userId = userId;
+    entity.lecture = lecture;
+    entity.status = AttendanceStatus.ABSENT;
+    return entity;
+  }
 }

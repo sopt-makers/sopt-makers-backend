@@ -19,7 +19,10 @@ public enum AttendanceFailure implements FailureCode {
   NOT_FOUND_LECTURE(404, "존재하지 않는 세션입니다"),
   NOT_FOUND_SUB_LECTURE(404, "존재하지 않는 세부 세션입니다"),
   NOT_FOUND_ATTENDANCE(404, "출석 정보를 찾을 수 없습니다"),
-  NOT_FOUND_SUB_ATTENDANCE(404, "세부 출석 정보를 찾을 수 없습니다");
+  NOT_FOUND_SUB_ATTENDANCE(404, "세부 출석 정보를 찾을 수 없습니다"),
+  LECTURE_NOT_YET_ENDED(400, "아직 종료 시간이 아닙니다"),
+  FIRST_ATTENDANCE_NOT_STARTED(400, "1차 출석이 시작되지 않았습니다"),
+  NO_MATCHING_SUB_LECTURE_ROUND(404, "해당 차수의 서브 세션이 없습니다");
 
   private final int statusCode;
   private final String message;

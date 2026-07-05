@@ -63,4 +63,8 @@ public class LectureEntity extends BaseEntity {
     this.attribute = attribute;
     this.status = status;
   }
+
+  public void updateStatus(LectureStatus newStatus) {
+    this.status = newStatus;
+  }
 }

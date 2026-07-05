@@ -66,4 +66,13 @@ public class SubAttendanceEntity extends BaseEntity {
     entity.attendedAt = subAttendance.attendedAt();
     return entity;
   }
+
+  public static SubAttendanceEntity create(
+      AttendanceEntity attendanceEntity, SubLectureEntity subLectureEntity) {
+    SubAttendanceEntity entity = new SubAttendanceEntity();
+    entity.attendance = attendanceEntity;
+    entity.subLecture = subLectureEntity;
+    entity.status = AttendanceStatus.ABSENT;
+    return entity;
+  }
 }
