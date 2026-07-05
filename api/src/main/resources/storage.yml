@@ -12,8 +12,6 @@ spring:
     enabled: true
     schemas: ${DB_SCHEMA:dev}
     default-schema: ${DB_SCHEMA:dev}
-    baseline-on-migrate: true
-    baseline-version: 8
   data:
     redis:
       host: ${REDIS_HOST}
