@@ -6,9 +6,9 @@ import static org.sopt.makers.api.controller.auth.SocialAccountSuccessCode.UPDAT
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
-import org.sopt.makers.api.controller.auth.dto.AuthResponse;
 import org.sopt.makers.api.controller.auth.dto.GetSocialAccountPlatformRequest;
-import org.sopt.makers.api.controller.auth.dto.SocialAccountRequest;
+import org.sopt.makers.api.controller.auth.dto.SocialAccountPlatformResponse;
+import org.sopt.makers.api.controller.auth.dto.UpdateSocialAccountRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.domain.auth.facade.AuthFacade;
@@ -32,15 +32,15 @@ public class SocialAccountController implements SocialAccountApi {
       @Valid @RequestBody GetSocialAccountPlatformRequest request) {
     OAuthPlatform platform = authFacade.getSocialPlatform(request.phone());
     return ResponseFactory.success(
-        GET_SOCIAL_ACCOUNT_PLATFORM, new AuthResponse.SocialAccountPlatform(platform.name()));
+        GET_SOCIAL_ACCOUNT_PLATFORM, new SocialAccountPlatformResponse(platform.name()));
   }
 
   @Override
   @PatchMapping
   public ResponseEntity<BaseResponse<?>> updateSocialAccount(
-      @Valid @RequestBody SocialAccountRequest.UpdateSocialAccount request) {
+      @Valid @RequestBody UpdateSocialAccountRequest request) {
     OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
-    authFacade.updateSocialAccount(request.phone(), request.idToken(), platform);
+    authFacade.updateSocialAccount(request.phone(), request.token(), platform);
     return ResponseFactory.success(UPDATE_SOCIAL_ACCOUNT);
   }
 }
