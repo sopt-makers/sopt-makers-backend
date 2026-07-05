@@ -16,7 +16,7 @@ CREATE TABLE admin
 );
 
 CREATE TABLE generation
-(ㅏ가""
+(
     id                   INT          NOT NULL,
     name                 VARCHAR(50)  NOT NULL,
     header_image         VARCHAR(500) NOT NULL,
