@@ -14,8 +14,8 @@ import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceLecturePort;
-import org.sopt.makers.domain.admin.attendance.port.SubAttendanceLecturePort;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
+import org.sopt.makers.domain.admin.attendance.port.SubAttendanceLecturePort;
 import org.sopt.makers.domain.admin.lecture.AttendanceStatusSummary;
 import org.sopt.makers.domain.admin.lecture.Lecture;
 import org.sopt.makers.domain.admin.lecture.LectureAttribute;
@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class LectureService {
 
   private static final int SUB_LECTURE_MAX_ROUND = 2;
-  private static final float BASE_ATTENDANCE_SCORE = 2.0f;
   private static final String ALARM_TITLE_SUFFIX = " 출석점수 반영";
   private static final String ALARM_CONTENT = "출석점수가 새롭게 반영되었어요! 내 점수를 확인해 볼까요?";
 
@@ -95,8 +94,14 @@ public class LectureService {
     if (lecture.isEnd()) {
       throw new LectureException(LectureFailure.LECTURE_ENDED);
     }
+    if (round == 1 && !lecture.isBefore()) {
+      throw new LectureException(LectureFailure.ALREADY_STARTED_ROUND);
+    }
     if (round == 2 && lecture.isBefore()) {
       throw new LectureException(LectureFailure.FIRST_ATTENDANCE_NOT_STARTED);
+    }
+    if (round == 2 && lecture.isSecond()) {
+      throw new LectureException(LectureFailure.ALREADY_STARTED_ROUND);
     }
     SubLecture subLecture =
         lecture.subLectures().stream()
@@ -171,13 +176,9 @@ public class LectureService {
         .collect(
             Collectors.toMap(
                 userId -> userId,
-                userId -> {
-                  List<Attendance> userAttendances =
-                      attendancesByUser.getOrDefault(userId, List.of());
-                  return BASE_ATTENDANCE_SCORE
-                      + (float)
-                          userAttendances.stream().mapToDouble(Attendance::computeScore).sum();
-                }));
+                userId ->
+                    Attendance.computeTotalScore(
+                        attendancesByUser.getOrDefault(userId, List.of()))));
   }
 
   private void sendAttendanceAlarm(Lecture lecture, List<Long> userIds) {
@@ -194,14 +195,30 @@ public class LectureService {
   }
 
   public AttendanceStatusSummary getAttendanceSummary(Lecture lecture) {
-    boolean isEnded = lecture.isEnd();
-    int absentCount =
-        attendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.ABSENT);
+    Map<Long, Map<AttendanceStatus, Integer>> countsMap =
+        attendanceLecturePort.countByLectureIdsGroupByStatus(List.of(lecture.id()));
+    return toSummary(lecture.isEnd(), countsMap.getOrDefault(lecture.id(), Map.of()));
+  }
+
+  public Map<Long, AttendanceStatusSummary> getAttendanceSummaries(List<Lecture> lectures) {
+    List<Long> lectureIds = lectures.stream().map(Lecture::id).toList();
+    Map<Long, Map<AttendanceStatus, Integer>> countsMap =
+        attendanceLecturePort.countByLectureIdsGroupByStatus(lectureIds);
+    return lectures.stream()
+        .collect(
+            Collectors.toMap(
+                Lecture::id,
+                lecture ->
+                    toSummary(lecture.isEnd(), countsMap.getOrDefault(lecture.id(), Map.of()))));
+  }
+
+  private AttendanceStatusSummary toSummary(
+      boolean isEnded, Map<AttendanceStatus, Integer> counts) {
+    int absentCount = counts.getOrDefault(AttendanceStatus.ABSENT, 0);
     return new AttendanceStatusSummary(
-        attendanceLecturePort.countByLectureIdAndStatus(
-            lecture.id(), AttendanceStatus.ATTENDANCE),
+        counts.getOrDefault(AttendanceStatus.ATTENDANCE, 0),
         isEnded ? absentCount : 0,
-        attendanceLecturePort.countByLectureIdAndStatus(lecture.id(), AttendanceStatus.TARDY),
+        counts.getOrDefault(AttendanceStatus.TARDY, 0),
         isEnded ? 0 : absentCount);
   }
 }

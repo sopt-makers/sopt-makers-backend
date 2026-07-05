@@ -11,6 +11,7 @@ import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.domain.admin.user.AdminUser;
 import org.sopt.makers.domain.admin.user.UserActivity;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
+import org.sopt.makers.storage.db.admin.projection.AttendanceUserCountRow;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
 import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
 import org.sopt.makers.storage.db.user.querydsl.UserActivityHistoryQuerydslRepository;
@@ -85,9 +86,8 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
         .stream()
         .collect(
             Collectors.groupingBy(
-                row -> (Long) row[0],
-                Collectors.toMap(
-                    row -> (AttendanceStatus) row[1], row -> ((Long) row[2]).intValue())));
+                AttendanceUserCountRow::userId,
+                Collectors.toMap(AttendanceUserCountRow::status, row -> row.count().intValue())));
   }
 
   private AdminUser toAdminUser(

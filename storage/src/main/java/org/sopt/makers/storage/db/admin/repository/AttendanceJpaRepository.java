@@ -60,12 +60,6 @@ public interface AttendanceJpaRepository
   List<Long> findIdsByLectureId(@Param("lectureId") Long lectureId);
 
   @Query(
-      "SELECT COUNT(a) FROM AttendanceEntity a WHERE a.lecture.id = :lectureId"
-          + " AND a.status = :status")
-  int countByLectureIdAndStatus(
-      @Param("lectureId") Long lectureId, @Param("status") AttendanceStatus status);
-
-  @Query(
       "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture WHERE a.lecture.id = :lectureId"
           + " AND (:part IS NULL OR a.lecture.part = :part"
           + " OR a.lecture.part = org.sopt.makers.core.type.Part.ALL)")
@@ -88,15 +82,5 @@ public interface AttendanceJpaRepository
       @Param("userId") Long userId,
       @Param("generation") int generation,
       @Param("status") AttendanceStatus status,
-      @Param("lectureStatus") LectureStatus lectureStatus);
-
-  @Query(
-      "SELECT a.userId, a.status, COUNT(a) FROM AttendanceEntity a"
-          + " WHERE a.userId IN :userIds AND a.lecture.generation = :generation"
-          + " AND a.lecture.status = :lectureStatus"
-          + " GROUP BY a.userId, a.status")
-  List<Object[]> countByUserIdsAndGenerationGroupByStatus(
-      @Param("userIds") List<Long> userIds,
-      @Param("generation") int generation,
       @Param("lectureStatus") LectureStatus lectureStatus);
 }

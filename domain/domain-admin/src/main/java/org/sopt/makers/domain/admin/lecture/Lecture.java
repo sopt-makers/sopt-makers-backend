@@ -24,6 +24,14 @@ public record Lecture(
     return status == LectureStatus.BEFORE;
   }
 
+  public boolean isFirst() {
+    return status == LectureStatus.FIRST;
+  }
+
+  public boolean isSecond() {
+    return status == LectureStatus.SECOND;
+  }
+
   public boolean isNotYetToEnd() {
     return endDate.isAfter(LocalDateTime.now());
   }

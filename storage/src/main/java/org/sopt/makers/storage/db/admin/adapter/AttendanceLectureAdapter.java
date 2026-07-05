@@ -1,11 +1,14 @@
 package org.sopt.makers.storage.db.admin.adapter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceLecturePort;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.LectureEntity;
+import org.sopt.makers.storage.db.admin.projection.AttendanceLectureCountRow;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
 import org.sopt.makers.storage.db.admin.repository.LectureJpaRepository;
 import org.springframework.stereotype.Repository;
@@ -39,8 +42,14 @@ public class AttendanceLectureAdapter implements AttendanceLecturePort {
   }
 
   @Override
-  public int countByLectureIdAndStatus(Long lectureId, AttendanceStatus status) {
-    return attendanceJpaRepository.countByLectureIdAndStatus(lectureId, status);
+  public Map<Long, Map<AttendanceStatus, Integer>> countByLectureIdsGroupByStatus(
+      List<Long> lectureIds) {
+    return attendanceJpaRepository.countByLectureIdsGroupByStatus(lectureIds).stream()
+        .collect(
+            Collectors.groupingBy(
+                AttendanceLectureCountRow::lectureId,
+                Collectors.toMap(
+                    AttendanceLectureCountRow::status, row -> row.count().intValue())));
   }
 
   @Override

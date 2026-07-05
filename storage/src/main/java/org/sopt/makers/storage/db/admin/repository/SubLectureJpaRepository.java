@@ -20,6 +20,11 @@ public interface SubLectureJpaRepository extends JpaRepository<SubLectureEntity,
       "SELECT sl FROM SubLectureEntity sl JOIN FETCH sl.lecture WHERE sl.lecture.id = :lectureId")
   List<SubLectureEntity> findAllByLectureId(@Param("lectureId") Long lectureId);
 
+  @Query(
+      "SELECT sl FROM SubLectureEntity sl JOIN FETCH sl.lecture"
+          + " WHERE sl.lecture.id IN :lectureIds")
+  List<SubLectureEntity> findAllByLectureIdIn(@Param("lectureIds") List<Long> lectureIds);
+
   @Modifying(clearAutomatically = true)
   @Query("UPDATE SubLectureEntity sl SET sl.code = :code, sl.startAt = :startAt WHERE sl.id = :id")
   void updateCodeAndStartAt(

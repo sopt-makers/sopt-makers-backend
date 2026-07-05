@@ -11,7 +11,6 @@ import static org.sopt.makers.api.controller.admin.lecture.LectureSuccessCode.SU
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.admin.lecture.dto.LectureCreateRequest;
@@ -66,9 +65,7 @@ public class LectureController implements LectureApi {
   public ResponseEntity<BaseResponse<?>> getLectures(
       @RequestParam int generation, @RequestParam(required = false) Part part) {
     List<Lecture> lectures = lectureService.getLectures(generation, part);
-    Map<Long, AttendanceStatusSummary> summaries =
-        lectures.stream()
-            .collect(Collectors.toMap(Lecture::id, lectureService::getAttendanceSummary));
+    Map<Long, AttendanceStatusSummary> summaries = lectureService.getAttendanceSummaries(lectures);
     return ResponseFactory.success(
         SUCCESS_GET_LECTURES, LecturesGetResponse.from(generation, lectures, summaries));
   }

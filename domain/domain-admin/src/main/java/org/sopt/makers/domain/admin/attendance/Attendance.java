@@ -17,6 +17,8 @@ public record Attendance(
     AttendanceStatus status,
     List<SubAttendance> subAttendances) {
 
+  public static final float BASE_SCORE = 2.0f;
+
   private static final int FIRST_ROUND = 1;
   private static final int SECOND_ROUND = 2;
   private static final float NO_DEDUCTION = 0f;
@@ -72,6 +74,10 @@ public record Attendance(
       case TARDY -> TARDY_DEDUCTION;
       default -> NO_DEDUCTION;
     };
+  }
+
+  public static float computeTotalScore(List<Attendance> attendances) {
+    return BASE_SCORE + (float) attendances.stream().mapToDouble(Attendance::computeScore).sum();
   }
 
   private SubAttendance findByRound(List<SubAttendance> list, int round) {

@@ -24,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AttendanceService {
 
-  private static final float BASE_ATTENDANCE_SCORE = 2.0f;
-
   private final SubLectureRepositoryPort subLectureRepositoryPort;
   private final AttendanceRepositoryPort attendanceRepositoryPort;
   private final SubAttendanceRepositoryPort subAttendanceRepositoryPort;
@@ -91,9 +89,7 @@ public class AttendanceService {
     List<Attendance> endedAttendances =
         attendanceRepositoryPort.findAllEndedByUserId(userId, generation);
 
-    float totalScore =
-        BASE_ATTENDANCE_SCORE
-            + (float) endedAttendances.stream().mapToDouble(Attendance::computeScore).sum();
+    float totalScore = Attendance.computeTotalScore(endedAttendances);
 
     adminUserActivityPort.updateAttendanceScore(userId, generation, totalScore);
   }

@@ -20,6 +20,7 @@ public enum LectureFailure implements FailureCode {
   NOT_FOUND_SUB_LECTURE(404, "존재하지 않는 세부 세션입니다"),
   LECTURE_NOT_YET_ENDED(400, "아직 종료 시간이 아닙니다"),
   FIRST_ATTENDANCE_NOT_STARTED(400, "1차 출석이 시작되지 않았습니다"),
+  ALREADY_STARTED_ROUND(400, "이미 시작된 출석 차수입니다"),
   INVALID_LECTURE_TIME(400, "세션 시작 시간은 종료 시간보다 이전이어야 합니다"),
   NO_MATCHING_SUB_LECTURE_ROUND(404, "해당 차수의 서브 세션이 없습니다");
 

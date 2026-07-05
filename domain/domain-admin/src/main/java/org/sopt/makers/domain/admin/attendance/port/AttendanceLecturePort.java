@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.admin.attendance.port;
 
 import java.util.List;
+import java.util.Map;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 
 public interface AttendanceLecturePort {
@@ -11,7 +12,7 @@ public interface AttendanceLecturePort {
 
   List<Long> getAttendanceIdsByLectureId(Long lectureId);
 
-  int countByLectureIdAndStatus(Long lectureId, AttendanceStatus status);
+  Map<Long, Map<AttendanceStatus, Integer>> countByLectureIdsGroupByStatus(List<Long> lectureIds);
 
   void deleteByLectureId(Long lectureId);
 }

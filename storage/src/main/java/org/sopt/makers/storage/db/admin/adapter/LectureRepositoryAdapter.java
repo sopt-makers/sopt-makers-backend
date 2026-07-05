@@ -2,7 +2,9 @@ package org.sopt.makers.storage.db.admin.adapter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.lecture.Lecture;
@@ -67,15 +69,21 @@ public class LectureRepositoryAdapter implements LectureRepositoryPort {
 
   @Override
   public List<Lecture> findAllByGenerationAndPart(int generation, Part part) {
-    return lectureJpaRepository.findAllByGenerationAndPart(generation, part).stream()
+    List<LectureEntity> lectures =
+        lectureJpaRepository.findAllByGenerationAndPart(generation, part);
+
+    List<Long> lectureIds = lectures.stream().map(LectureEntity::getId).toList();
+    Map<Long, List<SubLecture>> subLecturesByLectureId =
+        subLectureJpaRepository.findAllByLectureIdIn(lectureIds).stream()
+            .collect(
+                Collectors.groupingBy(
+                    sl -> sl.getLecture().getId(),
+                    Collectors.mapping(SubLectureEntity::toDomain, Collectors.toList())));
+
+    return lectures.stream()
         .map(
-            entity -> {
-              List<SubLecture> subLectures =
-                  subLectureJpaRepository.findAllByLectureId(entity.getId()).stream()
-                      .map(SubLectureEntity::toDomain)
-                      .toList();
-              return toLecture(entity, subLectures);
-            })
+            entity ->
+                toLecture(entity, subLecturesByLectureId.getOrDefault(entity.getId(), List.of())))
         .toList();
   }
 
