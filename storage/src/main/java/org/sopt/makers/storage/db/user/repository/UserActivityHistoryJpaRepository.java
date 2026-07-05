@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,19 @@ public interface UserActivityHistoryJpaRepository
 
   List<UserActivityHistoryEntity> findByGenerationAndPartAndIsSopt(
       int generation, Part part, boolean isSopt);
+
+  @Query(
+      "SELECT a FROM UserActivityHistoryEntity a JOIN FETCH a.user"
+          + " WHERE a.generation = :generation AND a.isSopt = true"
+          + " AND (:part IS NULL OR a.part = :part OR :part = org.sopt.makers.core.type.Part.ALL)")
+  List<UserActivityHistoryEntity> findByGenerationAndPartWithUser(
+      @Param("generation") int generation, @Param("part") Part part, Pageable pageable);
+
+  @Query(
+      "SELECT COUNT(a) FROM UserActivityHistoryEntity a"
+          + " WHERE a.generation = :generation AND a.isSopt = true"
+          + " AND (:part IS NULL OR a.part = :part OR :part = org.sopt.makers.core.type.Part.ALL)")
+  int countByGenerationAndPart(@Param("generation") int generation, @Param("part") Part part);
 
   @Query(
       "SELECT COUNT(DISTINCT a.user.id) FROM UserActivityHistoryEntity a"
