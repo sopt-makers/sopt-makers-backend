@@ -4,23 +4,23 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.official.member.Member;
 import org.sopt.makers.domain.official.member.port.MemberRepositoryPort;
-import org.sopt.makers.storage.db.official.entity.MemberEntity;
-import org.sopt.makers.storage.db.official.repository.MemberJpaRepository;
+import org.sopt.makers.storage.db.official.entity.ExecutiveMemberEntity;
+import org.sopt.makers.storage.db.official.repository.ExecutiveMemberJpaRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MemberRepositoryAdapter implements MemberRepositoryPort {
+public class ExecutiveMemberRepositoryAdapter implements MemberRepositoryPort {
 
-  private final MemberJpaRepository memberJpaRepository;
+  private final ExecutiveMemberJpaRepository memberJpaRepository;
 
   @Transactional
   @Override
   public List<Member> saveAll(Integer generationId, List<Member> members) {
-    List<MemberEntity> entities = members.stream().map(MemberEntity::fromDomain).toList();
-    return memberJpaRepository.saveAll(entities).stream().map(MemberEntity::toDomain).toList();
+    List<ExecutiveMemberEntity> entities = members.stream().map(ExecutiveMemberEntity::fromDomain).toList();
+    return memberJpaRepository.saveAll(entities).stream().map(ExecutiveMemberEntity::toDomain).toList();
   }
 
   @Transactional
@@ -32,7 +32,7 @@ public class MemberRepositoryAdapter implements MemberRepositoryPort {
   @Override
   public List<Member> findByGenerationId(Integer generationId) {
     return memberJpaRepository.findByGenerationIdOrderByRoleAsc(generationId).stream()
-        .map(MemberEntity::toDomain)
+        .map(ExecutiveMemberEntity::toDomain)
         .toList();
   }
 }
