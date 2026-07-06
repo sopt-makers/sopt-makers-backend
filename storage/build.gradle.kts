@@ -4,6 +4,7 @@ dependencies {
     implementation(project(":domain:domain-auth"))
     implementation(project(":domain:domain-admin"))
     implementation(project(":domain:domain-official"))
+    implementation(project(":domain:domain-crew"))
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
