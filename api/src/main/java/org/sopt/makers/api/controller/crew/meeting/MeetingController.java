@@ -15,8 +15,13 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingRequest;
-import org.sopt.makers.api.controller.crew.meeting.dto.MeetingResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingApplyResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingDetailResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingPartMembersResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingSummaryResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
 import org.sopt.makers.core.response.BaseResponse;
@@ -46,7 +51,7 @@ public class MeetingController implements MeetingApi {
   public ResponseEntity<BaseResponse<?>> createMeeting(
       @Valid @RequestBody CreateMeetingRequest request, @CurrentUserId Long userId) {
     Meeting meeting = meetingService.createMeeting(request.toCommand(), userId);
-    return ResponseFactory.success(CREATE_MEETING, MeetingResponse.Created.from(meeting));
+    return ResponseFactory.success(CREATE_MEETING, CreateMeetingResponse.from(meeting));
   }
 
   @Override
@@ -56,7 +61,7 @@ public class MeetingController implements MeetingApi {
       @Valid @RequestBody UpdateMeetingRequest request,
       @CurrentUserId Long userId) {
     Meeting meeting = meetingService.updateMeeting(meetingId, request.toCommand(), userId);
-    return ResponseFactory.success(UPDATE_MEETING, MeetingResponse.Detail.from(meeting));
+    return ResponseFactory.success(UPDATE_MEETING, MeetingDetailResponse.from(meeting));
   }
 
   @Override
@@ -72,7 +77,7 @@ public class MeetingController implements MeetingApi {
   public ResponseEntity<BaseResponse<?>> applyGeneralMeeting(
       @Valid @RequestBody ApplyMeetingRequest request, @CurrentUserId Long userId) {
     MeetingApply apply = meetingService.applyGeneralMeeting(request.toCommand(), userId);
-    return ResponseFactory.success(APPLY_MEETING, MeetingResponse.ApplyCreated.from(apply));
+    return ResponseFactory.success(APPLY_MEETING, ApplyMeetingResponse.from(apply));
   }
 
   @Override
@@ -80,7 +85,7 @@ public class MeetingController implements MeetingApi {
   public ResponseEntity<BaseResponse<?>> applyEventMeeting(
       @Valid @RequestBody ApplyMeetingRequest request, @CurrentUserId Long userId) {
     MeetingApply apply = meetingService.applyEventMeeting(request.toCommand(), userId);
-    return ResponseFactory.success(APPLY_MEETING, MeetingResponse.ApplyCreated.from(apply));
+    return ResponseFactory.success(APPLY_MEETING, ApplyMeetingResponse.from(apply));
   }
 
   @Override
@@ -98,7 +103,7 @@ public class MeetingController implements MeetingApi {
       @Valid @RequestBody UpdateApplyStatusRequest request,
       @CurrentUserId Long userId) {
     MeetingApply apply = meetingService.updateApplyStatus(meetingId, request.toCommand(), userId);
-    return ResponseFactory.success(UPDATE_APPLY_STATUS, MeetingResponse.Apply.from(apply));
+    return ResponseFactory.success(UPDATE_APPLY_STATUS, MeetingApplyResponse.from(apply));
   }
 
   @Override
@@ -107,7 +112,7 @@ public class MeetingController implements MeetingApi {
       @PathVariable Long meetingId, @CurrentUserId Long userId) {
     return ResponseFactory.success(
         GET_MEETING,
-        MeetingResponse.Detail.from(meetingService.getMeetingDetail(meetingId, userId)));
+        MeetingDetailResponse.from(meetingService.getMeetingDetail(meetingId, userId)));
   }
 
   @Override
@@ -115,7 +120,7 @@ public class MeetingController implements MeetingApi {
   public ResponseEntity<BaseResponse<?>> getMeetings() {
     return ResponseFactory.success(
         GET_MEETINGS,
-        meetingService.findAllMeetings().stream().map(MeetingResponse.Summary::from).toList());
+        meetingService.findAllMeetings().stream().map(MeetingSummaryResponse::from).toList());
   }
 
   @Override
@@ -124,7 +129,7 @@ public class MeetingController implements MeetingApi {
     return ResponseFactory.success(
         GET_MEETINGS,
         meetingService.findMeetingsByCreator(userId).stream()
-            .map(MeetingResponse.Summary::from)
+            .map(MeetingSummaryResponse::from)
             .toList());
   }
 
@@ -134,6 +139,6 @@ public class MeetingController implements MeetingApi {
       @PathVariable Long meetingId, @CurrentUserId Long userId) {
     return ResponseFactory.success(
         GET_MEETING_MEMBERS,
-        MeetingResponse.PartMembers.from(meetingService.getMeetingPartMembers(meetingId, userId)));
+        MeetingPartMembersResponse.from(meetingService.getMeetingPartMembers(meetingId, userId)));
   }
 }
