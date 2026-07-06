@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.GetMeetingsRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
 import org.sopt.makers.core.response.BaseResponse;
@@ -45,10 +46,11 @@ public interface MeetingApi {
   ResponseEntity<BaseResponse<?>> getMeeting(Long meetingId, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 목록 조회")
-  ResponseEntity<BaseResponse<?>> getMeetings();
+  ResponseEntity<BaseResponse<?>> getMeetings(GetMeetingsRequest request);
 
   @Operation(summary = "내가 만든 모임 목록 조회")
-  ResponseEntity<BaseResponse<?>> getMyMeetings(@Parameter(hidden = true) Long userId);
+  ResponseEntity<BaseResponse<?>> getMyMeetings(
+      GetMeetingsRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 내 같은 파트/기수 멤버 리스트 조회")
   ResponseEntity<BaseResponse<?>> getMeetingPartMembers(

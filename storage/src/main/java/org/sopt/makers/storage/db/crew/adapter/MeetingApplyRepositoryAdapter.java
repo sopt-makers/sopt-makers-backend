@@ -37,10 +37,18 @@ public class MeetingApplyRepositoryAdapter implements MeetingApplyRepositoryPort
   }
 
   @Override
-  public List<MeetingApply> findAllByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status) {
-    return meetingApplyJpaRepository.findAllByMeetingIdAndStatus(meetingId, status).stream()
+  public List<MeetingApply> findAllByMeetingIds(List<Long> meetingIds) {
+    if (meetingIds == null || meetingIds.isEmpty()) {
+      return List.of();
+    }
+    return meetingApplyJpaRepository.findAllByMeetingIdIn(meetingIds).stream()
         .map(MeetingApplyEntity::toDomain)
         .toList();
+  }
+
+  @Override
+  public long countByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status) {
+    return meetingApplyJpaRepository.countByMeetingIdAndStatus(meetingId, status);
   }
 
   @Override

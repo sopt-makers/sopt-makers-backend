@@ -16,14 +16,15 @@ public record MeetingApply(
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {
 
-  public static MeetingApply createApply(Long meetingId, Long userId, String content) {
+  public static MeetingApply createApply(
+      Long meetingId, Long userId, String content, LocalDateTime appliedDate) {
     return new MeetingApply(
         null,
         MeetingApplyType.APPLY,
         meetingId,
         userId,
         content,
-        LocalDateTime.now(),
+        appliedDate,
         MeetingApplyStatus.WAITING,
         null,
         null);

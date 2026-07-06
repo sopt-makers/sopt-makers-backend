@@ -1,8 +1,9 @@
 package org.sopt.makers.domain.crew.meeting.port;
 
-import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.crew.meeting.Meeting;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MeetingRepositoryPort {
 
@@ -10,9 +11,9 @@ public interface MeetingRepositoryPort {
 
   Optional<Meeting> findById(Long meetingId);
 
-  List<Meeting> findAll();
+  Page<Meeting> findAll(Pageable pageable);
 
-  List<Meeting> findAllByUserId(Long userId);
+  Page<Meeting> findAllByUserId(Long userId, Pageable pageable);
 
   void delete(Meeting meeting);
 }

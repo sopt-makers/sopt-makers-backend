@@ -9,7 +9,9 @@ public interface MeetingApplyJpaRepository extends JpaRepository<MeetingApplyEnt
 
   List<MeetingApplyEntity> findAllByMeetingId(Long meetingId);
 
-  List<MeetingApplyEntity> findAllByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status);
+  List<MeetingApplyEntity> findAllByMeetingIdIn(List<Long> meetingIds);
+
+  long countByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status);
 
   List<MeetingApplyEntity> findAllByMeetingIdAndStatusIn(
       Long meetingId, List<MeetingApplyStatus> statuses);

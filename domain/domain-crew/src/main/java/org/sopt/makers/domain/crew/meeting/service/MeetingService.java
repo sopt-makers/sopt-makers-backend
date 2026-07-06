@@ -37,6 +37,9 @@ import org.sopt.makers.domain.crew.meeting.port.MeetingApplyRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
 import org.sopt.makers.domain.user.Activity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -202,7 +205,10 @@ public class MeetingService {
     return new MeetingDetail(
         meeting,
         leader,
-        coLeaders.stream().map(coLeader -> userMap.get(coLeader.userId())).toList(),
+        coLeaders.stream()
+            .map(coLeader -> userMap.get(coLeader.userId()))
+            .filter(user -> user != null)
+            .toList(),
         meeting.isLeader(userId),
         groupedApplies.isApplied(meetingId, userId),
         groupedApplies.isApproved(meetingId, userId),
@@ -211,12 +217,18 @@ public class MeetingService {
         applyDetails);
   }
 
-  public List<MeetingSummary> findAllMeetings() {
-    return meetingRepositoryPort.findAll().stream().map(this::toSummary).toList();
+  public Page<MeetingSummary> findAllMeetings(int pageNo, int limit) {
+    Pageable pageable = PageRequest.of(pageNo - 1, limit);
+    Page<Meeting> meetings = meetingRepositoryPort.findAll(pageable);
+    MeetingApplies applies = getMeetingApplies(meetings.getContent());
+    return meetings.map(meeting -> toSummary(meeting, applies));
   }
 
-  public List<MeetingSummary> findMeetingsByCreator(Long userId) {
-    return meetingRepositoryPort.findAllByUserId(userId).stream().map(this::toSummary).toList();
+  public Page<MeetingSummary> findMeetingsByCreator(Long userId, int pageNo, int limit) {
+    Pageable pageable = PageRequest.of(pageNo - 1, limit);
+    Page<Meeting> meetings = meetingRepositoryPort.findAllByUserId(userId, pageable);
+    MeetingApplies applies = getMeetingApplies(meetings.getContent());
+    return meetings.map(meeting -> toSummary(meeting, applies));
   }
 
   public MeetingPartMembers getMeetingPartMembers(Long meetingId, Long userId) {
@@ -260,7 +272,9 @@ public class MeetingService {
 
     validateCommonApplyRequest(meeting, user, applies, coLeaders);
 
-    MeetingApply apply = MeetingApply.createApply(command.meetingId(), userId, command.content());
+    MeetingApply apply =
+        MeetingApply.createApply(
+            command.meetingId(), userId, command.content(), LocalDateTime.now(clock));
     return meetingApplyRepositoryPort.save(apply);
   }
 
@@ -298,7 +312,7 @@ public class MeetingService {
     boolean hasJoinablePart =
         activities.stream()
             .map(activity -> toMeetingJoinablePart(activity.part()))
-            .anyMatch(part -> part == null || meeting.joinableParts().contains(part));
+            .anyMatch(part -> part != null && meeting.joinableParts().contains(part));
 
     if (!hasJoinablePart) {
       throw new MeetingException(NOT_TARGET_PART);
@@ -383,14 +397,20 @@ public class MeetingService {
   }
 
   private long countApprovedApplies(Long meetingId) {
-    return meetingApplyRepositoryPort
-        .findAllByMeetingIdAndStatus(meetingId, MeetingApplyStatus.APPROVE)
-        .size();
+    return meetingApplyRepositoryPort.countByMeetingIdAndStatus(
+        meetingId, MeetingApplyStatus.APPROVE);
   }
 
-  private MeetingSummary toSummary(Meeting meeting) {
-    MeetingApplies applies =
-        new MeetingApplies(meetingApplyRepositoryPort.findAllByMeetingId(meeting.id()));
+  private MeetingApplies getMeetingApplies(List<Meeting> meetings) {
+    if (meetings == null || meetings.isEmpty()) {
+      return new MeetingApplies(List.of());
+    }
+    return new MeetingApplies(
+        meetingApplyRepositoryPort.findAllByMeetingIds(
+            meetings.stream().map(Meeting::id).toList()));
+  }
+
+  private MeetingSummary toSummary(Meeting meeting, MeetingApplies applies) {
     return new MeetingSummary(
         meeting,
         applies.getAppliedCount(meeting.id()),

@@ -1,12 +1,13 @@
 package org.sopt.makers.storage.db.crew.adapter;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.storage.db.crew.entity.MeetingEntity;
 import org.sopt.makers.storage.db.crew.repository.MeetingJpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,15 +30,13 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
   }
 
   @Override
-  public List<Meeting> findAll() {
-    return meetingJpaRepository.findAll().stream().map(MeetingEntity::toDomain).toList();
+  public Page<Meeting> findAll(Pageable pageable) {
+    return meetingJpaRepository.findAll(pageable).map(MeetingEntity::toDomain);
   }
 
   @Override
-  public List<Meeting> findAllByUserId(Long userId) {
-    return meetingJpaRepository.findAllByUserId(userId).stream()
-        .map(MeetingEntity::toDomain)
-        .toList();
+  public Page<Meeting> findAllByUserId(Long userId, Pageable pageable) {
+    return meetingJpaRepository.findAllByUserId(userId, pageable).map(MeetingEntity::toDomain);
   }
 
   @Transactional

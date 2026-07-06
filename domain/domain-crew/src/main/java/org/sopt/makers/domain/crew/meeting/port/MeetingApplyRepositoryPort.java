@@ -13,7 +13,9 @@ public interface MeetingApplyRepositoryPort {
 
   List<MeetingApply> findAllByMeetingId(Long meetingId);
 
-  List<MeetingApply> findAllByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status);
+  List<MeetingApply> findAllByMeetingIds(List<Long> meetingIds);
+
+  long countByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status);
 
   List<MeetingApply> findAllByMeetingIdAndStatuses(
       Long meetingId, List<MeetingApplyStatus> statuses);

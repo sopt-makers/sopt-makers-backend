@@ -3,4 +3,5 @@ dependencies {
     implementation(project(":domain:domain-user"))
     implementation("org.springframework:spring-context")
     implementation("org.springframework:spring-tx")
+    implementation("org.springframework.data:spring-data-commons")
 }

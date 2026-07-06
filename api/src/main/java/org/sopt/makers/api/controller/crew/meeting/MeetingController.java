@@ -18,10 +18,11 @@ import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.GetMeetingsRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingApplyResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingDetailResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingPartMembersResponse;
-import org.sopt.makers.api.controller.crew.meeting.dto.MeetingSummaryResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingSummaryPageResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
 import org.sopt.makers.core.response.BaseResponse;
@@ -31,6 +32,7 @@ import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,7 +63,9 @@ public class MeetingController implements MeetingApi {
       @Valid @RequestBody UpdateMeetingRequest request,
       @CurrentUserId Long userId) {
     Meeting meeting = meetingService.updateMeeting(meetingId, request.toCommand(), userId);
-    return ResponseFactory.success(UPDATE_MEETING, MeetingDetailResponse.from(meeting));
+    return ResponseFactory.success(
+        UPDATE_MEETING,
+        MeetingDetailResponse.from(meetingService.getMeetingDetail(meeting.id(), userId)));
   }
 
   @Override
@@ -117,20 +121,27 @@ public class MeetingController implements MeetingApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<BaseResponse<?>> getMeetings() {
+  public ResponseEntity<BaseResponse<?>> getMeetings(
+      @Valid @ModelAttribute GetMeetingsRequest request) {
     return ResponseFactory.success(
         GET_MEETINGS,
-        meetingService.findAllMeetings().stream().map(MeetingSummaryResponse::from).toList());
+        MeetingSummaryPageResponse.from(
+            meetingService.findAllMeetings(request.pageNoOrDefault(), request.limitOrDefault()),
+            request.limitOrDefault(),
+            request.pageNoOrDefault()));
   }
 
   @Override
   @GetMapping("/me")
-  public ResponseEntity<BaseResponse<?>> getMyMeetings(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<?>> getMyMeetings(
+      @Valid @ModelAttribute GetMeetingsRequest request, @CurrentUserId Long userId) {
     return ResponseFactory.success(
         GET_MEETINGS,
-        meetingService.findMeetingsByCreator(userId).stream()
-            .map(MeetingSummaryResponse::from)
-            .toList());
+        MeetingSummaryPageResponse.from(
+            meetingService.findMeetingsByCreator(
+                userId, request.pageNoOrDefault(), request.limitOrDefault()),
+            request.limitOrDefault(),
+            request.pageNoOrDefault()));
   }
 
   @Override

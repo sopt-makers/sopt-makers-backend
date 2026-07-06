@@ -6,8 +6,20 @@ import java.util.stream.Collectors;
 
 public record MeetingApplies(Map<Long, List<MeetingApply>> appliesMap) {
 
+  public MeetingApplies {
+    appliesMap =
+        appliesMap == null
+            ? Map.of()
+            : appliesMap.entrySet().stream()
+                .collect(
+                    Collectors.toUnmodifiableMap(
+                        Map.Entry::getKey, entry -> List.copyOf(entry.getValue())));
+  }
+
   public MeetingApplies(List<MeetingApply> applies) {
-    this(applies.stream().collect(Collectors.groupingBy(MeetingApply::meetingId)));
+    this(
+        (applies == null ? List.<MeetingApply>of() : applies)
+            .stream().collect(Collectors.groupingBy(MeetingApply::meetingId)));
   }
 
   public long getAppliedCount(Long meetingId) {
