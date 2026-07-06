@@ -16,6 +16,7 @@ import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
@@ -92,10 +93,9 @@ public class MeetingController implements MeetingApi {
   @PutMapping("/{meetingId}/apply/status")
   public ResponseEntity<BaseResponse<?>> updateApplyStatus(
       @PathVariable Long meetingId,
-      @Valid @RequestBody MeetingRequest.UpdateApplyStatus request,
+      @Valid @RequestBody UpdateApplyStatusRequest request,
       @CurrentUserId Long userId) {
-    MeetingApply apply =
-        meetingService.updateApplyStatus(meetingId, request.applyId(), request.status(), userId);
+    MeetingApply apply = meetingService.updateApplyStatus(meetingId, request.toCommand(), userId);
     return ResponseFactory.success(UPDATE_APPLY_STATUS, MeetingResponse.Apply.from(apply));
   }
 

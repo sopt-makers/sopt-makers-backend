@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -37,7 +38,7 @@ public interface MeetingApi {
   @Operation(summary = "모임 신청 상태 변경")
   ResponseEntity<BaseResponse<?>> updateApplyStatus(
       Long meetingId,
-      MeetingRequest.UpdateApplyStatus request,
+      UpdateApplyStatusRequest request,
       @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 상세 조회")

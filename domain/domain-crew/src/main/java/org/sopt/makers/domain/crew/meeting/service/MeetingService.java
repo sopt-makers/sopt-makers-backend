@@ -158,20 +158,20 @@ public class MeetingService {
   }
 
   @Transactional
-  public MeetingApply updateApplyStatus(Long meetingId, Long applyId, int status, Long userId) {
+  public MeetingApply updateApplyStatus(
+      Long meetingId, UpdateApplyStatusCommand command, Long userId) {
     Meeting meeting = getMeeting(meetingId);
     meeting.validateLeader(userId);
     MeetingApply apply =
         meetingApplyRepositoryPort
-            .findById(applyId)
+            .findById(command.applyId())
             .filter(candidate -> candidate.meetingId().equals(meetingId))
             .orElseThrow(() -> new MeetingException(NOT_FOUND_APPLY));
 
-    MeetingApplyStatus updatedStatus = MeetingApplyStatus.ofValue(status);
-    if (updatedStatus == MeetingApplyStatus.APPROVE) {
+    if (command.status() == MeetingApplyStatus.APPROVE) {
       meeting.validateCapacity(countApprovedApplies(meetingId));
     }
-    return meetingApplyRepositoryPort.save(apply.updateStatus(updatedStatus));
+    return meetingApplyRepositoryPort.save(apply.updateStatus(command.status()));
   }
 
   public MeetingDetail getMeetingDetail(Long meetingId, Long userId) {
@@ -488,6 +488,8 @@ public class MeetingService {
       List<Long> coLeaderUserIds) {}
 
   public record ApplyMeetingCommand(Long meetingId, String content) {}
+
+  public record UpdateApplyStatusCommand(Long applyId, MeetingApplyStatus status) {}
 
   public record MeetingSummary(
       Meeting meeting, long appliedCount, long approvedCount, MeetingStatus status) {}
