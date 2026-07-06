@@ -14,9 +14,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
-import org.sopt.makers.api.controller.crew.meeting.dto.MeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
@@ -42,7 +44,7 @@ public class MeetingController implements MeetingApi {
   @Override
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createMeeting(
-      @Valid @RequestBody MeetingRequest.Create request, @CurrentUserId Long userId) {
+      @Valid @RequestBody CreateMeetingRequest request, @CurrentUserId Long userId) {
     Meeting meeting = meetingService.createMeeting(request.toCommand(), userId);
     return ResponseFactory.success(CREATE_MEETING, MeetingResponse.Created.from(meeting));
   }
@@ -51,7 +53,7 @@ public class MeetingController implements MeetingApi {
   @PatchMapping("/{meetingId}")
   public ResponseEntity<BaseResponse<?>> updateMeeting(
       @PathVariable Long meetingId,
-      @Valid @RequestBody MeetingRequest.Update request,
+      @Valid @RequestBody UpdateMeetingRequest request,
       @CurrentUserId Long userId) {
     Meeting meeting = meetingService.updateMeeting(meetingId, request.toCommand(), userId);
     return ResponseFactory.success(UPDATE_MEETING, MeetingResponse.Detail.from(meeting));
@@ -68,7 +70,7 @@ public class MeetingController implements MeetingApi {
   @Override
   @PostMapping("/apply")
   public ResponseEntity<BaseResponse<?>> applyGeneralMeeting(
-      @Valid @RequestBody MeetingRequest.Apply request, @CurrentUserId Long userId) {
+      @Valid @RequestBody ApplyMeetingRequest request, @CurrentUserId Long userId) {
     MeetingApply apply = meetingService.applyGeneralMeeting(request.toCommand(), userId);
     return ResponseFactory.success(APPLY_MEETING, MeetingResponse.ApplyCreated.from(apply));
   }
@@ -76,7 +78,7 @@ public class MeetingController implements MeetingApi {
   @Override
   @PostMapping("/event/apply")
   public ResponseEntity<BaseResponse<?>> applyEventMeeting(
-      @Valid @RequestBody MeetingRequest.Apply request, @CurrentUserId Long userId) {
+      @Valid @RequestBody ApplyMeetingRequest request, @CurrentUserId Long userId) {
     MeetingApply apply = meetingService.applyEventMeeting(request.toCommand(), userId);
     return ResponseFactory.success(APPLY_MEETING, MeetingResponse.ApplyCreated.from(apply));
   }

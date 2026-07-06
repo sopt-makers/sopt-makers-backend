@@ -3,8 +3,10 @@ package org.sopt.makers.api.controller.crew.meeting;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sopt.makers.api.controller.crew.meeting.dto.MeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -13,11 +15,11 @@ public interface MeetingApi {
 
   @Operation(summary = "모임 생성")
   ResponseEntity<BaseResponse<?>> createMeeting(
-      MeetingRequest.Create request, @Parameter(hidden = true) Long userId);
+      CreateMeetingRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 수정")
   ResponseEntity<BaseResponse<?>> updateMeeting(
-      Long meetingId, MeetingRequest.Update request, @Parameter(hidden = true) Long userId);
+      Long meetingId, UpdateMeetingRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 삭제")
   ResponseEntity<BaseResponse<?>> deleteMeeting(
@@ -25,11 +27,11 @@ public interface MeetingApi {
 
   @Operation(summary = "일반 모임 신청")
   ResponseEntity<BaseResponse<?>> applyGeneralMeeting(
-      MeetingRequest.Apply request, @Parameter(hidden = true) Long userId);
+      ApplyMeetingRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "행사 모임 신청")
   ResponseEntity<BaseResponse<?>> applyEventMeeting(
-      MeetingRequest.Apply request, @Parameter(hidden = true) Long userId);
+      ApplyMeetingRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 신청 취소")
   ResponseEntity<BaseResponse<?>> cancelApply(
@@ -37,9 +39,7 @@ public interface MeetingApi {
 
   @Operation(summary = "모임 신청 상태 변경")
   ResponseEntity<BaseResponse<?>> updateApplyStatus(
-      Long meetingId,
-      UpdateApplyStatusRequest request,
-      @Parameter(hidden = true) Long userId);
+      Long meetingId, UpdateApplyStatusRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 상세 조회")
   ResponseEntity<BaseResponse<?>> getMeeting(Long meetingId, @Parameter(hidden = true) Long userId);
