@@ -1,16 +1,13 @@
 package org.sopt.makers.api.controller.crew.meeting.dto;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 
 public record UpdateMeetingRequest(
     String title,
-    @Size(max = 30) String subTitle,
-    @Size(max = 6) List<@NotBlank(message = "모임 이미지 URL은 필수 입력 값입니다.") String> files,
+    @Size(min = 1, max = 30) String subTitle,
+    @Size(min = 1, max = 6) List<String> files,
     String category,
     String startDate,
     String endDate,
@@ -23,10 +20,10 @@ public record UpdateMeetingRequest(
     String note,
     Boolean isMentorNeeded,
     Boolean canJoinOnlyActiveGeneration,
-    @Valid MeetingJoinInfoRequest joinInfo,
+    MeetingJoinInfoRequest joinInfo,
     Integer targetActiveGeneration,
-    @Size(max = 6) List<@NotBlank(message = "참여 가능 파트는 필수 입력 값입니다.") String> joinableParts,
-    List<@NotNull(message = "공동 모임장 userId는 필수 입력 값입니다.") Long> coLeaderUserIds) {
+    @Size(min = 1, max = 6) List<String> joinableParts,
+    List<Long> coLeaderUserIds) {
 
   public MeetingService.UpdateMeetingCommand toCommand() {
     return new MeetingService.UpdateMeetingCommand(
