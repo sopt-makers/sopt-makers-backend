@@ -70,7 +70,12 @@ public class UserActivityHistoryQuerydslRepositoryImpl
     queryFactory
         .update(activity)
         .set(activity.attendanceScore, buildScoreCaseExpression(userScores))
-        .where(activity.generation.eq(generation).and(activity.user.id.in(userScores.keySet())))
+        .where(
+            activity
+                .generation
+                .eq(generation)
+                .and(activity.user.id.in(userScores.keySet()))
+                .and(activity.isSopt.isTrue()))
         .execute();
     em.flush();
     em.clear();
