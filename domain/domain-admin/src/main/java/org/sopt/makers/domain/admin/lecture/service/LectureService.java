@@ -6,11 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.alarm.Alarm;
-import org.sopt.makers.domain.admin.alarm.AlarmCategory;
-import org.sopt.makers.domain.admin.alarm.AlarmContent;
-import org.sopt.makers.domain.admin.alarm.AlarmTarget;
-import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceLecturePort;
@@ -19,6 +14,7 @@ import org.sopt.makers.domain.admin.attendance.port.SubAttendanceLecturePort;
 import org.sopt.makers.domain.admin.lecture.AttendanceStatusSummary;
 import org.sopt.makers.domain.admin.lecture.Lecture;
 import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureEndedEvent;
 import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.domain.admin.lecture.SubLecture;
 import org.sopt.makers.domain.admin.lecture.exception.LectureException;
@@ -26,6 +22,7 @@ import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
 import org.sopt.makers.domain.admin.lecture.port.LectureRepositoryPort;
 import org.sopt.makers.domain.admin.lecture.port.SubLecturePort;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class LectureService {
 
   private static final int SUB_LECTURE_MAX_ROUND = 2;
-  private static final String ALARM_TITLE_SUFFIX = " 출석점수 반영";
-  private static final String ALARM_CONTENT = "출석점수가 새롭게 반영되었어요! 내 점수를 확인해 볼까요?";
 
   private final LectureRepositoryPort lectureRepositoryPort;
   private final SubLecturePort subLecturePort;
@@ -44,7 +39,7 @@ public class LectureService {
   private final SubAttendanceLecturePort subAttendanceLecturePort;
   private final AdminUserActivityPort adminUserActivityPort;
   private final AttendanceRepositoryPort attendanceRepositoryPort;
-  private final AlarmInstantSenderPort alarmInstantSenderPort;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public Lecture createLecture(
@@ -141,7 +136,7 @@ public class LectureService {
     Map<Long, Float> userScores = computeUserScores(userIds, lecture.generation());
     adminUserActivityPort.bulkUpdateAttendanceScores(lecture.generation(), userScores);
 
-    sendAttendanceAlarm(lecture, userIds);
+    eventPublisher.publishEvent(new LectureEndedEvent(lecture, userIds));
   }
 
   @Transactional
@@ -179,15 +174,6 @@ public class LectureService {
                 userId ->
                     Attendance.computeTotalScore(
                         attendancesByUser.getOrDefault(userId, List.of()))));
-  }
-
-  private void sendAttendanceAlarm(Lecture lecture, List<Long> userIds) {
-    List<String> targetIds = userIds.stream().map(String::valueOf).toList();
-    AlarmTarget target = AlarmTarget.partialForCsv(lecture.generation(), targetIds);
-    AlarmContent content =
-        AlarmContent.withoutLink(
-            lecture.name() + ALARM_TITLE_SUFFIX, ALARM_CONTENT, AlarmCategory.NOTICE);
-    alarmInstantSenderPort.send(Alarm.instant(target, content));
   }
 
   public Lecture getLectureDetail(Long lectureId) {
