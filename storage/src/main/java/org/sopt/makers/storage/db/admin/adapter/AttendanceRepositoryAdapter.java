@@ -76,6 +76,9 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
   }
 
   private List<Attendance> toBatchAttendanceDomain(List<AttendanceEntity> entities) {
+    if (entities.isEmpty()) {
+      return List.of();
+    }
     List<Long> attendanceIds = entities.stream().map(AttendanceEntity::getId).toList();
     Map<Long, List<SubAttendanceEntity>> subsByAttendanceId =
         subAttendanceJpaRepository.findAllByAttendanceIdIn(attendanceIds).stream()
