@@ -37,6 +37,10 @@ public class UserQueryService {
         .orElseThrow(() -> new UserException(NOT_FOUND_USER));
   }
 
+  public Optional<User> findWithActivitiesById(Long userId) {
+    return userRepositoryPort.findWithActivitiesById(userId);
+  }
+
   public User getByPhone(String phone) {
     return userRepositoryPort
         .findByPhone(phone)
@@ -53,6 +57,13 @@ public class UserQueryService {
     Map<Long, User> cached = userCacheRepositoryPort.getAllPresent(userIds);
     loadMissingIntoCache(userIds, cached);
     return userIds.stream().map(cached::get).filter(Objects::nonNull).toList();
+  }
+
+  public List<User> findAllWithActivitiesByIds(List<Long> userIds) {
+    if (userIds == null || userIds.isEmpty()) {
+      return List.of();
+    }
+    return userRepositoryPort.findAllWithActivitiesByIds(userIds.stream().distinct().toList());
   }
 
   public Page<User> getUsersByCondition(

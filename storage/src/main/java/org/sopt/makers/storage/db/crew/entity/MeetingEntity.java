@@ -69,7 +69,7 @@ public class MeetingEntity extends BaseEntity {
   @Column(name = "description", nullable = false, columnDefinition = "TEXT")
   private String description;
 
-  @Column(name = "process_description", nullable = false, columnDefinition = "TEXT")
+  @Column(name = "process_description", columnDefinition = "TEXT")
   private String processDescription;
 
   @Column(name = "activity_start_date")
