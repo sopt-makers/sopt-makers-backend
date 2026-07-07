@@ -61,8 +61,7 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
   @Transactional
   @Override
   public void bulkUpdateAttendanceScores(int generation, Map<Long, Float> userScores) {
-    userScores.forEach(
-        (userId, score) -> activityJpaRepository.updateAttendanceScore(userId, generation, score));
+    activityQuerydslRepository.bulkUpdateAttendanceScores(generation, userScores);
   }
 
   @Override
