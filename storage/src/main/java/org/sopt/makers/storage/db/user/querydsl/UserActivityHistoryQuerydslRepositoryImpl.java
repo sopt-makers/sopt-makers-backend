@@ -70,8 +70,7 @@ public class UserActivityHistoryQuerydslRepositoryImpl
     queryFactory
         .update(activity)
         .set(activity.attendanceScore, buildScoreCaseExpression(userScores))
-        .where(
-            activity.generation.eq(generation).and(activity.user.id.in(userScores.keySet())))
+        .where(activity.generation.eq(generation).and(activity.user.id.in(userScores.keySet())))
         .execute();
     em.flush();
     em.clear();
@@ -81,9 +80,7 @@ public class UserActivityHistoryQuerydslRepositoryImpl
     Iterator<Map.Entry<Long, Float>> iter = userScores.entrySet().iterator();
     Map.Entry<Long, Float> first = iter.next();
     CaseBuilder.Cases<Float, NumberExpression<Float>> cases =
-        new CaseBuilder()
-            .when(activity.user.id.eq(first.getKey()))
-            .then(first.getValue());
+        new CaseBuilder().when(activity.user.id.eq(first.getKey())).then(first.getValue());
     while (iter.hasNext()) {
       Map.Entry<Long, Float> entry = iter.next();
       cases = cases.when(activity.user.id.eq(entry.getKey())).then(entry.getValue());
