@@ -16,6 +16,7 @@ import org.sopt.makers.storage.db.admin.entity.SubAttendanceEntity;
 import org.sopt.makers.storage.db.admin.repository.AttendanceJpaRepository;
 import org.sopt.makers.storage.db.admin.repository.SubAttendanceJpaRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +68,7 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
       Long lectureId, Part part, int page, int limit) {
     return toBatchAttendanceDomain(
         attendanceJpaRepository.findAllByLectureIdAndPart(
-            lectureId, part, PageRequest.of(page, limit)));
+            lectureId, part, PageRequest.of(page, limit, Sort.by("id"))));
   }
 
   @Override
