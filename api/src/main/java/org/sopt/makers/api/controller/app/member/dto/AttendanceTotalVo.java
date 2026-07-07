@@ -3,7 +3,7 @@ package org.sopt.makers.api.controller.app.member.dto;
 import java.time.format.DateTimeFormatter;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 
 public record AttendanceTotalVo(
     LectureAttribute attribute, String name, AttendanceStatus status, String date) {

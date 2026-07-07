@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.admin.attendance;
+package org.sopt.makers.domain.admin.lecture;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

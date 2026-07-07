@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
@@ -46,5 +46,13 @@ public class AttendanceEntity extends BaseEntity {
         lecture.getStatus() == LectureStatus.END,
         status,
         subAttendances);
+  }
+
+  public static AttendanceEntity create(Long userId, LectureEntity lecture) {
+    AttendanceEntity entity = new AttendanceEntity();
+    entity.userId = userId;
+    entity.lecture = lecture;
+    entity.status = AttendanceStatus.ABSENT;
+    return entity;
   }
 }

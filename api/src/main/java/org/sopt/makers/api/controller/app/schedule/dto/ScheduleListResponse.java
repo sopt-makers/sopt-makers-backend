@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.sopt.makers.domain.admin.app.AppSchedule;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 
 public record ScheduleListResponse(List<DateResponse> dates) {
 

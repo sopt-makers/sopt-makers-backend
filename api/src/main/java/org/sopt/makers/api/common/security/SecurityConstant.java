@@ -15,6 +15,14 @@ public final class SecurityConstant {
   public static final String ADMIN = "ADMIN";
   public static final String PATTERN_ALL = "/**";
 
+  public static final String[] CORS_ALLOWED_ORIGINS = {
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://sopt-internal-dev.sopt.org",
+    "https://playground.sopt.org",
+    "https://sopt-auth-frontend-test.pages.dev"
+  };
+
   public static final List<String> JWT_WHITELIST =
       List.of(
           "/api/v1/auth",
