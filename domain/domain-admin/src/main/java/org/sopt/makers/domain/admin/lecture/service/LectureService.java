@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.admin.lecture.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -163,6 +164,10 @@ public class LectureService {
   }
 
   private Map<Long, Float> computeUserScores(List<Long> userIds, int generation) {
+    if(userIds.isEmpty()) {
+      return Map.of();
+    }
+
     List<Attendance> allEndedAttendances =
         attendanceRepositoryPort.findAllEndedByUserIds(userIds, generation);
     Map<Long, List<Attendance>> attendancesByUser =
