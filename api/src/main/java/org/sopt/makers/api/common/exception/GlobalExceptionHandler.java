@@ -97,7 +97,8 @@ public class GlobalExceptionHandler {
     e.getConstraintViolations()
         .forEach(
             v -> {
-              String paramName = v.getPropertyPath().toString();
+              String fullPath = v.getPropertyPath().toString();
+              String paramName = fullPath.substring(fullPath.lastIndexOf('.') + 1);
               errorDetails.put(String.format(VALIDATION_KEY_FORMAT, paramName), v.getMessage());
             });
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
