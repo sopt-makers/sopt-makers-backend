@@ -14,6 +14,9 @@ public class FortuneWordIdGenerator {
 
   public Long generate() {
     List<Long> ids = fortuneWordRepositoryPort.findAllIds();
+    if (ids.isEmpty()) {
+      throw new IllegalStateException("선택할 수 있는 FortuneWord가 없습니다. fortune_word 시드 데이터를 확인해야 합니다.");
+    }
     return ids.get(ThreadLocalRandom.current().nextInt(ids.size()));
   }
 }
