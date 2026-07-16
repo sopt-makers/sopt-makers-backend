@@ -8,6 +8,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -36,6 +37,18 @@ public class AppExceptionHandler {
       MethodArgumentTypeMismatchException e) {
     String value = e.getValue() == null ? "" : e.getValue().toString();
     List<FieldError> errors = List.of(new FieldError(e.getName(), value, e.getErrorCode()));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(AppFailureResponse.of(INVALID_PARAMETER_MESSAGE, HttpStatus.BAD_REQUEST, errors));
+  }
+
+  /**
+   * 필수 파라미터 누락. 전역 캐치올(Exception)로 500이 나가는 것을 막고 400 INVALID_PARAMETER로 응답한다. reason은 Spring 예외
+   * 메시지가 자바 타입명을 노출하고 버전에 따라 달라져서, 바인딩 에러 코드(required)로 고정한다.
+   */
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<AppFailureResponse> handleMissingParameter(
+      MissingServletRequestParameterException e) {
+    List<FieldError> errors = List.of(new FieldError(e.getParameterName(), "", "required"));
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(AppFailureResponse.of(INVALID_PARAMETER_MESSAGE, HttpStatus.BAD_REQUEST, errors));
   }
