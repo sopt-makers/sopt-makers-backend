@@ -19,8 +19,8 @@ import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * 구 앱 서버(sopt-backend) fortune API 응답 계약 characterization 테스트. 성공/에러 JSON 모양을 문자 그대로 고정한다. 앱
- * 클라이언트가 BaseResponse로 전환되기 전까지 이 모양이 깨지면 안 된다.
+ * 구 앱 서버(sopt-backend) fortune API 응답 계약 characterization 테스트. 성공/에러 JSON 모양을 문자 그대로 고정한다. 앱 클라이언트가
+ * BaseResponse로 전환되기 전까지 이 모양이 깨지면 안 된다.
  */
 class FortuneControllerTest {
 
@@ -52,7 +52,8 @@ class FortuneControllerTest {
   @Test
   void 오늘의_운세_카드_성공_응답_모양() throws Exception {
     given(fortuneService.getTodayFortuneCard(USER_ID))
-        .willReturn(new FortuneCard(10L, "맑음 카드", "좋은 일이 생겨요", "https://img.example/card.png", "#FFEE00"));
+        .willReturn(
+            new FortuneCard(10L, "맑음 카드", "좋은 일이 생겨요", "https://img.example/card.png", "#FFEE00"));
 
     mockMvc
         .perform(get("/api/v2/fortune/card/today"))
