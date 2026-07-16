@@ -24,11 +24,12 @@ public class FortuneCardQuerydslRepositoryImpl implements FortuneCardQuerydslRep
     return Optional.ofNullable(
         queryFactory
             .select(fortuneCard)
-            .from(userFortune, fortuneWord, fortuneCard)
-            .where(
-                userFortune.userId.eq(userId),
-                userFortune.fortuneWordId.eq(fortuneWord.id),
-                fortuneWord.fortuneCardId.eq(fortuneCard.id))
+            .from(userFortune)
+            .innerJoin(fortuneWord)
+            .on(userFortune.fortuneWordId.eq(fortuneWord.id))
+            .innerJoin(fortuneCard)
+            .on(fortuneWord.fortuneCardId.eq(fortuneCard.id))
+            .where(userFortune.userId.eq(userId))
             .fetchFirst());
   }
 }
