@@ -90,6 +90,26 @@ class FortuneControllerTest {
   }
 
   @Test
+  void 필수_파라미터_누락_INVALID_PARAMETER_포맷_응답() throws Exception {
+    mockMvc
+        .perform(get("/api/v2/fortune/word"))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            content()
+                .json(
+                    """
+                    {
+                      "message": "잘못된 파라미터 입니다.",
+                      "status": "BAD_REQUEST",
+                      "errors": [
+                        {"field": "todayDate", "value": "", "reason": "required"}
+                      ]
+                    }
+                    """,
+                    JsonCompareMode.STRICT));
+  }
+
+  @Test
   void 파라미터_타입_불일치_구_FailureResponse_포맷_보존() throws Exception {
     mockMvc
         .perform(get("/api/v2/fortune/word").param("todayDate", "2026-13-99"))
