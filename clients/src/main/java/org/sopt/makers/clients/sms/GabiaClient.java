@@ -6,9 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.ConnectionSpec;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -26,7 +28,12 @@ class GabiaClient {
   private static final int SMS_MAX_LENGTH = 45;
   private static final int MAX_RETRY_COUNT = 3;
 
-  private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
+  // sms.gabia.com은 ECDHE cipher suite를 지원하지 않아 OkHttp 기본 ConnectionSpec(MODERN_TLS)으로는
+  // handshake_failure가 발생한다. COMPATIBLE_TLS를 fallback으로 추가해 TLS_RSA_* cipher로 협상되게 한다.
+  private static final OkHttpClient HTTP_CLIENT =
+      new OkHttpClient.Builder()
+          .connectionSpecs(List.of(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
+          .build();
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final GabiaSmsProperty property;
