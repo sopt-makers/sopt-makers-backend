@@ -28,6 +28,12 @@ class GabiaClient {
   private static final int SMS_MAX_LENGTH = 45;
   private static final int MAX_RETRY_COUNT = 3;
 
+  static {
+    // sms.gabia.com이 extended_master_secret(RFC 7627) 확장을 처리하지 못해 handshake_failure를
+    // 반환하는 것으로 추정되어 JVM 전역으로 비활성화한다. HTTP_CLIENT 생성보다 먼저 적용돼야 한다.
+    System.setProperty("jdk.tls.useExtendedMasterSecret", "false");
+  }
+
   // sms.gabia.com은 ECDHE cipher suite를 지원하지 않아 OkHttp 기본 ConnectionSpec(MODERN_TLS)으로는
   // handshake_failure가 발생한다. COMPATIBLE_TLS를 fallback으로 추가해 TLS_RSA_* cipher로 협상되게 한다.
   private static final OkHttpClient HTTP_CLIENT =
@@ -48,7 +54,7 @@ class GabiaClient {
         if (GabiaApi.SUCCESS_CODE.equals(response.code())) {
           return;
         }
-        log.warn("발송 실패, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, response.message());
+        log.warn("SMS 발송 실패, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, response.message());
       } catch (Exception e) {
         log.error(e.getMessage(), e);
         e.getStackTrace();
