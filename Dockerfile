@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-jammy
+FROM amazoncorretto:21
 WORKDIR /app
 
 ARG PROFILE=dev

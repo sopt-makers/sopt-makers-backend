@@ -6,19 +6,15 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.ConnectionSpec;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.TlsVersion;
 import org.sopt.makers.clients.sms.exception.SmsException;
 import org.sopt.makers.clients.sms.exception.SmsFailure;
 import org.springframework.stereotype.Component;
@@ -31,32 +27,7 @@ class GabiaClient {
   private static final int SMS_MAX_LENGTH = 45;
   private static final int MAX_RETRY_COUNT = 3;
 
-  /**
-   * Gabia API 통신용 TLS 설정.
-   *
-   * <p>TLS 1.2만 사용하고, 현재 JVM에서 활성화된 Cipher Suite를 모두 허용한다.
-   */
-  private static final ConnectionSpec GABIA_TLS_SPEC =
-      new ConnectionSpec.Builder(ConnectionSpec.COMPATIBLE_TLS)
-          .tlsVersions(TlsVersion.TLS_1_2)
-          .allEnabledCipherSuites()
-          .build();
-
-  /**
-   * Gabia API 전용 HTTP 클라이언트.
-   *
-   * <p>HTTP/2 협상 문제를 방지하기 위해 HTTP/1.1만 사용한다.
-   */
-  private static final OkHttpClient HTTP_CLIENT =
-      new OkHttpClient.Builder()
-          .connectionSpecs(List.of(GABIA_TLS_SPEC))
-          .protocols(List.of(Protocol.HTTP_1_1))
-          .connectTimeout(Duration.ofSeconds(10))
-          .readTimeout(Duration.ofSeconds(10))
-          .writeTimeout(Duration.ofSeconds(10))
-          .callTimeout(Duration.ofSeconds(20))
-          .retryOnConnectionFailure(true)
-          .build();
+  private static final OkHttpClient HTTP_CLIENT = GabiaOkHttpClientFactory.create();
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
