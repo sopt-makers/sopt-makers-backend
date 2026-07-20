@@ -48,8 +48,10 @@ class GabiaClient {
         if (GabiaApi.SUCCESS_CODE.equals(response.code())) {
           return;
         }
-        log.warn("SMS 발송 실패, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, response.message());
+        log.warn("발송 실패, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, response.message());
       } catch (Exception e) {
+        log.error(e.getMessage(), e);
+        e.getStackTrace();
         log.warn("SMS 발송 오류, 재시도 {}/{}: {}", attempt, MAX_RETRY_COUNT, e.getMessage());
       }
     }
