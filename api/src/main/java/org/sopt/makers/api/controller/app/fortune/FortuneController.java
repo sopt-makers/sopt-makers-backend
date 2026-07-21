@@ -1,10 +1,15 @@
 package org.sopt.makers.api.controller.app.fortune;
 
+import static org.sopt.makers.api.controller.app.fortune.FortuneSuccessCode.GET_TODAY_FORTUNE_CARD;
+import static org.sopt.makers.api.controller.app.fortune.FortuneSuccessCode.GET_TODAY_FORTUNE_WORD;
+
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.app.fortune.dto.FortuneCardResponse;
 import org.sopt.makers.api.controller.app.fortune.dto.FortuneResponse;
+import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.app.fortune.facade.FortuneFacade;
 import org.sopt.makers.domain.app.fortune.service.FortuneService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,16 +29,18 @@ public class FortuneController implements FortuneApi {
 
   @Override
   @GetMapping("/word")
-  public ResponseEntity<FortuneResponse> getTodayFortuneWord(
+  public ResponseEntity<BaseResponse<?>> getTodayFortuneWord(
       @CurrentUserId Long userId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate todayDate) {
-    return ResponseEntity.ok(
+    return ResponseFactory.success(
+        GET_TODAY_FORTUNE_WORD,
         FortuneResponse.of(fortuneFacade.getTodayFortuneWord(userId, todayDate)));
   }
 
   @Override
   @GetMapping("/card/today")
-  public ResponseEntity<FortuneCardResponse> getTodayFortuneCard(@CurrentUserId Long userId) {
-    return ResponseEntity.ok(FortuneCardResponse.of(fortuneService.getTodayFortuneCard(userId)));
+  public ResponseEntity<BaseResponse<?>> getTodayFortuneCard(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_TODAY_FORTUNE_CARD, FortuneCardResponse.of(fortuneService.getTodayFortuneCard(userId)));
   }
 }
