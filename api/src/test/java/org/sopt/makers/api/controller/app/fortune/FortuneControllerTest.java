@@ -19,8 +19,8 @@ import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * 구 앱 서버(sopt-backend) fortune API 응답 계약 characterization 테스트. 성공/에러 JSON 모양을 문자 그대로 고정한다. 앱 클라이언트가
- * BaseResponse로 전환되기 전까지 이 모양이 깨지면 안 된다.
+ * fortune API 응답 계약 테스트. 통합 레포 표준 BaseResponse({success, message, data}) 모양을 문자 그대로 고정한다. 앱 채널 다른
+ * 도메인(poke 등)도 같은 봉투를 따르므로 이 패턴을 재사용한다.
  */
 class FortuneControllerTest {
 
@@ -44,7 +44,11 @@ class FortuneControllerTest {
             content()
                 .json(
                     """
-                    {"userName":"차은우","title":"오늘은 코드가 잘 풀리는 날"}
+                    {
+                      "success": true,
+                      "message": "오늘의 솝마디 조회에 성공했습니다.",
+                      "data": {"userName": "차은우", "title": "오늘은 코드가 잘 풀리는 날"}
+                    }
                     """,
                     JsonCompareMode.STRICT));
   }
@@ -63,17 +67,21 @@ class FortuneControllerTest {
                 .json(
                     """
                     {
-                      "name": "맑음 카드",
-                      "description": "좋은 일이 생겨요",
-                      "imageUrl": "https://img.example/card.png",
-                      "imageColorCode": "#FFEE00"
+                      "success": true,
+                      "message": "오늘의 운세카드 조회에 성공했습니다.",
+                      "data": {
+                        "name": "맑음 카드",
+                        "description": "좋은 일이 생겨요",
+                        "imageUrl": "https://img.example/card.png",
+                        "imageColorCode": "#FFEE00"
+                      }
                     }
                     """,
                     JsonCompareMode.STRICT));
   }
 
   @Test
-  void 운세_없음_404_에러_포맷_보존() throws Exception {
+  void 운세_없음_404_BaseResponse_포맷() throws Exception {
     given(fortuneService.getTodayFortuneCard(USER_ID))
         .willThrow(new FortuneException(FortuneFailure.NOT_FOUND_FORTUNE_FROM_USER));
 
@@ -84,13 +92,13 @@ class FortuneControllerTest {
             content()
                 .json(
                     """
-                    {"message":"유저에게 할당된 오늘의 운세가 없습니다.","status":"NOT_FOUND","errors":[]}
+                    {"success": false, "message": "유저에게 할당된 오늘의 운세가 없습니다.", "data": null}
                     """,
                     JsonCompareMode.STRICT));
   }
 
   @Test
-  void 필수_파라미터_누락_INVALID_PARAMETER_포맷_응답() throws Exception {
+  void 필수_파라미터_누락_400_BaseResponse_포맷() throws Exception {
     mockMvc
         .perform(get("/api/v2/fortune/word"))
         .andExpect(status().isBadRequest())
@@ -98,19 +106,13 @@ class FortuneControllerTest {
             content()
                 .json(
                     """
-                    {
-                      "message": "잘못된 파라미터 입니다.",
-                      "status": "BAD_REQUEST",
-                      "errors": [
-                        {"field": "todayDate", "value": "", "reason": "required"}
-                      ]
-                    }
+                    {"success": false, "message": "필수 요청 파라미터가 누락되었습니다", "data": null}
                     """,
                     JsonCompareMode.STRICT));
   }
 
   @Test
-  void 파라미터_타입_불일치_구_FailureResponse_포맷_보존() throws Exception {
+  void 파라미터_타입_불일치_400_BaseResponse_포맷() throws Exception {
     mockMvc
         .perform(get("/api/v2/fortune/word").param("todayDate", "2026-13-99"))
         .andExpect(status().isBadRequest())
@@ -118,13 +120,7 @@ class FortuneControllerTest {
             content()
                 .json(
                     """
-                    {
-                      "message": "잘못된 파라미터 입니다.",
-                      "status": "BAD_REQUEST",
-                      "errors": [
-                        {"field": "todayDate", "value": "2026-13-99", "reason": "typeMismatch"}
-                      ]
-                    }
+                    {"success": false, "message": "입력한 값의 타입이 잘못되었습니다", "data": null}
                     """,
                     JsonCompareMode.STRICT));
   }

@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.app;
 
 import org.jspecify.annotations.Nullable;
-import org.sopt.makers.api.common.exception.AppExceptionHandler;
+import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.springframework.core.MethodParameter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -12,8 +12,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
- * 앱 채널 컨트롤러 characterization 테스트용 MockMvc 팩토리. 인증 필터 없이 @CurrentUserId를 고정 값으로 주입하고,
- * AppExceptionHandler(구 앱 서버 FailureResponse 계약)를 배선한다. fortune 외 도메인(poke 등)도 이 팩토리를 재사용한다.
+ * 앱 채널 컨트롤러 계약 테스트용 MockMvc 팩토리. 인증 필터 없이 @CurrentUserId를 고정 값으로 주입하고, 통합 레포 표준
+ * GlobalExceptionHandler(BaseResponse)를 배선한다. fortune 외 도메인(poke 등)도 이 팩토리를 재사용한다.
  */
 public final class AppChannelMockMvc {
 
@@ -22,7 +22,7 @@ public final class AppChannelMockMvc {
   public static MockMvc of(Object controller, Long fixedUserId) {
     return MockMvcBuilders.standaloneSetup(controller)
         .setCustomArgumentResolvers(fixedCurrentUserId(fixedUserId))
-        .setControllerAdvice(new AppExceptionHandler())
+        .setControllerAdvice(new GlobalExceptionHandler())
         .build();
   }
 
