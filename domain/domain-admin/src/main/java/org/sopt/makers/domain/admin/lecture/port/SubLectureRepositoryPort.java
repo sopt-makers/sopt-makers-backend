@@ -1,7 +1,7 @@
-package org.sopt.makers.domain.admin.attendance.port;
+package org.sopt.makers.domain.admin.lecture.port;
 
 import java.util.Optional;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
 
 public interface SubLectureRepositoryPort {
 

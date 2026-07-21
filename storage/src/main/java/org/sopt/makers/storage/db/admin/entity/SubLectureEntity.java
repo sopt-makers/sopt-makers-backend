@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
@@ -43,5 +43,17 @@ public class SubLectureEntity extends BaseEntity {
         round,
         startAt,
         code);
+  }
+
+  public static SubLectureEntity create(LectureEntity lecture, int round) {
+    SubLectureEntity entity = new SubLectureEntity();
+    entity.lecture = lecture;
+    entity.round = round;
+    return entity;
+  }
+
+  public void updateCodeAndStartAt(String newCode, LocalDateTime newStartAt) {
+    this.code = newCode;
+    this.startAt = newStartAt;
   }
 }

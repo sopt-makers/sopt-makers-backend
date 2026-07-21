@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 
 public record Attendance(
     Long id,
@@ -15,6 +16,8 @@ public record Attendance(
     boolean isEnded,
     AttendanceStatus status,
     List<SubAttendance> subAttendances) {
+
+  public static final float BASE_SCORE = 2.0f;
 
   private static final int FIRST_ROUND = 1;
   private static final int SECOND_ROUND = 2;
@@ -71,6 +74,10 @@ public record Attendance(
       case TARDY -> TARDY_DEDUCTION;
       default -> NO_DEDUCTION;
     };
+  }
+
+  public static float computeTotalScore(List<Attendance> attendances) {
+    return BASE_SCORE + (float) attendances.stream().mapToDouble(Attendance::computeScore).sum();
   }
 
   private SubAttendance findByRound(List<SubAttendance> list, int round) {

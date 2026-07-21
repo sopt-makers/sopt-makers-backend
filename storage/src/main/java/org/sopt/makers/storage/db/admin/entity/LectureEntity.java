@@ -9,8 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
-import org.sopt.makers.domain.admin.attendance.LectureStatus;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
@@ -62,5 +62,9 @@ public class LectureEntity extends BaseEntity {
     this.endDate = endDate;
     this.attribute = attribute;
     this.status = status;
+  }
+
+  public void updateStatus(LectureStatus newStatus) {
+    this.status = newStatus;
   }
 }

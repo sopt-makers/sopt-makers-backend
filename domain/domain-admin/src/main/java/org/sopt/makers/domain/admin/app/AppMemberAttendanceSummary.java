@@ -3,9 +3,10 @@ package org.sopt.makers.domain.admin.app;
 import java.util.List;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.attendance.LectureAttribute;
+import org.sopt.makers.domain.admin.lecture.LectureAttribute;
+import org.sopt.makers.domain.admin.user.UserActivity;
 
-public record AppMemberAttendanceSummary(AppUserActivity activity, List<Attendance> attendances) {
+public record AppMemberAttendanceSummary(UserActivity activity, List<Attendance> attendances) {
 
   public List<Attendance> visibleAttendances() {
     return attendances.stream()

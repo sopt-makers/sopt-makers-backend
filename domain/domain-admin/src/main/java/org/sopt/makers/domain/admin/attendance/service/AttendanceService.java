@@ -3,16 +3,19 @@ package org.sopt.makers.domain.admin.attendance.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
-import org.sopt.makers.domain.admin.attendance.SubLecture;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
-import org.sopt.makers.domain.admin.attendance.port.AttendanceUserActivityPort;
 import org.sopt.makers.domain.admin.attendance.port.SubAttendanceRepositoryPort;
-import org.sopt.makers.domain.admin.attendance.port.SubLectureRepositoryPort;
+import org.sopt.makers.domain.admin.lecture.SubLecture;
+import org.sopt.makers.domain.admin.lecture.exception.LectureException;
+import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
+import org.sopt.makers.domain.admin.lecture.port.SubLectureRepositoryPort;
+import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,15 +24,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AttendanceService {
 
-  private static final float BASE_ATTENDANCE_SCORE = 2.0f;
-
   private final SubLectureRepositoryPort subLectureRepositoryPort;
   private final AttendanceRepositoryPort attendanceRepositoryPort;
   private final SubAttendanceRepositoryPort subAttendanceRepositoryPort;
-  private final AttendanceUserActivityPort attendanceUserActivityPort;
+  private final AdminUserActivityPort adminUserActivityPort;
 
   public List<Attendance> getAttendancesByUserId(Long userId) {
     return attendanceRepositoryPort.findAllByUserId(userId);
+  }
+
+  public List<Attendance> getAttendancesByLectureId(
+      Long lectureId, Part part, int page, int limit) {
+    return attendanceRepositoryPort.findAllByLectureIdAndPart(lectureId, part, page, limit);
+  }
+
+  public int countAttendancesByLecture(Long lectureId, Part part) {
+    return attendanceRepositoryPort.countByLectureIdAndPart(lectureId, part);
   }
 
   @Transactional
@@ -37,7 +47,7 @@ public class AttendanceService {
     SubLecture subLecture =
         subLectureRepositoryPort
             .findById(subLectureId)
-            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_SUB_LECTURE));
+            .orElseThrow(() -> new LectureException(LectureFailure.NOT_FOUND_SUB_LECTURE));
 
     subLecture.validateForAttendance(code);
 
@@ -79,10 +89,8 @@ public class AttendanceService {
     List<Attendance> endedAttendances =
         attendanceRepositoryPort.findAllEndedByUserId(userId, generation);
 
-    float totalScore =
-        BASE_ATTENDANCE_SCORE
-            + (float) endedAttendances.stream().mapToDouble(Attendance::computeScore).sum();
+    float totalScore = Attendance.computeTotalScore(endedAttendances);
 
-    attendanceUserActivityPort.updateAttendanceScore(userId, generation, totalScore);
+    adminUserActivityPort.updateAttendanceScore(userId, generation, totalScore);
   }
 }

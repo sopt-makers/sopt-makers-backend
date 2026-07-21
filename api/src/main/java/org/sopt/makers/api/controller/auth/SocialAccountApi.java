@@ -3,7 +3,7 @@ package org.sopt.makers.api.controller.auth;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.auth.dto.GetSocialAccountPlatformRequest;
-import org.sopt.makers.api.controller.auth.dto.SocialAccountRequest;
+import org.sopt.makers.api.controller.auth.dto.UpdateSocialAccountRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -14,6 +14,5 @@ public interface SocialAccountApi {
   ResponseEntity<BaseResponse<?>> getSocialPlatform(GetSocialAccountPlatformRequest request);
 
   @Operation(summary = "소셜 계정 변경")
-  ResponseEntity<BaseResponse<?>> updateSocialAccount(
-      SocialAccountRequest.UpdateSocialAccount request);
+  ResponseEntity<BaseResponse<?>> updateSocialAccount(UpdateSocialAccountRequest request);
 }
