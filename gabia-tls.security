@@ -1,0 +1,20 @@
+# Gabia SMS API TLS 호환을 위한 jdk.tls.disabledAlgorithms 오버라이드
+#
+# Gabia SMS API가 TLS_RSA_WITH_AES_256_CBC_SHA / TLS_RSA_WITH_AES_128_CBC_SHA
+# cipher suite만 지원하기 때문에, JDK 기본 disabledAlgorithms에서 TLS_RSA_*
+# 항목만 제거한 값을 사용합니다. (그 외 항목은 원본 그대로 유지)
+#
+# jdk.tls.disabledAlgorithms은 JVM에서 TLS 관련 클래스가 처음 로드되는 시점에
+# 한 번 읽혀 캐시되므로, 런타임에 Security.setProperty로 바꿔도 반영이
+# 안 될 수 있습니다. 그래서 애플리케이션 코드가 아니라
+# -Djava.security.properties 로 JVM 기동 시점에 적용합니다.
+#
+# 원본(Amazon Corretto 21 기본값):
+# jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES,
+#     MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL,
+#     ECDH, TLS_RSA_*, rsa_pkcs1_sha1 usage HandshakeSignature,
+#     ecdsa_sha1 usage HandshakeSignature, dsa_sha1 usage HandshakeSignature
+jdk.tls.disabledAlgorithms=SSLv3, TLSv1, TLSv1.1, DTLSv1.0, RC4, DES, \
+    MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL, \
+    ECDH, rsa_pkcs1_sha1 usage HandshakeSignature, \
+    ecdsa_sha1 usage HandshakeSignature, dsa_sha1 usage HandshakeSignature

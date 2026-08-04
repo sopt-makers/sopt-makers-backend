@@ -17,6 +17,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.sopt.makers.clients.sms.exception.SmsException;
 import org.sopt.makers.clients.sms.exception.SmsFailure;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -27,9 +28,10 @@ class GabiaClient {
   private static final int SMS_MAX_LENGTH = 45;
   private static final int MAX_RETRY_COUNT = 3;
 
-  private static final OkHttpClient HTTP_CLIENT = GabiaOkHttpClientFactory.create();
-
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  @Qualifier(GabiaOkHttpClientConfig.GABIA_OK_HTTP_CLIENT)
+  private final OkHttpClient httpClient;
 
   private final GabiaSmsProperty property;
 
@@ -116,7 +118,7 @@ class GabiaClient {
             .header(HttpHeader.CACHE_CONTROL, HttpHeader.NO_CACHE)
             .build();
 
-    try (Response response = HTTP_CLIENT.newCall(request).execute()) {
+    try (Response response = httpClient.newCall(request).execute()) {
       String responseBody = readResponseBody(response);
 
       if (!response.isSuccessful()) {
@@ -158,7 +160,7 @@ class GabiaClient {
             .header(HttpHeader.CACHE_CONTROL, HttpHeader.NO_CACHE)
             .build();
 
-    try (Response response = HTTP_CLIENT.newCall(request).execute()) {
+    try (Response response = httpClient.newCall(request).execute()) {
       String responseBody = readResponseBody(response);
 
       if (!response.isSuccessful()) {
