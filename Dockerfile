@@ -5,7 +5,8 @@ ARG PROFILE=dev
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
 COPY api/build/libs/*.jar app.jar
+COPY gabia-tls.security gabia-tls.security
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.properties=/app/gabia-tls.security", "-jar", "app.jar"]
