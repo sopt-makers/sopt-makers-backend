@@ -2,6 +2,7 @@ package org.sopt.makers.api.controller.official.s3;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.sopt.makers.api.controller.official.s3.dto.S3Request;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
@@ -10,5 +11,5 @@ import org.springframework.http.ResponseEntity;
 public interface S3Api {
 
   @Operation(summary = "Presigned URL 생성")
-  ResponseEntity<BaseResponse<?>> createPresignedUrl(S3Request.PresignedUrl request);
+  ResponseEntity<BaseResponse<?>> createPresignedUrl(@Valid S3Request.PresignedUrl request);
 }
