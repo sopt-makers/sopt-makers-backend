@@ -16,6 +16,7 @@ public enum CommonFailureCode implements FailureCode {
   // 400
   METHOD_NOT_SUPPORTED(400, "허용되지 않은 메서드입니다"),
   MISSING_REQUEST_HEADER(400, "필수 요청 헤더가 누락되었습니다"),
+  MISSING_REQUEST_PARAMETER(400, "필수 요청 파라미터가 누락되었습니다"),
   INVALID_INPUT_VALUE(400, "유효하지 않은 입력 값입니다"),
   METHOD_ARGUMENT_TYPE_MISMATCH(400, "입력한 값의 타입이 잘못되었습니다"),
   INVALID_REQUEST_BODY(400, "요청 본문을 읽을 수 없습니다"),
