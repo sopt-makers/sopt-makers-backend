@@ -30,6 +30,7 @@ public final class SecurityConstant {
           "/api/v1/social/accounts",
           "/api/v1/admin/auth/login",
           "/api/v1/admin/auth/refresh",
+          "/api/v1/admin/banners/images",
           "/error",
           "/swagger-ui.html",
           "/swagger-ui",
