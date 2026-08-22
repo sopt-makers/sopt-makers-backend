@@ -97,14 +97,14 @@ public record HomepageMainResponse(
 
   @Schema(description = "활동 기록")
   public record ActivitiesRecords(
-      @Schema(description = "활동 회원 수") int activitiesMemberCount,
+      @Schema(description = "활동 회원 수") int activitiesUserCount,
       @Schema(description = "프로젝트 수") int projectCounts,
       @Schema(description = "스터디 수") int studyCounts,
       @Schema(description = "운영 기간") int operationPeriod) {
 
     public static ActivitiesRecords from(HomepageFacade.ActivitiesRecords records) {
       return new ActivitiesRecords(
-          records.activitiesMemberCount(),
+          records.activitiesUserCount(),
           records.projectCounts(),
           records.studyCounts(),
           records.operationPeriod());
