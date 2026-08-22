@@ -35,8 +35,6 @@ public final class SecurityConstant {
           "/swagger-ui",
           "/v3/api-docs");
 
-  public static final String ADMIN_SIGNUP_PATH = "/api/v1/admin/auth/signup";
   public static final String INTERNAL_API_PATH = "/api/v1/internal";
-  public static final List<String> API_KEY_SECURED_PATHS =
-      List.of(ADMIN_SIGNUP_PATH, INTERNAL_API_PATH);
+  public static final List<String> API_KEY_SECURED_PATHS = List.of(INTERNAL_API_PATH);
 }
