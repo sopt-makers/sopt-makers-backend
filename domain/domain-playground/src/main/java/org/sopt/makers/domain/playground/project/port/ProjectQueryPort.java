@@ -24,4 +24,6 @@ public interface ProjectQueryPort {
   int countProjectsExcludeSopkathon(Long memberId);
 
   List<Project> findRandomProjects(int limit);
+
+  List<Project> findAllProjects();
 }

@@ -89,6 +89,13 @@ public class ProjectQueryRepository {
     return count == null ? 0 : count.intValue();
   }
 
+  public List<Project> findAllProjects() {
+    QProjectEntity project = QProjectEntity.projectEntity;
+    return queryFactory.selectFrom(project).orderBy(project.id.desc()).fetch().stream()
+        .map(ProjectEntity::toDomain)
+        .toList();
+  }
+
   public List<Project> findRandomProjects(int limit) {
     QProjectEntity project = QProjectEntity.projectEntity;
 

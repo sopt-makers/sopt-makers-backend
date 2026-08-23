@@ -46,4 +46,9 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
   public List<Project> findRandomProjects(int limit) {
     return projectQueryRepository.findRandomProjects(limit);
   }
+
+  @Override
+  public List<Project> findAllProjects() {
+    return projectQueryRepository.findAllProjects();
+  }
 }

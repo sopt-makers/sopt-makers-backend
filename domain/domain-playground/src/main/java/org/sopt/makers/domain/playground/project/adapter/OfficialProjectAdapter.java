@@ -21,7 +21,7 @@ public class OfficialProjectAdapter implements OfficialProjectPort {
 
   @Override
   public List<OfficialProjectInfo> fetchAll() {
-    List<Project> all = projectService.fetchAll(null, null, null, null, null, null, null);
+    List<Project> all = projectService.fetchAllProjects();
     if (all.isEmpty()) {
       return List.of();
     }

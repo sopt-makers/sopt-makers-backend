@@ -160,6 +160,11 @@ public class ProjectService {
   }
 
   @Transactional(readOnly = true)
+  public List<Project> fetchAllProjects() {
+    return projectQueryPort.findAllProjects();
+  }
+
+  @Transactional(readOnly = true)
   public List<ProjectLink> getProjectLinks(List<Long> projectIds) {
     return projectLinkRepositoryPort.findAllByProjectIdIn(projectIds);
   }
