@@ -4,7 +4,7 @@ import org.sopt.makers.core.exception.BaseException;
 
 public class ResolutionException extends BaseException {
 
-    public ResolutionException(ResolutionFailure failure) {
-        super(failure);
-    }
+  public ResolutionException(ResolutionFailure failure) {
+    super(failure);
+  }
 }

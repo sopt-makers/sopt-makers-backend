@@ -15,56 +15,65 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserResolutionLuckyPickRepositoryAdapter implements UserResolutionLuckyPickRepositoryPort {
+public class UserResolutionLuckyPickRepositoryAdapter
+    implements UserResolutionLuckyPickRepositoryPort {
 
-    private final UserResolutionLuckyPickJpaRepository luckyPickJpaRepository;
+  private final UserResolutionLuckyPickJpaRepository luckyPickJpaRepository;
 
-    @Override
-    public Optional<UserResolutionLuckyPick> findByUserId(Long userId) {
-        return luckyPickJpaRepository.findByUserId(userId)
-                .map(UserResolutionLuckyPickEntity::toDomain);
-    }
+  @Override
+  public Optional<UserResolutionLuckyPick> findByUserId(Long userId) {
+    return luckyPickJpaRepository.findByUserId(userId).map(UserResolutionLuckyPickEntity::toDomain);
+  }
 
-    @Override
-    public boolean existsByUserIdAndHasDrawnTrue(Long userId) {
-        return luckyPickJpaRepository.existsByUserIdAndHasDrawnTrue(userId);
-    }
+  @Override
+  public boolean existsByUserIdAndHasDrawnTrue(Long userId) {
+    return luckyPickJpaRepository.existsByUserIdAndHasDrawnTrue(userId);
+  }
 
-    @Override
-    public long count() {
-        return luckyPickJpaRepository.count();
-    }
+  @Override
+  public long count() {
+    return luckyPickJpaRepository.count();
+  }
 
-    @Override
-    @Transactional
-    public UserResolutionLuckyPick save(UserResolutionLuckyPick luckyPick) {
-        UserResolutionLuckyPickEntity entity =
-                luckyPick.id() != null
-                        ? luckyPickJpaRepository.findById(luckyPick.id())
-                                .map(e -> {
-                                    e.update(luckyPick);
-                                    return e;
+  @Override
+  @Transactional
+  public UserResolutionLuckyPick save(UserResolutionLuckyPick luckyPick) {
+    UserResolutionLuckyPickEntity entity =
+        luckyPick.id() != null
+            ? luckyPickJpaRepository
+                .findById(luckyPick.id())
+                .map(
+                    e -> {
+                      e.update(luckyPick);
+                      return e;
+                    })
+                .orElseThrow(() -> new ResolutionException(ResolutionFailure.NOT_FOUND_RESOLUTION))
+            : UserResolutionLuckyPickEntity.from(luckyPick);
+    return luckyPickJpaRepository.save(entity).toDomain();
+  }
+
+  @Override
+  @Transactional
+  public List<UserResolutionLuckyPick> saveAll(List<UserResolutionLuckyPick> luckyPicks) {
+    List<UserResolutionLuckyPickEntity> entities =
+        luckyPicks.stream()
+            .map(
+                luckyPick ->
+                    luckyPick.id() != null
+                        ? luckyPickJpaRepository
+                            .findById(luckyPick.id())
+                            .map(
+                                e -> {
+                                  e.update(luckyPick);
+                                  return e;
                                 })
-                                .orElseThrow(() -> new ResolutionException(ResolutionFailure.NOT_FOUND_RESOLUTION))
-                        : UserResolutionLuckyPickEntity.from(luckyPick);
-        return luckyPickJpaRepository.save(entity).toDomain();
-    }
-
-    @Override
-    @Transactional
-    public List<UserResolutionLuckyPick> saveAll(List<UserResolutionLuckyPick> luckyPicks) {
-        List<UserResolutionLuckyPickEntity> entities = luckyPicks.stream()
-                .map(luckyPick -> luckyPick.id() != null
-                        ? luckyPickJpaRepository.findById(luckyPick.id())
-                                .map(e -> {
-                                    e.update(luckyPick);
-                                    return e;
-                                })
-                                .orElseThrow(() -> new ResolutionException(ResolutionFailure.NOT_FOUND_RESOLUTION))
+                            .orElseThrow(
+                                () ->
+                                    new ResolutionException(ResolutionFailure.NOT_FOUND_RESOLUTION))
                         : UserResolutionLuckyPickEntity.from(luckyPick))
-                .toList();
-        return luckyPickJpaRepository.saveAll(entities).stream()
-                .map(UserResolutionLuckyPickEntity::toDomain)
-                .toList();
-    }
+            .toList();
+    return luckyPickJpaRepository.saveAll(entities).stream()
+        .map(UserResolutionLuckyPickEntity::toDomain)
+        .toList();
+  }
 }

@@ -4,7 +4,7 @@ import org.sopt.makers.core.exception.BaseException;
 
 public class ProjectException extends BaseException {
 
-    public ProjectException(ProjectFailure failure) {
-        super(failure);
-    }
+  public ProjectException(ProjectFailure failure) {
+    super(failure);
+  }
 }

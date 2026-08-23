@@ -10,20 +10,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PlaygroundProjectUserAdapter implements PlaygroundProjectUserPort {
 
-    private final UserQueryService userQueryService;
+  private final UserQueryService userQueryService;
 
-    @Override
-    public List<ProjectUserInfo> getProjectUserInfosByIds(List<Long> userIds) {
-        return userQueryService.findAllWithActivitiesByIds(userIds).stream()
-                .map(user -> new ProjectUserInfo(
-                        user.id(),
-                        user.profile().name(),
-                        user.profile().profileImage(),
-                        user.activities().activities().stream()
-                                .map(activity -> activity.generation())
-                                .toList(),
-                        !user.isFirstLogin()
-                ))
-                .toList();
-    }
+  @Override
+  public List<ProjectUserInfo> getProjectUserInfosByIds(List<Long> userIds) {
+    return userQueryService.findAllWithActivitiesByIds(userIds).stream()
+        .map(
+            user ->
+                new ProjectUserInfo(
+                    user.id(),
+                    user.profile().name(),
+                    user.profile().profileImage(),
+                    user.activities().activities().stream()
+                        .map(activity -> activity.generation())
+                        .toList(),
+                    !user.isFirstLogin()))
+        .toList();
+  }
 }

@@ -12,31 +12,29 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProjectLinkRepositoryAdapter implements ProjectLinkRepositoryPort {
 
-    private final ProjectLinkJpaRepository projectLinkJpaRepository;
+  private final ProjectLinkJpaRepository projectLinkJpaRepository;
 
-    @Override
-    public void saveAll(List<ProjectLink> links) {
-        projectLinkJpaRepository.saveAll(
-                links.stream().map(ProjectLinkEntity::from).toList()
-        );
-    }
+  @Override
+  public void saveAll(List<ProjectLink> links) {
+    projectLinkJpaRepository.saveAll(links.stream().map(ProjectLinkEntity::from).toList());
+  }
 
-    @Override
-    public List<ProjectLink> findAllByProjectId(Long projectId) {
-        return projectLinkJpaRepository.findAllByProjectId(projectId).stream()
-                .map(ProjectLinkEntity::toDomain)
-                .toList();
-    }
+  @Override
+  public List<ProjectLink> findAllByProjectId(Long projectId) {
+    return projectLinkJpaRepository.findAllByProjectId(projectId).stream()
+        .map(ProjectLinkEntity::toDomain)
+        .toList();
+  }
 
-    @Override
-    public List<ProjectLink> findAllByProjectIdIn(List<Long> projectIds) {
-        return projectLinkJpaRepository.findAllByProjectIdIn(projectIds).stream()
-                .map(ProjectLinkEntity::toDomain)
-                .toList();
-    }
+  @Override
+  public List<ProjectLink> findAllByProjectIdIn(List<Long> projectIds) {
+    return projectLinkJpaRepository.findAllByProjectIdIn(projectIds).stream()
+        .map(ProjectLinkEntity::toDomain)
+        .toList();
+  }
 
-    @Override
-    public void deleteAllByProjectId(Long projectId) {
-        projectLinkJpaRepository.deleteAllByProjectId(projectId);
-    }
+  @Override
+  public void deleteAllByProjectId(Long projectId) {
+    projectLinkJpaRepository.deleteAllByProjectId(projectId);
+  }
 }

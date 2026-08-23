@@ -9,20 +9,20 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ResolutionUserAdapter implements ResolutionUserPort {
 
-    private final PlaygroundResolutionUserPort playgroundResolutionUserPort;
+  private final PlaygroundResolutionUserPort playgroundResolutionUserPort;
 
-    @Override
-    public boolean existsById(Long userId) {
-        return playgroundResolutionUserPort.existsById(userId);
-    }
+  @Override
+  public boolean existsById(Long userId) {
+    return playgroundResolutionUserPort.existsById(userId);
+  }
 
-    @Override
-    public boolean hasActivities(Long userId) {
-        return playgroundResolutionUserPort.hasActivities(userId);
-    }
+  @Override
+  public boolean hasActivities(Long userId) {
+    return playgroundResolutionUserPort.hasActivities(userId);
+  }
 
-    @Override
-    public int getLastGeneration(Long userId) {
-        return playgroundResolutionUserPort.getLastGeneration(userId);
-    }
+  @Override
+  public int getLastGeneration(Long userId) {
+    return playgroundResolutionUserPort.getLastGeneration(userId);
+  }
 }

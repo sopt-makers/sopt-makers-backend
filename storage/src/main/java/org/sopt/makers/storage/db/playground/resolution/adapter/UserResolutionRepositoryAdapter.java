@@ -15,36 +15,38 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserResolutionRepositoryAdapter implements UserResolutionRepositoryPort {
 
-    private final UserResolutionJpaRepository userResolutionJpaRepository;
+  private final UserResolutionJpaRepository userResolutionJpaRepository;
 
-    @Override
-    public Optional<UserResolution> findByUserIdAndGeneration(Long userId, int generation) {
-        return userResolutionJpaRepository.findByUserIdAndGeneration(userId, generation)
-                .map(UserResolutionEntity::toDomain);
-    }
+  @Override
+  public Optional<UserResolution> findByUserIdAndGeneration(Long userId, int generation) {
+    return userResolutionJpaRepository
+        .findByUserIdAndGeneration(userId, generation)
+        .map(UserResolutionEntity::toDomain);
+  }
 
-    @Override
-    public boolean existsByUserIdAndGeneration(Long userId, int generation) {
-        return userResolutionJpaRepository.existsByUserIdAndGeneration(userId, generation);
-    }
+  @Override
+  public boolean existsByUserIdAndGeneration(Long userId, int generation) {
+    return userResolutionJpaRepository.existsByUserIdAndGeneration(userId, generation);
+  }
 
-    @Override
-    public List<UserResolution> findAllByGeneration(int generation) {
-        return userResolutionJpaRepository.findAllByGeneration(generation).stream()
-                .map(UserResolutionEntity::toDomain)
-                .toList();
-    }
+  @Override
+  public List<UserResolution> findAllByGeneration(int generation) {
+    return userResolutionJpaRepository.findAllByGeneration(generation).stream()
+        .map(UserResolutionEntity::toDomain)
+        .toList();
+  }
 
-    @Override
-    @Transactional
-    public UserResolution save(UserResolution resolution) {
-        return userResolutionJpaRepository.save(UserResolutionEntity.from(resolution)).toDomain();
-    }
+  @Override
+  @Transactional
+  public UserResolution save(UserResolution resolution) {
+    return userResolutionJpaRepository.save(UserResolutionEntity.from(resolution)).toDomain();
+  }
 
-    @Override
-    @Transactional
-    public void delete(UserResolution resolution) {
-        userResolutionJpaRepository.findByUserIdAndGeneration(resolution.userId(), resolution.generation())
-                .ifPresent(userResolutionJpaRepository::delete);
-    }
+  @Override
+  @Transactional
+  public void delete(UserResolution resolution) {
+    userResolutionJpaRepository
+        .findByUserIdAndGeneration(resolution.userId(), resolution.generation())
+        .ifPresent(userResolutionJpaRepository::delete);
+  }
 }

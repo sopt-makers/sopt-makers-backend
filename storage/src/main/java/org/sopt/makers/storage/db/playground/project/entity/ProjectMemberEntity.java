@@ -17,41 +17,44 @@ import org.sopt.makers.domain.playground.project.ProjectMember;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProjectMemberEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "project_id")
-    private Long projectId;
+  @Column(name = "project_id")
+  private Long projectId;
 
-    @Column(name = "user_id")
-    private Long userId;
+  @Column(name = "user_id")
+  private Long userId;
 
-    private String role;
+  private String role;
 
-    private String description;
+  private String description;
 
-    @Column(name = "is_team_member")
-    private Boolean isTeamMember;
+  @Column(name = "is_team_member")
+  private Boolean isTeamMember;
 
-    private ProjectMemberEntity(Long id, Long projectId, Long userId, String role,
-            String description, Boolean isTeamMember) {
-        this.id = id;
-        this.projectId = projectId;
-        this.userId = userId;
-        this.role = role;
-        this.description = description;
-        this.isTeamMember = isTeamMember;
-    }
+  private ProjectMemberEntity(
+      Long id, Long projectId, Long userId, String role, String description, Boolean isTeamMember) {
+    this.id = id;
+    this.projectId = projectId;
+    this.userId = userId;
+    this.role = role;
+    this.description = description;
+    this.isTeamMember = isTeamMember;
+  }
 
-    public static ProjectMemberEntity from(ProjectMember member) {
-        return new ProjectMemberEntity(
-                member.id(), member.projectId(), member.userId(),
-                member.role(), member.description(), member.isTeamMember()
-        );
-    }
+  public static ProjectMemberEntity from(ProjectMember member) {
+    return new ProjectMemberEntity(
+        member.id(),
+        member.projectId(),
+        member.userId(),
+        member.role(),
+        member.description(),
+        member.isTeamMember());
+  }
 
-    public ProjectMember toDomain() {
-        return new ProjectMember(id, projectId, userId, role, description, isTeamMember);
-    }
+  public ProjectMember toDomain() {
+    return new ProjectMember(id, projectId, userId, role, description, isTeamMember);
+  }
 }

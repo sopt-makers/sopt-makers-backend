@@ -5,11 +5,11 @@ import org.sopt.makers.domain.playground.project.ProjectLink;
 
 public interface ProjectLinkRepositoryPort {
 
-    void saveAll(List<ProjectLink> links);
+  void saveAll(List<ProjectLink> links);
 
-    List<ProjectLink> findAllByProjectId(Long projectId);
+  List<ProjectLink> findAllByProjectId(Long projectId);
 
-    List<ProjectLink> findAllByProjectIdIn(List<Long> projectIds);
+  List<ProjectLink> findAllByProjectIdIn(List<Long> projectIds);
 
-    void deleteAllByProjectId(Long projectId);
+  void deleteAllByProjectId(Long projectId);
 }

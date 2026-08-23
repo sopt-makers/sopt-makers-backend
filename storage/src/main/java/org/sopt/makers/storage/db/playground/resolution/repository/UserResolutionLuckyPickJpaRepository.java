@@ -4,9 +4,10 @@ import java.util.Optional;
 import org.sopt.makers.storage.db.playground.resolution.entity.UserResolutionLuckyPickEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserResolutionLuckyPickJpaRepository extends JpaRepository<UserResolutionLuckyPickEntity, Long> {
+public interface UserResolutionLuckyPickJpaRepository
+    extends JpaRepository<UserResolutionLuckyPickEntity, Long> {
 
-    Optional<UserResolutionLuckyPickEntity> findByUserId(Long userId);
+  Optional<UserResolutionLuckyPickEntity> findByUserId(Long userId);
 
-    boolean existsByUserIdAndHasDrawnTrue(Long userId);
+  boolean existsByUserIdAndHasDrawnTrue(Long userId);
 }

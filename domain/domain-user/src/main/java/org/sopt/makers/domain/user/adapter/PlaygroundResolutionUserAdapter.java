@@ -9,25 +9,27 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PlaygroundResolutionUserAdapter implements PlaygroundResolutionUserPort {
 
-    private final UserQueryService userQueryService;
+  private final UserQueryService userQueryService;
 
-    @Override
-    public boolean existsById(Long userId) {
-        return userQueryService.findWithActivitiesById(userId).isPresent();
-    }
+  @Override
+  public boolean existsById(Long userId) {
+    return userQueryService.findWithActivitiesById(userId).isPresent();
+  }
 
-    @Override
-    public boolean hasActivities(Long userId) {
-        return userQueryService.findWithActivitiesById(userId)
-                .map(user -> user.activities().getTotalActivitySize() > 0)
-                .orElse(false);
-    }
+  @Override
+  public boolean hasActivities(Long userId) {
+    return userQueryService
+        .findWithActivitiesById(userId)
+        .map(user -> user.activities().getTotalActivitySize() > 0)
+        .orElse(false);
+  }
 
-    @Override
-    public int getLastGeneration(Long userId) {
-        return userQueryService.getWithActivitiesById(userId)
-                .activities()
-                .getLastSoptActivity()
-                .generation();
-    }
+  @Override
+  public int getLastGeneration(Long userId) {
+    return userQueryService
+        .getWithActivitiesById(userId)
+        .activities()
+        .getLastSoptActivity()
+        .generation();
+  }
 }

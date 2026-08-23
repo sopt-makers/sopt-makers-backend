@@ -11,27 +11,39 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProjectQueryAdapter implements ProjectQueryPort {
 
-    private final ProjectQueryRepository projectQueryRepository;
+  private final ProjectQueryRepository projectQueryRepository;
 
-    @Override
-    public List<Project> findProjects(Integer limit, Long cursor, String searchWord,
-            String category, Boolean isAvailable, Boolean isFounding, Integer generation) {
-        return projectQueryRepository.findProjects(limit, cursor, searchWord, category, isAvailable, isFounding, generation);
-    }
+  @Override
+  public List<Project> findProjects(
+      Integer limit,
+      Long cursor,
+      String searchWord,
+      String category,
+      Boolean isAvailable,
+      Boolean isFounding,
+      Integer generation) {
+    return projectQueryRepository.findProjects(
+        limit, cursor, searchWord, category, isAvailable, isFounding, generation);
+  }
 
-    @Override
-    public int countAllProjects(String searchWord, String category, Boolean isAvailable,
-            Boolean isFounding, Integer generation) {
-        return projectQueryRepository.countAllProjects(searchWord, category, isAvailable, isFounding, generation);
-    }
+  @Override
+  public int countAllProjects(
+      String searchWord,
+      String category,
+      Boolean isAvailable,
+      Boolean isFounding,
+      Integer generation) {
+    return projectQueryRepository.countAllProjects(
+        searchWord, category, isAvailable, isFounding, generation);
+  }
 
-    @Override
-    public int countProjectsExcludeSopkathon(Long memberId) {
-        return projectQueryRepository.countProjectsExcludeSopkathon(memberId);
-    }
+  @Override
+  public int countProjectsExcludeSopkathon(Long memberId) {
+    return projectQueryRepository.countProjectsExcludeSopkathon(memberId);
+  }
 
-    @Override
-    public List<Project> findRandomProjects(int limit) {
-        return projectQueryRepository.findRandomProjects(limit);
-    }
+  @Override
+  public List<Project> findRandomProjects(int limit) {
+    return projectQueryRepository.findRandomProjects(limit);
+  }
 }

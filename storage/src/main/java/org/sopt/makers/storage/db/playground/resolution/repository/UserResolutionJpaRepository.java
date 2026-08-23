@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserResolutionJpaRepository extends JpaRepository<UserResolutionEntity, Long> {
 
-    Optional<UserResolutionEntity> findByUserIdAndGeneration(Long userId, int generation);
+  Optional<UserResolutionEntity> findByUserIdAndGeneration(Long userId, int generation);
 
-    boolean existsByUserIdAndGeneration(Long userId, int generation);
+  boolean existsByUserIdAndGeneration(Long userId, int generation);
 
-    List<UserResolutionEntity> findAllByGeneration(int generation);
+  List<UserResolutionEntity> findAllByGeneration(int generation);
 }

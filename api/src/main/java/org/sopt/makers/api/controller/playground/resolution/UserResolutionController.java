@@ -30,41 +30,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/resolution")
 public class UserResolutionController implements UserResolutionApi {
 
-    private final UserResolutionService userResolutionService;
-    private final LuckyPickService luckyPickService;
+  private final UserResolutionService userResolutionService;
+  private final LuckyPickService luckyPickService;
 
-    @Override
-    @GetMapping
-    public ResponseEntity<BaseResponse<?>> getResolution(@CurrentUserId Long userId) {
-        return ResponseFactory.success(GET_RESOLUTION, ResolutionResponse.from(userResolutionService.getResolution(userId)));
-    }
+  @Override
+  @GetMapping
+  public ResponseEntity<BaseResponse<?>> getResolution(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_RESOLUTION, ResolutionResponse.from(userResolutionService.getResolution(userId)));
+  }
 
-    @Override
-    @PostMapping
-    public ResponseEntity<BaseResponse<?>> createResolution(
-            @CurrentUserId Long userId,
-            @Valid @RequestBody ResolutionSaveRequest request
-    ) {
-        userResolutionService.createResolution(userId, request.content(), request.toTags());
-        return ResponseFactory.success(CREATE_RESOLUTION);
-    }
+  @Override
+  @PostMapping
+  public ResponseEntity<BaseResponse<?>> createResolution(
+      @CurrentUserId Long userId, @Valid @RequestBody ResolutionSaveRequest request) {
+    userResolutionService.createResolution(userId, request.content(), request.toTags());
+    return ResponseFactory.success(CREATE_RESOLUTION);
+  }
 
-    @Override
-    @GetMapping("/validation")
-    public ResponseEntity<BaseResponse<?>> validation(@CurrentUserId Long userId) {
-        return ResponseFactory.success(VALIDATE_RESOLUTION, new ResolutionValidResponse(userResolutionService.isRegistered(userId)));
-    }
+  @Override
+  @GetMapping("/validation")
+  public ResponseEntity<BaseResponse<?>> validation(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        VALIDATE_RESOLUTION,
+        new ResolutionValidResponse(userResolutionService.isRegistered(userId)));
+  }
 
-    @Override
-    @DeleteMapping
-    public ResponseEntity<BaseResponse<?>> deleteResolution(@CurrentUserId Long userId) {
-        userResolutionService.deleteResolution(userId);
-        return ResponseFactory.success(DELETE_RESOLUTION);
-    }
+  @Override
+  @DeleteMapping
+  public ResponseEntity<BaseResponse<?>> deleteResolution(@CurrentUserId Long userId) {
+    userResolutionService.deleteResolution(userId);
+    return ResponseFactory.success(DELETE_RESOLUTION);
+  }
 
-    @Override
-    @GetMapping("/lucky-pick")
-    public ResponseEntity<BaseResponse<?>> getLuckyPickResult(@CurrentUserId Long userId) {
-        return ResponseFactory.success(GET_LUCKY_PICK_RESULT, new LuckyPickResponse(luckyPickService.checkLuckyPickResult(userId)));
-    }
+  @Override
+  @GetMapping("/lucky-pick")
+  public ResponseEntity<BaseResponse<?>> getLuckyPickResult(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_LUCKY_PICK_RESULT,
+        new LuckyPickResponse(luckyPickService.checkLuckyPickResult(userId)));
+  }
 }

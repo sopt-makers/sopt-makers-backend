@@ -6,13 +6,13 @@ import org.sopt.makers.domain.playground.resolution.UserResolution;
 
 public interface UserResolutionRepositoryPort {
 
-    Optional<UserResolution> findByUserIdAndGeneration(Long userId, int generation);
+  Optional<UserResolution> findByUserIdAndGeneration(Long userId, int generation);
 
-    boolean existsByUserIdAndGeneration(Long userId, int generation);
+  boolean existsByUserIdAndGeneration(Long userId, int generation);
 
-    List<UserResolution> findAllByGeneration(int generation);
+  List<UserResolution> findAllByGeneration(int generation);
 
-    UserResolution save(UserResolution resolution);
+  UserResolution save(UserResolution resolution);
 
-    void delete(UserResolution resolution);
+  void delete(UserResolution resolution);
 }

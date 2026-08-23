@@ -17,57 +17,58 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LuckyPickService {
 
-    // TODO: 새 기수 시작 전 값 변경 필수
-    private static final int CURRENT_GENERATION = 38;
-    private static final int WINNER_COUNT = 3;
+  // TODO: 새 기수 시작 전 값 변경 필수
+  private static final int CURRENT_GENERATION = 38;
+  private static final int WINNER_COUNT = 3;
 
-    private final UserResolutionRepositoryPort userResolutionRepositoryPort;
-    private final UserResolutionLuckyPickRepositoryPort luckyPickRepositoryPort;
+  private final UserResolutionRepositoryPort userResolutionRepositoryPort;
+  private final UserResolutionLuckyPickRepositoryPort luckyPickRepositoryPort;
 
-    @Transactional
-    public boolean checkLuckyPickResult(Long userId) {
-        Optional<UserResolutionLuckyPick> luckyPickOptional = luckyPickRepositoryPort.findByUserId(userId);
+  @Transactional
+  public boolean checkLuckyPickResult(Long userId) {
+    Optional<UserResolutionLuckyPick> luckyPickOptional =
+        luckyPickRepositoryPort.findByUserId(userId);
 
-        if (luckyPickOptional.isEmpty()) {
-            return false;
-        }
-
-        UserResolutionLuckyPick luckyPick = luckyPickOptional.get();
-        boolean isWinner = luckyPick.isResult();
-
-        luckyPick.draw();
-        luckyPickRepositoryPort.save(luckyPick);
-
-        return isWinner;
+    if (luckyPickOptional.isEmpty()) {
+      return false;
     }
 
-    @Transactional
-    public void prepareLuckyPickEvent() {
-        if (luckyPickRepositoryPort.count() > 0) {
-            return;
-        }
+    UserResolutionLuckyPick luckyPick = luckyPickOptional.get();
+    boolean isWinner = luckyPick.isResult();
 
-        List<UserResolution> resolutions = userResolutionRepositoryPort.findAllByGeneration(CURRENT_GENERATION);
-        List<Long> participantIds = resolutions.stream()
-                .map(UserResolution::userId)
-                .distinct()
-                .toList();
+    luckyPick.draw();
+    luckyPickRepositoryPort.save(luckyPick);
 
-        List<UserResolutionLuckyPick> participants = participantIds.stream()
-                .map(id -> new UserResolutionLuckyPick(null, id, false, false))
-                .collect(Collectors.toList());
+    return isWinner;
+  }
 
-        participants = luckyPickRepositoryPort.saveAll(participants);
-
-        Collections.shuffle(participants);
-        int countToPick = Math.min(WINNER_COUNT, participants.size());
-
-        List<UserResolutionLuckyPick> winners = new ArrayList<>();
-        for (int i = 0; i < countToPick; i++) {
-            UserResolutionLuckyPick winner = participants.get(i);
-            winner.win();
-            winners.add(winner);
-        }
-        luckyPickRepositoryPort.saveAll(winners);
+  @Transactional
+  public void prepareLuckyPickEvent() {
+    if (luckyPickRepositoryPort.count() > 0) {
+      return;
     }
+
+    List<UserResolution> resolutions =
+        userResolutionRepositoryPort.findAllByGeneration(CURRENT_GENERATION);
+    List<Long> participantIds =
+        resolutions.stream().map(UserResolution::userId).distinct().toList();
+
+    List<UserResolutionLuckyPick> participants =
+        participantIds.stream()
+            .map(id -> new UserResolutionLuckyPick(null, id, false, false))
+            .collect(Collectors.toList());
+
+    participants = luckyPickRepositoryPort.saveAll(participants);
+
+    Collections.shuffle(participants);
+    int countToPick = Math.min(WINNER_COUNT, participants.size());
+
+    List<UserResolutionLuckyPick> winners = new ArrayList<>();
+    for (int i = 0; i < countToPick; i++) {
+      UserResolutionLuckyPick winner = participants.get(i);
+      winner.win();
+      winners.add(winner);
+    }
+    luckyPickRepositoryPort.saveAll(winners);
+  }
 }

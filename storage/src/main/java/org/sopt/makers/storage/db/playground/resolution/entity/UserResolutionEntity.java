@@ -23,40 +23,41 @@ import org.sopt.makers.storage.db.playground.resolution.converter.ResolutionTagL
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserResolutionEntity extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+  @Column(nullable = false)
+  private Long userId;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+  @Column(nullable = false, columnDefinition = "TEXT")
+  private String content;
 
-    @Column(nullable = false)
-    private Integer generation;
+  @Column(nullable = false)
+  private Integer generation;
 
-    @Convert(converter = ResolutionTagListConverter.class)
-    private List<ResolutionTag> resolutionTags;
+  @Convert(converter = ResolutionTagListConverter.class)
+  private List<ResolutionTag> resolutionTags;
 
-    @Builder
-    private UserResolutionEntity(Long userId, String content, Integer generation, List<ResolutionTag> resolutionTags) {
-        this.userId = userId;
-        this.content = content;
-        this.generation = generation;
-        this.resolutionTags = resolutionTags;
-    }
+  @Builder
+  private UserResolutionEntity(
+      Long userId, String content, Integer generation, List<ResolutionTag> resolutionTags) {
+    this.userId = userId;
+    this.content = content;
+    this.generation = generation;
+    this.resolutionTags = resolutionTags;
+  }
 
-    public static UserResolutionEntity from(UserResolution resolution) {
-        return UserResolutionEntity.builder()
-                .userId(resolution.userId())
-                .content(resolution.content())
-                .generation(resolution.generation())
-                .resolutionTags(resolution.resolutionTags())
-                .build();
-    }
+  public static UserResolutionEntity from(UserResolution resolution) {
+    return UserResolutionEntity.builder()
+        .userId(resolution.userId())
+        .content(resolution.content())
+        .generation(resolution.generation())
+        .resolutionTags(resolution.resolutionTags())
+        .build();
+  }
 
-    public UserResolution toDomain() {
-        return new UserResolution(id, userId, content, generation, resolutionTags);
-    }
+  public UserResolution toDomain() {
+    return new UserResolution(id, userId, content, generation, resolutionTags);
+  }
 }

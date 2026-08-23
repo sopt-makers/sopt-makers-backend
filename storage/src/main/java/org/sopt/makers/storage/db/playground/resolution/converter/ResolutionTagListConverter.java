@@ -10,23 +10,21 @@ import org.sopt.makers.domain.playground.resolution.ResolutionTag;
 @Converter
 public class ResolutionTagListConverter implements AttributeConverter<List<ResolutionTag>, String> {
 
-    @Override
-    public String convertToDatabaseColumn(List<ResolutionTag> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return "";
-        }
-        return tags.stream()
-                .map(Enum::name)
-                .collect(Collectors.joining(","));
+  @Override
+  public String convertToDatabaseColumn(List<ResolutionTag> tags) {
+    if (tags == null || tags.isEmpty()) {
+      return "";
     }
+    return tags.stream().map(Enum::name).collect(Collectors.joining(","));
+  }
 
-    @Override
-    public List<ResolutionTag> convertToEntityAttribute(String dbData) {
-        if (dbData == null || dbData.isEmpty()) {
-            return List.of();
-        }
-        return Arrays.stream(dbData.split(","))
-                .map(ResolutionTag::valueOf)
-                .collect(Collectors.toList());
+  @Override
+  public List<ResolutionTag> convertToEntityAttribute(String dbData) {
+    if (dbData == null || dbData.isEmpty()) {
+      return List.of();
     }
+    return Arrays.stream(dbData.split(","))
+        .map(ResolutionTag::valueOf)
+        .collect(Collectors.toList());
+  }
 }

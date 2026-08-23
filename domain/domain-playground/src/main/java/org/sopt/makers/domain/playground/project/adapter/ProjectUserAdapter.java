@@ -10,18 +10,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProjectUserAdapter implements ProjectUserPort {
 
-    private final PlaygroundProjectUserPort playgroundProjectUserPort;
+  private final PlaygroundProjectUserPort playgroundProjectUserPort;
 
-    @Override
-    public List<ProjectUserInfo> getProjectUserInfosByIds(List<Long> userIds) {
-        return playgroundProjectUserPort.getProjectUserInfosByIds(userIds).stream()
-                .map(info -> new ProjectUserInfo(
-                        info.id(),
-                        info.name(),
-                        info.profileImage(),
-                        info.generations(),
-                        info.hasProfile()
-                ))
-                .toList();
-    }
+  @Override
+  public List<ProjectUserInfo> getProjectUserInfosByIds(List<Long> userIds) {
+    return playgroundProjectUserPort.getProjectUserInfosByIds(userIds).stream()
+        .map(
+            info ->
+                new ProjectUserInfo(
+                    info.id(),
+                    info.name(),
+                    info.profileImage(),
+                    info.generations(),
+                    info.hasProfile()))
+        .toList();
+  }
 }

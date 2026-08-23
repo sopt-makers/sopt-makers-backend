@@ -6,13 +6,13 @@ import org.sopt.makers.domain.playground.resolution.UserResolutionLuckyPick;
 
 public interface UserResolutionLuckyPickRepositoryPort {
 
-    Optional<UserResolutionLuckyPick> findByUserId(Long userId);
+  Optional<UserResolutionLuckyPick> findByUserId(Long userId);
 
-    boolean existsByUserIdAndHasDrawnTrue(Long userId);
+  boolean existsByUserIdAndHasDrawnTrue(Long userId);
 
-    long count();
+  long count();
 
-    UserResolutionLuckyPick save(UserResolutionLuckyPick luckyPick);
+  UserResolutionLuckyPick save(UserResolutionLuckyPick luckyPick);
 
-    List<UserResolutionLuckyPick> saveAll(List<UserResolutionLuckyPick> luckyPicks);
+  List<UserResolutionLuckyPick> saveAll(List<UserResolutionLuckyPick> luckyPicks);
 }

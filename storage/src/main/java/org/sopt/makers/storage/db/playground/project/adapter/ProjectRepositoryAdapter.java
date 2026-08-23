@@ -12,21 +12,20 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
 
-    private final ProjectJpaRepository projectJpaRepository;
+  private final ProjectJpaRepository projectJpaRepository;
 
-    @Override
-    public Project save(Project project) {
-        return projectJpaRepository.save(ProjectEntity.from(project)).toDomain();
-    }
+  @Override
+  public Project save(Project project) {
+    return projectJpaRepository.save(ProjectEntity.from(project)).toDomain();
+  }
 
-    @Override
-    public Optional<Project> findById(Long id) {
-        return projectJpaRepository.findById(id).map(ProjectEntity::toDomain);
-    }
+  @Override
+  public Optional<Project> findById(Long id) {
+    return projectJpaRepository.findById(id).map(ProjectEntity::toDomain);
+  }
 
-    @Override
-    public void delete(Project project) {
-        projectJpaRepository.findById(project.id())
-                .ifPresent(projectJpaRepository::delete);
-    }
+  @Override
+  public void delete(Project project) {
+    projectJpaRepository.findById(project.id()).ifPresent(projectJpaRepository::delete);
+  }
 }

@@ -4,13 +4,8 @@ import java.util.List;
 
 public interface PlaygroundProjectUserPort {
 
-    List<ProjectUserInfo> getProjectUserInfosByIds(List<Long> userIds);
+  List<ProjectUserInfo> getProjectUserInfosByIds(List<Long> userIds);
 
-    record ProjectUserInfo(
-            Long id,
-            String name,
-            String profileImage,
-            List<Integer> generations,
-            boolean hasProfile
-    ) {}
+  record ProjectUserInfo(
+      Long id, String name, String profileImage, List<Integer> generations, boolean hasProfile) {}
 }

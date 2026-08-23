@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectLinkJpaRepository extends JpaRepository<ProjectLinkEntity, Long> {
 
-    List<ProjectLinkEntity> findAllByProjectId(Long projectId);
+  List<ProjectLinkEntity> findAllByProjectId(Long projectId);
 
-    List<ProjectLinkEntity> findAllByProjectIdIn(List<Long> projectIds);
+  List<ProjectLinkEntity> findAllByProjectIdIn(List<Long> projectIds);
 
-    void deleteAllByProjectId(Long projectId);
+  void deleteAllByProjectId(Long projectId);
 }

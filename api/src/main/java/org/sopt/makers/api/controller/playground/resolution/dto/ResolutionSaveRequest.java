@@ -6,12 +6,11 @@ import java.util.List;
 import org.sopt.makers.domain.playground.resolution.ResolutionTag;
 
 public record ResolutionSaveRequest(
-        List<String> tags,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    List<String> tags,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "Content cannot be empty or blank.")
-        String content
-) {
-    public List<ResolutionTag> toTags() {
-        return ResolutionTag.fromStringList(tags);
-    }
+        String content) {
+  public List<ResolutionTag> toTags() {
+    return ResolutionTag.fromStringList(tags);
+  }
 }
