@@ -1,6 +1,7 @@
 dependencies {
     implementation(project(":core"))
     implementation(project(":domain:domain-user"))
+    implementation(project(":domain:domain-playground"))
     implementation("org.springframework:spring-context")
     implementation("org.springframework:spring-tx")
     implementation("org.springframework.data:spring-data-commons")
