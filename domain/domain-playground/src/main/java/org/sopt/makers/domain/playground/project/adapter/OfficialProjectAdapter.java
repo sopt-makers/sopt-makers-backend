@@ -1,7 +1,5 @@
 package org.sopt.makers.domain.playground.project.adapter;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,15 +29,16 @@ public class OfficialProjectAdapter implements OfficialProjectPort {
         projectService.getProjectLinks(projectIds).stream()
             .collect(Collectors.groupingBy(ProjectLink::projectId));
 
-    Map<String, OfficialProjectInfo> byName = new LinkedHashMap<>();
-    for (Project project : all) {
-      List<OfficialProjectLinkInfo> links =
-          linksByProjectId.getOrDefault(project.id(), List.of()).stream()
-              .map(l -> new OfficialProjectLinkInfo(l.title(), l.url()))
-              .toList();
-      byName.putIfAbsent(project.name(), toOfficialProjectInfo(project, links));
-    }
-    return new ArrayList<>(byName.values());
+    return all.stream()
+        .map(
+            project -> {
+              List<OfficialProjectLinkInfo> links =
+                  linksByProjectId.getOrDefault(project.id(), List.of()).stream()
+                      .map(l -> new OfficialProjectLinkInfo(l.title(), l.url()))
+                      .toList();
+              return toOfficialProjectInfo(project, links);
+            })
+        .toList();
   }
 
   @Override
