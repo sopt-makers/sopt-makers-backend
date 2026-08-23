@@ -1,7 +1,6 @@
 package org.sopt.makers.clients.config;
 
 import org.sopt.makers.clients.alarm.AlarmProperty;
-import org.sopt.makers.clients.auth.AuthProperty;
 import org.sopt.makers.clients.crew.CrewProperty;
 import org.sopt.makers.clients.eventbridge.EventBridgeProperty;
 import org.sopt.makers.clients.playground.PlaygroundProperty;
@@ -20,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
   PlaygroundProperty.class,
   AlarmProperty.class,
   EventBridgeProperty.class,
-  AuthProperty.class,
   CrewProperty.class
 })
 public class ClientsConfig {

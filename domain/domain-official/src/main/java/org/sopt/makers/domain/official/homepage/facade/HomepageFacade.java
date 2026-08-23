@@ -12,8 +12,8 @@ import org.sopt.makers.domain.official.faq.Faq;
 import org.sopt.makers.domain.official.faq.service.FaqService;
 import org.sopt.makers.domain.official.generation.Generation;
 import org.sopt.makers.domain.official.generation.service.GenerationService;
-import org.sopt.makers.domain.official.homepage.port.HomepageMemberCountPort;
 import org.sopt.makers.domain.official.homepage.port.HomepageStudyCountPort;
+import org.sopt.makers.domain.official.homepage.port.HomepageUserCountPort;
 import org.sopt.makers.domain.official.homepage.review.HomepageReview;
 import org.sopt.makers.domain.official.homepage.review.service.HomepageReviewService;
 import org.sopt.makers.domain.official.member.Member;
@@ -50,7 +50,7 @@ public class HomepageFacade {
   private final RecruitPartIntroductionService recruitPartIntroductionService;
   private final FaqService faqService;
   private final ProjectClientPort projectClientPort;
-  private final HomepageMemberCountPort memberCountPort;
+  private final HomepageUserCountPort userCountPort;
   private final HomepageStudyCountPort studyCountPort;
 
   public MainPageData getMainPage() {
@@ -93,7 +93,7 @@ public class HomepageFacade {
 
   private ActivitiesRecords fetchActivitiesRecords(Integer generationId) {
     try {
-      int memberCount = memberCountPort.getMemberCountByGeneration(generationId);
+      int userCount = userCountPort.getUserCountByGeneration(generationId);
 
       List<Project> allProjects = projectClientPort.fetchAll();
       int projectCount =
@@ -106,7 +106,7 @@ public class HomepageFacade {
 
       int operationPeriod = LocalDate.now().getYear() - ORGANIZATION_YEAR + 1;
 
-      return new ActivitiesRecords(memberCount, projectCount, studyCount, operationPeriod);
+      return new ActivitiesRecords(userCount, projectCount, studyCount, operationPeriod);
     } catch (Exception e) {
       log.warn("activities records 조회 실패 generationId={}: {}", generationId, e.getMessage());
       return new ActivitiesRecords(0, 0, 0, 0);
@@ -114,7 +114,7 @@ public class HomepageFacade {
   }
 
   public record ActivitiesRecords(
-      int activitiesMemberCount, int projectCounts, int studyCounts, int operationPeriod) {}
+      int activitiesUserCount, int projectCounts, int studyCounts, int operationPeriod) {}
 
   public record MainPageData(
       Generation generation,
