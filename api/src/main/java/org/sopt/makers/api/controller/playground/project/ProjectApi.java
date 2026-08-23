@@ -30,7 +30,8 @@ public interface ProjectApi {
       Integer generation);
 
   @Operation(summary = "프로젝트 생성")
-  ResponseEntity<BaseResponse<?>> createProject(ProjectSaveRequest request);
+  ResponseEntity<BaseResponse<?>> createProject(
+      @Parameter(hidden = true) Long userId, ProjectSaveRequest request);
 
   @Operation(summary = "프로젝트 수정")
   ResponseEntity<BaseResponse<?>> updateProject(

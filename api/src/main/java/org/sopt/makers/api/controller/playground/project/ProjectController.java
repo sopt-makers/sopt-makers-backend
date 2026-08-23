@@ -109,10 +109,10 @@ public class ProjectController implements ProjectApi {
   @Override
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createProject(
-      @Valid @RequestBody ProjectSaveRequest request) {
+      @CurrentUserId Long userId, @Valid @RequestBody ProjectSaveRequest request) {
     projectService.createProject(
         request.name(),
-        request.writerId(),
+        userId,
         request.generation(),
         request.category(),
         request.startAt(),

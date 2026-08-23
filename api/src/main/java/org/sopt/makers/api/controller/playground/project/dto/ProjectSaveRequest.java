@@ -10,7 +10,6 @@ import org.sopt.makers.domain.playground.project.ProjectMember;
 
 public record ProjectSaveRequest(
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String name,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Long writerId,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED) Integer generation,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED) String category,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED) LocalDate startAt,
