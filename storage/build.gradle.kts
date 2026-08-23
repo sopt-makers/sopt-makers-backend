@@ -12,7 +12,6 @@ dependencies {
     implementation("tools.jackson.core:jackson-databind")
     runtimeOnly("org.postgresql:postgresql")
 
-    implementation("io.hypersistence:hypersistence-utils-hibernate-62:3.5.0")
     implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
     annotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
     annotationProcessor("jakarta.annotation:jakarta.annotation-api")

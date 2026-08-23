@@ -37,103 +37,131 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("playgroundProjectController")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/projects")
 public class ProjectController implements ProjectApi {
 
-    private final ProjectService projectService;
-    private final InfiniteScrollUtil infiniteScrollUtil;
+  private final ProjectService projectService;
+  private final InfiniteScrollUtil infiniteScrollUtil;
 
-    @Override
-    @GetMapping("/random")
-    public ResponseEntity<BaseResponse<?>> getRandomProjects() {
-        List<RandomProjectResponse> responses = projectService.getRandomProjects().stream()
-                .map(RandomProjectResponse::from)
-                .toList();
-        return ResponseFactory.success(GET_RANDOM_PROJECTS, responses);
-    }
+  @Override
+  @GetMapping("/random")
+  public ResponseEntity<BaseResponse<?>> getRandomProjects() {
+    List<RandomProjectResponse> responses =
+        projectService.getRandomProjects().stream().map(RandomProjectResponse::from).toList();
+    return ResponseFactory.success(GET_RANDOM_PROJECTS, responses);
+  }
 
-    @Override
-    @GetMapping("/{id}")
-    public ResponseEntity<BaseResponse<?>> getProject(@PathVariable Long id) {
-        return ResponseFactory.success(GET_PROJECT, ProjectDetailResponse.from(projectService.getProjectDetail(id)));
-    }
+  @Override
+  @GetMapping("/{id}")
+  public ResponseEntity<BaseResponse<?>> getProject(@PathVariable Long id) {
+    return ResponseFactory.success(
+        GET_PROJECT, ProjectDetailResponse.from(projectService.getProjectDetail(id)));
+  }
 
-    @Override
-    @GetMapping
-    public ResponseEntity<BaseResponse<?>> getProjects(
-            @RequestParam(required = false) Integer limit,
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(required = false, name = "name") String searchWord,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) Boolean isAvailable,
-            @RequestParam(required = false) Boolean isFounding,
-            @RequestParam(required = false) Integer generation
-    ) {
-        List<Project> projectList = projectService.fetchAll(
-                infiniteScrollUtil.checkLimitForPagination(limit),
-                cursor, searchWord, category, isAvailable, isFounding, generation
-        );
+  @Override
+  @GetMapping
+  public ResponseEntity<BaseResponse<?>> getProjects(
+      @RequestParam(required = false) Integer limit,
+      @RequestParam(required = false) Long cursor,
+      @RequestParam(required = false, name = "name") String searchWord,
+      @RequestParam(required = false) String category,
+      @RequestParam(required = false) Boolean isAvailable,
+      @RequestParam(required = false) Boolean isFounding,
+      @RequestParam(required = false) Integer generation) {
+    List<Project> projectList =
+        projectService.fetchAll(
+            infiniteScrollUtil.checkLimitForPagination(limit),
+            cursor,
+            searchWord,
+            category,
+            isAvailable,
+            isFounding,
+            generation);
 
-        Boolean hasNext = infiniteScrollUtil.checkHasNextElement(limit, projectList);
-        List<Project> responseList = infiniteScrollUtil.removeNextElementIfExist(limit, projectList);
+    Boolean hasNext = infiniteScrollUtil.checkHasNextElement(limit, projectList);
+    List<Project> responseList = infiniteScrollUtil.removeNextElementIfExist(limit, projectList);
 
-        List<Long> projectIds = responseList.stream().map(Project::id).toList();
-        Map<Long, List<ProjectLinkResponse>> linksByProjectId = projectService.getProjectLinks(projectIds)
-                .stream()
-                .collect(Collectors.groupingBy(
-                        ProjectLink::projectId,
-                        Collectors.mapping(ProjectLinkResponse::from, Collectors.toList())
-                ));
+    List<Long> projectIds = responseList.stream().map(Project::id).toList();
+    Map<Long, List<ProjectLinkResponse>> linksByProjectId =
+        projectService.getProjectLinks(projectIds).stream()
+            .collect(
+                Collectors.groupingBy(
+                    ProjectLink::projectId,
+                    Collectors.mapping(ProjectLinkResponse::from, Collectors.toList())));
 
-        List<ProjectResponse> projectResponses = responseList.stream()
-                .map(project -> ProjectResponse.from(project, linksByProjectId.getOrDefault(project.id(), List.of())))
-                .toList();
+    List<ProjectResponse> projectResponses =
+        responseList.stream()
+            .map(
+                project ->
+                    ProjectResponse.from(
+                        project, linksByProjectId.getOrDefault(project.id(), List.of())))
+            .toList();
 
-        int totalCount = projectService.getProjectsCount(searchWord, category, isAvailable, isFounding, generation);
+    int totalCount =
+        projectService.getProjectsCount(searchWord, category, isAvailable, isFounding, generation);
 
-        return ResponseFactory.success(GET_PROJECTS, new ProjectAllResponse(projectResponses, hasNext, totalCount));
-    }
+    return ResponseFactory.success(
+        GET_PROJECTS, new ProjectAllResponse(projectResponses, hasNext, totalCount));
+  }
 
-    @Override
-    @PostMapping
-    public ResponseEntity<BaseResponse<?>> createProject(@Valid @RequestBody ProjectSaveRequest request) {
-        projectService.createProject(
-                request.name(), request.writerId(), request.generation(), request.category(),
-                request.startAt(), request.endAt(), request.serviceType(),
-                request.isAvailable(), request.isFounding(), request.summary(), request.detail(),
-                request.logoImage(), request.thumbnailImage(), request.images(),
-                request.toMembers(), request.toLinks()
-        );
-        return ResponseFactory.success(CREATE_PROJECT);
-    }
+  @Override
+  @PostMapping
+  public ResponseEntity<BaseResponse<?>> createProject(
+      @Valid @RequestBody ProjectSaveRequest request) {
+    projectService.createProject(
+        request.name(),
+        request.writerId(),
+        request.generation(),
+        request.category(),
+        request.startAt(),
+        request.endAt(),
+        request.serviceType(),
+        request.isAvailable(),
+        request.isFounding(),
+        request.summary(),
+        request.detail(),
+        request.logoImage(),
+        request.thumbnailImage(),
+        request.images(),
+        request.toMembers(),
+        request.toLinks());
+    return ResponseFactory.success(CREATE_PROJECT);
+  }
 
-    @Override
-    @PutMapping("/{id}")
-    public ResponseEntity<BaseResponse<?>> updateProject(
-            @PathVariable("id") Long projectId,
-            @CurrentUserId Long userId,
-            @Valid @RequestBody ProjectUpdateRequest request
-    ) {
-        projectService.updateProject(
-                userId, projectId,
-                request.name(), request.generation(), request.category(),
-                request.startAt(), request.endAt(), request.serviceType(),
-                request.isAvailable(), request.isFounding(), request.summary(), request.detail(),
-                request.logoImage(), request.thumbnailImage(), request.images(),
-                request.toMembers(), request.toLinks()
-        );
-        return ResponseFactory.success(UPDATE_PROJECT);
-    }
+  @Override
+  @PutMapping("/{id}")
+  public ResponseEntity<BaseResponse<?>> updateProject(
+      @PathVariable("id") Long projectId,
+      @CurrentUserId Long userId,
+      @Valid @RequestBody ProjectUpdateRequest request) {
+    projectService.updateProject(
+        userId,
+        projectId,
+        request.name(),
+        request.generation(),
+        request.category(),
+        request.startAt(),
+        request.endAt(),
+        request.serviceType(),
+        request.isAvailable(),
+        request.isFounding(),
+        request.summary(),
+        request.detail(),
+        request.logoImage(),
+        request.thumbnailImage(),
+        request.images(),
+        request.toMembers(),
+        request.toLinks());
+    return ResponseFactory.success(UPDATE_PROJECT);
+  }
 
-    @Override
-    @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponse<?>> deleteProject(
-            @PathVariable("id") Long projectId,
-            @CurrentUserId Long userId
-    ) {
-        projectService.deleteProject(userId, projectId);
-        return ResponseFactory.success(DELETE_PROJECT);
-    }
+  @Override
+  @DeleteMapping("/{id}")
+  public ResponseEntity<BaseResponse<?>> deleteProject(
+      @PathVariable("id") Long projectId, @CurrentUserId Long userId) {
+    projectService.deleteProject(userId, projectId);
+    return ResponseFactory.success(DELETE_PROJECT);
+  }
 }
