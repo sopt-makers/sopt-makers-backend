@@ -17,3 +17,6 @@ auth:
     phone: ${BYPASS_LOGIN_PHONE}
     code: ${BYPASS_LOGIN_CODE}
     name: ${BYPASS_LOGIN_NAME}
+
+official:
+  apikey: ${OFFICIAL_API_KEY:}
