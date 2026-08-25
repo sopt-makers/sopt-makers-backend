@@ -1,6 +1,6 @@
 package org.sopt.makers.domain.user.port;
 
-public interface FortuneUserPort {
+public interface AppFortuneUserPort {
 
   String getName(Long userId);
 }

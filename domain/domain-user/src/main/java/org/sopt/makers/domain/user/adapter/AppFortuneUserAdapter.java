@@ -1,13 +1,13 @@
 package org.sopt.makers.domain.user.adapter;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.user.port.FortuneUserPort;
+import org.sopt.makers.domain.user.port.AppFortuneUserPort;
 import org.sopt.makers.domain.user.service.UserQueryService;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class FortuneUserAdapter implements FortuneUserPort {
+public class AppFortuneUserAdapter implements AppFortuneUserPort {
 
   private final UserQueryService userQueryService;
 

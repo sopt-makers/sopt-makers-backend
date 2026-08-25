@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.fortune.FortuneWord;
 import org.sopt.makers.domain.app.fortune.service.FortuneService;
-import org.sopt.makers.domain.user.port.FortuneUserPort;
+import org.sopt.makers.domain.user.port.AppFortuneUserPort;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Component;
 public class FortuneFacade {
 
   private final FortuneService fortuneService;
-  private final FortuneUserPort fortuneUserPort;
+  private final AppFortuneUserPort appFortuneUserPort;
 
   public TodayFortuneWord getTodayFortuneWord(Long userId, LocalDate todayDate) {
     FortuneWord fortuneWord = fortuneService.getTodayFortuneWord(userId, todayDate);
-    String userName = fortuneUserPort.getName(userId);
+    String userName = appFortuneUserPort.getName(userId);
     return new TodayFortuneWord(userName, fortuneWord.title());
   }
 
