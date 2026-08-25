@@ -1,40 +1,32 @@
 package org.sopt.makers.clients.alarm;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.clients.notification.NotificationHttpClient;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
 import org.sopt.makers.domain.admin.alarm.AlarmTargetType;
 import org.sopt.makers.domain.admin.alarm.exception.AlarmException;
 import org.sopt.makers.domain.admin.alarm.exception.AlarmFailure;
 import org.sopt.makers.domain.admin.alarm.port.AlarmInstantSenderPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClientException;
 
 @Component
 @RequiredArgsConstructor
 public class AlarmInstantSenderAdapter implements AlarmInstantSenderPort {
 
-  private final RestTemplate restTemplate;
+  private final NotificationHttpClient notificationHttpClient;
   private final AlarmProperty alarmProperty;
 
   @Override
   public void send(Alarm alarm) {
     try {
       Map<Object, Object> body = buildBody(alarm);
-      HttpHeaders headers = buildHeaders(alarm);
-      restTemplate.postForEntity(
-          alarmProperty.url(), new HttpEntity<>(body, headers), Object.class);
-    } catch (HttpServerErrorException | HttpClientErrorException e) {
+      notificationHttpClient.send(
+          alarmProperty.headerService(), alarm.target().sendAction().getValue(), body);
+    } catch (RestClientException e) {
       throw new AlarmException(AlarmFailure.FAIL_SEND_ALARM);
     }
   }
@@ -57,16 +49,5 @@ public class AlarmInstantSenderAdapter implements AlarmInstantSenderPort {
       body.put("deepLink", alarm.content().linkPath());
     }
     return body;
-  }
-
-  private HttpHeaders buildHeaders(Alarm alarm) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-    headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-    headers.add("action", alarm.target().sendAction().getValue());
-    headers.add("transactionId", UUID.randomUUID().toString());
-    headers.add("service", alarmProperty.headerService());
-    headers.add("x-api-key", alarmProperty.key());
-    return headers;
   }
 }
