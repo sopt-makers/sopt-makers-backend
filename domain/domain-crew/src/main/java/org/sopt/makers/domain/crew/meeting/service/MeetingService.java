@@ -93,6 +93,35 @@ public class MeetingService {
   }
 
   @Transactional
+  public Meeting createFlashMeeting(CreateFlashMeetingCommand command, Long userId) {
+    LocalDateTime now = LocalDateTime.now(clock);
+    return createMeeting(
+        new CreateMeetingCommand(
+            null,
+            command.title(),
+            null,
+            MeetingCategory.FLASH,
+            command.images(),
+            now,
+            command.activityStartDate().toLocalDate().minusDays(1).atTime(23, 59, 59),
+            command.maximumCapacity(),
+            command.description(),
+            "",
+            command.activityStartDate(),
+            command.activityEndDate(),
+            "",
+            "",
+            false,
+            false,
+            null,
+            null,
+            null,
+            List.of(MeetingJoinablePart.values()),
+            List.of()),
+        userId);
+  }
+
+  @Transactional
   public Meeting updateMeeting(Long meetingId, UpdateMeetingCommand command, Long userId) {
     Meeting meeting = getMeeting(meetingId);
     meeting.validateLeader(userId);
@@ -123,6 +152,35 @@ public class MeetingService {
       replaceCoLeaders(saved, command.coLeaderUserIds());
     }
     return saved;
+  }
+
+  @Transactional
+  public Meeting updateFlashMeeting(
+      Long meetingId, UpdateFlashMeetingCommand command, Long userId) {
+    LocalDateTime now = LocalDateTime.now(clock);
+    return updateMeeting(
+        meetingId,
+        new UpdateMeetingCommand(
+            command.title(),
+            null,
+            MeetingCategory.FLASH,
+            command.images(),
+            now,
+            command.activityStartDate().toLocalDate().minusDays(1).atTime(23, 59, 59),
+            command.maximumCapacity(),
+            command.description(),
+            "",
+            command.activityStartDate(),
+            command.activityEndDate(),
+            "",
+            "",
+            false,
+            false,
+            null,
+            null,
+            List.of(MeetingJoinablePart.values()),
+            null),
+        userId);
   }
 
   @Transactional
@@ -508,6 +566,22 @@ public class MeetingService {
       List<Long> coLeaderUserIds) {}
 
   public record ApplyMeetingCommand(Long meetingId, String content) {}
+
+  public record CreateFlashMeetingCommand(
+      String title,
+      String description,
+      LocalDateTime activityStartDate,
+      LocalDateTime activityEndDate,
+      Integer maximumCapacity,
+      List<MeetingImage> images) {}
+
+  public record UpdateFlashMeetingCommand(
+      String title,
+      String description,
+      LocalDateTime activityStartDate,
+      LocalDateTime activityEndDate,
+      Integer maximumCapacity,
+      List<MeetingImage> images) {}
 
   public record UpdateApplyStatusCommand(Long applyId, MeetingApplyStatus status) {}
 
