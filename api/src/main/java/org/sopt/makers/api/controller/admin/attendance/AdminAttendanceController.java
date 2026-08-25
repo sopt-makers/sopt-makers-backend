@@ -6,8 +6,8 @@ import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuc
 import static org.sopt.makers.api.controller.admin.attendance.AdminAttendanceSuccessCode.SUCCESS_UPDATE_SUB_ATTENDANCE;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
@@ -50,7 +50,7 @@ public class AdminAttendanceController implements AdminAttendanceApi {
       @PathVariable Long lectureId,
       @RequestParam(required = false) Part part,
       @Min(0) @RequestParam(defaultValue = "0") int page,
-      @Positive @RequestParam(defaultValue = "20") int limit) {
+      @Min(1) @Max(100) @RequestParam(defaultValue = "20") int limit) {
     int totalCount = attendanceService.countAttendancesByLecture(lectureId, part);
     List<Attendance> attendances =
         attendanceService.getAttendancesByLectureId(lectureId, part, page, limit);
