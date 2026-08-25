@@ -2,6 +2,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":domain:domain-auth"))
     implementation(project(":domain:domain-admin"))
+    implementation(project(":domain:domain-crew"))
     implementation(project(":domain:domain-official"))
 
     implementation("org.springframework.boot:spring-boot-starter")
