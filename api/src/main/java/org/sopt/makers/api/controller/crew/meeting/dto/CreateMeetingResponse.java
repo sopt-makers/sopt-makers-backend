@@ -1,10 +1,10 @@
 package org.sopt.makers.api.controller.crew.meeting.dto;
 
-import org.sopt.makers.domain.crew.meeting.Meeting;
+import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 
-public record CreateMeetingResponse(Long meetingId) {
+public record CreateMeetingResponse(Long meetingId, Long tagId) {
 
-  public static CreateMeetingResponse from(Meeting meeting) {
-    return new CreateMeetingResponse(meeting.id());
+  public static CreateMeetingResponse from(MeetingFacade.CreatedMeeting result) {
+    return new CreateMeetingResponse(result.meeting().id(), result.tagId());
   }
 }

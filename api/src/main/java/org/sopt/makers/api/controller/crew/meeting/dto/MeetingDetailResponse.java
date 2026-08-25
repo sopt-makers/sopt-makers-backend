@@ -6,6 +6,7 @@ import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingImage;
 import org.sopt.makers.domain.crew.meeting.MeetingJoinInfo;
 import org.sopt.makers.domain.crew.meeting.MeetingJoinablePart;
+import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 
 public record MeetingDetailResponse(
@@ -38,9 +39,12 @@ public record MeetingDetailResponse(
     Boolean approved,
     Boolean isCoLeader,
     long approvedApplyCount,
-    List<MeetingApplyWithUserResponse> applies) {
+    List<MeetingApplyWithUserResponse> applies,
+    List<String> welcomeMessageTypes,
+    List<String> meetingKeywordTypes) {
 
-  public static MeetingDetailResponse from(MeetingService.MeetingDetail detail) {
+  public static MeetingDetailResponse from(MeetingFacade.MeetingDetailResult result) {
+    MeetingService.MeetingDetail detail = result.meetingDetail();
     Meeting meeting = detail.meeting();
     return baseFrom(
         meeting,
@@ -51,7 +55,9 @@ public record MeetingDetailResponse(
         detail.isApproved(),
         detail.isCoLeader(),
         detail.approvedApplyCount(),
-        detail.applies().stream().map(MeetingApplyWithUserResponse::from).toList());
+        detail.applies().stream().map(MeetingApplyWithUserResponse::from).toList(),
+        MeetingTagMapper.fromWelcomeMessageTypes(result.meetingTagInfo().welcomeMessageTypes()),
+        MeetingTagMapper.fromMeetingKeywordTypes(result.meetingTagInfo().meetingKeywordTypes()));
   }
 
   private static MeetingDetailResponse baseFrom(
@@ -63,7 +69,9 @@ public record MeetingDetailResponse(
       Boolean approved,
       Boolean isCoLeader,
       long approvedApplyCount,
-      List<MeetingApplyWithUserResponse> applies) {
+      List<MeetingApplyWithUserResponse> applies,
+      List<String> welcomeMessageTypes,
+      List<String> meetingKeywordTypes) {
     return new MeetingDetailResponse(
         meeting.id(),
         meeting.userId(),
@@ -94,6 +102,8 @@ public record MeetingDetailResponse(
         approved,
         isCoLeader,
         approvedApplyCount,
-        applies);
+        applies,
+        welcomeMessageTypes,
+        meetingKeywordTypes);
   }
 }
