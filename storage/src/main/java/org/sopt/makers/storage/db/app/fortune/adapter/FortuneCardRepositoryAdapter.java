@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.app.fortune.adapter;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.fortune.FortuneCard;
@@ -17,9 +18,9 @@ public class FortuneCardRepositoryAdapter implements FortuneCardRepositoryPort {
   private final FortuneCardQuerydslRepository fortuneCardQuerydslRepository;
 
   @Override
-  public Optional<FortuneCard> findTodayCardByUserId(Long userId) {
+  public Optional<FortuneCard> findTodayCardByUserId(Long userId, LocalDate todayDate) {
     return fortuneCardQuerydslRepository
-        .findTodayCardByUserId(userId)
+        .findTodayCardByUserId(userId, todayDate)
         .map(FortuneCardEntity::toDomain);
   }
 }

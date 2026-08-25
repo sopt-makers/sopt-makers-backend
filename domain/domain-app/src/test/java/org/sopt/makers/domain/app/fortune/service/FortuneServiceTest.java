@@ -88,11 +88,23 @@ class FortuneServiceTest {
   @DisplayName("유저에게 할당된 오늘의 운세카드를 반환한다")
   void returnsTodayFortuneCard() {
     fortuneCardRepositoryPort.setCardForUser(
-        1L, new FortuneCard(10L, "카드", "설명", "image.png", "#FFFFFF"));
+        1L, TODAY, new FortuneCard(10L, "카드", "설명", "image.png", "#FFFFFF"));
 
     FortuneCard card = fortuneService.getTodayFortuneCard(1L);
 
     assertThat(card.name()).isEqualTo("카드");
+  }
+
+  @Test
+  @DisplayName("오늘 솝마디를 뽑지 않았으면 어제 카드가 오늘 카드로 내려가지 않는다")
+  void doesNotReturnYesterdayCard() {
+    fortuneCardRepositoryPort.setCardForUser(
+        1L, TODAY.minusDays(1), new FortuneCard(10L, "어제 카드", "설명", "image.png", "#FFFFFF"));
+
+    assertThatThrownBy(() -> fortuneService.getTodayFortuneCard(1L))
+        .isInstanceOf(FortuneException.class)
+        .extracting("error")
+        .isEqualTo(NOT_FOUND_FORTUNE_FROM_USER);
   }
 
   @Test
@@ -155,17 +167,18 @@ class FortuneServiceTest {
     }
   }
 
+  /** 실제 쿼리가 user_fortune.checked_at 까지 보고 조인하므로, 페이크도 유저와 날짜를 함께 키로 잡는다. */
   private static final class InMemoryFortuneCardRepositoryPort
       implements FortuneCardRepositoryPort {
-    private final Map<Long, FortuneCard> cardByUserId = new HashMap<>();
+    private final Map<String, FortuneCard> cardByUserAndDate = new HashMap<>();
 
-    void setCardForUser(Long userId, FortuneCard fortuneCard) {
-      cardByUserId.put(userId, fortuneCard);
+    void setCardForUser(Long userId, LocalDate checkedAt, FortuneCard fortuneCard) {
+      cardByUserAndDate.put(userId + "@" + checkedAt, fortuneCard);
     }
 
     @Override
-    public Optional<FortuneCard> findTodayCardByUserId(Long userId) {
-      return Optional.ofNullable(cardByUserId.get(userId));
+    public Optional<FortuneCard> findTodayCardByUserId(Long userId, LocalDate todayDate) {
+      return Optional.ofNullable(cardByUserAndDate.get(userId + "@" + todayDate));
     }
   }
 }

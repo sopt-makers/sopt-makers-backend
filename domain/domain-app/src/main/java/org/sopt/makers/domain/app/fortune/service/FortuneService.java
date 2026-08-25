@@ -38,15 +38,19 @@ public class FortuneService {
 
   public FortuneCard getTodayFortuneCard(Long userId) {
     return fortuneCardRepositoryPort
-        .findTodayCardByUserId(userId)
+        .findTodayCardByUserId(userId, today())
         .orElseThrow(() -> new FortuneException(FortuneFailure.NOT_FOUND_FORTUNE_FROM_USER));
   }
 
   public boolean isExistTodayFortune(Long userId) {
     return userFortuneRepositoryPort
         .findByUserId(userId)
-        .map(userFortune -> userFortune.checkedAt().equals(LocalDate.now(clock.withZone(KST))))
+        .map(userFortune -> userFortune.checkedAt().equals(today()))
         .orElse(false);
+  }
+
+  private LocalDate today() {
+    return LocalDate.now(clock.withZone(KST));
   }
 
   private UserFortune resolveTodayUserFortune(Long userId, LocalDate todayDate) {

@@ -1,6 +1,7 @@
 package org.sopt.makers.storage.db.app.fortune.querydsl;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.storage.db.app.fortune.entity.FortuneCardEntity;
@@ -16,7 +17,7 @@ public class FortuneCardQuerydslRepositoryImpl implements FortuneCardQuerydslRep
   private final JPAQueryFactory queryFactory;
 
   @Override
-  public Optional<FortuneCardEntity> findTodayCardByUserId(Long userId) {
+  public Optional<FortuneCardEntity> findTodayCardByUserId(Long userId, LocalDate todayDate) {
     QUserFortuneEntity userFortune = QUserFortuneEntity.userFortuneEntity;
     QFortuneWordEntity fortuneWord = QFortuneWordEntity.fortuneWordEntity;
     QFortuneCardEntity fortuneCard = QFortuneCardEntity.fortuneCardEntity;
@@ -29,7 +30,7 @@ public class FortuneCardQuerydslRepositoryImpl implements FortuneCardQuerydslRep
             .on(userFortune.fortuneWordId.eq(fortuneWord.id))
             .innerJoin(fortuneCard)
             .on(fortuneWord.fortuneCardId.eq(fortuneCard.id))
-            .where(userFortune.userId.eq(userId))
+            .where(userFortune.userId.eq(userId), userFortune.checkedAt.eq(todayDate))
             .fetchFirst());
   }
 }
