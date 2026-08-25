@@ -29,14 +29,34 @@ public enum MemberRole {
   private final int order;
 
   public static MemberRole fromString(String role) {
+    return fromLegacyRole(role);
+  }
+
+  public static MemberRole fromLegacyRole(String role) {
     if (role == null || role.isBlank()) {
-      throw new IllegalArgumentException("Member role must not be blank");
+      throw new IllegalArgumentException("Role must not be blank");
     }
-    for (MemberRole memberRole : values()) {
-      if (memberRole.name().equalsIgnoreCase(role) || memberRole.displayName.equals(role)) {
-        return memberRole;
-      }
-    }
-    throw new IllegalArgumentException("Unknown member role: " + role);
+
+    return switch (role) {
+      case "PRESIDENT", "회장" -> PRESIDENT;
+      case "VICE_PRESIDENT", "부회장" -> VICE_PRESIDENT;
+      case "GENERAL_AFFAIRS", "총무" -> GENERAL_AFFAIRS;
+      case "OPERATION_TEAM_LEADER", "운영 팀장" -> OPERATION_TEAM_LEADER;
+      case "MEDIA_TEAM_LEADER", "미디어 팀장" -> MEDIA_TEAM_LEADER;
+      case "MAKERS_TEAM_LEADER", "메이커스 팀장" -> MAKERS_TEAM_LEADER;
+      case "ART_DIRECTOR", "아트디렉터" -> ART_DIRECTOR;
+      case "PLANNING_TEAM_LEADER", "기획", "기획 팀장" -> PLANNING_TEAM_LEADER;
+      case "DESIGN_TEAM_LEADER", "디자인", "디자인 팀장" -> DESIGN_TEAM_LEADER;
+      case "PLAN_LEADER", "기획 파트장" -> PLAN_LEADER;
+      case "DESIGN_LEADER", "디자인 파트장" -> DESIGN_LEADER;
+      case "ANDROID_LEADER", "안드로이드", "안드로이드 파트장" -> ANDROID_LEADER;
+      case "IOS_LEADER", "iOS", "iOS 파트장" -> IOS_LEADER;
+      case "WEB_LEADER", "웹", "웹 파트장" -> WEB_LEADER;
+      case "SERVER_LEADER", "서버", "서버 파트장" -> SERVER_LEADER;
+      case "MEDIA_TEAM_MEMBER", "미디어팀" -> MEDIA_TEAM_MEMBER;
+      case "PLANNING_TEAM_MEMBER", "기획팀" -> PLANNING_TEAM_MEMBER;
+      case "DESIGN_TEAM_MEMBER", "디자인팀" -> DESIGN_TEAM_MEMBER;
+      default -> throw new IllegalArgumentException("Unknown role: " + role);
+    };
   }
 }
