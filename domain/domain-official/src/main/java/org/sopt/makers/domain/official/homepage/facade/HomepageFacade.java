@@ -58,12 +58,14 @@ public class HomepageFacade {
     Integer generationId = generation.id();
 
     List<RecruitPartInfo> partInfos = partService.findByGeneration(generationId);
+    List<CoreValue> coreValues = coreValueService.findByGeneration(generationId);
     List<News> news = newsService.findAll();
     List<Recruitment> recruitments = recruitmentService.findByGeneration(generationId);
     ActivitiesRecords activitiesRecords = fetchActivitiesRecords(generationId - 1);
     List<HomepageReview> reviews = homepageReviewService.getReviews();
 
-    return new MainPageData(generation, partInfos, news, recruitments, activitiesRecords, reviews);
+    return new MainPageData(
+        generation, coreValues, partInfos, news, recruitments, activitiesRecords, reviews);
   }
 
   public AboutPageData getAboutPage() {
@@ -118,6 +120,7 @@ public class HomepageFacade {
 
   public record MainPageData(
       Generation generation,
+      List<CoreValue> coreValues,
       List<RecruitPartInfo> partInfos,
       List<News> news,
       List<Recruitment> recruitments,
