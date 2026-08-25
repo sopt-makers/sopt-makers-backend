@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.official.homepage.review.service;
 
+import static org.sopt.makers.domain.official.homepage.review.exception.HomepageReviewFailure.EXCEEDED_HOMEPAGE_REVIEW_COUNT;
 import static org.sopt.makers.domain.official.homepage.review.exception.HomepageReviewFailure.NOT_FOUND_HOMEPAGE_REVIEW;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class HomepageReviewService {
+
+  private static final int MAX_REVIEW = 7;
 
   private final HomepageReviewRepositoryPort homepageReviewRepositoryPort;
 
@@ -42,7 +45,13 @@ public class HomepageReviewService {
   }
 
   public List<HomepageReview> getReviews() {
-    return homepageReviewRepositoryPort.findAllByOrderByIdAsc();
+    List<HomepageReview> reviews = homepageReviewRepositoryPort.findAllByOrderByIdAsc();
+
+    if (reviews.size() > MAX_REVIEW) {
+      throw new HomepageReviewException(EXCEEDED_HOMEPAGE_REVIEW_COUNT);
+    }
+
+    return reviews;
   }
 
   @Transactional
