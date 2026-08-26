@@ -568,3 +568,167 @@ CREATE TABLE user_work_preferences
     PRIMARY KEY (id),
     CONSTRAINT fk_user_work_preferences_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+CREATE TABLE meeting_demand
+(
+    id                     BIGINT        NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id                BIGINT        NOT NULL,
+    short_intro            VARCHAR(30)   NOT NULL,
+    expectation            VARCHAR(1000) NOT NULL,
+    status                 VARCHAR(20)   NOT NULL,
+    anonymous_nickname     VARCHAR(30)   NOT NULL,
+    anonymous_image_number INT           NOT NULL,
+    meeting_keyword_types  TEXT          NOT NULL,
+    join_info              TEXT,
+    wait_count             INT           NOT NULL DEFAULT 0,
+    comment_count          INT           NOT NULL DEFAULT 0,
+    created_at             TIMESTAMP     NOT NULL,
+    updated_at             TIMESTAMP     NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_demand_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE INDEX idx_meeting_demand_created ON meeting_demand (created_at DESC, id DESC);
+
+ALTER TABLE meeting
+    ADD CONSTRAINT fk_meeting_demand
+        FOREIGN KEY (meeting_demand_id) REFERENCES meeting_demand (id) ON DELETE SET NULL;
+
+CREATE INDEX idx_meeting_demand_id ON meeting (meeting_demand_id);
+
+CREATE TABLE meeting_demand_wait
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id BIGINT    NOT NULL,
+    user_id           BIGINT    NOT NULL,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_wait_demand_user UNIQUE (meeting_demand_id, user_id),
+    CONSTRAINT fk_meeting_demand_wait_demand
+        FOREIGN KEY (meeting_demand_id) REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_wait_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE INDEX idx_meeting_demand_wait_demand ON meeting_demand_wait (meeting_demand_id);
+
+CREATE TABLE meeting_demand_wait_history
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id BIGINT    NOT NULL,
+    user_id           BIGINT    NOT NULL,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_wait_history_demand_user UNIQUE (meeting_demand_id, user_id),
+    CONSTRAINT fk_meeting_demand_wait_history_demand
+        FOREIGN KEY (meeting_demand_id) REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_wait_history_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_comment
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id BIGINT    NOT NULL,
+    user_id           BIGINT,
+    contents          TEXT      NOT NULL,
+    depth             INT       NOT NULL DEFAULT 0,
+    comment_order     INT       NOT NULL DEFAULT 0,
+    parent_id         BIGINT,
+    like_count        INT       NOT NULL DEFAULT 0,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_demand_comment_demand
+        FOREIGN KEY (meeting_demand_id) REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_comment_user
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_meeting_demand_comment_parent
+        FOREIGN KEY (parent_id) REFERENCES meeting_demand_comment (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_meeting_demand_comment_parent_page
+    ON meeting_demand_comment (meeting_demand_id, depth, created_at, id);
+CREATE INDEX idx_meeting_demand_comment_reply
+    ON meeting_demand_comment (parent_id, comment_order);
+
+CREATE TABLE meeting_demand_comment_like
+(
+    id                        BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_comment_id BIGINT    NOT NULL,
+    user_id                   BIGINT    NOT NULL,
+    created_at                TIMESTAMP NOT NULL,
+    updated_at                TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_comment_like_comment_user
+        UNIQUE (meeting_demand_comment_id, user_id),
+    CONSTRAINT fk_meeting_demand_comment_like_comment
+        FOREIGN KEY (meeting_demand_comment_id) REFERENCES meeting_demand_comment (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_comment_like_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_comment_profile
+(
+    id                     BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id      BIGINT      NOT NULL,
+    user_id                BIGINT      NOT NULL,
+    anonymous_nickname     VARCHAR(30) NOT NULL,
+    anonymous_image_number INT         NOT NULL,
+    created_at             TIMESTAMP   NOT NULL,
+    updated_at             TIMESTAMP   NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_comment_profile_demand_user
+        UNIQUE (meeting_demand_id, user_id),
+    CONSTRAINT fk_meeting_demand_comment_profile_demand
+        FOREIGN KEY (meeting_demand_id) REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_comment_profile_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_report
+(
+    id          BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id     BIGINT      NOT NULL,
+    target_type VARCHAR(20) NOT NULL,
+    target_id   BIGINT      NOT NULL,
+    created_at  TIMESTAMP   NOT NULL,
+    updated_at  TIMESTAMP   NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_report_user_target UNIQUE (user_id, target_type, target_id),
+    CONSTRAINT fk_meeting_demand_report_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE INDEX idx_meeting_demand_report_target
+    ON meeting_demand_report (target_type, target_id);
+
+CREATE TABLE meeting_demand_opened_notification
+(
+    id         BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_id BIGINT    NOT NULL,
+    sent_at    TIMESTAMP,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_opened_notification_meeting UNIQUE (meeting_id),
+    CONSTRAINT fk_meeting_demand_opened_notification_meeting
+        FOREIGN KEY (meeting_id) REFERENCES meeting (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_meeting_demand_opened_notification_pending
+    ON meeting_demand_opened_notification (sent_at, meeting_id);
+
+CREATE TABLE member_block
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    blocker_id        BIGINT    NOT NULL,
+    blocked_member_id BIGINT    NOT NULL,
+    is_blocked        BOOLEAN   NOT NULL DEFAULT TRUE,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_member_block_blocker_member UNIQUE (blocker_id, blocked_member_id),
+    CONSTRAINT fk_member_block_blocker FOREIGN KEY (blocker_id) REFERENCES users (id),
+    CONSTRAINT fk_member_block_blocked_member FOREIGN KEY (blocked_member_id) REFERENCES users (id)
+);
+
+CREATE INDEX idx_member_block_blocker_active
+    ON member_block (blocker_id, is_blocked);
