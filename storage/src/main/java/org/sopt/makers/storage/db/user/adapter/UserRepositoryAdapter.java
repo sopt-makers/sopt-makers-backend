@@ -78,6 +78,11 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   }
 
   @Override
+  public List<Long> findAllUserIds() {
+    return userJpaRepository.findAllUserIds();
+  }
+
+  @Override
   public boolean existsByPhone(String phone) {
     return userJpaRepository.existsByPhone(phone);
   }

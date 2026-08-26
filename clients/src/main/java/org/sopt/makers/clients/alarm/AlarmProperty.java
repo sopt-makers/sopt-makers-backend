@@ -10,4 +10,5 @@ public record AlarmProperty(
     @NotBlank String url,
     @NotBlank String key,
     @NotBlank String arn,
-    @NotBlank String headerService) {}
+    @NotBlank String headerService,
+    @NotBlank String appHeaderService) {}

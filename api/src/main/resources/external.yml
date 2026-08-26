@@ -23,6 +23,7 @@ external:
     key: ${ALARM_NOTIFICATION_KEY}
     arn: ${ALARM_NOTIFICATION_ARN}
     header-service: operation
+    app-header-service: app
   eventbridge:
     role-arn: ${AWS_EVENTBRIDGE_ROLE_ARN}
     region: ${AWS_REGION}

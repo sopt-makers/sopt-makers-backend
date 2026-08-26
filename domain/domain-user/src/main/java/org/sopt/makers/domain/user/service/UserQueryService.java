@@ -59,6 +59,10 @@ public class UserQueryService {
     return userIds.stream().map(cached::get).filter(Objects::nonNull).toList();
   }
 
+  public List<Long> findAllUserIds() {
+    return userRepositoryPort.findAllUserIds();
+  }
+
   public List<User> findAllWithActivitiesByIds(List<Long> userIds) {
     if (userIds == null || userIds.isEmpty()) {
       return List.of();
