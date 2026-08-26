@@ -3,6 +3,9 @@ package org.sopt.makers.api.controller.app.soptletter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.sopt.makers.api.controller.app.soptletter.dto.WriteMessageRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +33,11 @@ public interface SoptLetterApi {
 
   @Operation(summary = "기본 주제 메시지 목록 조회", description = "개별 주제 존재 여부를 함께 준다.")
   ResponseEntity<BaseResponse<?>> getDefaultTopicMessages(
-      @Parameter(hidden = true) Long userId, Long cursor, int size);
+      @Parameter(hidden = true) Long userId, Long cursor, @Min(1) @Max(100) int size);
 
   @Operation(summary = "주제별 메시지 목록 조회")
   ResponseEntity<BaseResponse<?>> getTopicMessages(
-      @Parameter(hidden = true) Long userId, Long topicId, Long cursor, int size);
+      @Parameter(hidden = true) Long userId, Long topicId, Long cursor, @Min(1) @Max(100) int size);
 
   @Operation(summary = "메시지 상세 조회")
   ResponseEntity<BaseResponse<?>> getMessage(
@@ -42,14 +45,14 @@ public interface SoptLetterApi {
 
   @Operation(summary = "메시지 작성", description = "하루에 작성할 수 있는 개수가 제한된다.")
   ResponseEntity<BaseResponse<?>> writeMessage(
-      @Parameter(hidden = true) Long userId, Long topicId, WriteMessageRequest request);
+      @Parameter(hidden = true) Long userId, Long topicId, @Valid WriteMessageRequest request);
 
   @Operation(summary = "메시지 수정")
   ResponseEntity<BaseResponse<?>> updateMessage(
       @Parameter(hidden = true) Long userId,
       Long topicId,
       Long messageId,
-      WriteMessageRequest request);
+      @Valid WriteMessageRequest request);
 
   @Operation(summary = "메시지 삭제")
   ResponseEntity<BaseResponse<?>> deleteMessage(
