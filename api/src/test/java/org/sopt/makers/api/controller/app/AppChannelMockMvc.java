@@ -4,6 +4,7 @@ import org.jspecify.annotations.Nullable;
 import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.springframework.core.MethodParameter;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -21,7 +22,8 @@ public final class AppChannelMockMvc {
 
   public static MockMvc of(Object controller, Long fixedUserId) {
     return MockMvcBuilders.standaloneSetup(controller)
-        .setCustomArgumentResolvers(fixedCurrentUserId(fixedUserId))
+        .setCustomArgumentResolvers(
+            fixedCurrentUserId(fixedUserId), new PageableHandlerMethodArgumentResolver())
         .setControllerAdvice(new GlobalExceptionHandler())
         .build();
   }
