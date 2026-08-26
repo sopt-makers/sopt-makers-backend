@@ -13,7 +13,7 @@ public record OperationConfig(
     return new OperationConfig(null, key, value, OperationConfigType.TEXT, category, description);
   }
 
-  public OperationConfig withValue(String newValue) {
-    return new OperationConfig(id, key, newValue, type, category, description);
+  public OperationConfig withValue(String newValue, String newDescription) {
+    return new OperationConfig(id, key, newValue, type, category, newDescription);
   }
 }

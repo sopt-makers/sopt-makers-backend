@@ -31,6 +31,14 @@ public record SoptLetter(
         updatedAt);
   }
 
+  public String colorHexCode() {
+    return color == null ? null : color.getHexCode();
+  }
+
+  public String shapeTypeName() {
+    return shapeType == null ? null : shapeType.name();
+  }
+
   public boolean isAuthor(Long profileId) {
     return Objects.equals(authorProfileId, profileId);
   }

@@ -45,7 +45,7 @@ public class OperationConfigService {
     OperationConfig config =
         operationConfigPort
             .findByCategoryAndKey(category, key)
-            .map(existing -> existing.withValue(value))
+            .map(existing -> existing.withValue(value, description))
             .orElseGet(() -> OperationConfig.text(category, key, value, description));
     operationConfigPort.save(config);
   }

@@ -77,7 +77,8 @@ public class OperationConfigEntity extends BaseEntity {
     return new OperationConfig(id, key, value, type, category, description);
   }
 
-  public void updateValue(String newValue) {
+  public void updateValue(String newValue, String newDescription) {
     this.value = newValue;
+    this.description = newDescription;
   }
 }

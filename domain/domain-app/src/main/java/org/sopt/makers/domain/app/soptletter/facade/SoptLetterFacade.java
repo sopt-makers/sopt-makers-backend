@@ -26,12 +26,10 @@ public class SoptLetterFacade {
     return soptLetterProfileService.isOnboarded(userId);
   }
 
-  @Transactional
   public SoptLetterProfile getOrCreateProfile(Long userId) {
     return soptLetterProfileService.getOrCreate(userId);
   }
 
-  @Transactional
   public SoptLetterProfile completeOnboarding(Long userId) {
     return soptLetterProfileService.completeOnboarding(userId);
   }

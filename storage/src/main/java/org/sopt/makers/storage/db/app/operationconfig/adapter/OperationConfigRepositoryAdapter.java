@@ -50,7 +50,7 @@ public class OperationConfigRepositoryAdapter implements OperationConfigPort {
                 () ->
                     new OperationConfigException(
                         OperationConfigFailure.NOT_FOUND_OPERATION_CONFIG));
-    entity.updateValue(operationConfig.value());
+    entity.updateValue(operationConfig.value(), operationConfig.description());
     return entity.toDomain();
   }
 }
