@@ -1,6 +1,7 @@
 package org.sopt.makers.api.controller.internal.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.sopt.makers.domain.app.notification.NotificationCategory;
@@ -19,7 +20,7 @@ public class InternalNotificationRequest {
       @NotNull NotificationCategory category,
       String deepLink,
       String webLink,
-      @JsonProperty("id") String notificationId) {
+      @NotBlank @JsonProperty("id") String notificationId) {
 
     public RegisterNotificationCommand toCommand() {
       return new RegisterNotificationCommand(
