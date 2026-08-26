@@ -3,12 +3,14 @@ package org.sopt.makers.storage.db.crew.adapter;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.demand.comment.MeetingDemandComment;
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandCommentRepositoryPort;
+import org.sopt.makers.storage.db.common.PageMapper;
 import org.sopt.makers.storage.db.crew.entity.MeetingDemandCommentEntity;
 import org.sopt.makers.storage.db.crew.repository.MeetingDemandCommentJpaRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,10 +51,13 @@ public class MeetingDemandCommentRepositoryAdapter implements MeetingDemandComme
   }
 
   @Override
-  public Page<MeetingDemandComment> findParentComments(Long meetingDemandId, Pageable pageable) {
-    return repository
-        .findAllByMeetingDemandIdAndDepth(meetingDemandId, PARENT_DEPTH, pageable)
-        .map(MeetingDemandCommentEntity::toDomain);
+  public PageResult<MeetingDemandComment> findParentComments(
+      Long meetingDemandId, PageQuery pageQuery) {
+    Sort sort = Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("id"));
+    return PageMapper.toPageResult(
+        repository.findAllByMeetingDemandIdAndDepth(
+            meetingDemandId, PARENT_DEPTH, PageMapper.toPageable(pageQuery, sort)),
+        MeetingDemandCommentEntity::toDomain);
   }
 
   @Override

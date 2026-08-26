@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.crew.meeting.CoLeader;
 import org.sopt.makers.domain.crew.meeting.CoLeaders;
@@ -37,9 +39,6 @@ import org.sopt.makers.domain.crew.meeting.port.MeetingApplyRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
 import org.sopt.makers.domain.user.Activity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -275,17 +274,16 @@ public class MeetingService {
         applyDetails);
   }
 
-  public Page<MeetingSummary> findAllMeetings(int pageNo, int limit) {
-    Pageable pageable = PageRequest.of(pageNo - 1, limit);
-    Page<Meeting> meetings = meetingRepositoryPort.findAll(pageable);
-    MeetingApplies applies = getMeetingApplies(meetings.getContent());
+  public PageResult<MeetingSummary> findAllMeetings(int pageNo, int limit) {
+    PageResult<Meeting> meetings = meetingRepositoryPort.findAll(new PageQuery(pageNo, limit));
+    MeetingApplies applies = getMeetingApplies(meetings.content());
     return meetings.map(meeting -> toSummary(meeting, applies));
   }
 
-  public Page<MeetingSummary> findMeetingsByCreator(Long userId, int pageNo, int limit) {
-    Pageable pageable = PageRequest.of(pageNo - 1, limit);
-    Page<Meeting> meetings = meetingRepositoryPort.findAllByUserId(userId, pageable);
-    MeetingApplies applies = getMeetingApplies(meetings.getContent());
+  public PageResult<MeetingSummary> findMeetingsByCreator(Long userId, int pageNo, int limit) {
+    PageResult<Meeting> meetings =
+        meetingRepositoryPort.findAllByUserId(userId, new PageQuery(pageNo, limit));
+    MeetingApplies applies = getMeetingApplies(meetings.content());
     return meetings.map(meeting -> toSummary(meeting, applies));
   }
 

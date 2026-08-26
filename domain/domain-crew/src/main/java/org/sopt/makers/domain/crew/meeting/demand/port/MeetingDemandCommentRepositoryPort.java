@@ -2,9 +2,9 @@ package org.sopt.makers.domain.crew.meeting.demand.port;
 
 import java.util.List;
 import java.util.Optional;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.demand.comment.MeetingDemandComment;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface MeetingDemandCommentRepositoryPort {
 
@@ -16,7 +16,7 @@ public interface MeetingDemandCommentRepositoryPort {
 
   Optional<MeetingDemandComment> findByIdForUpdate(Long commentId);
 
-  Page<MeetingDemandComment> findParentComments(Long meetingDemandId, Pageable pageable);
+  PageResult<MeetingDemandComment> findParentComments(Long meetingDemandId, PageQuery pageQuery);
 
   List<MeetingDemandComment> findRepliesByParentIds(List<Long> parentIds);
 

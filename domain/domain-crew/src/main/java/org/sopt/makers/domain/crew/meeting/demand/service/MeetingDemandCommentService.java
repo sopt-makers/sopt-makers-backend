@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemand;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemandReport;
 import org.sopt.makers.domain.crew.meeting.demand.comment.MeetingDemandComment;
@@ -31,10 +33,6 @@ import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandCommentRepos
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandReportRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,10 +56,12 @@ public class MeetingDemandCommentService {
   private final MeetingDemandNotificationPublisher notificationPublisher;
   private final Clock clock;
 
-  public Page<CommentView> findComments(Long meetingDemandId, Long userId, int page, int limit) {
+  public PageResult<CommentView> findComments(
+      Long meetingDemandId, Long userId, int page, int limit) {
     meetingDemandService.validateExists(meetingDemandId);
-    Page<MeetingDemandComment> parentPage = findNormalizedParentPage(meetingDemandId, page, limit);
-    List<MeetingDemandComment> parents = parentPage.getContent();
+    PageResult<MeetingDemandComment> parentPage =
+        findNormalizedParentPage(meetingDemandId, page, limit);
+    List<MeetingDemandComment> parents = parentPage.content();
     List<MeetingDemandComment> replies =
         commentRepositoryPort.findRepliesByParentIds(
             parents.stream().map(MeetingDemandComment::id).toList());
@@ -199,20 +199,15 @@ public class MeetingDemandCommentService {
     return reportRepositoryPort.save(MeetingDemandReport.comment(userId, commentId));
   }
 
-  private Page<MeetingDemandComment> findNormalizedParentPage(
+  private PageResult<MeetingDemandComment> findNormalizedParentPage(
       Long meetingDemandId, int page, int limit) {
-    Page<MeetingDemandComment> result =
-        commentRepositoryPort.findParentComments(meetingDemandId, commentPageable(page, limit));
-    if (result.getTotalPages() > 0 && page > result.getTotalPages()) {
+    PageResult<MeetingDemandComment> result =
+        commentRepositoryPort.findParentComments(meetingDemandId, new PageQuery(page, limit));
+    if (result.totalPages() > 0 && page > result.totalPages()) {
       return commentRepositoryPort.findParentComments(
-          meetingDemandId, commentPageable(result.getTotalPages(), limit));
+          meetingDemandId, new PageQuery(result.totalPages(), limit));
     }
     return result;
-  }
-
-  private Pageable commentPageable(int page, int limit) {
-    return PageRequest.of(
-        Math.max(0, page - 1), limit, Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("id")));
   }
 
   private ReplyView toReplyView(

@@ -2,12 +2,14 @@ package org.sopt.makers.storage.db.crew.adapter;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemand;
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandRepositoryPort;
+import org.sopt.makers.storage.db.common.PageMapper;
 import org.sopt.makers.storage.db.crew.entity.MeetingDemandEntity;
 import org.sopt.makers.storage.db.crew.repository.MeetingDemandJpaRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +37,10 @@ public class MeetingDemandRepositoryAdapter implements MeetingDemandRepositoryPo
   }
 
   @Override
-  public Page<MeetingDemand> findAll(Pageable pageable) {
-    return repository.findAll(pageable).map(MeetingDemandEntity::toDomain);
+  public PageResult<MeetingDemand> findAll(PageQuery pageQuery) {
+    Sort sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"));
+    return PageMapper.toPageResult(
+        repository.findAll(PageMapper.toPageable(pageQuery, sort)), MeetingDemandEntity::toDomain);
   }
 
   @Override

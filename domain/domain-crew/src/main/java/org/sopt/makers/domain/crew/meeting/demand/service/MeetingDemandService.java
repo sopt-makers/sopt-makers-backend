@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemand;
@@ -34,10 +36,6 @@ import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitReposito
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,9 +59,9 @@ public class MeetingDemandService {
   private final MeetingUserPort meetingUserPort;
   private final MeetingDemandNotificationPublisher notificationPublisher;
 
-  public Page<MeetingDemandSummary> findMeetingDemands(Long userId, int page, int limit) {
-    Page<MeetingDemand> demands = findNormalizedDemandPage(page, limit);
-    List<Long> demandIds = demands.getContent().stream().map(MeetingDemand::id).toList();
+  public PageResult<MeetingDemandSummary> findMeetingDemands(Long userId, int page, int limit) {
+    PageResult<MeetingDemand> demands = findNormalizedDemandPage(page, limit);
+    List<Long> demandIds = demands.content().stream().map(MeetingDemand::id).toList();
     Set<Long> waitingDemandIds =
         waitRepositoryPort.findMeetingDemandIdsByUserIdAndMeetingDemandIds(userId, demandIds);
     return demands.map(
@@ -81,10 +79,10 @@ public class MeetingDemandService {
         Math.toIntExact(meetingRepositoryPort.countByMeetingDemandId(meetingDemandId)));
   }
 
-  public Page<OpenedMeeting> findOpenedMeetings(Long meetingDemandId, int page, int limit) {
+  public PageResult<OpenedMeeting> findOpenedMeetings(Long meetingDemandId, int page, int limit) {
     validateExists(meetingDemandId);
-    Page<Meeting> meetings = findNormalizedOpenedMeetingPage(meetingDemandId, page, limit);
-    Map<Long, MeetingUser> userMap = getUserMap(meetings.getContent());
+    PageResult<Meeting> meetings = findNormalizedOpenedMeetingPage(meetingDemandId, page, limit);
+    Map<Long, MeetingUser> userMap = getUserMap(meetings.content());
     return meetings.map(meeting -> new OpenedMeeting(meeting, userMap.get(meeting.userId())));
   }
 
@@ -205,29 +203,24 @@ public class MeetingDemandService {
             "/suggest/detail?id=" + demand.id()));
   }
 
-  private Page<MeetingDemand> findNormalizedDemandPage(int page, int limit) {
-    Pageable pageable = demandPageable(page, limit);
-    Page<MeetingDemand> result = meetingDemandRepositoryPort.findAll(pageable);
-    if (result.getTotalPages() > 0 && page > result.getTotalPages()) {
-      return meetingDemandRepositoryPort.findAll(demandPageable(result.getTotalPages(), limit));
+  private PageResult<MeetingDemand> findNormalizedDemandPage(int page, int limit) {
+    PageResult<MeetingDemand> result =
+        meetingDemandRepositoryPort.findAll(new PageQuery(page, limit));
+    if (result.totalPages() > 0 && page > result.totalPages()) {
+      return meetingDemandRepositoryPort.findAll(new PageQuery(result.totalPages(), limit));
     }
     return result;
   }
 
-  private Page<Meeting> findNormalizedOpenedMeetingPage(Long meetingDemandId, int page, int limit) {
-    Pageable pageable = demandPageable(page, limit);
-    Page<Meeting> result =
-        meetingRepositoryPort.findAllByMeetingDemandId(meetingDemandId, pageable);
-    if (result.getTotalPages() > 0 && page > result.getTotalPages()) {
+  private PageResult<Meeting> findNormalizedOpenedMeetingPage(
+      Long meetingDemandId, int page, int limit) {
+    PageResult<Meeting> result =
+        meetingRepositoryPort.findAllByMeetingDemandId(meetingDemandId, new PageQuery(page, limit));
+    if (result.totalPages() > 0 && page > result.totalPages()) {
       return meetingRepositoryPort.findAllByMeetingDemandId(
-          meetingDemandId, demandPageable(result.getTotalPages(), limit));
+          meetingDemandId, new PageQuery(result.totalPages(), limit));
     }
     return result;
-  }
-
-  private Pageable demandPageable(int page, int limit) {
-    return PageRequest.of(
-        Math.max(0, page - 1), limit, Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
   }
 
   private Map<Long, MeetingUser> getUserMap(List<Meeting> meetings) {

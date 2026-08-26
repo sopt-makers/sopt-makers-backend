@@ -1,6 +1,6 @@
 package org.sopt.makers.api.controller.crew.meetingdemand.dto;
 
-import org.springframework.data.domain.Page;
+import org.sopt.makers.core.pagination.PageResult;
 
 public record PageMetaResponse(
     int page,
@@ -10,12 +10,12 @@ public record PageMetaResponse(
     boolean hasPreviousPage,
     boolean hasNextPage) {
 
-  public static PageMetaResponse from(Page<?> page) {
+  public static PageMetaResponse from(PageResult<?> page) {
     return new PageMetaResponse(
-        page.getNumber() + 1,
-        page.getSize(),
-        page.getTotalElements(),
-        page.getTotalPages(),
+        page.page(),
+        page.limit(),
+        page.totalElements(),
+        page.totalPages(),
         page.hasPrevious(),
         page.hasNext());
   }
