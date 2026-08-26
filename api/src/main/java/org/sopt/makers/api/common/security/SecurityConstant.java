@@ -20,7 +20,9 @@ public final class SecurityConstant {
     "http://localhost:5173",
     "https://sopt-internal-dev.sopt.org",
     "https://playground.sopt.org",
-    "https://sopt-auth-frontend-test.pages.dev"
+    "https://sopt-auth-frontend-test.pages.dev",
+    "https://sopt-org-frontend-git-test-daeuns-projects-025386f4.vercel.app",
+    "https://sopt-operation-frontend-3yc.pages.dev"
   };
 
   public static final List<String> JWT_WHITELIST =
