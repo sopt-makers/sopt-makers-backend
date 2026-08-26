@@ -47,4 +47,10 @@ public class PushTokenRepositoryAdapter implements PushTokenRepositoryPort {
   public void deleteById(Long id) {
     pushTokenJpaRepository.deleteById(id);
   }
+
+  @Override
+  @Transactional
+  public void deleteAllByUserId(Long userId) {
+    pushTokenJpaRepository.deleteAllByUserId(userId);
+  }
 }

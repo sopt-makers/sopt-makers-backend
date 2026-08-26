@@ -142,6 +142,11 @@ class PushTokenServiceTest {
     public void deleteById(Long id) {
       store.removeIf(t -> t.id().equals(id));
     }
+
+    @Override
+    public void deleteAllByUserId(Long userId) {
+      store.removeIf(t -> t.userId().equals(userId));
+    }
   }
 
   private static final class RecordingPushSenderPort implements PushSenderPort {

@@ -38,11 +38,16 @@ public class PushTokenService {
   @Transactional
   public void deleteAllByUserId(Long userId) {
     List<PushToken> tokens = pushTokenRepositoryPort.findAllByUserId(userId);
-    tokens.forEach(this::deleteToken);
+    tokens.forEach(this::notifySenderOfDeletion);
+    pushTokenRepositoryPort.deleteAllByUserId(userId);
   }
 
   private void deleteToken(PushToken pushToken) {
     pushTokenRepositoryPort.deleteById(pushToken.id());
+    notifySenderOfDeletion(pushToken);
+  }
+
+  private void notifySenderOfDeletion(PushToken pushToken) {
     try {
       pushSenderPort.delete(pushToken);
     } catch (PushException e) {

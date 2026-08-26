@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -21,7 +22,9 @@ import org.sopt.makers.storage.db.common.BaseEntity;
     uniqueConstraints =
         @UniqueConstraint(
             name = "uk_sopt_letter_like_sopt_letter_user",
-            columnNames = {"letter_id", "user_id"}))
+            columnNames = {"letter_id", "user_id"}),
+    indexes =
+        @Index(name = "idx_sopt_letter_like_user_id_letter_id", columnList = "user_id, letter_id"))
 public class SoptLetterLikeEntity extends BaseEntity {
 
   @Id

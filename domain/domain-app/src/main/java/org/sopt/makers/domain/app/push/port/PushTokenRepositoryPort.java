@@ -15,4 +15,6 @@ public interface PushTokenRepositoryPort {
   PushToken save(PushToken pushToken);
 
   void deleteById(Long id);
+
+  void deleteAllByUserId(Long userId);
 }
