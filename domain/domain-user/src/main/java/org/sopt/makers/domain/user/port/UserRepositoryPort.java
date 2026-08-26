@@ -21,6 +21,8 @@ public interface UserRepositoryPort {
 
   List<User> findAllWithActivitiesByIds(List<Long> userIds);
 
+  List<Long> findAllUserIds();
+
   boolean existsByPhone(String phone);
 
   int countByGenerationAndIsSopt(int generation, boolean isSopt);

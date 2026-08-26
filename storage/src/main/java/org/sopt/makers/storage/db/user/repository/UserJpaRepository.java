@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.user.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.storage.db.user.entity.UserEntity;
@@ -8,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
+
+  @Query("SELECT u.id FROM UserEntity u")
+  List<Long> findAllUserIds();
 
   @Query(
       "SELECT u FROM UserEntity u"
