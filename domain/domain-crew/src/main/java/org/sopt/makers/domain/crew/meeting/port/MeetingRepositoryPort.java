@@ -15,5 +15,11 @@ public interface MeetingRepositoryPort {
 
   Page<Meeting> findAllByUserId(Long userId, Pageable pageable);
 
+  Page<Meeting> findAllByMeetingDemandId(Long meetingDemandId, Pageable pageable);
+
+  long countByMeetingDemandId(Long meetingDemandId);
+
+  void clearMeetingDemandId(Long meetingDemandId);
+
   void delete(Meeting meeting);
 }

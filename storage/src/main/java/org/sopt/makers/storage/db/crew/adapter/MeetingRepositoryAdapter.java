@@ -39,6 +39,24 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
     return meetingJpaRepository.findAllByUserId(userId, pageable).map(MeetingEntity::toDomain);
   }
 
+  @Override
+  public Page<Meeting> findAllByMeetingDemandId(Long meetingDemandId, Pageable pageable) {
+    return meetingJpaRepository
+        .findAllByMeetingDemandId(meetingDemandId, pageable)
+        .map(MeetingEntity::toDomain);
+  }
+
+  @Override
+  public long countByMeetingDemandId(Long meetingDemandId) {
+    return meetingJpaRepository.countByMeetingDemandId(meetingDemandId);
+  }
+
+  @Transactional
+  @Override
+  public void clearMeetingDemandId(Long meetingDemandId) {
+    meetingJpaRepository.clearMeetingDemandId(meetingDemandId);
+  }
+
   @Transactional
   @Override
   public void delete(Meeting meeting) {
