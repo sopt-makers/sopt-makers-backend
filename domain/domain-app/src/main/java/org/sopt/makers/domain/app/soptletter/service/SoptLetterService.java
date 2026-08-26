@@ -88,10 +88,11 @@ public class SoptLetterService {
     SoptLetter letter = getLetter(letterId);
     letter.validateInTopic(topicId);
     letter.validateAuthor(author.id());
-    soptLetterRepositoryPort.updateMessage(letterId, message);
+    LocalDateTime updatedAt = LocalDateTime.now(clock);
+    soptLetterRepositoryPort.updateMessage(letterId, message, updatedAt);
 
     return new SoptLetterView(
-        letter.withMessage(message),
+        letter.withMessage(message, updatedAt),
         author.nickname(),
         soptLetterLikeRepositoryPort.existsByLetterIdAndUserId(letterId, author.userId()),
         true);
@@ -164,8 +165,13 @@ public class SoptLetterService {
       return Map.of();
     }
     Set<Long> authorProfileIds = ids(letters, SoptLetter::authorProfileId);
-    return soptLetterProfileRepositoryPort.findAllByIds(authorProfileIds).stream()
-        .collect(Collectors.toMap(SoptLetterProfile::id, SoptLetterProfile::nickname));
+    Map<Long, String> nicknamesByProfileId =
+        soptLetterProfileRepositoryPort.findAllByIds(authorProfileIds).stream()
+            .collect(Collectors.toMap(SoptLetterProfile::id, SoptLetterProfile::nickname));
+    if (nicknamesByProfileId.size() != authorProfileIds.size()) {
+      throw new SoptLetterException(SoptLetterFailure.NOT_FOUND_SOPT_LETTER_PROFILE);
+    }
+    return nicknamesByProfileId;
   }
 
   private String getAuthorNickname(Long authorProfileId) {

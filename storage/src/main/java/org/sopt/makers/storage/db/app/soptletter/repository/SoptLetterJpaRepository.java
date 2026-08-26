@@ -28,12 +28,17 @@ public interface SoptLetterJpaRepository extends JpaRepository<SoptLetterEntity,
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(
-      "UPDATE SoptLetterEntity l SET l.message = :message, l.updatedAt = CURRENT_TIMESTAMP"
+      "UPDATE SoptLetterEntity l SET l.message = :message, l.updatedAt = :updatedAt"
           + " WHERE l.id = :letterId")
-  void updateMessage(@Param("letterId") Long letterId, @Param("message") String message);
+  void updateMessage(
+      @Param("letterId") Long letterId,
+      @Param("message") String message,
+      @Param("updatedAt") LocalDateTime updatedAt);
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
-  @Query("UPDATE SoptLetterEntity l SET l.likeCount = l.likeCount + 1 WHERE l.id = :letterId")
+  @Query(
+      "UPDATE SoptLetterEntity l SET l.likeCount = COALESCE(l.likeCount, 0) + 1"
+          + " WHERE l.id = :letterId")
   void increaseLikeCount(@Param("letterId") Long letterId);
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)

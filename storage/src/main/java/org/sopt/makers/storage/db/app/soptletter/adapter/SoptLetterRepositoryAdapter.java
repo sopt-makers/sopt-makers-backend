@@ -67,8 +67,8 @@ public class SoptLetterRepositoryAdapter implements SoptLetterRepositoryPort {
 
   @Override
   @Transactional
-  public void updateMessage(Long letterId, String message) {
-    soptLetterJpaRepository.updateMessage(letterId, message);
+  public void updateMessage(Long letterId, String message, LocalDateTime updatedAt) {
+    soptLetterJpaRepository.updateMessage(letterId, message, updatedAt);
   }
 
   @Override

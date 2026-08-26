@@ -17,7 +17,7 @@ public record SoptLetter(
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {
 
-  public SoptLetter withMessage(String newMessage) {
+  public SoptLetter withMessage(String newMessage, LocalDateTime newUpdatedAt) {
     return new SoptLetter(
         id,
         authorProfileId,
@@ -28,7 +28,7 @@ public record SoptLetter(
         shapeType,
         likeCount,
         createdAt,
-        updatedAt);
+        newUpdatedAt);
   }
 
   public String colorHexCode() {

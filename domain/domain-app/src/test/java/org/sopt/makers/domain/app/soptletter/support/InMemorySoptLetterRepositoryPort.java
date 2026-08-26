@@ -77,8 +77,8 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
   }
 
   @Override
-  public void updateMessage(Long letterId, String message) {
-    replace(letterId, letter -> withMessage(letter, message));
+  public void updateMessage(Long letterId, String message, LocalDateTime updatedAt) {
+    replace(letterId, letter -> withMessage(letter, message, updatedAt));
   }
 
   @Override
@@ -101,7 +101,7 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
         .ifPresent(letter -> store.set(store.indexOf(letter), operator.apply(letter)));
   }
 
-  private SoptLetter withMessage(SoptLetter letter, String message) {
+  private SoptLetter withMessage(SoptLetter letter, String message, LocalDateTime updatedAt) {
     return new SoptLetter(
         letter.id(),
         letter.authorProfileId(),
@@ -112,7 +112,7 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
         letter.shapeType(),
         letter.likeCount(),
         letter.createdAt(),
-        letter.updatedAt());
+        updatedAt);
   }
 
   private SoptLetter withLikeCount(SoptLetter letter, int likeCount) {

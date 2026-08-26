@@ -21,7 +21,7 @@ public interface SoptLetterRepositoryPort {
 
   SoptLetter save(SoptLetter soptLetter);
 
-  void updateMessage(Long letterId, String message);
+  void updateMessage(Long letterId, String message, LocalDateTime updatedAt);
 
   void deleteById(Long letterId);
 
