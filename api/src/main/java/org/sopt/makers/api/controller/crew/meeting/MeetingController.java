@@ -127,9 +127,7 @@ public class MeetingController implements MeetingApi {
     return ResponseFactory.success(
         GET_MEETINGS,
         MeetingSummaryPageResponse.from(
-            meetingFacade.findAllMeetings(request.pageNoOrDefault(), request.limitOrDefault()),
-            request.limitOrDefault(),
-            request.pageNoOrDefault()));
+            meetingFacade.findAllMeetings(request.pageNoOrDefault(), request.limitOrDefault())));
   }
 
   @Override
@@ -140,9 +138,7 @@ public class MeetingController implements MeetingApi {
         GET_MEETINGS,
         MeetingSummaryPageResponse.from(
             meetingFacade.findMeetingsByCreator(
-                userId, request.pageNoOrDefault(), request.limitOrDefault()),
-            request.limitOrDefault(),
-            request.pageNoOrDefault()));
+                userId, request.pageNoOrDefault(), request.limitOrDefault())));
   }
 
   @Override

@@ -3,15 +3,17 @@ package org.sopt.makers.domain.crew.meeting.facade;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.flash.service.FlashService;
 import org.sopt.makers.domain.crew.meeting.Meeting;
+import org.sopt.makers.domain.crew.meeting.demand.service.MeetingDemandOpenedNotificationService;
+import org.sopt.makers.domain.crew.meeting.demand.service.MeetingDemandService;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingTag;
 import org.sopt.makers.domain.crew.meeting.tag.WelcomeMessageType;
 import org.sopt.makers.domain.crew.meeting.tag.service.MeetingTagService;
 import org.sopt.makers.domain.crew.notification.service.MeetingKeywordNotificationPublisher;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +26,21 @@ public class MeetingFacade {
   private final MeetingTagService meetingTagService;
   private final FlashService flashService;
   private final MeetingKeywordNotificationPublisher notificationPublisher;
+  private final MeetingDemandService meetingDemandService;
+  private final MeetingDemandOpenedNotificationService openedNotificationService;
 
   @Transactional
   public CreatedMeeting createMeeting(CreateMeetingCommand command, Long userId) {
+    Long meetingDemandId = command.meetingCommand().meetingDemandId();
+    meetingDemandService.validateExists(meetingDemandId);
     Meeting meeting = meetingService.createMeeting(command.meetingCommand(), userId);
+    if (meetingDemandId != null) {
+      meetingDemandService.open(meetingDemandId);
+    }
     MeetingTag meetingTag =
         meetingTagService.createGeneralMeetingTag(
             meeting.id(), command.welcomeMessageTypes(), command.meetingKeywordTypes());
+    openedNotificationService.register(meeting);
     notificationPublisher.publish(meeting, command.meetingKeywordTypes());
     return new CreatedMeeting(meeting, meetingTag.id());
   }
@@ -59,8 +69,9 @@ public class MeetingFacade {
         meetingTagService.getByMeetingId(meetingId));
   }
 
-  public Page<MeetingSummaryResult> findAllMeetings(int pageNo, int limit) {
-    Page<MeetingService.MeetingSummary> meetings = meetingService.findAllMeetings(pageNo, limit);
+  public PageResult<MeetingSummaryResult> findAllMeetings(int pageNo, int limit) {
+    PageResult<MeetingService.MeetingSummary> meetings =
+        meetingService.findAllMeetings(pageNo, limit);
     Map<Long, MeetingTagService.MeetingTagInfo> tags = getTags(meetings);
     return meetings.map(
         meeting ->
@@ -70,8 +81,9 @@ public class MeetingFacade {
                     meeting.meeting().id(), MeetingTagService.MeetingTagInfo.empty())));
   }
 
-  public Page<MeetingSummaryResult> findMeetingsByCreator(Long userId, int pageNo, int limit) {
-    Page<MeetingService.MeetingSummary> meetings =
+  public PageResult<MeetingSummaryResult> findMeetingsByCreator(
+      Long userId, int pageNo, int limit) {
+    PageResult<MeetingService.MeetingSummary> meetings =
         meetingService.findMeetingsByCreator(userId, pageNo, limit);
     Map<Long, MeetingTagService.MeetingTagInfo> tags = getTags(meetings);
     return meetings.map(
@@ -83,9 +95,9 @@ public class MeetingFacade {
   }
 
   private Map<Long, MeetingTagService.MeetingTagInfo> getTags(
-      Page<MeetingService.MeetingSummary> meetings) {
+      PageResult<MeetingService.MeetingSummary> meetings) {
     return meetingTagService.getByMeetingIds(
-        meetings.getContent().stream().map(summary -> summary.meeting().id()).toList());
+        meetings.content().stream().map(summary -> summary.meeting().id()).toList());
   }
 
   public record CreateMeetingCommand(

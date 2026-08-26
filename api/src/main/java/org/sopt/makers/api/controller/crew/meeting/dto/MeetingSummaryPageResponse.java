@@ -1,8 +1,8 @@
 package org.sopt.makers.api.controller.crew.meeting.dto;
 
 import java.util.List;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
-import org.springframework.data.domain.Page;
 
 public record MeetingSummaryPageResponse(
     List<MeetingSummaryResponse> data,
@@ -14,13 +14,13 @@ public record MeetingSummaryPageResponse(
     boolean hasPrevPage) {
 
   public static MeetingSummaryPageResponse from(
-      Page<MeetingFacade.MeetingSummaryResult> page, int limit, int pageNo) {
+      PageResult<MeetingFacade.MeetingSummaryResult> page) {
     return new MeetingSummaryPageResponse(
-        page.getContent().stream().map(MeetingSummaryResponse::from).toList(),
-        page.getTotalElements(),
-        page.getTotalPages(),
-        limit,
-        pageNo,
+        page.content().stream().map(MeetingSummaryResponse::from).toList(),
+        page.totalElements(),
+        page.totalPages(),
+        page.limit(),
+        page.page(),
         page.hasNext(),
         page.hasPrevious());
   }

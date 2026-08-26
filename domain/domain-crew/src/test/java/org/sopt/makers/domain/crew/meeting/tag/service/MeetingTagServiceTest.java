@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingTag;
@@ -20,7 +21,8 @@ class MeetingTagServiceTest {
   private final MeetingTagService meetingTagService = new MeetingTagService(repository);
 
   @Test
-  void 일반_모임_태그를_생성한다() {
+  @DisplayName("일반 모임 태그를 생성한다")
+  void createsGeneralMeetingTag() {
     MeetingTag result =
         meetingTagService.createGeneralMeetingTag(
             1L, List.of(WelcomeMessageType.YB_WELCOME), List.of(MeetingKeywordType.EXERCISE));
@@ -32,13 +34,15 @@ class MeetingTagServiceTest {
   }
 
   @Test
-  void 모임_키워드가_비어있으면_태그를_생성할_수_없다() {
+  @DisplayName("모임 키워드가 비어있으면 태그를 생성할 수 없다")
+  void rejectsEmptyMeetingKeywords() {
     assertThatThrownBy(() -> meetingTagService.createGeneralMeetingTag(1L, List.of(), List.of()))
         .isInstanceOf(MeetingTagException.class);
   }
 
   @Test
-  void 번쩍_태그를_수정할_때_모임_키워드는_필수다() {
+  @DisplayName("번쩍 태그를 수정할 때 모임 키워드는 필수다")
+  void requiresMeetingKeywordsWhenUpdatingFlashTag() {
     MeetingTag flashTag =
         meetingTagService.createFlashTag(
             2L, 1L, List.of(WelcomeMessageType.YB_WELCOME), List.of(MeetingKeywordType.EXERCISE));
