@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.app.push.service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.app.push.PushToken;
@@ -38,7 +39,11 @@ public class PushTokenService {
   @Transactional
   public void deleteAllByUserId(Long userId) {
     List<PushToken> tokens = pushTokenRepositoryPort.findAllByUserId(userId);
-    tokens.forEach(this::notifySenderOfDeletion);
+    CompletableFuture.allOf(
+            tokens.stream()
+                .map(token -> CompletableFuture.runAsync(() -> notifySenderOfDeletion(token)))
+                .toArray(CompletableFuture[]::new))
+        .join();
     pushTokenRepositoryPort.deleteAllByUserId(userId);
   }
 
