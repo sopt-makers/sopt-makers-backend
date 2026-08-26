@@ -26,6 +26,9 @@ import org.sopt.makers.storage.db.common.BaseEntity;
     indexes = {
       @Index(name = "idx_app_notifications_user_id_created_at", columnList = "user_id, created_at"),
       @Index(
+          name = "idx_app_notifications_user_id_category_created_at",
+          columnList = "user_id, notification_category, created_at"),
+      @Index(
           name = "idx_app_notifications_user_id_notification_id",
           columnList = "user_id, notification_id")
     })
