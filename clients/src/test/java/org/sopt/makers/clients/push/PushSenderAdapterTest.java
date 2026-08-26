@@ -12,11 +12,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.clients.alarm.AlarmProperty;
+import org.sopt.makers.clients.notification.NotificationHttpClient;
 import org.sopt.makers.domain.app.notification.NotificationCategory;
 import org.sopt.makers.domain.app.push.PushMessage;
 import org.sopt.makers.domain.app.push.PushToken;
 import org.sopt.makers.domain.app.push.PushTokenPlatform;
 import org.sopt.makers.domain.app.push.exception.PushException;
+import org.springframework.web.client.RestTemplate;
 
 @DisplayName("PushSenderAdapter 테스트")
 class PushSenderAdapterTest {
@@ -29,9 +31,10 @@ class PushSenderAdapterTest {
     pushServer = new MockWebServer();
     pushServer.start();
     String baseUrl = pushServer.url("/").toString().replaceAll("/$", "");
+    AlarmProperty property =
+        new AlarmProperty(baseUrl, "test-push-key", "test-arn", "operation", "app");
     adapter =
-        new PushSenderAdapter(
-            new AlarmProperty(baseUrl, "test-push-key", "test-arn", "operation", "app"));
+        new PushSenderAdapter(new NotificationHttpClient(new RestTemplate(), property), property);
   }
 
   @AfterEach

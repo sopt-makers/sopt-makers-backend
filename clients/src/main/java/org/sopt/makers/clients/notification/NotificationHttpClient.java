@@ -19,13 +19,17 @@ public class NotificationHttpClient {
   private final AlarmProperty alarmProperty;
 
   public void send(String serviceName, String action, Object body) {
+    send(serviceName, action, body, null);
+  }
+
+  public void send(String serviceName, String action, Object body, String platform) {
     restTemplate.postForEntity(
         alarmProperty.url(),
-        new HttpEntity<>(body, buildHeaders(serviceName, action)),
+        new HttpEntity<>(body, buildHeaders(serviceName, action, platform)),
         Object.class);
   }
 
-  private HttpHeaders buildHeaders(String serviceName, String action) {
+  private HttpHeaders buildHeaders(String serviceName, String action, String platform) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -33,6 +37,9 @@ public class NotificationHttpClient {
     headers.add("action", action);
     headers.add("transactionId", UUID.randomUUID().toString());
     headers.add("service", serviceName);
+    if (platform != null) {
+      headers.add("platform", platform);
+    }
     return headers;
   }
 }
