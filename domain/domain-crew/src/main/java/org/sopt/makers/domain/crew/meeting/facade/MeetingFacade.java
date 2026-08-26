@@ -5,6 +5,8 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.crew.flash.service.FlashService;
 import org.sopt.makers.domain.crew.meeting.Meeting;
+import org.sopt.makers.domain.crew.meeting.demand.service.MeetingDemandOpenedNotificationService;
+import org.sopt.makers.domain.crew.meeting.demand.service.MeetingDemandService;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingTag;
@@ -24,13 +26,21 @@ public class MeetingFacade {
   private final MeetingTagService meetingTagService;
   private final FlashService flashService;
   private final MeetingKeywordNotificationPublisher notificationPublisher;
+  private final MeetingDemandService meetingDemandService;
+  private final MeetingDemandOpenedNotificationService openedNotificationService;
 
   @Transactional
   public CreatedMeeting createMeeting(CreateMeetingCommand command, Long userId) {
+    Long meetingDemandId = command.meetingCommand().meetingDemandId();
+    meetingDemandService.validateExists(meetingDemandId);
     Meeting meeting = meetingService.createMeeting(command.meetingCommand(), userId);
+    if (meetingDemandId != null) {
+      meetingDemandService.open(meetingDemandId);
+    }
     MeetingTag meetingTag =
         meetingTagService.createGeneralMeetingTag(
             meeting.id(), command.welcomeMessageTypes(), command.meetingKeywordTypes());
+    openedNotificationService.register(meeting);
     notificationPublisher.publish(meeting, command.meetingKeywordTypes());
     return new CreatedMeeting(meeting, meetingTag.id());
   }
