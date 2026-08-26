@@ -18,6 +18,6 @@ public interface SoptLetterTopicJpaRepository extends JpaRepository<SoptLetterTo
   @Query(
       "SELECT t FROM SoptLetterTopicEntity t"
           + " WHERE t.ctaText IS NOT NULL AND t.startedAt <= :now AND t.endedAt >= :now"
-          + " ORDER BY t.createdAt DESC")
+          + " ORDER BY t.startedAt DESC, t.id DESC")
   List<SoptLetterTopicEntity> findActiveCtas(@Param("now") LocalDateTime now);
 }

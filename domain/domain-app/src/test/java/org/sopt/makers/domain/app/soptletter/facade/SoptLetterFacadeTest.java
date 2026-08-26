@@ -251,4 +251,26 @@ class SoptLetterFacadeTest {
 
     assertThat(soptLetterFacade.getDefaultTopicMessages(ME, null, 10).hasNormalTopic()).isTrue();
   }
+
+  @Test
+  @DisplayName("CTA는 기본 주제도 대상에 포함한다")
+  void findsActiveCtaIncludingDefaultTopic() {
+    topicPort.add(
+        new SoptLetterTopic(
+            201L, "기본 주제", "CTA-default", true, NOW.minusDays(1), NOW.plusDays(1), NOW));
+
+    assertThat(soptLetterFacade.findActiveCta()).get().extracting("id").isEqualTo(201L);
+  }
+
+  @Test
+  @DisplayName("CTA가 여러 개면 시작일이 가장 늦은 주제를 우선한다")
+  void findsActiveCtaByLatestStartedAt() {
+    topicPort.add(
+        new SoptLetterTopic(
+            201L, "먼저 시작한 주제", "CTA-earlier", false, NOW.minusDays(1), NOW.plusDays(1), NOW));
+    topicPort.add(
+        new SoptLetterTopic(202L, "더 늦게 시작한 주제", "CTA-later", false, NOW, NOW.plusDays(1), NOW));
+
+    assertThat(soptLetterFacade.findActiveCta()).get().extracting("id").isEqualTo(202L);
+  }
 }

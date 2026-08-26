@@ -44,8 +44,13 @@ public final class InMemorySoptLetterTopicRepositoryPort implements SoptLetterTo
 
   @Override
   public List<SoptLetterTopic> findActiveCtasLatestFirst(LocalDateTime now) {
-    return latestFirst(
-        store.stream().filter(t -> t.ctaText() != null && t.isActiveAt(now)).toList());
+    return store.stream()
+        .filter(t -> t.ctaText() != null && t.isActiveAt(now))
+        .sorted(
+            Comparator.comparing(SoptLetterTopic::startedAt)
+                .thenComparing(SoptLetterTopic::id)
+                .reversed())
+        .toList();
   }
 
   private List<SoptLetterTopic> latestFirst(List<SoptLetterTopic> topics) {
