@@ -33,7 +33,7 @@ public interface MeetingDemandApi {
       Long meetingDemandId, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 수요 기다려요 토글")
-  ResponseEntity<BaseResponse<?>> switchMeetingDemandWait(
+  ResponseEntity<BaseResponse<?>> toggleMeetingDemandWait(
       Long meetingDemandId, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 수요 신고")

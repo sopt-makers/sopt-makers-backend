@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
@@ -64,7 +65,8 @@ class MeetingDemandServiceTest {
           notificationPublisher);
 
   @Test
-  void 최초_기다려요는_이력을_남기고_수요_작성자에게_알림을_발행한다() {
+  @DisplayName("최초 기다려요는 이력을 남기고 수요 작성자에게 알림을 발행한다")
+  void firstWaitCreatesHistoryAndPublishesNotification() {
     MeetingDemand demand = demand(1L);
     when(demandRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(demand));
     when(userPort.findById(2L)).thenReturn(Optional.of(new MeetingUser(2L, "유저", null, List.of())));
@@ -73,7 +75,7 @@ class MeetingDemandServiceTest {
     when(waitRepository.countByMeetingDemandId(10L)).thenReturn(1L);
     when(demandRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    MeetingDemandService.WaitResult result = service.switchWait(10L, 2L);
+    MeetingDemandService.WaitResult result = service.toggleWait(10L, 2L);
 
     assertThat(result.isWaiting()).isTrue();
     assertThat(result.waitCount()).isEqualTo(1);
@@ -86,7 +88,8 @@ class MeetingDemandServiceTest {
   }
 
   @Test
-  void 기다려요를_다시_눌러도_작성자_알림은_반복하지_않는다() {
+  @DisplayName("기다려요를 다시 눌러도 작성자 알림은 반복하지 않는다")
+  void repeatedWaitDoesNotRepublishNotification() {
     MeetingDemand demand = demand(1L);
     when(demandRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(demand));
     when(userPort.findById(2L)).thenReturn(Optional.of(new MeetingUser(2L, "유저", null, List.of())));
@@ -95,22 +98,24 @@ class MeetingDemandServiceTest {
     when(waitRepository.countByMeetingDemandId(10L)).thenReturn(1L);
     when(demandRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    service.switchWait(10L, 2L);
+    service.toggleWait(10L, 2L);
 
     verify(notificationPublisher, never()).publish(any());
     verify(waitHistoryRepository, never()).save(any());
   }
 
   @Test
-  void 작성자는_자신의_수요에_기다려요를_누를_수_없다() {
+  @DisplayName("작성자는 자신의 수요에 기다려요를 누를 수 없다")
+  void writerCannotWaitOwnDemand() {
     when(demandRepository.findByIdForUpdate(10L)).thenReturn(Optional.of(demand(1L)));
 
-    assertThatThrownBy(() -> service.switchWait(10L, 1L))
+    assertThatThrownBy(() -> service.toggleWait(10L, 1L))
         .isInstanceOf(MeetingDemandException.class);
   }
 
   @Test
-  void 다른_사용자의_수요를_신고한다() {
+  @DisplayName("다른 사용자의 수요를 신고한다")
+  void reportsAnotherUsersDemand() {
     when(demandRepository.findById(10L)).thenReturn(Optional.of(demand(1L)));
     when(reportRepository.existsByUserIdAndTarget(any(), any(), any())).thenReturn(false);
     when(reportRepository.save(any())).thenReturn(MeetingDemandReport.demand(2L, 10L));
@@ -122,7 +127,8 @@ class MeetingDemandServiceTest {
   }
 
   @Test
-  void 작성자는_자신의_수요를_신고할_수_없다() {
+  @DisplayName("작성자는 자신의 수요를 신고할 수 없다")
+  void writerCannotReportOwnDemand() {
     when(demandRepository.findById(10L)).thenReturn(Optional.of(demand(1L)));
 
     assertThatThrownBy(() -> service.reportMeetingDemand(10L, 1L))
@@ -132,7 +138,8 @@ class MeetingDemandServiceTest {
   }
 
   @Test
-  void 이미_신고한_수요는_중복_신고할_수_없다() {
+  @DisplayName("이미 신고한 수요는 중복 신고할 수 없다")
+  void duplicateDemandReportIsRejected() {
     when(demandRepository.findById(10L)).thenReturn(Optional.of(demand(1L)));
     when(reportRepository.existsByUserIdAndTarget(any(), any(), any())).thenReturn(true);
 

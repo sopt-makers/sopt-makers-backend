@@ -4,7 +4,7 @@ import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuc
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.DELETE_MEETING_DEMAND_COMMENT;
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.GET_MEETING_DEMAND_COMMENTS;
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.REPORT_MEETING_DEMAND_COMMENT;
-import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.SWITCH_MEETING_DEMAND_COMMENT_LIKE;
+import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.TOGGLE_MEETING_DEMAND_COMMENT_LIKE;
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.UPDATE_MEETING_DEMAND_COMMENT;
 
 import jakarta.validation.Valid;
@@ -16,7 +16,7 @@ import org.sopt.makers.api.controller.crew.meetingdemand.dto.CreateMeetingDemand
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.GetMeetingDemandCommentsRequest;
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.MeetingDemandCommentPageResponse;
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.MeetingDemandReportResponse;
-import org.sopt.makers.api.controller.crew.meetingdemand.dto.SwitchMeetingDemandCommentLikeResponse;
+import org.sopt.makers.api.controller.crew.meetingdemand.dto.ToggleMeetingDemandCommentLikeResponse;
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.UpdateMeetingDemandCommentRequest;
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.UpdateMeetingDemandCommentResponse;
 import org.sopt.makers.core.response.BaseResponse;
@@ -86,12 +86,12 @@ public class MeetingDemandCommentController implements MeetingDemandCommentApi {
 
   @Override
   @PostMapping("/comments/{commentId}/like")
-  public ResponseEntity<BaseResponse<?>> switchCommentLike(
+  public ResponseEntity<BaseResponse<?>> toggleCommentLike(
       @PathVariable Long commentId, @CurrentUserId Long userId) {
     return ResponseFactory.success(
-        SWITCH_MEETING_DEMAND_COMMENT_LIKE,
-        new SwitchMeetingDemandCommentLikeResponse(
-            commentService.switchCommentLike(commentId, userId)));
+        TOGGLE_MEETING_DEMAND_COMMENT_LIKE,
+        new ToggleMeetingDemandCommentLikeResponse(
+            commentService.toggleCommentLike(commentId, userId)));
   }
 
   @Override

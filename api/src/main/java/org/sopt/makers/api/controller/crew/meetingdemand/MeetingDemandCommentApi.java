@@ -35,7 +35,7 @@ public interface MeetingDemandCommentApi {
       Long commentId, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 수요 댓글 좋아요 토글")
-  ResponseEntity<BaseResponse<?>> switchCommentLike(
+  ResponseEntity<BaseResponse<?>> toggleCommentLike(
       Long commentId, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "모임 수요 댓글 신고")

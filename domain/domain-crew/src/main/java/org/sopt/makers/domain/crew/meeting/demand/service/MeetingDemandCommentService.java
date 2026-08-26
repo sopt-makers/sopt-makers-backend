@@ -58,9 +58,9 @@ public class MeetingDemandCommentService {
   private final MeetingDemandNotificationPublisher notificationPublisher;
   private final Clock clock;
 
-  public Page<CommentView> findComments(Long meetingDemandId, Long userId, int page, int take) {
+  public Page<CommentView> findComments(Long meetingDemandId, Long userId, int page, int limit) {
     meetingDemandService.validateExists(meetingDemandId);
-    Page<MeetingDemandComment> parentPage = findNormalizedParentPage(meetingDemandId, page, take);
+    Page<MeetingDemandComment> parentPage = findNormalizedParentPage(meetingDemandId, page, limit);
     List<MeetingDemandComment> parents = parentPage.getContent();
     List<MeetingDemandComment> replies =
         commentRepositoryPort.findRepliesByParentIds(
@@ -173,7 +173,7 @@ public class MeetingDemandCommentService {
   }
 
   @Transactional
-  public boolean switchCommentLike(Long commentId, Long userId) {
+  public boolean toggleCommentLike(Long commentId, Long userId) {
     validateUser(userId);
     MeetingDemandComment comment = getCommentForUpdate(commentId);
     boolean wasLiked = likeRepositoryPort.existsByCommentIdAndUserId(commentId, userId);
@@ -200,19 +200,19 @@ public class MeetingDemandCommentService {
   }
 
   private Page<MeetingDemandComment> findNormalizedParentPage(
-      Long meetingDemandId, int page, int take) {
+      Long meetingDemandId, int page, int limit) {
     Page<MeetingDemandComment> result =
-        commentRepositoryPort.findParentComments(meetingDemandId, commentPageable(page, take));
+        commentRepositoryPort.findParentComments(meetingDemandId, commentPageable(page, limit));
     if (result.getTotalPages() > 0 && page > result.getTotalPages()) {
       return commentRepositoryPort.findParentComments(
-          meetingDemandId, commentPageable(result.getTotalPages(), take));
+          meetingDemandId, commentPageable(result.getTotalPages(), limit));
     }
     return result;
   }
 
-  private Pageable commentPageable(int page, int take) {
+  private Pageable commentPageable(int page, int limit) {
     return PageRequest.of(
-        Math.max(0, page - 1), take, Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("id")));
+        Math.max(0, page - 1), limit, Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("id")));
   }
 
   private ReplyView toReplyView(

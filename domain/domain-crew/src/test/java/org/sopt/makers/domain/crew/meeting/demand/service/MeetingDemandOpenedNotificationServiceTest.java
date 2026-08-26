@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sopt.makers.domain.crew.meeting.Meeting;
@@ -53,7 +54,8 @@ class MeetingDemandOpenedNotificationServiceTest {
           CLOCK);
 
   @Test
-  void 개설_알림은_수신자를_중복_제거하고_모임장을_제외한다() {
+  @DisplayName("개설 알림은 수신자를 중복 제거하고 모임장을 제외한다")
+  void openedNotificationDeduplicatesReceiversAndExcludesLeader() {
     Meeting meeting = meeting(3L);
     MeetingDemandOpenedNotification openedNotification =
         new MeetingDemandOpenedNotification(30L, 20L, null, null, null);

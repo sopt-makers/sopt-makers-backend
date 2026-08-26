@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
@@ -68,7 +69,8 @@ class MeetingDemandCommentServiceTest {
           CLOCK);
 
   @Test
-  void 다른_사용자가_부모_댓글을_작성하면_수요_작성자에게_알림을_발행한다() {
+  @DisplayName("다른 사용자가 부모 댓글을 작성하면 수요 작성자에게 알림을 발행한다")
+  void parentCommentByAnotherUserPublishesNotification() {
     MeetingDemand demand = demand();
     when(demandService.getDemandForUpdate(10L)).thenReturn(demand);
     when(userPort.findById(2L)).thenReturn(Optional.of(new MeetingUser(2L, "유저", null, List.of())));
@@ -104,7 +106,8 @@ class MeetingDemandCommentServiceTest {
   }
 
   @Test
-  void 대댓글은_다음_order로_생성하고_알림을_발행하지_않는다() {
+  @DisplayName("대댓글은 다음 순서로 생성하고 알림을 발행하지 않는다")
+  void replyUsesNextOrderWithoutNotification() {
     MeetingDemand demand = demand();
     MeetingDemandComment parent = parentComment(20L, 3L, "부모 댓글");
     when(demandService.getDemandForUpdate(10L)).thenReturn(demand);
@@ -126,8 +129,9 @@ class MeetingDemandCommentServiceTest {
   }
 
   @Test
+  @DisplayName("대댓글이 있는 부모 댓글은 삭제 표시하고 자식의 멘션을 지운다")
   @SuppressWarnings("unchecked")
-  void 대댓글이_있는_부모_댓글은_삭제_표시하고_자식의_멘션을_지운다() {
+  void parentWithRepliesIsSoftDeletedAndMentionsAreRemoved() {
     MeetingDemand demand = demand();
     MeetingDemandComment parent = parentComment(20L, 2L, "부모 댓글");
     MeetingDemandComment reply =
@@ -152,14 +156,15 @@ class MeetingDemandCommentServiceTest {
   }
 
   @Test
-  void 좋아요를_누르지_않은_댓글이면_좋아요를_추가한다() {
+  @DisplayName("좋아요를 누르지 않은 댓글이면 좋아요를 추가한다")
+  void unlikedCommentAddsLike() {
     MeetingDemandComment comment = parentComment(20L, 2L, "댓글");
     when(userPort.findById(3L)).thenReturn(Optional.of(new MeetingUser(3L, "유저", null, List.of())));
     when(commentRepository.findByIdForUpdate(20L)).thenReturn(Optional.of(comment));
     when(likeRepository.existsByCommentIdAndUserId(20L, 3L)).thenReturn(false);
     when(commentRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    boolean liked = service.switchCommentLike(20L, 3L);
+    boolean liked = service.toggleCommentLike(20L, 3L);
 
     assertThat(liked).isTrue();
     verify(likeRepository).save(any());
@@ -170,7 +175,8 @@ class MeetingDemandCommentServiceTest {
   }
 
   @Test
-  void 다른_사용자의_댓글을_신고한다() {
+  @DisplayName("다른 사용자의 댓글을 신고한다")
+  void reportsAnotherUsersComment() {
     when(commentRepository.findById(20L)).thenReturn(Optional.of(parentComment(20L, 2L, "댓글")));
     when(reportRepository.existsByUserIdAndTarget(any(), any(), any())).thenReturn(false);
     when(reportRepository.save(any())).thenReturn(MeetingDemandReport.comment(3L, 20L));
@@ -182,7 +188,8 @@ class MeetingDemandCommentServiceTest {
   }
 
   @Test
-  void 이미_신고한_댓글은_중복_신고할_수_없다() {
+  @DisplayName("이미 신고한 댓글은 중복 신고할 수 없다")
+  void duplicateCommentReportIsRejected() {
     when(commentRepository.findById(20L)).thenReturn(Optional.of(parentComment(20L, 2L, "댓글")));
     when(reportRepository.existsByUserIdAndTarget(any(), any(), any())).thenReturn(true);
 

@@ -6,7 +6,7 @@ import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuc
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.GET_MEETING_DEMANDS;
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.GET_OPENED_MEETINGS;
 import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.REPORT_MEETING_DEMAND;
-import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.SWITCH_MEETING_DEMAND_WAIT;
+import static org.sopt.makers.api.controller.crew.meetingdemand.MeetingDemandSuccessCode.TOGGLE_MEETING_DEMAND_WAIT;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.sopt.makers.api.controller.crew.meetingdemand.dto.MeetingDemandDetail
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.MeetingDemandPageResponse;
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.MeetingDemandReportResponse;
 import org.sopt.makers.api.controller.crew.meetingdemand.dto.OpenedMeetingPageResponse;
-import org.sopt.makers.api.controller.crew.meetingdemand.dto.SwitchMeetingDemandWaitResponse;
+import org.sopt.makers.api.controller.crew.meetingdemand.dto.ToggleMeetingDemandWaitResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.crew.meeting.demand.service.MeetingDemandService;
 import org.springframework.http.ResponseEntity;
@@ -92,12 +92,12 @@ public class MeetingDemandController implements MeetingDemandApi {
 
   @Override
   @PostMapping("/{meetingDemandId}/wait")
-  public ResponseEntity<BaseResponse<?>> switchMeetingDemandWait(
+  public ResponseEntity<BaseResponse<?>> toggleMeetingDemandWait(
       @PathVariable Long meetingDemandId, @CurrentUserId Long userId) {
     return ResponseFactory.success(
-        SWITCH_MEETING_DEMAND_WAIT,
-        SwitchMeetingDemandWaitResponse.from(
-            meetingDemandService.switchWait(meetingDemandId, userId)));
+        TOGGLE_MEETING_DEMAND_WAIT,
+        ToggleMeetingDemandWaitResponse.from(
+            meetingDemandService.toggleWait(meetingDemandId, userId)));
   }
 
   @Override

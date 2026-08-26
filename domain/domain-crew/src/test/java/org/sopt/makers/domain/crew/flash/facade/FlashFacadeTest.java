@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sopt.makers.domain.crew.flash.Flash;
@@ -36,7 +37,8 @@ class FlashFacadeTest {
       Clock.fixed(Instant.parse("2026-08-24T03:00:00Z"), ZoneId.of("Asia/Seoul"));
 
   @Test
-  void 빈_이미지는_기본_이미지로_대체하고_번쩍과_태그를_생성한다() {
+  @DisplayName("빈 이미지는 기본 이미지로 대체하고 번쩍과 태그를 생성한다")
+  void createsFlashAndTagWithDefaultImage() {
     MeetingService meetingService = mock(MeetingService.class);
     FlashService flashService = mock(FlashService.class);
     MeetingTagService meetingTagService = mock(MeetingTagService.class);
