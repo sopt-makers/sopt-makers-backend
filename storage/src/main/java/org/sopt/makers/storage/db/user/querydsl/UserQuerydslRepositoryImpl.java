@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.domain.user.UserSearchCondition;
@@ -54,6 +55,32 @@ public class UserQuerydslRepositoryImpl implements UserQuerydslRepository {
             .fetchOne();
 
     return new PageImpl<>(ids, pageable, total != null ? total : 0L);
+  }
+
+  @Override
+  public Set<Long> findUserIdsByRecommendCondition(
+      Set<Integer> generations, String mbti, String university) {
+    BooleanBuilder predicate = new BooleanBuilder();
+
+    if (generations != null && !generations.isEmpty()) {
+      predicate.and(activity.generation.in(generations));
+    }
+    if (mbti != null) {
+      predicate.and(user.mbti.eq(mbti));
+    }
+    if (university != null) {
+      predicate.and(user.university.eq(university));
+    }
+
+    return Set.copyOf(
+        queryFactory
+            .select(user.id)
+            .distinct()
+            .from(user)
+            .join(activity)
+            .on(activity.user.id.eq(user.id))
+            .where(predicate)
+            .fetch());
   }
 
   private BooleanBuilder buildPredicate(UserSearchCondition condition) {

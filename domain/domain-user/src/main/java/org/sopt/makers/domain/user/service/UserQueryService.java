@@ -2,10 +2,12 @@ package org.sopt.makers.domain.user.service;
 
 import static org.sopt.makers.domain.user.exception.UserFailure.NOT_FOUND_USER;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.domain.user.User;
@@ -81,6 +83,19 @@ public class UserQueryService {
 
   public int countByGenerationAndIsSopt(int generation, boolean isSopt) {
     return userRepositoryPort.countByGenerationAndIsSopt(generation, isSopt);
+  }
+
+  public boolean existsById(Long userId) {
+    return userRepositoryPort.findById(userId).isPresent();
+  }
+
+  public List<Long> filterExistingIds(Collection<Long> userIds) {
+    return userRepositoryPort.filterExistingIds(userIds);
+  }
+
+  public Set<Long> findUserIdsByRecommendCondition(
+      Set<Integer> generations, String mbti, String university) {
+    return userRepositoryPort.findUserIdsByRecommendCondition(generations, mbti, university);
   }
 
   private void loadMissingIntoCache(List<Long> userIds, Map<Long, User> cached) {
