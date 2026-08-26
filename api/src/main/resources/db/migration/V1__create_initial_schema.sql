@@ -732,3 +732,86 @@ CREATE TABLE member_block
 
 CREATE INDEX idx_member_block_blocker_active
     ON member_block (blocker_id, is_blocked);
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE TABLE property
+(
+    id           BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    property_key VARCHAR(255) NOT NULL,
+    properties   TEXT         NOT NULL,
+    created_at   TIMESTAMP    NOT NULL,
+    updated_at   TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_property_key UNIQUE (property_key)
+);
+
+CREATE TABLE subway_station
+(
+    id         BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    name       VARCHAR(255) NOT NULL,
+    lines      TEXT         NOT NULL,
+    created_at TIMESTAMP    NOT NULL,
+    updated_at TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_subway_station_name UNIQUE (name)
+);
+
+CREATE INDEX idx_subway_station_name_trgm
+    ON subway_station USING GIN (name gin_trgm_ops);
+
+CREATE TABLE sopt_map
+(
+    id                 BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    nearby_station_ids TEXT         NOT NULL,
+    place_name         VARCHAR(255) NOT NULL,
+    description        VARCHAR(500) NOT NULL,
+    map_tags           TEXT         NOT NULL,
+    naver_link         TEXT,
+    kakao_link         TEXT,
+    creator_id         BIGINT       NOT NULL,
+    created_at         TIMESTAMP    NOT NULL,
+    updated_at         TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_sopt_map_place_name UNIQUE (place_name),
+    CONSTRAINT fk_sopt_map_creator FOREIGN KEY (creator_id) REFERENCES users (id)
+);
+
+CREATE INDEX idx_sopt_map_creator ON sopt_map (creator_id);
+CREATE INDEX idx_sopt_map_created ON sopt_map (created_at DESC, id DESC);
+
+CREATE TABLE map_recommended
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id     BIGINT    NOT NULL,
+    sopt_map_id BIGINT    NOT NULL,
+    active      BOOLEAN   NOT NULL DEFAULT TRUE,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_map_recommended_user_map UNIQUE (user_id, sopt_map_id),
+    CONSTRAINT fk_map_recommended_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_map_recommended_map
+        FOREIGN KEY (sopt_map_id) REFERENCES sopt_map (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_map_recommended_map_active ON map_recommended (sopt_map_id, active);
+
+CREATE TABLE event_gift
+(
+    id         BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id    BIGINT,
+    map_id     BIGINT,
+    gift_url   TEXT      NOT NULL,
+    claimable  BOOLEAN   NOT NULL DEFAULT TRUE,
+    active     BOOLEAN   NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_event_gift_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_event_gift_map FOREIGN KEY (map_id) REFERENCES sopt_map (id) ON DELETE SET NULL
+);
+
+CREATE UNIQUE INDEX uk_event_gift_user
+    ON event_gift (user_id) WHERE user_id IS NOT NULL;
+CREATE INDEX idx_event_gift_claimable ON event_gift (claimable, active, id);
