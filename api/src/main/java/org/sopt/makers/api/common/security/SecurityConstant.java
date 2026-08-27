@@ -46,6 +46,7 @@ public final class SecurityConstant {
           "/api/v2/admin/notification",
           "/api/v2/config",
           "/api/v2/firebase",
+          "/api/v1/popups",
           "/error",
           "/swagger-ui.html",
           "/swagger-ui",
