@@ -11,7 +11,7 @@ public class NoticeSecretAuthorizerAdapter implements NoticeAuthorizerPort {
 
   private final String configuredSecretKey;
 
-  public NoticeSecretAuthorizerAdapter(@Value("${notice.secret-key:}") String configuredSecretKey) {
+  public NoticeSecretAuthorizerAdapter(@Value("${crew.apikey:}") String configuredSecretKey) {
     this.configuredSecretKey = configuredSecretKey;
   }
 
