@@ -37,6 +37,9 @@ auth:
     code: "000000"
     name: test-bypass-login
 
+notice:
+  secret-key: test-notice-secret
+
 external:
   oauth:
     apple:

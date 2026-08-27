@@ -20,3 +20,6 @@ auth:
 
 official:
   apikey: ${OFFICIAL_API_KEY:}
+
+notice:
+  secret-key: ${NOTICE_SECRET_KEY:}
