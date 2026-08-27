@@ -146,10 +146,10 @@ public class SoptMapQuerydslRepository {
     stationIds.forEach(
         stationId -> {
           var stationText = Expressions.stringTemplate(CAST_TEXT, soptMapEntity.nearbyStationIds);
-          builder.or(stationText.like("%[" + stationId + ", %"));
+          builder.or(stationText.like("%[" + stationId + ",%"));
           builder.or(stationText.like("%[" + stationId + "]%"));
-          builder.or(stationText.like("%, " + stationId + ",%"));
-          builder.or(stationText.like("%, " + stationId + "]"));
+          builder.or(stationText.like("%," + stationId + ",%"));
+          builder.or(stationText.like("%," + stationId + "]"));
         });
     return builder;
   }
