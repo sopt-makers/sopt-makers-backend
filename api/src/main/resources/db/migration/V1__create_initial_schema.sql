@@ -815,3 +815,20 @@ CREATE TABLE event_gift
 CREATE UNIQUE INDEX uk_event_gift_user
     ON event_gift (user_id) WHERE user_id IS NOT NULL;
 CREATE INDEX idx_event_gift_claimable ON event_gift (claimable, active, id);
+
+CREATE TABLE notice
+(
+    id                BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    title             VARCHAR(255) NOT NULL,
+    sub_title         VARCHAR(255) NOT NULL,
+    contents          TEXT         NOT NULL,
+    created_date      TIMESTAMP    NOT NULL,
+    expose_start_date TIMESTAMP    NOT NULL,
+    expose_end_date   TIMESTAMP    NOT NULL,
+    created_at        TIMESTAMP    NOT NULL,
+    updated_at        TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX idx_notice_exposure_period
+    ON notice (expose_start_date, expose_end_date);
