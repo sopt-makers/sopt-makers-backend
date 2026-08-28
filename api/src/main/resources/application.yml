@@ -23,3 +23,5 @@ official:
 
 crew:
   apikey: ${CREW_API_KEY:}
+  slack:
+    api-auth-token: ${SLACK_API_AUTH_TOKEN:}
