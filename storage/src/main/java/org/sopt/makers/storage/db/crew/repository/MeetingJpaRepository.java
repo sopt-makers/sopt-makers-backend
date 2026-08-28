@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface MeetingJpaRepository extends JpaRepository<MeetingEntity, Long> {
 
+  int countAllByCreatedGeneration(Integer createdGeneration);
+
   Page<MeetingEntity> findAllByUserId(Long userId, Pageable pageable);
 
   Page<MeetingEntity> findAllByMeetingDemandId(Long meetingDemandId, Pageable pageable);

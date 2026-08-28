@@ -31,5 +31,3 @@ external:
     url: ${AUTH_API_URL}
     api-key: ${AUTH_API_KEY}
     service-name: ${AUTH_SERVICE_NAME}
-  crew:
-    url: ${CREW_API_URL}
