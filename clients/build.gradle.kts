@@ -3,6 +3,7 @@ dependencies {
     implementation(project(":domain:domain-auth"))
     implementation(project(":domain:domain-admin"))
     implementation(project(":domain:domain-official"))
+    implementation(project(":domain:domain-playground"))
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
