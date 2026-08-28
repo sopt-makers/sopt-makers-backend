@@ -31,6 +31,10 @@ public class UserQueryService {
     return userRepositoryPort.findById(userId).orElseThrow(() -> new UserException(NOT_FOUND_USER));
   }
 
+  public Optional<User> findById(Long userId) {
+    return userRepositoryPort.findById(userId);
+  }
+
   public User getWithActivitiesById(Long userId) {
     return userRepositoryPort
         .findWithActivitiesById(userId)
