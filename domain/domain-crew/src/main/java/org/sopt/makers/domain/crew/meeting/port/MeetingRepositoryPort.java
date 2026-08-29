@@ -11,6 +11,10 @@ public interface MeetingRepositoryPort {
 
   Optional<Meeting> findById(Long meetingId);
 
+  Optional<Long> findFirstIdByTitle(String title);
+
+  Optional<Long> findFirstIdByTitleContaining(String title);
+
   PageResult<Meeting> findAll(PageQuery pageQuery);
 
   PageResult<Meeting> findAllByUserId(Long userId, PageQuery pageQuery);
