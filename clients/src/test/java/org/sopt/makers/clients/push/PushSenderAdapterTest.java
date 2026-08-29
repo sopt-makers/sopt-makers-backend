@@ -31,10 +31,8 @@ class PushSenderAdapterTest {
     pushServer = new MockWebServer();
     pushServer.start();
     String baseUrl = pushServer.url("/").toString().replaceAll("/$", "");
-    AlarmProperty property =
-        new AlarmProperty(baseUrl, "test-push-key", "test-arn", "operation", "app");
-    adapter =
-        new PushSenderAdapter(new NotificationHttpClient(new RestTemplate(), property), property);
+    AlarmProperty property = new AlarmProperty(baseUrl, "test-push-key", "test-arn");
+    adapter = new PushSenderAdapter(new NotificationHttpClient(new RestTemplate(), property));
   }
 
   @AfterEach

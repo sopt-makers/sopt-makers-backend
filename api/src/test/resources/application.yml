@@ -64,8 +64,6 @@ external:
     url: http://localhost
     key: test-alarm-key
     arn: arn:aws:scheduler:ap-northeast-2:000000000000:schedule/test
-    header-service: test
-    app-header-service: test-app
   eventbridge:
     role-arn: arn:aws:iam::000000000000:role/test
     region: ap-northeast-2
