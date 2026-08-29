@@ -1,6 +1,7 @@
 package org.sopt.makers.storage.db.crew.repository;
 
 import java.util.Optional;
+import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.storage.db.crew.entity.MeetingEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface MeetingJpaRepository extends JpaRepository<MeetingEntity, Long> {
 
-  int countAllByCreatedGeneration(Integer createdGeneration);
+  int countAllByCreatedGenerationAndCategory(Integer createdGeneration, MeetingCategory category);
 
   Optional<MeetingEntity> findFirstByTitleOrderByIdDesc(String title);
 

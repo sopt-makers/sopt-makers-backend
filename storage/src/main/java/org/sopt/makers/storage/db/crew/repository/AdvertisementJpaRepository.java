@@ -28,6 +28,7 @@ public interface AdvertisementJpaRepository extends JpaRepository<AdvertisementE
       SELECT advertisement FROM AdvertisementEntity advertisement
       WHERE advertisement.sponsoredContent = true
         AND advertisement.category = :category
+        AND advertisement.display = true
         AND advertisement.startDate <= :now
         AND advertisement.endDate >= :now
       ORDER BY advertisement.priority ASC
@@ -42,6 +43,7 @@ public interface AdvertisementJpaRepository extends JpaRepository<AdvertisementE
       SELECT advertisement FROM AdvertisementEntity advertisement
       WHERE advertisement.sponsoredContent = false
         AND advertisement.category = :category
+        AND advertisement.display = true
       ORDER BY advertisement.priority ASC
       """)
   List<AdvertisementEntity> findDefault(
