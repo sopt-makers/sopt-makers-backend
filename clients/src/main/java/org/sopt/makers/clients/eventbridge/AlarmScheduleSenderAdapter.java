@@ -8,6 +8,7 @@ import org.sopt.makers.clients.alarm.AlarmProperty;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeBody;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeHeader;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeRequest;
+import org.sopt.makers.core.type.ServiceType;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
 import org.sopt.makers.domain.admin.alarm.exception.AlarmException;
@@ -78,7 +79,7 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
             .action(alarm.target().sendAction().getValue())
             .xApiKey(alarmProperty.key())
             .transactionId(UUID.randomUUID().toString())
-            .service(alarmProperty.headerService())
+            .service(ServiceType.ADMIN.getValue())
             .build();
 
     boolean isAppLink = AlarmLinkType.APP.equals(alarm.content().linkType());

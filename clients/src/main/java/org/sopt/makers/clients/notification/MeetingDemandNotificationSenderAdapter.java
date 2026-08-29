@@ -3,6 +3,7 @@ package org.sopt.makers.clients.notification;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.type.ServiceType;
 import org.sopt.makers.domain.crew.meeting.demand.notification.MeetingDemandNotification;
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandNotificationSenderPort;
 import org.springframework.core.env.Environment;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Component;
 public class MeetingDemandNotificationSenderAdapter implements MeetingDemandNotificationSenderPort {
 
   private static final String SEND_ACTION = "send";
-  private static final String SERVICE_NAME = "crew";
   private static final String DEV_WEB_URL = "https://sopt-internal-dev.sopt.org/group";
   private static final String PROD_WEB_URL = "https://playground.sopt.org/group";
 
@@ -22,7 +22,7 @@ public class MeetingDemandNotificationSenderAdapter implements MeetingDemandNoti
 
   @Override
   public void send(MeetingDemandNotification notification) {
-    notificationHttpClient.send(SERVICE_NAME, SEND_ACTION, buildBody(notification));
+    notificationHttpClient.send(ServiceType.CREW, SEND_ACTION, buildBody(notification));
   }
 
   private Map<String, Object> buildBody(MeetingDemandNotification notification) {

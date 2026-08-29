@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.clients.notification.NotificationHttpClient;
+import org.sopt.makers.core.type.ServiceType;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
 import org.sopt.makers.domain.admin.alarm.AlarmTargetType;
@@ -18,14 +19,12 @@ import org.springframework.web.client.RestClientException;
 public class AlarmInstantSenderAdapter implements AlarmInstantSenderPort {
 
   private final NotificationHttpClient notificationHttpClient;
-  private final AlarmProperty alarmProperty;
 
   @Override
   public void send(Alarm alarm) {
     try {
       Map<Object, Object> body = buildBody(alarm);
-      notificationHttpClient.send(
-          alarmProperty.headerService(), alarm.target().sendAction().getValue(), body);
+      notificationHttpClient.send(ServiceType.ADMIN, alarm.target().sendAction().getValue(), body);
     } catch (RestClientException e) {
       throw new AlarmException(AlarmFailure.FAIL_SEND_ALARM);
     }

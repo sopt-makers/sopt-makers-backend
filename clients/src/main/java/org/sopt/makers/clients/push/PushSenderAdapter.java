@@ -2,10 +2,10 @@ package org.sopt.makers.clients.push;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.makers.clients.alarm.AlarmProperty;
 import org.sopt.makers.clients.notification.NotificationHttpClient;
 import org.sopt.makers.clients.push.dto.PushSendRequest;
 import org.sopt.makers.clients.push.dto.PushTokenManageRequest;
+import org.sopt.makers.core.type.ServiceType;
 import org.sopt.makers.domain.app.push.PushMessage;
 import org.sopt.makers.domain.app.push.PushToken;
 import org.sopt.makers.domain.app.push.PushTokenPlatform;
@@ -25,7 +25,6 @@ public class PushSenderAdapter implements PushSenderPort {
   private static final String ACTION_DELETE = "cancel";
 
   private final NotificationHttpClient notificationHttpClient;
-  private final AlarmProperty property;
 
   @Override
   public void send(PushMessage message) {
@@ -33,8 +32,7 @@ public class PushSenderAdapter implements PushSenderPort {
       return;
     }
     try {
-      notificationHttpClient.send(
-          property.appHeaderService(), ACTION_SEND, PushSendRequest.from(message));
+      notificationHttpClient.send(ServiceType.APP, ACTION_SEND, PushSendRequest.from(message));
     } catch (RestClientException e) {
       log.warn("푸시 발송 실패 - title={}, 대상 {}명", message.title(), message.userIds().size(), e);
       throw new PushException(PushFailure.FAIL_SEND_PUSH);
@@ -54,7 +52,7 @@ public class PushSenderAdapter implements PushSenderPort {
   private void manageToken(String action, PushToken pushToken) {
     try {
       notificationHttpClient.send(
-          property.appHeaderService(),
+          ServiceType.APP,
           action,
           PushTokenManageRequest.from(pushToken),
           toPlatformHeader(pushToken.platform()));
