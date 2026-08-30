@@ -1,6 +1,7 @@
 package org.sopt.makers.clients.eventbridge;
 
 import static org.sopt.makers.core.constant.TimeExpressionConstant.DATE;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.FILE_SAFE_TIME;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -28,8 +29,6 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @RequiredArgsConstructor
 public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
-
-  private static final String SCHEDULE_TIME_FORMAT = "HH-mm";
 
   private final SchedulerClient schedulerClient;
   private final ObjectMapper objectMapper;
@@ -60,7 +59,7 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
   private String buildEventName(Alarm alarm) {
     String dateData = alarm.intendedAt().toLocalDate().format(DateTimeFormatter.ofPattern(DATE));
     String timeData =
-        alarm.intendedAt().toLocalTime().format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
+        alarm.intendedAt().toLocalTime().format(DateTimeFormatter.ofPattern(FILE_SAFE_TIME));
     return String.format("%s_%s_%d", dateData, timeData, alarm.id());
   }
 

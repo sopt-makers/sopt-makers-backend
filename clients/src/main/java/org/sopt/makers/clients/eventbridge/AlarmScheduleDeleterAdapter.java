@@ -1,6 +1,7 @@
 package org.sopt.makers.clients.eventbridge;
 
 import static org.sopt.makers.core.constant.TimeExpressionConstant.DATE;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.FILE_SAFE_TIME;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,8 +16,6 @@ import software.amazon.awssdk.services.scheduler.model.DeleteScheduleRequest;
 @Component
 @RequiredArgsConstructor
 public class AlarmScheduleDeleterAdapter implements AlarmScheduleDeleterPort {
-
-  private static final String SCHEDULE_TIME_FORMAT = "HH-mm";
 
   private final SchedulerClient schedulerClient;
 
@@ -33,7 +32,7 @@ public class AlarmScheduleDeleterAdapter implements AlarmScheduleDeleterPort {
   private String buildEventName(long alarmId, LocalDateTime scheduleDateTime) {
     String dateData = scheduleDateTime.toLocalDate().format(DateTimeFormatter.ofPattern(DATE));
     String timeData =
-        scheduleDateTime.toLocalTime().format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
+        scheduleDateTime.toLocalTime().format(DateTimeFormatter.ofPattern(FILE_SAFE_TIME));
     return String.format("%s_%s_%d", dateData, timeData, alarmId);
   }
 }
