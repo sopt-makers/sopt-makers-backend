@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.makers.domain.crew.property.CrewProperty;
 import org.sopt.makers.storage.db.common.BaseEntity;
 import org.sopt.makers.storage.db.crew.converter.ObjectMapConverter;
 
@@ -19,7 +20,7 @@ import org.sopt.makers.storage.db.crew.converter.ObjectMapConverter;
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "property")
-public class SoptMapPropertyEntity extends BaseEntity {
+public class CrewPropertyEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +32,8 @@ public class SoptMapPropertyEntity extends BaseEntity {
   @Convert(converter = ObjectMapConverter.class)
   @Column(nullable = false, columnDefinition = "TEXT")
   private Map<String, Object> properties;
+
+  public CrewProperty toDomain() {
+    return new CrewProperty(id, key, properties);
+  }
 }

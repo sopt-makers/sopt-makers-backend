@@ -7,7 +7,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.crew.soptmap.SoptMapEventPolicy;
 import org.sopt.makers.domain.crew.soptmap.port.SoptMapEventPolicyPort;
-import org.sopt.makers.storage.db.crew.repository.SoptMapPropertyJpaRepository;
+import org.sopt.makers.storage.db.crew.repository.CrewPropertyJpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,7 +19,7 @@ public class SoptMapEventPolicyAdapter implements SoptMapEventPolicyPort {
   private static final String END_DATE_KEY = "endDate";
   private static final String EVENT_NUMBERS_KEY = "eventNumbers";
 
-  private final SoptMapPropertyJpaRepository repository;
+  private final CrewPropertyJpaRepository repository;
 
   @Override
   public Optional<SoptMapEventPolicy> findPolicy() {

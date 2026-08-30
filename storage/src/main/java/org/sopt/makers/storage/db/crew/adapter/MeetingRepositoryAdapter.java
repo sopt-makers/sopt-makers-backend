@@ -32,6 +32,18 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
   }
 
   @Override
+  public Optional<Long> findFirstIdByTitle(String title) {
+    return meetingJpaRepository.findFirstByTitleOrderByIdDesc(title).map(MeetingEntity::getId);
+  }
+
+  @Override
+  public Optional<Long> findFirstIdByTitleContaining(String title) {
+    return meetingJpaRepository
+        .findFirstByTitleContainingOrderByIdDesc(title)
+        .map(MeetingEntity::getId);
+  }
+
+  @Override
   public PageResult<Meeting> findAll(PageQuery pageQuery) {
     return PageMapper.toPageResult(
         meetingJpaRepository.findAll(PageMapper.toPageable(pageQuery)), MeetingEntity::toDomain);

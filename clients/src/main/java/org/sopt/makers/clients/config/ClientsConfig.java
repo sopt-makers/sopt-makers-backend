@@ -1,9 +1,9 @@
 package org.sopt.makers.clients.config;
 
-import org.sopt.makers.clients.crew.CrewProperty;
 import org.sopt.makers.clients.eventbridge.EventBridgeProperty;
 import org.sopt.makers.clients.push.PushProperty;
 import org.sopt.makers.clients.s3.S3Property;
+import org.sopt.makers.clients.slack.SlackProperties;
 import org.sopt.makers.clients.sms.GabiaSmsProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
   S3Property.class,
   PushProperty.class,
   EventBridgeProperty.class,
-  CrewProperty.class
+  SlackProperties.class
 })
 public class ClientsConfig {
 
