@@ -26,6 +26,8 @@ CREATE TABLE generation
     dark_mode_text_color VARCHAR(5),
     light_mode_key_color VARCHAR(7),
     light_mode_text_color VARCHAR(5),
+    created_at   TIMESTAMP    NOT NULL,
+    updated_at   TIMESTAMP    NOT NULL,
     PRIMARY KEY (id)
 );
 
