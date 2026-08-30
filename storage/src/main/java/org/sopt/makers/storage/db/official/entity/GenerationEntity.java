@@ -11,12 +11,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.domain.official.generation.BrandingColor;
 import org.sopt.makers.domain.official.generation.Generation;
+import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "generation")
-public class GenerationEntity {
+public class GenerationEntity extends BaseEntity {
 
   @Id
   @Column(name = "id", nullable = false)
