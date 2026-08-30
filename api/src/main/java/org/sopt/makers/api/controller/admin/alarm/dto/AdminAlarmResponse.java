@@ -1,5 +1,9 @@
 package org.sopt.makers.api.controller.admin.alarm.dto;
 
+import static org.sopt.makers.core.constant.TimeExpressionConstant.DATE;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.DATETIME;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.TIME;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.time.LocalDateTime;
@@ -40,9 +44,6 @@ public sealed interface AdminAlarmResponse
       String linkType)
       implements AdminAlarmResponse {
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
-    private static final String TIME_FORMAT = "HH:mm";
-
     public static AlarmDetail from(Alarm alarm) {
       return new AlarmDetail(
           alarm.status().getDescription(),
@@ -64,11 +65,11 @@ public sealed interface AdminAlarmResponse
     }
 
     private static String toDate(LocalDateTime dt) {
-      return dt == null ? null : dt.toLocalDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+      return dt == null ? null : dt.toLocalDate().format(DateTimeFormatter.ofPattern(DATE));
     }
 
     private static String toTime(LocalDateTime dt) {
-      return dt == null ? null : dt.toLocalTime().format(DateTimeFormatter.ofPattern(TIME_FORMAT));
+      return dt == null ? null : dt.toLocalTime().format(DateTimeFormatter.ofPattern(TIME));
     }
   }
 
@@ -91,8 +92,6 @@ public sealed interface AdminAlarmResponse
         String title,
         String content) {
 
-      private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
-
       private static AlarmItem from(Alarm alarm) {
         return new AlarmItem(
             alarm.id(),
@@ -108,7 +107,7 @@ public sealed interface AdminAlarmResponse
       }
 
       private static String toDateTime(LocalDateTime dt) {
-        return Objects.isNull(dt) ? null : dt.format(DateTimeFormatter.ofPattern(DATETIME_FORMAT));
+        return Objects.isNull(dt) ? null : dt.format(DateTimeFormatter.ofPattern(DATETIME));
       }
     }
   }
