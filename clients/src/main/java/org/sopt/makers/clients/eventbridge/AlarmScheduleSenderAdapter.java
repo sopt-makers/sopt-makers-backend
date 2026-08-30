@@ -4,10 +4,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.clients.alarm.AlarmProperty;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeBody;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeHeader;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeRequest;
+import org.sopt.makers.clients.push.PushProperty;
 import org.sopt.makers.core.type.ServiceType;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
@@ -32,7 +32,7 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
 
   private final SchedulerClient schedulerClient;
   private final ObjectMapper objectMapper;
-  private final AlarmProperty alarmProperty;
+  private final PushProperty pushProperty;
   private final EventBridgeProperty eventBridgeProperty;
 
   @Override
@@ -77,7 +77,7 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
         AlarmScheduleEventBridgeHeader.builder()
             .alarmId(alarm.id())
             .action(alarm.target().sendAction().getValue())
-            .xApiKey(alarmProperty.key())
+            .xApiKey(pushProperty.key())
             .transactionId(UUID.randomUUID().toString())
             .service(ServiceType.ADMIN.getValue())
             .build();
@@ -101,7 +101,7 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
   private Target buildTarget(String eventJson) {
     return Target.builder()
         .roleArn(eventBridgeProperty.roleArn())
-        .arn(alarmProperty.arn())
+        .arn(pushProperty.arn())
         .input(eventJson)
         .build();
   }
