@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AdminKeyValidator {
 
-  @Value("${admin.key}")
+  @Value("${admin.key:}")
   private String adminKey;
 
   public void validate(String providedAdminKey) {
