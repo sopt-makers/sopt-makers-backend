@@ -14,7 +14,7 @@ public class AdminKeyValidator {
   private String adminKey;
 
   public void validate(String providedAdminKey) {
-    if (!Objects.equals(adminKey, providedAdminKey)) {
+    if (adminKey.isBlank() || !Objects.equals(adminKey, providedAdminKey)) {
       throw new CommonException(INVALID_ADMIN_KEY);
     }
   }
