@@ -18,7 +18,7 @@ external:
   playground:
     url: ${PLAYGROUND_URL}
     token: ${PLAYGROUND_TOKEN}
-  alarm:
+  push:
     url: ${ALARM_NOTIFICATION_URL}
     key: ${ALARM_NOTIFICATION_KEY}
     arn: ${ALARM_NOTIFICATION_ARN}
