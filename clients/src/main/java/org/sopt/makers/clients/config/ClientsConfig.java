@@ -1,7 +1,7 @@
 package org.sopt.makers.clients.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sopt.makers.clients.alarm.AlarmProperty;
-import org.sopt.makers.clients.crew.CrewProperty;
 import org.sopt.makers.clients.dictionary.DictionaryProperty;
 import org.sopt.makers.clients.eventbridge.EventBridgeProperty;
 import org.sopt.makers.clients.s3.S3Property;
@@ -19,14 +19,18 @@ import org.springframework.web.client.RestTemplate;
   S3Property.class,
   AlarmProperty.class,
   EventBridgeProperty.class,
-  CrewProperty.class,
+  SlackProperties.class,
   DictionaryProperty.class
-  SlackProperties.class
 })
 public class ClientsConfig {
 
   @Bean
   public RestTemplate restTemplate() {
     return new RestTemplate();
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
 }
