@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingImage;
+import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 
 public record MeetingSummaryResponse(
@@ -18,9 +19,12 @@ public record MeetingSummaryResponse(
     Integer capacity,
     long appliedCount,
     long approvedCount,
-    int status) {
+    int status,
+    List<String> welcomeMessageTypes,
+    List<String> meetingKeywordTypes) {
 
-  public static MeetingSummaryResponse from(MeetingService.MeetingSummary summary) {
+  public static MeetingSummaryResponse from(MeetingFacade.MeetingSummaryResult result) {
+    MeetingService.MeetingSummary summary = result.meetingSummary();
     Meeting meeting = summary.meeting();
     return new MeetingSummaryResponse(
         meeting.id(),
@@ -34,6 +38,8 @@ public record MeetingSummaryResponse(
         meeting.capacity(),
         summary.appliedCount(),
         summary.approvedCount(),
-        summary.status().getValue());
+        summary.status().getValue(),
+        MeetingTagMapper.fromWelcomeMessageTypes(result.meetingTagInfo().welcomeMessageTypes()),
+        MeetingTagMapper.fromMeetingKeywordTypes(result.meetingTagInfo().meetingKeywordTypes()));
   }
 }

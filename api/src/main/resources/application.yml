@@ -17,3 +17,11 @@ auth:
     phone: ${BYPASS_LOGIN_PHONE}
     code: ${BYPASS_LOGIN_CODE}
     name: ${BYPASS_LOGIN_NAME}
+
+official:
+  apikey: ${OFFICIAL_API_KEY:}
+
+crew:
+  apikey: ${CREW_API_KEY:}
+  slack:
+    api-auth-token: ${SLACK_API_AUTH_TOKEN:}

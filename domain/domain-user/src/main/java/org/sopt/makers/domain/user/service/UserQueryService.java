@@ -31,6 +31,10 @@ public class UserQueryService {
     return userRepositoryPort.findById(userId).orElseThrow(() -> new UserException(NOT_FOUND_USER));
   }
 
+  public Optional<User> findById(Long userId) {
+    return userRepositoryPort.findById(userId);
+  }
+
   public User getWithActivitiesById(Long userId) {
     return userRepositoryPort
         .findWithActivitiesById(userId)
@@ -57,6 +61,10 @@ public class UserQueryService {
     Map<Long, User> cached = userCacheRepositoryPort.getAllPresent(userIds);
     loadMissingIntoCache(userIds, cached);
     return userIds.stream().map(cached::get).filter(Objects::nonNull).toList();
+  }
+
+  public List<Long> findAllUserIds() {
+    return userRepositoryPort.findAllUserIds();
   }
 
   public List<User> findAllWithActivitiesByIds(List<Long> userIds) {

@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.crew.meeting.CoLeader;
 import org.sopt.makers.domain.crew.meeting.CoLeaders;
@@ -37,9 +39,6 @@ import org.sopt.makers.domain.crew.meeting.port.MeetingApplyRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
 import org.sopt.makers.domain.user.Activity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,6 +92,35 @@ public class MeetingService {
   }
 
   @Transactional
+  public Meeting createFlashMeeting(CreateFlashMeetingCommand command, Long userId) {
+    LocalDateTime now = LocalDateTime.now(clock);
+    return createMeeting(
+        new CreateMeetingCommand(
+            null,
+            command.title(),
+            null,
+            MeetingCategory.FLASH,
+            command.images(),
+            now,
+            command.activityStartDate().toLocalDate().minusDays(1).atTime(23, 59, 59),
+            command.maximumCapacity(),
+            command.description(),
+            "",
+            command.activityStartDate(),
+            command.activityEndDate(),
+            "",
+            "",
+            false,
+            false,
+            null,
+            null,
+            null,
+            List.of(MeetingJoinablePart.values()),
+            List.of()),
+        userId);
+  }
+
+  @Transactional
   public Meeting updateMeeting(Long meetingId, UpdateMeetingCommand command, Long userId) {
     Meeting meeting = getMeeting(meetingId);
     meeting.validateLeader(userId);
@@ -123,6 +151,35 @@ public class MeetingService {
       replaceCoLeaders(saved, command.coLeaderUserIds());
     }
     return saved;
+  }
+
+  @Transactional
+  public Meeting updateFlashMeeting(
+      Long meetingId, UpdateFlashMeetingCommand command, Long userId) {
+    LocalDateTime now = LocalDateTime.now(clock);
+    return updateMeeting(
+        meetingId,
+        new UpdateMeetingCommand(
+            command.title(),
+            null,
+            MeetingCategory.FLASH,
+            command.images(),
+            now,
+            command.activityStartDate().toLocalDate().minusDays(1).atTime(23, 59, 59),
+            command.maximumCapacity(),
+            command.description(),
+            "",
+            command.activityStartDate(),
+            command.activityEndDate(),
+            "",
+            "",
+            false,
+            false,
+            null,
+            null,
+            List.of(MeetingJoinablePart.values()),
+            null),
+        userId);
   }
 
   @Transactional
@@ -217,17 +274,16 @@ public class MeetingService {
         applyDetails);
   }
 
-  public Page<MeetingSummary> findAllMeetings(int pageNo, int limit) {
-    Pageable pageable = PageRequest.of(pageNo - 1, limit);
-    Page<Meeting> meetings = meetingRepositoryPort.findAll(pageable);
-    MeetingApplies applies = getMeetingApplies(meetings.getContent());
+  public PageResult<MeetingSummary> findAllMeetings(int pageNo, int limit) {
+    PageResult<Meeting> meetings = meetingRepositoryPort.findAll(new PageQuery(pageNo, limit));
+    MeetingApplies applies = getMeetingApplies(meetings.content());
     return meetings.map(meeting -> toSummary(meeting, applies));
   }
 
-  public Page<MeetingSummary> findMeetingsByCreator(Long userId, int pageNo, int limit) {
-    Pageable pageable = PageRequest.of(pageNo - 1, limit);
-    Page<Meeting> meetings = meetingRepositoryPort.findAllByUserId(userId, pageable);
-    MeetingApplies applies = getMeetingApplies(meetings.getContent());
+  public PageResult<MeetingSummary> findMeetingsByCreator(Long userId, int pageNo, int limit) {
+    PageResult<Meeting> meetings =
+        meetingRepositoryPort.findAllByUserId(userId, new PageQuery(pageNo, limit));
+    MeetingApplies applies = getMeetingApplies(meetings.content());
     return meetings.map(meeting -> toSummary(meeting, applies));
   }
 
@@ -508,6 +564,22 @@ public class MeetingService {
       List<Long> coLeaderUserIds) {}
 
   public record ApplyMeetingCommand(Long meetingId, String content) {}
+
+  public record CreateFlashMeetingCommand(
+      String title,
+      String description,
+      LocalDateTime activityStartDate,
+      LocalDateTime activityEndDate,
+      Integer maximumCapacity,
+      List<MeetingImage> images) {}
+
+  public record UpdateFlashMeetingCommand(
+      String title,
+      String description,
+      LocalDateTime activityStartDate,
+      LocalDateTime activityEndDate,
+      Integer maximumCapacity,
+      List<MeetingImage> images) {}
 
   public record UpdateApplyStatusCommand(Long applyId, MeetingApplyStatus status) {}
 

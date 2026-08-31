@@ -2,8 +2,11 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":domain:domain-auth"))
     implementation(project(":domain:domain-admin"))
+    implementation(project(":domain:domain-crew"))
     implementation(project(":domain:domain-official"))
     implementation(project(":domain:domain-playground"))
+    implementation(project(":domain:domain-app"))
+
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -14,4 +17,11 @@ dependencies {
     implementation("software.amazon.awssdk:s3:2.29.52")
     implementation("software.amazon.awssdk:scheduler:2.29.52")
     implementation("org.jsoup:jsoup:1.18.3")
+    implementation("com.slack.api:bolt:1.39.3")
+    implementation("com.slack.api:bolt-socket-mode:1.39.3")
+
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.assertj:assertj-core")
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

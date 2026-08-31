@@ -1,9 +1,9 @@
 package org.sopt.makers.domain.crew.meeting.port;
 
 import java.util.Optional;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.Meeting;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface MeetingRepositoryPort {
 
@@ -11,9 +11,19 @@ public interface MeetingRepositoryPort {
 
   Optional<Meeting> findById(Long meetingId);
 
-  Page<Meeting> findAll(Pageable pageable);
+  Optional<Long> findFirstIdByTitle(String title);
 
-  Page<Meeting> findAllByUserId(Long userId, Pageable pageable);
+  Optional<Long> findFirstIdByTitleContaining(String title);
+
+  PageResult<Meeting> findAll(PageQuery pageQuery);
+
+  PageResult<Meeting> findAllByUserId(Long userId, PageQuery pageQuery);
+
+  PageResult<Meeting> findAllByMeetingDemandId(Long meetingDemandId, PageQuery pageQuery);
+
+  long countByMeetingDemandId(Long meetingDemandId);
+
+  void clearMeetingDemandId(Long meetingDemandId);
 
   void delete(Meeting meeting);
 }

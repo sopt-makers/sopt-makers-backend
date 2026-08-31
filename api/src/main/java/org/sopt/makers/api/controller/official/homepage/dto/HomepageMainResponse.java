@@ -13,7 +13,9 @@ import org.sopt.makers.domain.official.recruitment.Recruitment;
 public record HomepageMainResponse(
     @Schema(description = "기수") int generation,
     @Schema(description = "기수명") String name,
+    @Schema(description = "홈 헤더 이미지") String homeHeaderImage,
     BrandingColor brandingColor,
+    List<CoreValue> coreValue,
     List<PartIntroduction> partIntroduction,
     List<LatestNews> latestNews,
     List<RecruitSchedule> recruitSchedule,
@@ -24,7 +26,9 @@ public record HomepageMainResponse(
     return new HomepageMainResponse(
         data.generation().id(),
         data.generation().name(),
+        data.generation().homeHeaderImage(),
         BrandingColor.from(data.generation()),
+        data.coreValues().stream().map(CoreValue::from).toList(),
         data.partInfos().stream().map(PartIntroduction::from).toList(),
         data.news().stream().map(LatestNews::from).toList(),
         data.recruitments().stream().map(RecruitSchedule::from).toList(),
@@ -48,6 +52,14 @@ public record HomepageMainResponse(
           generation.brandingColor().darkModeTextColor(),
           generation.brandingColor().lightModeKeyColor(),
           generation.brandingColor().lightModeTextColor());
+    }
+  }
+
+  public record CoreValue(String value, String description, String detailDescription) {
+
+    public static CoreValue from(org.sopt.makers.domain.official.corevalue.CoreValue coreValue) {
+      return new CoreValue(
+          coreValue.value(), coreValue.description(), coreValue.detailDescription());
     }
   }
 
@@ -97,7 +109,7 @@ public record HomepageMainResponse(
 
   @Schema(description = "활동 기록")
   public record ActivitiesRecords(
-      @Schema(description = "활동 회원 수") int activitiesUserCount,
+      @Schema(description = "활동 회원 수") int activitiesMemberCount,
       @Schema(description = "프로젝트 수") int projectCounts,
       @Schema(description = "스터디 수") int studyCounts,
       @Schema(description = "운영 기간") int operationPeriod) {

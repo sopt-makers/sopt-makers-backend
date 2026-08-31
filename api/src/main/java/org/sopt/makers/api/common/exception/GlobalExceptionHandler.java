@@ -6,6 +6,7 @@ import static org.sopt.makers.api.common.exception.CommonFailureCode.INVALID_REQ
 import static org.sopt.makers.api.common.exception.CommonFailureCode.METHOD_ARGUMENT_TYPE_MISMATCH;
 import static org.sopt.makers.api.common.exception.CommonFailureCode.METHOD_NOT_SUPPORTED;
 import static org.sopt.makers.api.common.exception.CommonFailureCode.MISSING_REQUEST_HEADER;
+import static org.sopt.makers.api.common.exception.CommonFailureCode.MISSING_REQUEST_PARAMETER;
 import static org.sopt.makers.api.common.exception.CommonFailureCode.NOT_FOUND_URL;
 import static org.sopt.makers.api.common.exception.CommonFailureCode.NO_RESOURCE_FOUND;
 
@@ -23,6 +24,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -110,6 +112,13 @@ public class GlobalExceptionHandler {
       final MissingRequestHeaderException e) {
     log.warn(e.getMessage());
     return toResponse(MISSING_REQUEST_HEADER);
+  }
+
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  public ResponseEntity<BaseResponse<?>> handleMissingParameterException(
+      final MissingServletRequestParameterException e) {
+    log.warn(e.getMessage());
+    return toResponse(MISSING_REQUEST_PARAMETER);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)

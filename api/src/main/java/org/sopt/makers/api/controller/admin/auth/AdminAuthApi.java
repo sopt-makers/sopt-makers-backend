@@ -10,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "Admin Auth", description = "어드민 인증 API")
 public interface AdminAuthApi {
 
-  @Operation(summary = "어드민 회원가입")
-  ResponseEntity<BaseResponse<?>> signUp(AdminAuthRequest.AdminSignUp request);
-
   @Operation(summary = "어드민 로그인")
   ResponseEntity<BaseResponse<?>> login(AdminAuthRequest.AdminLogin request);
 

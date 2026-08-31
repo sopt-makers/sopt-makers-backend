@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 
 public record CreateMeetingRequest(
@@ -27,30 +28,35 @@ public record CreateMeetingRequest(
     Integer createdGeneration,
     Integer targetActiveGeneration,
     @NotNull @Size(min = 1, max = 6) List<String> joinableParts,
-    List<Long> coLeaderUserIds) {
+    List<Long> coLeaderUserIds,
+    List<String> welcomeMessageTypes,
+    @Size(min = 1, max = 2) List<String> meetingKeywordTypes) {
 
-  public MeetingService.CreateMeetingCommand toCommand() {
-    return new MeetingService.CreateMeetingCommand(
-        meetingDemandId,
-        title,
-        subTitle,
-        MeetingMapper.getCategory(category),
-        MeetingMapper.getImageURL(files),
-        MeetingMapper.getStartDate(startDate),
-        MeetingMapper.getEndDate(endDate),
-        capacity,
-        desc,
-        processDesc,
-        MeetingMapper.getStartDate(mStartDate),
-        MeetingMapper.getEndDate(mEndDate),
-        leaderDesc,
-        note,
-        isMentorNeeded,
-        canJoinOnlyActiveGeneration,
-        MeetingMapper.getJoinInfo(joinInfo),
-        createdGeneration,
-        targetActiveGeneration,
-        MeetingMapper.getJoinableParts(joinableParts),
-        coLeaderUserIds);
+  public MeetingFacade.CreateMeetingCommand toCommand() {
+    return new MeetingFacade.CreateMeetingCommand(
+        new MeetingService.CreateMeetingCommand(
+            meetingDemandId,
+            title,
+            subTitle,
+            MeetingMapper.getCategory(category),
+            MeetingMapper.getImageURL(files),
+            MeetingMapper.getStartDate(startDate),
+            MeetingMapper.getEndDate(endDate),
+            capacity,
+            desc,
+            processDesc,
+            MeetingMapper.getStartDate(mStartDate),
+            MeetingMapper.getEndDate(mEndDate),
+            leaderDesc,
+            note,
+            isMentorNeeded,
+            canJoinOnlyActiveGeneration,
+            MeetingMapper.getJoinInfo(joinInfo),
+            createdGeneration,
+            targetActiveGeneration,
+            MeetingMapper.getJoinableParts(joinableParts),
+            coLeaderUserIds),
+        MeetingTagMapper.toWelcomeMessageTypes(welcomeMessageTypes),
+        MeetingTagMapper.toMeetingKeywordTypes(meetingKeywordTypes));
   }
 }

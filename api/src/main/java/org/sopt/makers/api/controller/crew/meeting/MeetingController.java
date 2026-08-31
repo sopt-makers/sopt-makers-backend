@@ -26,8 +26,8 @@ import org.sopt.makers.api.controller.crew.meeting.dto.MeetingSummaryPageRespons
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
 import org.sopt.makers.core.response.BaseResponse;
-import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
+import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,13 +47,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeetingController implements MeetingApi {
 
   private final MeetingService meetingService;
+  private final MeetingFacade meetingFacade;
 
   @Override
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createMeeting(
       @Valid @RequestBody CreateMeetingRequest request, @CurrentUserId Long userId) {
-    Meeting meeting = meetingService.createMeeting(request.toCommand(), userId);
-    return ResponseFactory.success(CREATE_MEETING, CreateMeetingResponse.from(meeting));
+    return ResponseFactory.success(
+        CREATE_MEETING,
+        CreateMeetingResponse.from(meetingFacade.createMeeting(request.toCommand(), userId)));
   }
 
   @Override
@@ -62,17 +64,17 @@ public class MeetingController implements MeetingApi {
       @PathVariable Long meetingId,
       @Valid @RequestBody UpdateMeetingRequest request,
       @CurrentUserId Long userId) {
-    Meeting meeting = meetingService.updateMeeting(meetingId, request.toCommand(), userId);
     return ResponseFactory.success(
         UPDATE_MEETING,
-        MeetingDetailResponse.from(meetingService.getMeetingDetail(meeting.id(), userId)));
+        MeetingDetailResponse.from(
+            meetingFacade.updateMeeting(meetingId, request.toCommand(), userId)));
   }
 
   @Override
   @DeleteMapping("/{meetingId}")
   public ResponseEntity<BaseResponse<?>> deleteMeeting(
       @PathVariable Long meetingId, @CurrentUserId Long userId) {
-    meetingService.deleteMeeting(meetingId, userId);
+    meetingFacade.deleteMeeting(meetingId, userId);
     return ResponseFactory.success(DELETE_MEETING);
   }
 
@@ -115,8 +117,7 @@ public class MeetingController implements MeetingApi {
   public ResponseEntity<BaseResponse<?>> getMeeting(
       @PathVariable Long meetingId, @CurrentUserId Long userId) {
     return ResponseFactory.success(
-        GET_MEETING,
-        MeetingDetailResponse.from(meetingService.getMeetingDetail(meetingId, userId)));
+        GET_MEETING, MeetingDetailResponse.from(meetingFacade.getMeetingDetail(meetingId, userId)));
   }
 
   @Override
@@ -126,9 +127,7 @@ public class MeetingController implements MeetingApi {
     return ResponseFactory.success(
         GET_MEETINGS,
         MeetingSummaryPageResponse.from(
-            meetingService.findAllMeetings(request.pageNoOrDefault(), request.limitOrDefault()),
-            request.limitOrDefault(),
-            request.pageNoOrDefault()));
+            meetingFacade.findAllMeetings(request.pageNoOrDefault(), request.limitOrDefault())));
   }
 
   @Override
@@ -138,10 +137,8 @@ public class MeetingController implements MeetingApi {
     return ResponseFactory.success(
         GET_MEETINGS,
         MeetingSummaryPageResponse.from(
-            meetingService.findMeetingsByCreator(
-                userId, request.pageNoOrDefault(), request.limitOrDefault()),
-            request.limitOrDefault(),
-            request.pageNoOrDefault()));
+            meetingFacade.findMeetingsByCreator(
+                userId, request.pageNoOrDefault(), request.limitOrDefault())));
   }
 
   @Override

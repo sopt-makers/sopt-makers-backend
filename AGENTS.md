@@ -15,6 +15,10 @@
 다른 도메인의 user 데이터 변경이 필요하면 소비 도메인의 유스케이스 전용 Port를 먼저 만들고, 구현은 `domain-user`, `storage`, `clients` 중 실제 책임을 가진 모듈에 둔다.  
 `core`는 다른 모듈에 의존하지 않는다.
 
+Flyway 스키마는 통합 이관 기간 동안 별도 버전 파일을 추가하지 않고, 기존
+`api/src/main/resources/db/migration/V1__create_initial_schema.sql`에 누적한다.
+신규 도메인 이관 시 `V2__...sql` 같은 파일을 만들지 않는다.
+
 ## 용어 정의
 
 | 용어 | 의미 |

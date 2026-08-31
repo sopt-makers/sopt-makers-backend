@@ -3,7 +3,6 @@ package org.sopt.makers.api.controller.admin.auth;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_CHANGE_PASSWORD;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_LOGIN;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_REFRESH_TOKEN;
-import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_SIGN_UP;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -37,17 +36,6 @@ public class AdminAuthController implements AdminAuthApi {
 
   private final AdminAuthService adminAuthService;
   private final CookieFactory cookieFactory;
-
-  @Override
-  @PostMapping("/signup")
-  public ResponseEntity<BaseResponse<?>> signUp(
-      @Valid @RequestBody AdminAuthRequest.AdminSignUp request) {
-    var adminAccount =
-        adminAuthService.signUp(
-            request.email(), request.password(), request.name(), request.accountType());
-    return ResponseFactory.success(
-        SUCCESS_SIGN_UP, AdminAuthResponse.SignUpResult.from(adminAccount));
-  }
 
   @Override
   @PostMapping("/login")
