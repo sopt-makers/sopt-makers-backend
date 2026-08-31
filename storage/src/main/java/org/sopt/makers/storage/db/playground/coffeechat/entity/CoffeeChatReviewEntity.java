@@ -60,7 +60,8 @@ public class CoffeeChatReviewEntity {
       AnonymousProfileImageEntity anonymousProfileImage,
       String nickname,
       String content) {
-    return new CoffeeChatReviewEntity(reviewerId, coffeeChatId, anonymousProfileImage, nickname, content);
+    return new CoffeeChatReviewEntity(
+        reviewerId, coffeeChatId, anonymousProfileImage, nickname, content);
   }
 
   public CoffeeChatReview toDomain() {

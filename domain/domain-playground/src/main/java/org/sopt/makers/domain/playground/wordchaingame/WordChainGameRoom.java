@@ -4,8 +4,4 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record WordChainGameRoom(
-    Long id,
-    String startWord,
-    LocalDateTime createdAt,
-    Long createdUserId,
-    List<Word> wordList) {}
+    Long id, String startWord, LocalDateTime createdAt, Long createdUserId, List<Word> wordList) {}

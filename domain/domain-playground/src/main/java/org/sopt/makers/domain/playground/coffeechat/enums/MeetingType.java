@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MeetingType {
-
   ONLINE("온라인"),
   OFFLINE("오프라인"),
   ANYTHING("온/오프라인");

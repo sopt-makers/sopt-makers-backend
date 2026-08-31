@@ -62,7 +62,10 @@ public class PlaygroundCoffeeChatUserAdapter implements PlaygroundCoffeeChatUser
         user.profile().isPhoneBlind(),
         user.profile().university(),
         user.activities().activities().stream()
-            .map(a -> new ActivityInfo(a.generation(), a.part() != null ? a.part().name() : "", a.isSopt()))
+            .map(
+                a ->
+                    new ActivityInfo(
+                        a.generation(), a.part() != null ? a.part().name() : "", a.isSopt()))
             .toList(),
         lastCareer);
   }

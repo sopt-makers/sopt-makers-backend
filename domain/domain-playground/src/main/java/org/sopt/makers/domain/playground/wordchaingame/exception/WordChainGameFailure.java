@@ -9,7 +9,6 @@ import org.sopt.makers.core.code.FailureCode;
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum WordChainGameFailure implements FailureCode {
-
   NOT_FOUND_ROOM(400, "없는 방 번호입니다."),
   NOT_VALID_WORD(400, "한글자 단어는 사용할 수 없어요."),
   NOT_KOREAN_WORD(400, "한글 이외의 문자는 허용되지 않아요."),

@@ -24,8 +24,19 @@ public record CoffeeChat(
 
   public CoffeeChat withActive(boolean active) {
     return new CoffeeChat(
-        id, memberId, active, career, introduction, sections, coffeeChatBio,
-        coffeeChatTopicTypes, topic, meetingType, guideline, createdAt, updatedAt);
+        id,
+        memberId,
+        active,
+        career,
+        introduction,
+        sections,
+        coffeeChatBio,
+        coffeeChatTopicTypes,
+        topic,
+        meetingType,
+        guideline,
+        createdAt,
+        updatedAt);
   }
 
   public CoffeeChat withInfo(
@@ -38,7 +49,18 @@ public record CoffeeChat(
       MeetingType meetingType,
       String guideline) {
     return new CoffeeChat(
-        id, memberId, isCoffeeChatActivate, career, introduction, sections, bio,
-        topicTypes, topic, meetingType, guideline, createdAt, updatedAt);
+        id,
+        memberId,
+        isCoffeeChatActivate,
+        career,
+        introduction,
+        sections,
+        bio,
+        topicTypes,
+        topic,
+        meetingType,
+        guideline,
+        createdAt,
+        updatedAt);
   }
 }

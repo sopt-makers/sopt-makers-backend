@@ -21,7 +21,8 @@ public interface CoffeeChatJpaRepository extends JpaRepository<CoffeeChatEntity,
   List<CoffeeChatEntity> findAllByIsCoffeeChatActivateTrueAndCareer(Career career);
 
   @Query(
-      value = "SELECT * FROM coffee_chat WHERE is_coffee_chat_activate = true ORDER BY RAND() LIMIT :limit",
+      value =
+          "SELECT * FROM coffee_chat WHERE is_coffee_chat_activate = true ORDER BY RAND() LIMIT :limit",
       nativeQuery = true)
   List<CoffeeChatEntity> findRandomActive(@Param("limit") int limit);
 }

@@ -26,8 +26,7 @@ public class CoffeeChatSmsAdapter implements CoffeeChatSmsPort {
       String senderPhone,
       String receiverPhone) {
     String message =
-        String.format(
-            MESSAGE_FORMAT, senderName, senderPart, category.name(), content, senderId);
+        String.format(MESSAGE_FORMAT, senderName, senderPart, category.name(), content, senderId);
     gabiaClient.send(receiverPhone, message);
   }
 }

@@ -21,7 +21,9 @@ public class WordRepositoryAdapter implements WordRepositoryPort {
 
   @Override
   public Optional<Word> findLastWordByRoomId(Long roomId) {
-    return wordJpaRepository.findFirstByRoomIdOrderByCreatedAtDesc(roomId).map(WordEntity::toDomain);
+    return wordJpaRepository
+        .findFirstByRoomIdOrderByCreatedAtDesc(roomId)
+        .map(WordEntity::toDomain);
   }
 
   @Override

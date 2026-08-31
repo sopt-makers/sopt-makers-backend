@@ -35,14 +35,11 @@ public class PopupEntity extends BaseEntity {
   @Column(nullable = false)
   private String mobileImageUrl;
 
-  @Column
-  private String linkUrl;
+  @Column private String linkUrl;
 
-  @Column
-  private Boolean openInNewTab;
+  @Column private Boolean openInNewTab;
 
-  @Column
-  private Boolean showOnlyToRecentGeneration;
+  @Column private Boolean showOnlyToRecentGeneration;
 
   private PopupEntity(
       Long id,

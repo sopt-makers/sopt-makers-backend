@@ -57,8 +57,7 @@ public class PopupController implements PopupApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<BaseResponse<?>> getAllPopups(
-      @RequestHeader("admin-key") String adminKey) {
+  public ResponseEntity<BaseResponse<?>> getAllPopups(@RequestHeader("admin-key") String adminKey) {
     adminKeyValidator.validate(adminKey);
     List<PopupResponse> responses =
         popupService.getAllPopups().stream().map(PopupResponse::from).toList();
@@ -114,6 +113,7 @@ public class PopupController implements PopupApi {
   @GetMapping("/current")
   public ResponseEntity<BaseResponse<?>> getCurrentPopup() {
     Popup popup = popupService.getCurrentPopup();
-    return ResponseFactory.success(GET_CURRENT_POPUP, popup != null ? PopupResponse.from(popup) : null);
+    return ResponseFactory.success(
+        GET_CURRENT_POPUP, popup != null ? PopupResponse.from(popup) : null);
   }
 }

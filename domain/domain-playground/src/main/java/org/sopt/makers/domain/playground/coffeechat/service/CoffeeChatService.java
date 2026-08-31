@@ -6,8 +6,6 @@ import static org.sopt.makers.domain.playground.coffeechat.exception.CoffeeChatF
 import static org.sopt.makers.domain.playground.coffeechat.exception.CoffeeChatFailure.COFFEE_CHAT_NOT_REGISTERED;
 import static org.sopt.makers.domain.playground.coffeechat.exception.CoffeeChatFailure.NOT_PARTICIPATED_COFFEE_CHAT;
 
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -44,6 +42,8 @@ import org.sopt.makers.domain.playground.coffeechat.port.CoffeeChatUserPort.Care
 import org.sopt.makers.domain.playground.coffeechat.port.CoffeeChatUserPort.UserDetail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -67,7 +67,12 @@ public class CoffeeChatService {
     UserDetail receiverDetail = coffeeChatUserPort.getUserDetail(receiverId);
     String senderPart = formatActivitiesAsPartString(senderDetail.activities());
     coffeeChatSmsPort.send(
-        senderDetail.name(), senderPart, category, content, senderId, senderPhone,
+        senderDetail.name(),
+        senderPart,
+        category,
+        content,
+        senderId,
+        senderPhone,
         receiverDetail.phone());
     coffeeChatHistoryRepositoryPort.save(receiverId, senderId, content);
   }
@@ -122,8 +127,7 @@ public class CoffeeChatService {
 
   public List<CoffeeChatVoResult> getRecentCoffeeChatList() {
     List<RecentInfo> recentInfoList = coffeeChatRepositoryPort.findRecentCoffeeChatInfo();
-    List<Long> memberIds =
-        recentInfoList.stream().map(RecentInfo::memberId).distinct().toList();
+    List<Long> memberIds = recentInfoList.stream().map(RecentInfo::memberId).distinct().toList();
     Map<Long, UserDetail> userMap = toUserMap(coffeeChatUserPort.getUserDetails(memberIds));
     return recentInfoList.stream()
         .map(
@@ -158,8 +162,7 @@ public class CoffeeChatService {
 
     List<SearchInfo> results =
         coffeeChatRepositoryPort.findSearchCoffeeChatInfo(memberId, careerEnum);
-    results =
-        results.stream().filter(distinctByKey(SearchInfo::memberId)).toList();
+    results = results.stream().filter(distinctByKey(SearchInfo::memberId)).toList();
 
     List<Long> memberIds = results.stream().map(SearchInfo::memberId).distinct().toList();
     Map<Long, UserDetail> userMap = toUserMap(coffeeChatUserPort.getUserDetails(memberIds));
@@ -185,8 +188,7 @@ public class CoffeeChatService {
                   s -> {
                     UserDetail u = userMap.get(s.memberId());
                     return u != null
-                        && u.activities().stream()
-                            .anyMatch(a -> part.equalsIgnoreCase(a.part()));
+                        && u.activities().stream().anyMatch(a -> part.equalsIgnoreCase(a.part()));
                   })
               .toList();
     }
@@ -202,7 +204,9 @@ public class CoffeeChatService {
                     boolean careerMatch =
                         u != null
                             && u.lastCareer()
-                                .map(c -> c.companyName() != null && c.companyName().contains(search))
+                                .map(
+                                    c ->
+                                        c.companyName() != null && c.companyName().contains(search))
                                 .orElse(false);
                     return universityMatch || nameMatch || careerMatch;
                   })
@@ -269,8 +273,20 @@ public class CoffeeChatService {
       throw new CoffeeChatException(ALREADY_EXISTS_COFFEE_CHAT);
     }
     coffeeChatRepositoryPort.save(
-        new CoffeeChat(null, memberId, true, career, introduction, sections, bio, topicTypes,
-            topic, meetingType, guideline, null, null));
+        new CoffeeChat(
+            null,
+            memberId,
+            true,
+            career,
+            introduction,
+            sections,
+            bio,
+            topicTypes,
+            topic,
+            meetingType,
+            guideline,
+            null,
+            null));
   }
 
   @Transactional
@@ -289,8 +305,8 @@ public class CoffeeChatService {
             .findByMemberId(memberId)
             .orElseThrow(() -> new CoffeeChatException(COFFEE_CHAT_NOT_REGISTERED));
     coffeeChatRepositoryPort.save(
-        coffeeChat.withInfo(career, introduction, sections, bio, topicTypes, topic, meetingType,
-            guideline));
+        coffeeChat.withInfo(
+            career, introduction, sections, bio, topicTypes, topic, meetingType, guideline));
   }
 
   @Transactional

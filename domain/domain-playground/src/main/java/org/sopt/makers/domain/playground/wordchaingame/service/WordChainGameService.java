@@ -57,9 +57,9 @@ public class WordChainGameService {
   };
   private static final List<String> GAME_START_WORDS =
       List.of(
-          "메이커스", "고솝트", "플레이그라운드", "버디버디", "개발", "피그마", "솝트마인드", "마라탕", "음악", "디자이너", "애자일",
-          "퇴사", "햇살티미단", "종무식", "서울", "제주", "감자", "휴지", "물고기", "책상", "햄버거", "선물", "미소", "맛집",
-          "가방", "의자", "열정", "운동", "성장", "일기", "추억", "이야기");
+          "메이커스", "고솝트", "플레이그라운드", "버디버디", "개발", "피그마", "솝트마인드", "마라탕", "음악", "디자이너", "애자일", "퇴사",
+          "햇살티미단", "종무식", "서울", "제주", "감자", "휴지", "물고기", "책상", "햄버거", "선물", "미소", "맛집", "가방", "의자",
+          "열정", "운동", "성장", "일기", "추억", "이야기");
 
   @Transactional
   public CreateWordResult createWord(Long userId, Long roomId, String word) {
@@ -90,7 +90,8 @@ public class WordChainGameService {
     }
     WordChainGameRoom room =
         wordChainGameRoomRepositoryPort.save(
-            new WordChainGameRoom(null, getRandomStartWord(), LocalDateTime.now(), createdUserId, List.of()));
+            new WordChainGameRoom(
+                null, getRandomStartWord(), LocalDateTime.now(), createdUserId, List.of()));
     UserInfo creatorInfo =
         isGameCreatedBefore
             ? wordChainGameUserPort.getUserInfosByIds(List.of(userId)).get(0)
@@ -153,8 +154,7 @@ public class WordChainGameService {
   }
 
   private RoomResult toRoomResult(WordChainGameRoom room, Map<Long, UserInfo> userMap) {
-    UserInfo startUser =
-        room.createdUserId() != null ? userMap.get(room.createdUserId()) : null;
+    UserInfo startUser = room.createdUserId() != null ? userMap.get(room.createdUserId()) : null;
     List<RoomResult.WordEntry> wordEntries =
         room.wordList().stream()
             .sorted(Comparator.comparing(Word::id))

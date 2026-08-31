@@ -22,7 +22,11 @@ public class CoffeeChatReviewRepositoryAdapter implements CoffeeChatReviewReposi
   @Transactional
   @Override
   public void save(
-      Long reviewerId, Long coffeeChatId, Long anonymousProfileImageId, String nickname, String content) {
+      Long reviewerId,
+      Long coffeeChatId,
+      Long anonymousProfileImageId,
+      String nickname,
+      String content) {
     AnonymousProfileImageEntity imageEntity =
         anonymousProfileImageJpaRepository.findById(anonymousProfileImageId).orElseThrow();
     coffeeChatReviewJpaRepository.save(
@@ -31,7 +35,8 @@ public class CoffeeChatReviewRepositoryAdapter implements CoffeeChatReviewReposi
 
   @Override
   public boolean existsByReviewerIdAndCoffeeChatId(Long reviewerId, Long coffeeChatId) {
-    return coffeeChatReviewJpaRepository.existsByReviewerIdAndCoffeeChatId(reviewerId, coffeeChatId);
+    return coffeeChatReviewJpaRepository.existsByReviewerIdAndCoffeeChatId(
+        reviewerId, coffeeChatId);
   }
 
   @Override

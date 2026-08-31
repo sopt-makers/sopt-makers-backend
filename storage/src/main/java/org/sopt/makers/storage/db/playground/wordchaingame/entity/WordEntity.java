@@ -24,8 +24,7 @@ public class WordEntity {
   @Column(name = "user_id")
   private Long memberId;
 
-  @Column
-  private String word;
+  @Column private String word;
 
   @Column(name = "room_id")
   private Long roomId;

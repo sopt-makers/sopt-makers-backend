@@ -23,8 +23,7 @@ public class WordChainGameWinnerEntity {
   @Column(name = "user_id")
   private Long userId;
 
-  @Column
-  private Integer score;
+  @Column private Integer score;
 
   @Column(name = "room_id")
   private Long roomId;

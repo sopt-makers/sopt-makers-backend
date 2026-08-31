@@ -14,9 +14,7 @@ public interface WordChainGameApi {
   @Operation(summary = "단어 보내기")
   ResponseEntity<BaseResponse<?>> createWord(Long userId, WordChainGameGenerateRequest request);
 
-  @Operation(
-      summary = "게임 전체 조회",
-      description = "cursor: 처음에는 null 또는 0, 이후 마지막 room의 id")
+  @Operation(summary = "게임 전체 조회", description = "cursor: 처음에는 null 또는 0, 이후 마지막 room의 id")
   ResponseEntity<BaseResponse<?>> getAllGameRooms(Integer limit, Long cursor);
 
   @Operation(summary = "새 게임 생성")

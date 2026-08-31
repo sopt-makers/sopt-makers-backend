@@ -32,12 +32,7 @@ public class WordChainGameQueryRepository {
 
   public List<WordChainGameRoom> findAllRooms() {
     QWordChainGameRoomEntity room = QWordChainGameRoomEntity.wordChainGameRoomEntity;
-    return queryFactory
-        .selectFrom(room)
-        .orderBy(room.id.desc())
-        .groupBy(room.id)
-        .fetch()
-        .stream()
+    return queryFactory.selectFrom(room).orderBy(room.id.desc()).groupBy(room.id).fetch().stream()
         .map(e -> e.toDomain())
         .toList();
   }

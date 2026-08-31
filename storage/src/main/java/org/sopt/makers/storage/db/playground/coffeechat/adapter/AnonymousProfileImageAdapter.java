@@ -20,11 +20,13 @@ public class AnonymousProfileImageAdapter implements AnonymousProfileImagePort {
 
   @Override
   public AnonymousImage getRandomImage() {
-    Long randomId = ANONYMOUS_IMAGE_IDS.get(ThreadLocalRandom.current().nextInt(ANONYMOUS_IMAGE_IDS.size()));
+    Long randomId =
+        ANONYMOUS_IMAGE_IDS.get(ThreadLocalRandom.current().nextInt(ANONYMOUS_IMAGE_IDS.size()));
     AnonymousProfileImageEntity entity =
         anonymousProfileImageJpaRepository
             .findById(randomId)
-            .orElseThrow(() -> new CoffeeChatException(CoffeeChatFailure.ANONYMOUS_PROFILE_IMAGE_NOT_FOUND));
+            .orElseThrow(
+                () -> new CoffeeChatException(CoffeeChatFailure.ANONYMOUS_PROFILE_IMAGE_NOT_FOUND));
     return new AnonymousImage(entity.getId(), entity.getImageUrl());
   }
 }

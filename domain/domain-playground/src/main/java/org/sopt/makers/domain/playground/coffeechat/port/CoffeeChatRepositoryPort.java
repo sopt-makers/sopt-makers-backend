@@ -27,7 +27,8 @@ public interface CoffeeChatRepositoryPort {
 
   List<CoffeeChat> findRandomActiveCoffeeChats(int limit);
 
-  record RecentInfo(Long memberId, String bio, List<CoffeeChatTopicType> topicTypeList, Career career) {}
+  record RecentInfo(
+      Long memberId, String bio, List<CoffeeChatTopicType> topicTypeList, Career career) {}
 
   record SearchInfo(
       Long memberId,

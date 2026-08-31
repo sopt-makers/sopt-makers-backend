@@ -69,7 +69,8 @@ public class CoffeeChatController implements CoffeeChatApi {
         coffeeChatService.getRecentCoffeeChatList().stream()
             .map(CoffeeChatVoResponse::from)
             .toList();
-    return ResponseFactory.success(GET_RECENT_COFFEE_CHAT_LIST, new CoffeeChatListResponse(responses));
+    return ResponseFactory.success(
+        GET_RECENT_COFFEE_CHAT_LIST, new CoffeeChatListResponse(responses));
   }
 
   @Override
@@ -82,11 +83,13 @@ public class CoffeeChatController implements CoffeeChatApi {
       @RequestParam(required = false) String part,
       @RequestParam(required = false) String search) {
     List<CoffeeChatVoResponse> responses =
-        coffeeChatService.getSearchCoffeeChatList(userId, section, topicType, career, part, search)
+        coffeeChatService
+            .getSearchCoffeeChatList(userId, section, topicType, career, part, search)
             .stream()
             .map(CoffeeChatVoResponse::from)
             .toList();
-    return ResponseFactory.success(GET_SEARCH_COFFEE_CHAT_LIST, new CoffeeChatListResponse(responses));
+    return ResponseFactory.success(
+        GET_SEARCH_COFFEE_CHAT_LIST, new CoffeeChatListResponse(responses));
   }
 
   @Override
@@ -110,7 +113,8 @@ public class CoffeeChatController implements CoffeeChatApi {
   @Override
   @GetMapping("/open")
   public ResponseEntity<BaseResponse<?>> getCoffeeChatActivate(@CurrentUserId Long userId) {
-    return ResponseFactory.success(GET_COFFEE_CHAT_ACTIVATE, coffeeChatService.getCoffeeChatActivate(userId));
+    return ResponseFactory.success(
+        GET_COFFEE_CHAT_ACTIVATE, coffeeChatService.getCoffeeChatActivate(userId));
   }
 
   @Override
@@ -128,7 +132,8 @@ public class CoffeeChatController implements CoffeeChatApi {
         coffeeChatService.getCoffeeChatHistories(userId).stream()
             .map(CoffeeChatHistoryItemResponse::from)
             .toList();
-    return ResponseFactory.success(GET_COFFEE_CHAT_HISTORIES, new CoffeeChatHistoryTitleResponse(items));
+    return ResponseFactory.success(
+        GET_COFFEE_CHAT_HISTORIES, new CoffeeChatHistoryTitleResponse(items));
   }
 
   @Override
@@ -188,6 +193,7 @@ public class CoffeeChatController implements CoffeeChatApi {
         coffeeChatService.getRecentCoffeeChatReviews().stream()
             .map(CoffeeChatReviewInfoResponse::from)
             .toList();
-    return ResponseFactory.success(GET_RECENT_COFFEE_CHAT_REVIEWS, new CoffeeChatReviewListResponse(reviews));
+    return ResponseFactory.success(
+        GET_RECENT_COFFEE_CHAT_REVIEWS, new CoffeeChatReviewListResponse(reviews));
   }
 }

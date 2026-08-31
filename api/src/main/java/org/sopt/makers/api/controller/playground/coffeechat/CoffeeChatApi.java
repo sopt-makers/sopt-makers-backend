@@ -40,16 +40,19 @@ public interface CoffeeChatApi {
   ResponseEntity<BaseResponse<?>> getCoffeeChatHistories(Long userId);
 
   @Operation(summary = "커피챗 정보 등록")
-  ResponseEntity<BaseResponse<?>> createCoffeeChatDetails(Long userId, CoffeeChatDetailsRequest request);
+  ResponseEntity<BaseResponse<?>> createCoffeeChatDetails(
+      Long userId, CoffeeChatDetailsRequest request);
 
   @Operation(summary = "커피챗 정보 수정")
-  ResponseEntity<BaseResponse<?>> updateCoffeeChatDetails(Long userId, CoffeeChatDetailsRequest request);
+  ResponseEntity<BaseResponse<?>> updateCoffeeChatDetails(
+      Long userId, CoffeeChatDetailsRequest request);
 
   @Operation(summary = "커피챗 정보 삭제")
   ResponseEntity<BaseResponse<?>> deleteCoffeeChatDetails(Long userId);
 
   @Operation(summary = "커피챗 리뷰 등록")
-  ResponseEntity<BaseResponse<?>> createCoffeeChatReview(Long userId, CoffeeChatReviewRequest request);
+  ResponseEntity<BaseResponse<?>> createCoffeeChatReview(
+      Long userId, CoffeeChatReviewRequest request);
 
   @Operation(summary = "최근 커피챗 리뷰 조회")
   ResponseEntity<BaseResponse<?>> getRecentCoffeeChatReviews();

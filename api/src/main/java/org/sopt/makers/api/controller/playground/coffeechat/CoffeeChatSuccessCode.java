@@ -9,7 +9,6 @@ import org.sopt.makers.core.code.SuccessCode;
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum CoffeeChatSuccessCode implements SuccessCode {
-
   SEND_COFFEE_CHAT_REQUEST(200, "커피챗 신청 성공"),
   GET_COFFEE_CHAT_DETAIL(200, "커피챗 상세 조회 성공"),
   GET_COFFEE_CHAT_ACTIVATE(200, "커피챗 활성화 여부 조회 성공"),

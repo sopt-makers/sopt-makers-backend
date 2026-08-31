@@ -9,7 +9,6 @@ import org.sopt.makers.core.code.FailureCode;
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum CoffeeChatFailure implements FailureCode {
-
   COFFEE_CHAT_NOT_FOUND(404, "커피챗 정보를 확인할 수 없는 유저입니다."),
   COFFEE_CHAT_NOT_REGISTERED(404, "커피챗 정보를 등록한 적 없는 유저입니다."),
   ALREADY_EXISTS_COFFEE_CHAT(400, "이미 커피챗 정보가 등록된 유저입니다."),

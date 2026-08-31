@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Career {
-
   NONE("아직 없어요"),
   INTERN("인턴 경험만 있어요"),
   JUNIOR("주니어 (0-3년)"),

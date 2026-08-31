@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum CoffeeChatTopicType {
-
   STARTUP("창업"),
   CAREER("커리어"),
   PORTFOLIO("포트폴리오"),
@@ -28,7 +27,8 @@ public enum CoffeeChatTopicType {
     return Arrays.stream(CoffeeChatTopicType.values())
         .filter(t -> t.title.equals(title))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unknown CoffeeChatTopicType title: " + title));
+        .orElseThrow(
+            () -> new IllegalArgumentException("Unknown CoffeeChatTopicType title: " + title));
   }
 
   @JsonValue

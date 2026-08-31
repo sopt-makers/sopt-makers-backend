@@ -19,9 +19,7 @@ public class WordChainGameWinnerRepositoryAdapter implements WordChainGameWinner
 
   @Override
   public WordChainGameWinner save(WordChainGameWinner winner) {
-    return wordChainGameWinnerJpaRepository
-        .save(WordChainGameWinnerEntity.from(winner))
-        .toDomain();
+    return wordChainGameWinnerJpaRepository.save(WordChainGameWinnerEntity.from(winner)).toDomain();
   }
 
   @Override

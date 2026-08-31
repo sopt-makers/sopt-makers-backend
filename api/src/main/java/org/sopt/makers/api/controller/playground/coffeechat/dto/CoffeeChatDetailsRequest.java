@@ -9,8 +9,7 @@ import org.sopt.makers.domain.playground.coffeechat.enums.CoffeeChatTopicType;
 import org.sopt.makers.domain.playground.coffeechat.enums.MeetingType;
 
 public record CoffeeChatDetailsRequest(
-    @NotNull @Valid MemberInfoRequest memberInfo,
-    @NotNull @Valid CoffeeChatInfo coffeeChatInfo) {
+    @NotNull @Valid MemberInfoRequest memberInfo, @NotNull @Valid CoffeeChatInfo coffeeChatInfo) {
 
   public record MemberInfoRequest(Career career, String introduction) {}
 

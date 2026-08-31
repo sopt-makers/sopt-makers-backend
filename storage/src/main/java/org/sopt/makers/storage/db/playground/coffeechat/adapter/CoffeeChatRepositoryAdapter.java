@@ -49,7 +49,9 @@ public class CoffeeChatRepositoryAdapter implements CoffeeChatRepositoryPort {
 
   @Override
   public List<RecentInfo> findRecentCoffeeChatInfo() {
-    return coffeeChatJpaRepository.findTop12ByIsCoffeeChatActivateTrueOrderByCreatedAtDesc().stream()
+    return coffeeChatJpaRepository
+        .findTop12ByIsCoffeeChatActivateTrueOrderByCreatedAtDesc()
+        .stream()
         .map(
             e ->
                 new RecentInfo(

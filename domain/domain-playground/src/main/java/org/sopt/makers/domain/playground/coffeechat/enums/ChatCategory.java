@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ChatCategory {
-
   COFFEE_CHAT("커피챗"),
   FRIENDSHIP("친목"),
   APPJAM_TEAM_BUILD("앱잼 팀 빌딩"),

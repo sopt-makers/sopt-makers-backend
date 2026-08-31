@@ -57,7 +57,8 @@ public class WordChainGameController implements WordChainGameApi {
         infiniteScrollUtil.removeNextElementIfExist(limit, rooms).stream()
             .map(WordChainGameRoomResponse::from)
             .toList();
-    return ResponseFactory.success(GET_GAME_ROOMS, new WordChainGameAllResponse(responses, hasNext));
+    return ResponseFactory.success(
+        GET_GAME_ROOMS, new WordChainGameAllResponse(responses, hasNext));
   }
 
   @Override
@@ -71,8 +72,7 @@ public class WordChainGameController implements WordChainGameApi {
   @Override
   @GetMapping("/winners")
   public ResponseEntity<BaseResponse<?>> getGameWinners(
-      @RequestParam(required = false) Integer limit,
-      @RequestParam(defaultValue = "0") int cursor) {
+      @RequestParam(required = false) Integer limit, @RequestParam(defaultValue = "0") int cursor) {
     List<WinnerResult> winners =
         wordChainGameService.getAllWinners(
             infiniteScrollUtil.checkLimitForPagination(limit), cursor);
