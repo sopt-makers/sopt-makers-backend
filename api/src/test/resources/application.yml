@@ -60,7 +60,7 @@ external:
   playground:
     url: http://localhost
     token: test-playground-token
-  alarm:
+  push:
     url: http://localhost
     key: test-alarm-key
     arn: arn:aws:scheduler:ap-northeast-2:000000000000:schedule/test
