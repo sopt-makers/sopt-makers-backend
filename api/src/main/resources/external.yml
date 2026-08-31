@@ -41,3 +41,6 @@ dictionary:
     new-profile-channel-id: ${SLACK_NEW_PROFILE_CHANNEL_ID:}
   crew:
     url: ${CREW_INTERNAL_URL:}
+
+dictionary:
+  key: ${DICTIONARY_KEY:}
