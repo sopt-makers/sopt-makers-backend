@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CoffeeChatSmsAdapter implements CoffeeChatSmsPort {
 
+  private static final String MESSAGE_TITLE = "[SOPT makers] 쪽지가 도착했어요!";
   private static final String PROFILE_URL_FORMAT = "https://playground.sopt.org/members/%d";
-  private static final String MESSAGE_FORMAT =
-      "[SOPT Playground] %s(%s)님에게 커피챗 신청이 왔어요!\n\n카테고리: %s\n내용: %s\n\n신청자 프로필 확인: "
-          + PROFILE_URL_FORMAT;
+  private static final String TOPIC_COFFEE_CHAT = "커피챗";
+  private static final String TOPIC_NOTE = "친목";
+  private static final String GUIDE_MESSAGE =
+      "나의 조언이 용기 낸 SOPT 동료에게 큰 도움이 될 수 있어요. \n" + "쪽지에 응하신다면 아래 동료의 전화번호로 직접 연락해 주세요.";
 
   private final GabiaClient gabiaClient;
 
@@ -25,8 +27,29 @@ public class CoffeeChatSmsAdapter implements CoffeeChatSmsPort {
       Long senderId,
       String senderPhone,
       String receiverPhone) {
+    String topic = category == ChatCategory.COFFEE_CHAT ? TOPIC_COFFEE_CHAT : TOPIC_NOTE;
     String message =
-        String.format(MESSAGE_FORMAT, senderName, senderPart, category.name(), content, senderId);
+        MESSAGE_TITLE
+            + "\n\n"
+            + "[이름] "
+            + senderName
+            + "\n"
+            + "[파트] "
+            + senderPart
+            + "\n"
+            + "[주제] "
+            + topic
+            + "\n"
+            + "[이런 내용이 궁금해요]\n"
+            + content
+            + "\n\n"
+            + "[멤버 프로필 링크]\n"
+            + String.format(PROFILE_URL_FORMAT, senderId)
+            + "\n\n"
+            + GUIDE_MESSAGE
+            + "\n\n"
+            + "[연락처] "
+            + senderPhone;
     gabiaClient.send(receiverPhone, message);
   }
 }
