@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.sopt.makers.core.pagination.PageQuery;
 import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.core.type.Part;
@@ -52,7 +54,6 @@ class MeetingServiceTest {
 
   @Test
   @DisplayName("모임 생성 시 모임장과 공동 모임장을 역할별 Member로 저장한다")
-  @SuppressWarnings("unchecked")
   void createsLeaderAndCoLeaderMembers() {
     Meeting savedMeeting = meeting(1L);
     Member leader = Member.leader(1L, 10L);
@@ -66,9 +67,58 @@ class MeetingServiceTest {
     service.createMeeting(createCommand(List.of(20L)), 10L);
 
     verify(memberRepository).save(leader);
-    ArgumentCaptor<List<Member>> membersCaptor = ArgumentCaptor.forClass(List.class);
-    verify(memberRepository).saveAll(membersCaptor.capture());
-    assertThat(membersCaptor.getValue()).containsExactly(new Member(1L, 20L, MemberRole.CO_LEADER));
+    verify(memberRepository).saveOrReplaceRole(new Member(1L, 20L, MemberRole.CO_LEADER));
+  }
+
+  @Test
+  @DisplayName("모임 삭제 시 Member를 먼저 삭제한다")
+  void deletesMembersBeforeMeeting() {
+    Meeting meeting = meeting(1L);
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting));
+    when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
+
+    service.deleteMeeting(1L, 10L);
+
+    InOrder inOrder =
+        org.mockito.Mockito.inOrder(applyRepository, memberRepository, meetingRepository);
+    inOrder.verify(applyRepository).deleteAllByMeetingId(1L);
+    inOrder.verify(memberRepository).deleteAllByMeetingId(1L);
+    inOrder.verify(meetingRepository).delete(meeting);
+  }
+
+  @Test
+  @DisplayName("기존 참여자를 공동 모임장으로 지정하면 역할을 교체한다")
+  void replacesParticipantRoleWithCoLeader() {
+    Meeting meeting = meeting(1L);
+    Member participant = Member.participant(1L, 20L);
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting));
+    when(meetingRepository.save(any())).thenReturn(meeting);
+    when(memberRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(Member.leader(1L, 10L), participant));
+    when(userPort.findAllById(List.of(20L)))
+        .thenReturn(List.of(new MeetingUser(20L, "참여자", null, List.of())));
+    when(applyRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(apply(MeetingApplyStatus.APPROVE)));
+
+    service.updateMeeting(1L, updateCommand(List.of(20L)), 10L);
+
+    verify(memberRepository).saveOrReplaceRole(new Member(1L, 20L, MemberRole.CO_LEADER));
+  }
+
+  @Test
+  @DisplayName("승인된 공동 모임장을 해제하면 참여자 역할로 복원한다")
+  void restoresApprovedCoLeaderToParticipant() {
+    Meeting meeting = meeting(1L);
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting));
+    when(meetingRepository.save(any())).thenReturn(meeting);
+    when(memberRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(Member.leader(1L, 10L), new Member(1L, 20L, MemberRole.CO_LEADER)));
+    when(applyRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(apply(MeetingApplyStatus.APPROVE)));
+
+    service.updateMeeting(1L, updateCommand(List.of()), 10L);
+
+    verify(memberRepository).saveOrReplaceRole(Member.participant(1L, 20L));
   }
 
   @Test
@@ -86,6 +136,25 @@ class MeetingServiceTest {
 
     verify(memberRepository).save(Member.participant(1L, 20L));
     verify(meetingRepository).findByIdForUpdate(1L);
+  }
+
+  @Test
+  @DisplayName("이미 운영 역할이 있는 사용자를 승인해도 참여자로 덮어쓰지 않는다")
+  void approvalDoesNotReplaceManagerRole() {
+    MeetingApply rejected = apply(MeetingApplyStatus.REJECT);
+    Member coLeader = new Member(1L, 20L, MemberRole.CO_LEADER);
+    when(meetingRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(Member.leader(1L, 10L), coLeader));
+    when(memberRepository.countByMeetingIdAndRole(1L, MemberRole.PARTICIPANT)).thenReturn(0L);
+    when(memberRepository.findByMeetingIdAndUserId(1L, 20L)).thenReturn(Optional.of(coLeader));
+    when(applyRepository.findById(100L)).thenReturn(Optional.of(rejected));
+    when(applyRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    service.updateApplyStatus(
+        1L, new MeetingService.UpdateApplyStatusCommand(100L, MeetingApplyStatus.APPROVE), 10L);
+
+    verify(memberRepository, never()).save(Member.participant(1L, 20L));
   }
 
   @Test
@@ -232,6 +301,29 @@ class MeetingServiceTest {
         36,
         null,
         List.of(),
+        coLeaderUserIds);
+  }
+
+  private MeetingService.UpdateMeetingCommand updateCommand(List<Long> coLeaderUserIds) {
+    return new MeetingService.UpdateMeetingCommand(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         coLeaderUserIds);
   }
 

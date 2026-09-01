@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.crew.meeting.port;
 
 import java.util.List;
+import java.util.Optional;
 import org.sopt.makers.domain.crew.meeting.Member;
 import org.sopt.makers.domain.crew.meeting.MemberRole;
 
@@ -8,9 +9,11 @@ public interface MemberRepositoryPort {
 
   Member save(Member member);
 
-  List<Member> saveAll(List<Member> members);
+  Member saveOrReplaceRole(Member member);
 
   List<Member> findAllByMeetingId(Long meetingId);
+
+  Optional<Member> findByMeetingIdAndUserId(Long meetingId, Long userId);
 
   List<Member> findAllByMeetingIdsAndRole(List<Long> meetingIds, MemberRole role);
 
@@ -20,5 +23,5 @@ public interface MemberRepositoryPort {
 
   void deleteByMeetingIdAndUserIdAndRole(Long meetingId, Long userId, MemberRole role);
 
-  void deleteAllByMeetingIdAndRole(Long meetingId, MemberRole role);
+  void deleteAllByMeetingId(Long meetingId);
 }

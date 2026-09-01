@@ -1,6 +1,7 @@
 package org.sopt.makers.storage.db.crew.adapter;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.crew.meeting.Member;
 import org.sopt.makers.domain.crew.meeting.MemberRole;
@@ -25,12 +26,17 @@ public class MemberRepositoryAdapter implements MemberRepositoryPort {
 
   @Transactional
   @Override
-  public List<Member> saveAll(List<Member> members) {
+  public Member saveOrReplaceRole(Member member) {
     return meetingMemberJpaRepository
-        .saveAll(members.stream().map(MeetingMemberEntity::fromDomain).toList())
-        .stream()
-        .map(MeetingMemberEntity::toDomain)
-        .toList();
+        .findByMeetingIdAndUserId(member.meetingId(), member.userId())
+        .map(
+            entity -> {
+              entity.replaceRole(member.role());
+              return entity.toDomain();
+            })
+        .orElseGet(
+            () ->
+                meetingMemberJpaRepository.save(MeetingMemberEntity.fromDomain(member)).toDomain());
   }
 
   @Override
@@ -38,6 +44,13 @@ public class MemberRepositoryAdapter implements MemberRepositoryPort {
     return meetingMemberJpaRepository.findAllByMeetingId(meetingId).stream()
         .map(MeetingMemberEntity::toDomain)
         .toList();
+  }
+
+  @Override
+  public Optional<Member> findByMeetingIdAndUserId(Long meetingId, Long userId) {
+    return meetingMemberJpaRepository
+        .findByMeetingIdAndUserId(meetingId, userId)
+        .map(MeetingMemberEntity::toDomain);
   }
 
   @Override
@@ -73,7 +86,7 @@ public class MemberRepositoryAdapter implements MemberRepositoryPort {
 
   @Transactional
   @Override
-  public void deleteAllByMeetingIdAndRole(Long meetingId, MemberRole role) {
-    meetingMemberJpaRepository.deleteAllByMeetingIdAndRole(meetingId, role);
+  public void deleteAllByMeetingId(Long meetingId) {
+    meetingMemberJpaRepository.deleteAllByMeetingId(meetingId);
   }
 }

@@ -56,6 +56,10 @@ public class MeetingMemberEntity extends BaseEntity {
     return new Member(meetingId, userId, role);
   }
 
+  public void replaceRole(MemberRole role) {
+    this.role = role;
+  }
+
   public static MeetingMemberEntity fromDomain(Member member) {
     return MeetingMemberEntity.builder()
         .meetingId(member.meetingId())

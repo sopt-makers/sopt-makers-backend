@@ -13,8 +13,10 @@ import static org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.NOT_T
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -189,6 +191,7 @@ public class MeetingService {
     Meeting meeting = getMeeting(meetingId);
     getMembers(meetingId).validateLeader(meetingId, userId);
     meetingApplyRepositoryPort.deleteAllByMeetingId(meetingId);
+    memberRepositoryPort.deleteAllByMeetingId(meetingId);
     meetingRepositoryPort.delete(meeting);
   }
 
@@ -548,31 +551,59 @@ public class MeetingService {
   }
 
   private void replaceCoLeaders(Meeting meeting, List<Long> coLeaderUserIds) {
-    memberRepositoryPort.deleteAllByMeetingIdAndRole(meeting.id(), MemberRole.CO_LEADER);
-    if (coLeaderUserIds == null || coLeaderUserIds.isEmpty()) {
-      return;
-    }
-    List<MeetingUser> users = meetingUserPort.findAllById(coLeaderUserIds);
-    if (users.size() != coLeaderUserIds.stream().distinct().count()) {
+    Set<Long> requestedUserIds =
+        coLeaderUserIds == null ? Set.of() : new LinkedHashSet<>(coLeaderUserIds);
+    List<MeetingUser> users =
+        requestedUserIds.isEmpty()
+            ? List.of()
+            : meetingUserPort.findAllById(List.copyOf(requestedUserIds));
+    if (users.size() != requestedUserIds.size()) {
       throw new MeetingException(NOT_FOUND_USER);
     }
-    Long leaderUserId = getLeaderMember(meeting.id(), getMembers(meeting.id())).userId();
+
+    Members members = getMembers(meeting.id());
+    Long leaderUserId = getLeaderMember(meeting.id(), members).userId();
     List<Member> coLeaders =
-        coLeaderUserIds.stream()
-            .distinct()
+        requestedUserIds.stream()
             .map(userId -> Member.coLeader(meeting.id(), leaderUserId, userId))
             .toList();
-    memberRepositoryPort.saveAll(coLeaders);
+
+    Set<Long> approvedUserIds =
+        meetingApplyRepositoryPort.findAllByMeetingId(meeting.id()).stream()
+            .filter(MeetingApply::isApproved)
+            .map(MeetingApply::userId)
+            .collect(Collectors.toSet());
+    members.getByRole(MemberRole.CO_LEADER).stream()
+        .filter(member -> !requestedUserIds.contains(member.userId()))
+        .forEach(
+            member -> {
+              if (approvedUserIds.contains(member.userId())) {
+                memberRepositoryPort.saveOrReplaceRole(
+                    Member.participant(meeting.id(), member.userId()));
+              } else {
+                memberRepositoryPort.deleteByMeetingIdAndUserIdAndRole(
+                    meeting.id(), member.userId(), MemberRole.CO_LEADER);
+              }
+            });
+    coLeaders.forEach(memberRepositoryPort::saveOrReplaceRole);
   }
 
   private void syncParticipant(MeetingApply apply) {
     apply
         .toParticipant()
         .ifPresentOrElse(
-            memberRepositoryPort::save,
+            this::saveParticipantIfAbsent,
             () ->
                 memberRepositoryPort.deleteByMeetingIdAndUserIdAndRole(
                     apply.meetingId(), apply.userId(), MemberRole.PARTICIPANT));
+  }
+
+  private void saveParticipantIfAbsent(Member participant) {
+    if (memberRepositoryPort
+        .findByMeetingIdAndUserId(participant.meetingId(), participant.userId())
+        .isEmpty()) {
+      memberRepositoryPort.save(participant);
+    }
   }
 
   private Members getMembers(Long meetingId) {
