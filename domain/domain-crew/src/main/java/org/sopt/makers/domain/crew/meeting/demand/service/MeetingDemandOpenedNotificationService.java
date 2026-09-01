@@ -9,6 +9,8 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingStatus;
+import org.sopt.makers.domain.crew.meeting.MemberRole;
+import org.sopt.makers.domain.crew.meeting.Members;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemand;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemandOpenedNotification;
 import org.sopt.makers.domain.crew.meeting.demand.notification.MeetingDemandNotification;
@@ -16,6 +18,7 @@ import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandCommentRepos
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandOpenedNotificationRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
+import org.sopt.makers.domain.crew.meeting.port.MemberRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,7 @@ public class MeetingDemandOpenedNotificationService {
   private final MeetingDemandWaitRepositoryPort waitRepositoryPort;
   private final MeetingDemandCommentRepositoryPort commentRepositoryPort;
   private final MeetingRepositoryPort meetingRepositoryPort;
+  private final MemberRepositoryPort memberRepositoryPort;
   private final MeetingDemandService meetingDemandService;
   private final MeetingDemandNotificationPublisher notificationPublisher;
   private final Clock clock;
@@ -103,7 +107,9 @@ public class MeetingDemandOpenedNotificationService {
         commentRepositoryPort.findDistinctWriterUserIdsByMeetingDemandId(demand.id()));
     receiverIds.addAll(waitRepositoryPort.findUserIdsByMeetingDemandId(demand.id()));
     receiverIds.remove(null);
-    receiverIds.remove(meeting.userId());
+    new Members(memberRepositoryPort.findAllByMeetingId(meeting.id()))
+        .findByRole(meeting.id(), MemberRole.LEADER)
+        .ifPresent(leader -> receiverIds.remove(leader.userId()));
     if (receiverIds.isEmpty()) {
       notificationRepositoryPort.save(openedNotification.markSent(LocalDateTime.now(clock)));
       return;

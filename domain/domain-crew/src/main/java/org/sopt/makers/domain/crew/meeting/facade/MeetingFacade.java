@@ -69,9 +69,10 @@ public class MeetingFacade {
         meetingTagService.getByMeetingId(meetingId));
   }
 
-  public PageResult<MeetingSummaryResult> findAllMeetings(int pageNo, int limit) {
+  public PageResult<MeetingSummaryResult> searchMeetings(
+      MeetingService.SearchMeetingsCommand command, int pageNo, int limit) {
     PageResult<MeetingService.MeetingSummary> meetings =
-        meetingService.findAllMeetings(pageNo, limit);
+        meetingService.searchMeetings(command, pageNo, limit);
     Map<Long, MeetingTagService.MeetingTagInfo> tags = getTags(meetings);
     return meetings.map(
         meeting ->
@@ -92,6 +93,20 @@ public class MeetingFacade {
                 meeting,
                 tags.getOrDefault(
                     meeting.meeting().id(), MeetingTagService.MeetingTagInfo.empty())));
+  }
+
+  public PageResult<JoinedMeetingResult> findJoinedMeetings(Long userId, int pageNo, int limit) {
+    PageResult<MeetingService.JoinedMeeting> meetings =
+        meetingService.findJoinedMeetings(userId, pageNo, limit);
+    Map<Long, MeetingTagService.MeetingTagInfo> tags =
+        meetingTagService.getByMeetingIds(
+            meetings.content().stream().map(joined -> joined.summary().meeting().id()).toList());
+    return meetings.map(
+        joined ->
+            new JoinedMeetingResult(
+                joined,
+                tags.getOrDefault(
+                    joined.summary().meeting().id(), MeetingTagService.MeetingTagInfo.empty())));
   }
 
   private Map<Long, MeetingTagService.MeetingTagInfo> getTags(
@@ -118,5 +133,9 @@ public class MeetingFacade {
 
   public record MeetingSummaryResult(
       MeetingService.MeetingSummary meetingSummary,
+      MeetingTagService.MeetingTagInfo meetingTagInfo) {}
+
+  public record JoinedMeetingResult(
+      MeetingService.JoinedMeeting joinedMeeting,
       MeetingTagService.MeetingTagInfo meetingTagInfo) {}
 }

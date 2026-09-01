@@ -17,7 +17,10 @@ public enum MeetingSuccessCode implements SuccessCode {
   UPDATE_APPLY_STATUS(200, "모임 신청 상태 변경에 성공했습니다."),
   GET_MEETING(200, "모임 상세 조회에 성공했습니다."),
   GET_MEETINGS(200, "모임 목록 조회에 성공했습니다."),
-  GET_MEETING_MEMBERS(200, "모임 멤버 조회에 성공했습니다.");
+  GET_MEETING_MEMBERS(200, "모임 멤버 조회에 성공했습니다."),
+  GET_MEETING_APPLICANTS(200, "모임 지원자 조회에 성공했습니다."),
+  GET_MEETING_PARTICIPANTS(200, "모임 참여자 조회에 성공했습니다."),
+  GET_JOINED_MEETINGS(200, "내가 속한 모임 조회에 성공했습니다.");
 
   private final int statusCode;
   private final String message;

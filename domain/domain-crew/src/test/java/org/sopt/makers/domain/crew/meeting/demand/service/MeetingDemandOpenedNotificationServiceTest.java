@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
+import org.sopt.makers.domain.crew.meeting.Member;
+import org.sopt.makers.domain.crew.meeting.MemberRole;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemand;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemandOpenedNotification;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemandStatus;
@@ -25,6 +27,7 @@ import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandCommentRepos
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandOpenedNotificationRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
+import org.sopt.makers.domain.crew.meeting.port.MemberRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
 
 class MeetingDemandOpenedNotificationServiceTest {
@@ -39,6 +42,7 @@ class MeetingDemandOpenedNotificationServiceTest {
   private final MeetingDemandCommentRepositoryPort commentRepository =
       mock(MeetingDemandCommentRepositoryPort.class);
   private final MeetingRepositoryPort meetingRepository = mock(MeetingRepositoryPort.class);
+  private final MemberRepositoryPort memberRepository = mock(MemberRepositoryPort.class);
   private final MeetingDemandService demandService = mock(MeetingDemandService.class);
   private final MeetingDemandNotificationPublisher publisher =
       mock(MeetingDemandNotificationPublisher.class);
@@ -49,6 +53,7 @@ class MeetingDemandOpenedNotificationServiceTest {
           waitRepository,
           commentRepository,
           meetingRepository,
+          memberRepository,
           demandService,
           publisher,
           CLOCK);
@@ -65,6 +70,8 @@ class MeetingDemandOpenedNotificationServiceTest {
     when(commentRepository.findDistinctWriterUserIdsByMeetingDemandId(10L))
         .thenReturn(List.of(2L, 3L));
     when(waitRepository.findUserIdsByMeetingDemandId(10L)).thenReturn(List.of(1L, 2L));
+    when(memberRepository.findAllByMeetingId(20L))
+        .thenReturn(List.of(new Member(20L, 3L, MemberRole.LEADER)));
 
     service.register(meeting);
 
@@ -95,7 +102,6 @@ class MeetingDemandOpenedNotificationServiceTest {
   private Meeting meeting(Long leaderId) {
     return new Meeting(
         20L,
-        leaderId,
         10L,
         "러닝 모임",
         null,

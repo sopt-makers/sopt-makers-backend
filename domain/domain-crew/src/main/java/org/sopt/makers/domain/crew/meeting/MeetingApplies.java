@@ -27,9 +27,7 @@ public record MeetingApplies(Map<Long, List<MeetingApply>> appliesMap) {
   }
 
   public long getApprovedCount(Long meetingId) {
-    return appliesMap.getOrDefault(meetingId, List.of()).stream()
-        .filter(MeetingApply::isApproved)
-        .count();
+    return getParticipants(meetingId).values().size();
   }
 
   public boolean isApplied(Long meetingId, Long userId) {
@@ -38,7 +36,14 @@ public record MeetingApplies(Map<Long, List<MeetingApply>> appliesMap) {
   }
 
   public boolean isApproved(Long meetingId, Long userId) {
-    return appliesMap.getOrDefault(meetingId, List.of()).stream()
-        .anyMatch(apply -> apply.userId().equals(userId) && apply.isApproved());
+    return getParticipants(meetingId).hasRole(meetingId, userId, MemberRole.PARTICIPANT);
+  }
+
+  public Members getParticipants(Long meetingId) {
+    return new Members(
+        appliesMap.getOrDefault(meetingId, List.of()).stream()
+            .map(MeetingApply::toParticipant)
+            .flatMap(java.util.Optional::stream)
+            .toList());
   }
 }
