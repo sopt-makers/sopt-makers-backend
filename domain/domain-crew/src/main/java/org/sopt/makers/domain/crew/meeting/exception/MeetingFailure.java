@@ -20,6 +20,7 @@ public enum MeetingFailure implements FailureCode {
   INVALID_MEETING_CATEGORY(400, "모임 카테고리가 올바르지 않습니다."),
   INVALID_APPLY_STATUS(400, "모임 신청 상태 값이 올바르지 않습니다."),
   INVALID_APPLY_TYPE(400, "모임 신청 타입 값이 올바르지 않습니다."),
+  INVALID_MEMBER_ROLE(400, "모임 멤버 역할이 올바르지 않습니다."),
   ALREADY_APPLIED_MEETING(400, "이미 신청한 모임입니다."),
   ALREADY_PROCESSED_APPLY(400, "이미 처리된 모임 신청입니다."),
   FULL_MEETING_CAPACITY(400, "모임 정원이 가득 찼습니다."),

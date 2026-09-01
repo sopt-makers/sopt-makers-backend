@@ -19,6 +19,8 @@ import org.sopt.makers.core.pagination.PageQuery;
 import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
+import org.sopt.makers.domain.crew.meeting.Member;
+import org.sopt.makers.domain.crew.meeting.MemberRole;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemand;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemandJoinInfo;
 import org.sopt.makers.domain.crew.meeting.demand.MeetingDemandReport;
@@ -35,6 +37,7 @@ import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitHistoryR
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
+import org.sopt.makers.domain.crew.meeting.port.MemberRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +59,7 @@ public class MeetingDemandService {
   private final MeetingDemandCommentProfileRepositoryPort commentProfileRepositoryPort;
   private final MeetingDemandReportRepositoryPort reportRepositoryPort;
   private final MeetingRepositoryPort meetingRepositoryPort;
+  private final MemberRepositoryPort memberRepositoryPort;
   private final MeetingUserPort meetingUserPort;
   private final MeetingDemandNotificationPublisher notificationPublisher;
 
@@ -82,8 +86,8 @@ public class MeetingDemandService {
   public PageResult<OpenedMeeting> findOpenedMeetings(Long meetingDemandId, int page, int limit) {
     validateExists(meetingDemandId);
     PageResult<Meeting> meetings = findNormalizedOpenedMeetingPage(meetingDemandId, page, limit);
-    Map<Long, MeetingUser> userMap = getUserMap(meetings.content());
-    return meetings.map(meeting -> new OpenedMeeting(meeting, userMap.get(meeting.userId())));
+    Map<Long, MeetingUser> leaderMap = getLeaderMap(meetings.content());
+    return meetings.map(meeting -> new OpenedMeeting(meeting, leaderMap.get(meeting.id())));
   }
 
   @Transactional
@@ -223,15 +227,30 @@ public class MeetingDemandService {
     return result;
   }
 
-  private Map<Long, MeetingUser> getUserMap(List<Meeting> meetings) {
-    List<Long> userIds = meetings.stream().map(Meeting::userId).distinct().toList();
+  private Map<Long, MeetingUser> getLeaderMap(List<Meeting> meetings) {
+    List<Member> leaders =
+        memberRepositoryPort.findAllByMeetingIdsAndRole(
+            meetings.stream().map(Meeting::id).toList(), MemberRole.LEADER);
+    List<Long> userIds = leaders.stream().map(Member::userId).distinct().toList();
     if (userIds.isEmpty()) {
       return Map.of();
     }
-    return meetingUserPort.findAllById(userIds).stream()
+    Map<Long, MeetingUser> userMap =
+        meetingUserPort.findAllById(userIds).stream()
+            .collect(
+                Collectors.toMap(
+                    MeetingUser::id,
+                    Function.identity(),
+                    (left, right) -> left,
+                    LinkedHashMap::new));
+    return leaders.stream()
+        .filter(leader -> userMap.containsKey(leader.userId()))
         .collect(
             Collectors.toMap(
-                MeetingUser::id, Function.identity(), (left, right) -> left, LinkedHashMap::new));
+                Member::meetingId,
+                leader -> userMap.get(leader.userId()),
+                (left, right) -> left,
+                LinkedHashMap::new));
   }
 
   public record CreateMeetingDemandCommand(

@@ -17,7 +17,7 @@ public interface MeetingRepositoryPort {
 
   PageResult<Meeting> findAll(PageQuery pageQuery);
 
-  PageResult<Meeting> findAllByUserId(Long userId, PageQuery pageQuery);
+  PageResult<Meeting> findAllByLeaderUserId(Long userId, PageQuery pageQuery);
 
   PageResult<Meeting> findAllByMeetingDemandId(Long meetingDemandId, PageQuery pageQuery);
 

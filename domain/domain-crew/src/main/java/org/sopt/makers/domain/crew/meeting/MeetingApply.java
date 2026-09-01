@@ -3,6 +3,7 @@ package org.sopt.makers.domain.crew.meeting;
 import static org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.ALREADY_PROCESSED_APPLY;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import org.sopt.makers.domain.crew.meeting.exception.MeetingException;
 
 public record MeetingApply(
@@ -47,6 +48,13 @@ public record MeetingApply(
   }
 
   public boolean isParticipating() {
-    return status == MeetingApplyStatus.WAITING || status == MeetingApplyStatus.APPROVE;
+    return isApproved();
+  }
+
+  public Optional<Member> toParticipant() {
+    if (!isApproved()) {
+      return Optional.empty();
+    }
+    return Optional.of(Member.participant(meetingId, userId));
   }
 }

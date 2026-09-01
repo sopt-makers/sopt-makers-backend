@@ -50,9 +50,9 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
   }
 
   @Override
-  public PageResult<Meeting> findAllByUserId(Long userId, PageQuery pageQuery) {
+  public PageResult<Meeting> findAllByLeaderUserId(Long userId, PageQuery pageQuery) {
     return PageMapper.toPageResult(
-        meetingJpaRepository.findAllByUserId(userId, PageMapper.toPageable(pageQuery)),
+        meetingJpaRepository.findAllByLeaderUserId(userId, PageMapper.toPageable(pageQuery)),
         MeetingEntity::toDomain);
   }
 
