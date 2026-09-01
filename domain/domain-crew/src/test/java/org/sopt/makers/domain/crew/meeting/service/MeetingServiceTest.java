@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.sopt.makers.core.pagination.PageQuery;
 import org.sopt.makers.core.pagination.PageResult;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
 import org.sopt.makers.domain.crew.meeting.MeetingApplyStatus;
@@ -34,6 +35,8 @@ import org.sopt.makers.domain.crew.meeting.port.MeetingApplyRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
 import org.sopt.makers.domain.crew.meeting.port.MemberRepositoryPort;
+import org.sopt.makers.domain.user.Activity;
+import org.sopt.makers.domain.user.Team;
 
 class MeetingServiceTest {
 
@@ -72,7 +75,7 @@ class MeetingServiceTest {
   @DisplayName("신청 승인 시 신청자를 PARTICIPANT Member로 저장한다")
   void approvalCreatesParticipantMember() {
     MeetingApply waiting = apply(MeetingApplyStatus.WAITING);
-    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(meetingRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(meeting(1L)));
     when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
     when(memberRepository.countByMeetingIdAndRole(1L, MemberRole.PARTICIPANT)).thenReturn(0L);
     when(applyRepository.findById(100L)).thenReturn(Optional.of(waiting));
@@ -82,13 +85,14 @@ class MeetingServiceTest {
         1L, new MeetingService.UpdateApplyStatusCommand(100L, MeetingApplyStatus.APPROVE), 10L);
 
     verify(memberRepository).save(Member.participant(1L, 20L));
+    verify(meetingRepository).findByIdForUpdate(1L);
   }
 
   @Test
   @DisplayName("승인된 신청을 거절하면 PARTICIPANT Member를 삭제한다")
   void rejectionDeletesParticipantMember() {
     MeetingApply approved = apply(MeetingApplyStatus.APPROVE);
-    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(meetingRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(meeting(1L)));
     when(memberRepository.findAllByMeetingId(1L))
         .thenReturn(List.of(Member.leader(1L, 10L), Member.participant(1L, 20L)));
     when(applyRepository.findById(100L)).thenReturn(Optional.of(approved));
@@ -98,6 +102,25 @@ class MeetingServiceTest {
         1L, new MeetingService.UpdateApplyStatusCommand(100L, MeetingApplyStatus.REJECT), 10L);
 
     verify(memberRepository).deleteByMeetingIdAndUserIdAndRole(1L, 20L, MemberRole.PARTICIPANT);
+  }
+
+  @Test
+  @DisplayName("모임 신청은 모임 행을 잠근 뒤 중복 및 정원을 검증한다")
+  void applyLocksMeetingBeforeValidation() {
+    when(meetingRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(userPort.findById(20L))
+        .thenReturn(
+            Optional.of(
+                new MeetingUser(
+                    20L, "지원자", null, List.of(Activity.of(36, Team.MAKERS, Part.SERVER, true)))));
+    when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
+    when(applyRepository.findAllByMeetingId(1L)).thenReturn(List.of());
+    when(applyRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    service.applyGeneralMeeting(new MeetingService.ApplyMeetingCommand(1L, "신청합니다."), 20L);
+
+    verify(meetingRepository).findByIdForUpdate(1L);
+    verify(applyRepository).save(any(MeetingApply.class));
   }
 
   @Test

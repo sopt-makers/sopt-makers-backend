@@ -36,6 +36,12 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
     return meetingJpaRepository.findById(meetingId).map(MeetingEntity::toDomain);
   }
 
+  @Transactional
+  @Override
+  public Optional<Meeting> findByIdForUpdate(Long meetingId) {
+    return meetingJpaRepository.findByIdForUpdate(meetingId).map(MeetingEntity::toDomain);
+  }
+
   @Override
   public Optional<Long> findFirstIdByTitle(String title) {
     return meetingJpaRepository.findFirstByTitleOrderByIdDesc(title).map(MeetingEntity::getId);

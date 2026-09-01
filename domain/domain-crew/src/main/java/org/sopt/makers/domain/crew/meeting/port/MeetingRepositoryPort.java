@@ -12,6 +12,8 @@ public interface MeetingRepositoryPort {
 
   Optional<Meeting> findById(Long meetingId);
 
+  Optional<Meeting> findByIdForUpdate(Long meetingId);
+
   Optional<Long> findFirstIdByTitle(String title);
 
   Optional<Long> findFirstIdByTitleContaining(String title);

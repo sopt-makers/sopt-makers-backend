@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.crew.repository;
 
+import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.domain.crew.meeting.MemberRole;
@@ -8,12 +9,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface MeetingJpaRepository
     extends JpaRepository<MeetingEntity, Long>, JpaSpecificationExecutor<MeetingEntity> {
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT meeting FROM MeetingEntity meeting WHERE meeting.id = :id")
+  Optional<MeetingEntity> findByIdForUpdate(@Param("id") Long id);
 
   int countAllByCreatedGenerationAndCategory(Integer createdGeneration, MeetingCategory category);
 

@@ -194,7 +194,7 @@ public class MeetingService {
 
   @Transactional
   public MeetingApply applyGeneralMeeting(ApplyMeetingCommand command, Long userId) {
-    Meeting meeting = getMeeting(command.meetingId());
+    Meeting meeting = getMeetingForUpdate(command.meetingId());
     if (meeting.category() == MeetingCategory.EVENT) {
       throw new MeetingException(INVALID_MEETING_CATEGORY);
     }
@@ -203,7 +203,7 @@ public class MeetingService {
 
   @Transactional
   public MeetingApply applyEventMeeting(ApplyMeetingCommand command, Long userId) {
-    Meeting meeting = getMeeting(command.meetingId());
+    Meeting meeting = getMeetingForUpdate(command.meetingId());
     if (meeting.category() != MeetingCategory.EVENT) {
       throw new MeetingException(INVALID_MEETING_CATEGORY);
     }
@@ -212,7 +212,7 @@ public class MeetingService {
 
   @Transactional
   public void cancelApply(Long meetingId, Long userId) {
-    getMeeting(meetingId);
+    getMeetingForUpdate(meetingId);
     if (!meetingApplyRepositoryPort.existsByMeetingIdAndUserId(meetingId, userId)) {
       throw new MeetingException(NOT_FOUND_APPLY);
     }
@@ -224,7 +224,7 @@ public class MeetingService {
   @Transactional
   public MeetingApply updateApplyStatus(
       Long meetingId, UpdateApplyStatusCommand command, Long userId) {
-    Meeting meeting = getMeeting(meetingId);
+    Meeting meeting = getMeetingForUpdate(meetingId);
     getMembers(meetingId).validateLeader(meetingId, userId);
     MeetingApply apply =
         meetingApplyRepositoryPort
@@ -606,6 +606,12 @@ public class MeetingService {
   private Meeting getMeeting(Long meetingId) {
     return meetingRepositoryPort
         .findById(meetingId)
+        .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
+  }
+
+  private Meeting getMeetingForUpdate(Long meetingId) {
+    return meetingRepositoryPort
+        .findByIdForUpdate(meetingId)
         .orElseThrow(() -> new MeetingException(NOT_FOUND_MEETING));
   }
 
