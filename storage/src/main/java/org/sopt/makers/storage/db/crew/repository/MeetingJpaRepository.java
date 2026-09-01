@@ -7,11 +7,13 @@ import org.sopt.makers.storage.db.crew.entity.MeetingEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MeetingJpaRepository extends JpaRepository<MeetingEntity, Long> {
+public interface MeetingJpaRepository
+    extends JpaRepository<MeetingEntity, Long>, JpaSpecificationExecutor<MeetingEntity> {
 
   int countAllByCreatedGenerationAndCategory(Integer createdGeneration, MeetingCategory category);
 
@@ -29,6 +31,12 @@ public interface MeetingJpaRepository extends JpaRepository<MeetingEntity, Long>
   default Page<MeetingEntity> findAllByLeaderUserId(Long userId, Pageable pageable) {
     return findAllByMember(userId, MemberRole.LEADER, pageable);
   }
+
+  @Query(
+      "SELECT meeting FROM MeetingEntity meeting "
+          + "JOIN MeetingMemberEntity member ON member.meetingId = meeting.id "
+          + "WHERE member.userId = :userId")
+  Page<MeetingEntity> findAllByMemberUserId(@Param("userId") Long userId, Pageable pageable);
 
   Page<MeetingEntity> findAllByMeetingDemandId(Long meetingDemandId, Pageable pageable);
 

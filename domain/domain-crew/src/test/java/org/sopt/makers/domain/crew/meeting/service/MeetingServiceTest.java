@@ -1,7 +1,9 @@
 package org.sopt.makers.domain.crew.meeting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,14 +17,19 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.sopt.makers.core.pagination.PageQuery;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
 import org.sopt.makers.domain.crew.meeting.MeetingApplyStatus;
 import org.sopt.makers.domain.crew.meeting.MeetingApplyType;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
+import org.sopt.makers.domain.crew.meeting.MeetingSearchCondition;
+import org.sopt.makers.domain.crew.meeting.MeetingStatus;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
 import org.sopt.makers.domain.crew.meeting.Member;
 import org.sopt.makers.domain.crew.meeting.MemberRole;
+import org.sopt.makers.domain.crew.meeting.exception.MeetingException;
 import org.sopt.makers.domain.crew.meeting.port.MeetingApplyRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
@@ -93,6 +100,93 @@ class MeetingServiceTest {
     verify(memberRepository).deleteByMeetingIdAndUserIdAndRole(1L, 20L, MemberRole.PARTICIPANT);
   }
 
+  @Test
+  @DisplayName("모임장과 공동 모임장은 지원자 목록을 조회할 수 있다")
+  void managerGetsApplicants() {
+    MeetingApply waiting = apply(MeetingApplyStatus.WAITING);
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(Member.leader(1L, 10L), new Member(1L, 30L, MemberRole.CO_LEADER)));
+    when(applyRepository.findAllByMeetingId(1L)).thenReturn(List.of(waiting));
+    when(userPort.findAllById(List.of(20L)))
+        .thenReturn(List.of(new MeetingUser(20L, "지원자", null, List.of())));
+
+    List<MeetingService.ApplyDetail> result = service.getApplicants(1L, 30L);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().apply()).isEqualTo(waiting);
+    assertThat(result.getFirst().user().id()).isEqualTo(20L);
+  }
+
+  @Test
+  @DisplayName("모임 구성원은 승인된 참여자 목록을 조회할 수 있다")
+  void memberGetsParticipants() {
+    Member participant = Member.participant(1L, 20L);
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(Member.leader(1L, 10L), participant));
+    when(userPort.findAllById(List.of(20L)))
+        .thenReturn(List.of(new MeetingUser(20L, "참여자", null, List.of())));
+
+    List<MeetingService.MemberDetail> result = service.getParticipants(1L, 20L);
+
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().member()).isEqualTo(participant);
+    assertThat(result.getFirst().user().id()).isEqualTo(20L);
+  }
+
+  @Test
+  @DisplayName("모임에 속하지 않은 사용자는 참여자 목록을 조회할 수 없다")
+  void outsiderCannotGetParticipants() {
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
+
+    assertThatThrownBy(() -> service.getParticipants(1L, 99L)).isInstanceOf(MeetingException.class);
+  }
+
+  @Test
+  @DisplayName("내가 속한 모임과 역할을 함께 조회한다")
+  void getsJoinedMeetingsWithRole() {
+    Meeting joinedMeeting = meeting(1L);
+    Member leader = Member.leader(1L, 10L);
+    Member participant = Member.participant(1L, 20L);
+    when(meetingRepository.findAllByMemberUserId(20L, new PageQuery(1, 10)))
+        .thenReturn(page(joinedMeeting));
+    when(applyRepository.findAllByMeetingIds(List.of(1L))).thenReturn(List.of());
+    when(memberRepository.findAllByMeetingIdsAndRole(List.of(1L), MemberRole.LEADER))
+        .thenReturn(List.of(leader));
+    when(memberRepository.findAllByMeetingIdsAndRole(List.of(1L), MemberRole.PARTICIPANT))
+        .thenReturn(List.of(participant));
+    when(memberRepository.findAllByMeetingIdsAndUserId(List.of(1L), 20L))
+        .thenReturn(List.of(participant));
+
+    PageResult<MeetingService.JoinedMeeting> result = service.findJoinedMeetings(20L, 1, 10);
+
+    assertThat(result.content()).hasSize(1);
+    assertThat(result.content().getFirst().member().role()).isEqualTo(MemberRole.PARTICIPANT);
+  }
+
+  @Test
+  @DisplayName("검색어와 카테고리 및 모집 상태로 모임을 필터링한다")
+  void searchesMeetingsWithFilters() {
+    when(meetingRepository.search(any(), any()))
+        .thenReturn(new PageResult<>(List.of(), 0, 0, 1, 10, false, false));
+
+    service.searchMeetings(
+        new MeetingService.SearchMeetingsCommand(
+            " 러닝 ", MeetingCategory.STUDY, MeetingStatus.APPLY_ABLE),
+        1,
+        10);
+
+    ArgumentCaptor<MeetingSearchCondition> conditionCaptor =
+        ArgumentCaptor.forClass(MeetingSearchCondition.class);
+    verify(meetingRepository).search(conditionCaptor.capture(), eq(new PageQuery(1, 10)));
+    assertThat(conditionCaptor.getValue().search()).isEqualTo("러닝");
+    assertThat(conditionCaptor.getValue().category()).isEqualTo(MeetingCategory.STUDY);
+    assertThat(conditionCaptor.getValue().status()).isEqualTo(MeetingStatus.APPLY_ABLE);
+    assertThat(conditionCaptor.getValue().now()).isEqualTo(LocalDateTime.of(2026, 9, 1, 12, 0));
+  }
+
   private MeetingService.CreateMeetingCommand createCommand(List<Long> coLeaderUserIds) {
     return new MeetingService.CreateMeetingCommand(
         null,
@@ -156,5 +250,9 @@ class MeetingServiceTest {
         List.of(),
         null,
         null);
+  }
+
+  private PageResult<Meeting> page(Meeting meeting) {
+    return new PageResult<>(List.of(meeting), 1, 1, 1, 10, false, false);
   }
 }

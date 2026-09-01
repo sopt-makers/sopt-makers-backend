@@ -11,6 +11,8 @@ public interface MeetingMemberJpaRepository extends JpaRepository<MeetingMemberE
 
   List<MeetingMemberEntity> findAllByMeetingIdInAndRole(List<Long> meetingIds, MemberRole role);
 
+  List<MeetingMemberEntity> findAllByMeetingIdInAndUserId(List<Long> meetingIds, Long userId);
+
   long countByMeetingIdAndRole(Long meetingId, MemberRole role);
 
   void deleteByMeetingIdAndUserIdAndRole(Long meetingId, Long userId, MemberRole role);

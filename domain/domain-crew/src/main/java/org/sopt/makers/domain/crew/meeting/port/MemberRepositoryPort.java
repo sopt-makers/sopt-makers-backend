@@ -14,6 +14,8 @@ public interface MemberRepositoryPort {
 
   List<Member> findAllByMeetingIdsAndRole(List<Long> meetingIds, MemberRole role);
 
+  List<Member> findAllByMeetingIdsAndUserId(List<Long> meetingIds, Long userId);
+
   long countByMeetingIdAndRole(Long meetingId, MemberRole role);
 
   void deleteByMeetingIdAndUserIdAndRole(Long meetingId, Long userId, MemberRole role);

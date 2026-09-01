@@ -52,6 +52,18 @@ public interface MeetingApi {
   ResponseEntity<BaseResponse<?>> getMyMeetings(
       GetMeetingsRequest request, @Parameter(hidden = true) Long userId);
 
+  @Operation(summary = "내가 속한 모임 목록 조회")
+  ResponseEntity<BaseResponse<?>> getJoinedMeetings(
+      GetMeetingsRequest request, @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "모임 지원자 목록 조회")
+  ResponseEntity<BaseResponse<?>> getMeetingApplicants(
+      Long meetingId, @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "모임 참여자 목록 조회")
+  ResponseEntity<BaseResponse<?>> getMeetingParticipants(
+      Long meetingId, @Parameter(hidden = true) Long userId);
+
   @Operation(summary = "모임 내 같은 파트/기수 멤버 리스트 조회")
   ResponseEntity<BaseResponse<?>> getMeetingPartMembers(
       Long meetingId, @Parameter(hidden = true) Long userId);

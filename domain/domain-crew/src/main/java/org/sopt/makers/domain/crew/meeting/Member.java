@@ -30,8 +30,10 @@ public record Member(Long meetingId, Long userId, MemberRole role) {
   }
 
   public boolean matches(Long meetingId, Long userId, MemberRole role) {
-    return Objects.equals(this.meetingId, meetingId)
-        && Objects.equals(this.userId, userId)
-        && this.role == role;
+    return belongsTo(meetingId, userId) && this.role == role;
+  }
+
+  public boolean belongsTo(Long meetingId, Long userId) {
+    return Objects.equals(this.meetingId, meetingId) && Objects.equals(this.userId, userId);
   }
 }

@@ -29,6 +29,7 @@ import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.domain.crew.meeting.MeetingImage;
 import org.sopt.makers.domain.crew.meeting.MeetingJoinInfo;
 import org.sopt.makers.domain.crew.meeting.MeetingJoinablePart;
+import org.sopt.makers.domain.crew.meeting.MeetingSearchCondition;
 import org.sopt.makers.domain.crew.meeting.MeetingStatus;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
 import org.sopt.makers.domain.crew.meeting.Member;
@@ -211,6 +212,7 @@ public class MeetingService {
 
   @Transactional
   public void cancelApply(Long meetingId, Long userId) {
+    getMeeting(meetingId);
     if (!meetingApplyRepositoryPort.existsByMeetingIdAndUserId(meetingId, userId)) {
       throw new MeetingException(NOT_FOUND_APPLY);
     }
@@ -277,8 +279,13 @@ public class MeetingService {
         applyDetails);
   }
 
-  public PageResult<MeetingSummary> findAllMeetings(int pageNo, int limit) {
-    PageResult<Meeting> meetings = meetingRepositoryPort.findAll(new PageQuery(pageNo, limit));
+  public PageResult<MeetingSummary> searchMeetings(
+      SearchMeetingsCommand command, int pageNo, int limit) {
+    PageResult<Meeting> meetings =
+        meetingRepositoryPort.search(
+            new MeetingSearchCondition(
+                command.search(), command.category(), command.status(), LocalDateTime.now(clock)),
+            new PageQuery(pageNo, limit));
     MeetingApplies applies = getMeetingApplies(meetings.content());
     Members leaders = getMeetingMembers(meetings.content(), MemberRole.LEADER);
     Members participants = getMeetingMembers(meetings.content(), MemberRole.PARTICIPANT);
@@ -292,6 +299,45 @@ public class MeetingService {
     Members leaders = getMeetingMembers(meetings.content(), MemberRole.LEADER);
     Members participants = getMeetingMembers(meetings.content(), MemberRole.PARTICIPANT);
     return meetings.map(meeting -> toSummary(meeting, applies, leaders, participants));
+  }
+
+  public PageResult<JoinedMeeting> findJoinedMeetings(Long userId, int pageNo, int limit) {
+    PageResult<Meeting> meetings =
+        meetingRepositoryPort.findAllByMemberUserId(userId, new PageQuery(pageNo, limit));
+    MeetingApplies applies = getMeetingApplies(meetings.content());
+    Members leaders = getMeetingMembers(meetings.content(), MemberRole.LEADER);
+    Members participants = getMeetingMembers(meetings.content(), MemberRole.PARTICIPANT);
+    Map<Long, Member> requesterMemberMap =
+        memberRepositoryPort
+            .findAllByMeetingIdsAndUserId(
+                meetings.content().stream().map(Meeting::id).toList(), userId)
+            .stream()
+            .collect(Collectors.toMap(Member::meetingId, Function.identity()));
+    return meetings.map(
+        meeting ->
+            new JoinedMeeting(
+                toSummary(meeting, applies, leaders, participants),
+                getRequesterMember(meeting.id(), requesterMemberMap)));
+  }
+
+  public List<ApplyDetail> getApplicants(Long meetingId, Long userId) {
+    getMeeting(meetingId);
+    Members members = getMembers(meetingId);
+    members.validateManager(meetingId, userId);
+    return getApplyDetails(meetingApplyRepositoryPort.findAllByMeetingId(meetingId));
+  }
+
+  public List<MemberDetail> getParticipants(Long meetingId, Long userId) {
+    getMeeting(meetingId);
+    Members members = getMembers(meetingId);
+    members.validateMember(meetingId, userId);
+    List<Member> participants = members.getByRole(MemberRole.PARTICIPANT);
+    Map<Long, MeetingUser> userMap =
+        getUserMap(participants.stream().map(Member::userId).distinct().toList());
+    return participants.stream()
+        .map(participant -> new MemberDetail(participant, userMap.get(participant.userId())))
+        .filter(detail -> detail.user() != null)
+        .toList();
   }
 
   public MeetingPartMembers getMeetingPartMembers(Long meetingId, Long userId) {
@@ -539,6 +585,24 @@ public class MeetingService {
         .orElseThrow(() -> new MeetingException(NOT_FOUND_USER));
   }
 
+  private Member getRequesterMember(Long meetingId, Map<Long, Member> requesterMemberMap) {
+    Member member = requesterMemberMap.get(meetingId);
+    if (member == null) {
+      throw new MeetingException(NOT_FOUND_USER);
+    }
+    return member;
+  }
+
+  private List<ApplyDetail> getApplyDetails(List<MeetingApply> applies) {
+    Map<Long, MeetingUser> userMap =
+        getUserMap(applies.stream().map(MeetingApply::userId).distinct().toList());
+    return applies.stream()
+        .sorted(Comparator.comparing(MeetingApply::appliedDate))
+        .map(apply -> new ApplyDetail(apply, userMap.get(apply.userId())))
+        .filter(detail -> detail.user() != null)
+        .toList();
+  }
+
   private Meeting getMeeting(Long meetingId) {
     return meetingRepositoryPort
         .findById(meetingId)
@@ -621,12 +685,17 @@ public class MeetingService {
 
   public record UpdateApplyStatusCommand(Long applyId, MeetingApplyStatus status) {}
 
+  public record SearchMeetingsCommand(
+      String search, MeetingCategory category, MeetingStatus status) {}
+
   public record MeetingSummary(
       Meeting meeting,
       Member leader,
       long appliedCount,
       long approvedCount,
       MeetingStatus status) {}
+
+  public record JoinedMeeting(MeetingSummary summary, Member member) {}
 
   public record MeetingDetail(
       Meeting meeting,
@@ -640,6 +709,8 @@ public class MeetingService {
       List<ApplyDetail> applies) {}
 
   public record ApplyDetail(MeetingApply apply, MeetingUser user) {}
+
+  public record MemberDetail(Member member, MeetingUser user) {}
 
   public record MeetingPartMembers(
       String part,

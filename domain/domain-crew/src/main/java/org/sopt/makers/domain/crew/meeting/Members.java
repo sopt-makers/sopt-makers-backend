@@ -40,6 +40,20 @@ public record Members(List<Member> values) {
     }
   }
 
+  public void validateManager(Long meetingId, Long userId) {
+    if (!hasRole(meetingId, userId, MemberRole.LEADER)
+        && !hasRole(meetingId, userId, MemberRole.CO_LEADER)) {
+      throw new MeetingException(FORBIDDEN_MEETING);
+    }
+  }
+
+  public void validateMember(Long meetingId, Long userId) {
+    boolean isMember = values.stream().anyMatch(member -> member.belongsTo(meetingId, userId));
+    if (!isMember) {
+      throw new MeetingException(FORBIDDEN_MEETING);
+    }
+  }
+
   public void validateNotLeader(Long meetingId, Long userId) {
     if (hasRole(meetingId, userId, MemberRole.LEADER)) {
       throw new MeetingException(LEADER_CANNOT_APPLY);
