@@ -11,30 +11,29 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sopt.makers.clients.alarm.AlarmProperty;
-import org.sopt.makers.clients.notification.NotificationHttpClient;
 import org.sopt.makers.domain.app.notification.NotificationCategory;
 import org.sopt.makers.domain.app.push.PushMessage;
 import org.sopt.makers.domain.app.push.PushToken;
 import org.sopt.makers.domain.app.push.PushTokenPlatform;
 import org.sopt.makers.domain.app.push.exception.PushException;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.web.client.RestTemplate;
 
-@DisplayName("PushSenderAdapter 테스트")
-class PushSenderAdapterTest {
+@DisplayName("PushClientAdapter 테스트")
+class PushClientAdapterTest {
 
   private MockWebServer pushServer;
-  private PushSenderAdapter adapter;
+  private PushClientAdapter adapter;
 
   @BeforeEach
   void setUp() throws Exception {
     pushServer = new MockWebServer();
     pushServer.start();
     String baseUrl = pushServer.url("/").toString().replaceAll("/$", "");
-    AlarmProperty property =
-        new AlarmProperty(baseUrl, "test-push-key", "test-arn", "operation", "app");
+    PushProperty property = new PushProperty(baseUrl, "test-push-key", "test-arn");
     adapter =
-        new PushSenderAdapter(new NotificationHttpClient(new RestTemplate(), property), property);
+        new PushClientAdapter(
+            new PushHttpClient(new RestTemplate(), property), new StandardEnvironment());
   }
 
   @AfterEach

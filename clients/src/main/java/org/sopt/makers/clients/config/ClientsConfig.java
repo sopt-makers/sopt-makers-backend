@@ -1,7 +1,7 @@
 package org.sopt.makers.clients.config;
 
-import org.sopt.makers.clients.alarm.AlarmProperty;
 import org.sopt.makers.clients.eventbridge.EventBridgeProperty;
+import org.sopt.makers.clients.push.PushProperty;
 import org.sopt.makers.clients.s3.S3Property;
 import org.sopt.makers.clients.slack.SlackProperties;
 import org.sopt.makers.clients.sms.GabiaSmsProperty;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
   OAuthProperty.class,
   GabiaSmsProperty.class,
   S3Property.class,
-  AlarmProperty.class,
+  PushProperty.class,
   EventBridgeProperty.class,
   SlackProperties.class
 })

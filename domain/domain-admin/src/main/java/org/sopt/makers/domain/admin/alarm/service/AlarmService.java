@@ -1,5 +1,9 @@
 package org.sopt.makers.domain.admin.alarm.service;
 
+import static org.sopt.makers.core.constant.TimeExpressionConstant.DATE;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.DATETIME;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.TIME;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -30,10 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AlarmService {
-
-  private static final String DATE_FORMAT = "yyyy-MM-dd";
-  private static final String TIME_FORMAT = "HH:mm";
-  private static final String DATETIME_FORMAT = DATE_FORMAT + " " + TIME_FORMAT;
 
   private final AlarmRepositoryPort alarmRepositoryPort;
   private final AlarmMemberQueryPort alarmMemberQueryPort;
@@ -103,7 +103,7 @@ public class AlarmService {
             .findById(alarmId)
             .orElseThrow(() -> new AlarmException(AlarmFailure.NOT_FOUND_ALARM));
     LocalDateTime sendAtDateTime =
-        LocalDateTime.parse(sendAt, DateTimeFormatter.ofPattern(DATETIME_FORMAT));
+        LocalDateTime.parse(sendAt, DateTimeFormatter.ofPattern(DATETIME));
     alarmRepositoryPort.save(alarm.complete(sendAtDateTime));
   }
 
@@ -131,8 +131,8 @@ public class AlarmService {
 
   private LocalDateTime parseDateTime(String date, String time) {
     try {
-      LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern(DATE_FORMAT));
-      LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern(TIME_FORMAT));
+      LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern(DATE));
+      LocalTime localTime = LocalTime.parse(time, DateTimeFormatter.ofPattern(TIME));
       return LocalDateTime.of(localDate, localTime);
     } catch (Exception e) {
       throw new AlarmException(AlarmFailure.INVALID_SCHEDULE_ALARM_FORMAT);

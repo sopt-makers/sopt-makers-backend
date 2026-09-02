@@ -1,13 +1,17 @@
 package org.sopt.makers.clients.eventbridge;
 
+import static org.sopt.makers.core.constant.TimeExpressionConstant.DATE;
+import static org.sopt.makers.core.constant.TimeExpressionConstant.FILE_SAFE_TIME;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.clients.alarm.AlarmProperty;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeBody;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeHeader;
 import org.sopt.makers.clients.eventbridge.dto.AlarmScheduleEventBridgeRequest;
+import org.sopt.makers.clients.push.PushProperty;
+import org.sopt.makers.core.type.ServiceType;
 import org.sopt.makers.domain.admin.alarm.Alarm;
 import org.sopt.makers.domain.admin.alarm.AlarmLinkType;
 import org.sopt.makers.domain.admin.alarm.exception.AlarmException;
@@ -26,12 +30,9 @@ import tools.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor
 public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
 
-  private static final String DATE_FORMAT = "yyyy-MM-dd";
-  private static final String SCHEDULE_TIME_FORMAT = "HH-mm";
-
   private final SchedulerClient schedulerClient;
   private final ObjectMapper objectMapper;
-  private final AlarmProperty alarmProperty;
+  private final PushProperty pushProperty;
   private final EventBridgeProperty eventBridgeProperty;
 
   @Override
@@ -56,10 +57,9 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
   }
 
   private String buildEventName(Alarm alarm) {
-    String dateData =
-        alarm.intendedAt().toLocalDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT));
+    String dateData = alarm.intendedAt().toLocalDate().format(DateTimeFormatter.ofPattern(DATE));
     String timeData =
-        alarm.intendedAt().toLocalTime().format(DateTimeFormatter.ofPattern(SCHEDULE_TIME_FORMAT));
+        alarm.intendedAt().toLocalTime().format(DateTimeFormatter.ofPattern(FILE_SAFE_TIME));
     return String.format("%s_%s_%d", dateData, timeData, alarm.id());
   }
 
@@ -76,9 +76,9 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
         AlarmScheduleEventBridgeHeader.builder()
             .alarmId(alarm.id())
             .action(alarm.target().sendAction().getValue())
-            .xApiKey(alarmProperty.key())
+            .xApiKey(pushProperty.key())
             .transactionId(UUID.randomUUID().toString())
-            .service(alarmProperty.headerService())
+            .service(ServiceType.ADMIN.getValue())
             .build();
 
     boolean isAppLink = AlarmLinkType.APP.equals(alarm.content().linkType());
@@ -100,7 +100,7 @@ public class AlarmScheduleSenderAdapter implements AlarmScheduleSenderPort {
   private Target buildTarget(String eventJson) {
     return Target.builder()
         .roleArn(eventBridgeProperty.roleArn())
-        .arn(alarmProperty.arn())
+        .arn(pushProperty.arn())
         .input(eventJson)
         .build();
   }
