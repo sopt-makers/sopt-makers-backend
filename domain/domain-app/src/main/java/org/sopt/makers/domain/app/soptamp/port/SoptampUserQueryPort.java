@@ -1,20 +1,24 @@
 package org.sopt.makers.domain.app.soptamp.port;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.app.soptamp.SoptampUser;
 
 public interface SoptampUserQueryPort {
 
-  List<SoptampUser> findAllOfCurrentGeneration();
+  Optional<SoptampUser> findByUserId(Long userId);
 
-  List<SoptampUser> findAllByPartAndCurrentGeneration(Part part);
+  List<SoptampUser> findAllByUserIds(Collection<Long> userIds);
+
+  List<SoptampUser> findAllByGeneration(Long generation);
+
+  Map<Long, SoptampUser> findByUserIdsAsMap(Collection<Long> userIds);
 
   Optional<SoptampUser> findByNickname(String nickname);
 
-  Optional<SoptampUser> findById(Long userId);
+  boolean existsByNickname(String nickname);
 
-  Map<Long, SoptampUser> findByIdsAsMap(List<Long> userIds);
+  SoptampUser save(SoptampUser soptampUser);
 }
