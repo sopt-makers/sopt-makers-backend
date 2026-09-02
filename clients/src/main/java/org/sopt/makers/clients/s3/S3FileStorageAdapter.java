@@ -3,6 +3,7 @@ package org.sopt.makers.clients.s3;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.clients.s3.exception.S3Exception;
 import org.sopt.makers.clients.s3.exception.S3Failure;
 import org.sopt.makers.domain.admin.banner.port.BannerFileStoragePort;
+import org.sopt.makers.domain.app.soptamp.stamp.port.StampFileStoragePort;
 import org.sopt.makers.domain.crew.advertisement.port.AdvertisementImageStoragePort;
 import org.sopt.makers.domain.official.admin.port.AdminFileStoragePort;
 import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
@@ -30,6 +32,7 @@ public class S3FileStorageAdapter
     implements NewsFileStoragePort,
         BannerFileStoragePort,
         AdminFileStoragePort,
+        StampFileStoragePort,
         AdvertisementImageStoragePort {
 
   private static final long PRESIGNED_URL_EXPIRATION_MINUTES = 10;
@@ -135,7 +138,8 @@ public class S3FileStorageAdapter
   }
 
   @Override
-  public PresignedFile generatePresignedUrl(PresignedFileRequest request) {
+  public NewsFileStoragePort.PresignedFile generatePresignedUrl(
+      NewsFileStoragePort.PresignedFileRequest request) {
     validateContentType(request.contentType());
 
     String fileName = createFileName(request.fileName());
@@ -153,11 +157,43 @@ public class S3FileStorageAdapter
             .build();
 
     PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-    return new PresignedFile(
+    return new NewsFileStoragePort.PresignedFile(
         presignedRequest.url().toString(),
         getFileUrl(fileKey),
         PRESIGNED_URL_EXPIRATION_MINUTES * 60,
         fileKey);
+  }
+
+  @Override
+  public StampFileStoragePort.PresignedFile generatePresignedUrl(
+      StampFileStoragePort.PresignedFileRequest request) {
+    validateContentType(request.contentType());
+
+    String fileName = createFileName(request.fileName());
+    String fileKey = buildFileKey(request.directory(), fileName);
+    PutObjectRequest objectRequest =
+        PutObjectRequest.builder()
+            .bucket(property.bucket())
+            .key(fileKey)
+            .contentType(request.contentType())
+            .build();
+    PutObjectPresignRequest presignRequest =
+        PutObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTES))
+            .putObjectRequest(objectRequest)
+            .build();
+
+    PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+    return new StampFileStoragePort.PresignedFile(
+        presignedRequest.url().toString(),
+        getFileUrl(fileKey),
+        PRESIGNED_URL_EXPIRATION_MINUTES * 60,
+        fileKey);
+  }
+
+  @Override
+  public void deleteAll(Collection<String> fileUrls) {
+    fileUrls.forEach(this::delete);
   }
 
   public String generatePresignedUrl(String fileName, String directory) {
