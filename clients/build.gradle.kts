@@ -5,6 +5,7 @@ dependencies {
     implementation(project(":domain:domain-crew"))
     implementation(project(":domain:domain-official"))
     implementation(project(":domain:domain-app"))
+    implementation(project(":domain:domain-playground"))
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
