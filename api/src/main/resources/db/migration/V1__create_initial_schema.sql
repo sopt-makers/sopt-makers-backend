@@ -413,3 +413,157 @@ CREATE TABLE user_work_preferences
     PRIMARY KEY (id),
     CONSTRAINT fk_user_work_preferences_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+-- ============================================================
+-- Playground/Crew 공통 게시글
+-- ============================================================
+
+CREATE TABLE community_post
+(
+    id              BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    writer_id       BIGINT,
+    category        VARCHAR(50)  NOT NULL,
+    content_type    VARCHAR(20)  NOT NULL DEFAULT 'NORMAL',
+    meeting_id      BIGINT,
+    title           VARCHAR(255),
+    content         TEXT         NOT NULL,
+    images          TEXT[],
+    hits            INT          NOT NULL DEFAULT 0,
+    comment_count   INT          NOT NULL DEFAULT 0,
+    like_count      INT          NOT NULL DEFAULT 0,
+    is_question     BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_blind_writer BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_reported     BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_hot          BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at      TIMESTAMP    NOT NULL,
+    updated_at      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_community_post_writer
+        FOREIGN KEY (writer_id) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT ck_community_post_meeting
+        CHECK ((category = 'MEETING' AND meeting_id IS NOT NULL)
+            OR (category <> 'MEETING' AND meeting_id IS NULL)),
+    CONSTRAINT ck_community_post_mumu
+        CHECK (content_type <> 'MUMU' OR category = 'MEETING')
+);
+
+CREATE INDEX idx_community_post_meeting_created
+    ON community_post (meeting_id, created_at DESC, id DESC);
+
+CREATE TABLE community_comment
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id           BIGINT    NOT NULL,
+    writer_id         BIGINT,
+    content           TEXT      NOT NULL,
+    parent_comment_id BIGINT,
+    depth             INT       NOT NULL DEFAULT 0,
+    comment_order     INT       NOT NULL DEFAULT 0,
+    like_count        INT       NOT NULL DEFAULT 0,
+    is_deleted        BOOLEAN   NOT NULL DEFAULT FALSE,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_community_comment_post
+        FOREIGN KEY (post_id) REFERENCES community_post (id) ON DELETE CASCADE,
+    CONSTRAINT fk_community_comment_writer
+        FOREIGN KEY (writer_id) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_community_comment_parent
+        FOREIGN KEY (parent_comment_id) REFERENCES community_comment (id) ON DELETE CASCADE,
+    CONSTRAINT ck_community_comment_depth
+        CHECK ((depth = 0 AND parent_comment_id IS NULL)
+            OR (depth = 1 AND parent_comment_id IS NOT NULL))
+);
+
+CREATE INDEX idx_community_comment_parent_page
+    ON community_comment (post_id, parent_comment_id, created_at, id);
+CREATE INDEX idx_community_comment_reply
+    ON community_comment (parent_comment_id, comment_order);
+
+CREATE TABLE community_post_like
+(
+    community_post_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id                BIGINT    NOT NULL,
+    user_id                BIGINT    NOT NULL,
+    created_at             TIMESTAMP NOT NULL,
+    updated_at             TIMESTAMP NOT NULL,
+    PRIMARY KEY (community_post_like_id),
+    CONSTRAINT uk_community_post_like_post_user UNIQUE (post_id, user_id),
+    CONSTRAINT fk_community_post_like_post
+        FOREIGN KEY (post_id) REFERENCES community_post (id) ON DELETE CASCADE,
+    CONSTRAINT fk_community_post_like_user
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE community_comment_like
+(
+    community_comment_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    comment_id                BIGINT    NOT NULL,
+    user_id                   BIGINT    NOT NULL,
+    created_at                TIMESTAMP NOT NULL,
+    updated_at                TIMESTAMP NOT NULL,
+    PRIMARY KEY (community_comment_like_id),
+    CONSTRAINT uk_community_comment_like_comment_user UNIQUE (comment_id, user_id),
+    CONSTRAINT fk_community_comment_like_comment
+        FOREIGN KEY (comment_id) REFERENCES community_comment (id) ON DELETE CASCADE,
+    CONSTRAINT fk_community_comment_like_user
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE report_post
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id     BIGINT    NOT NULL,
+    reporter_id BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_report_post_post_reporter UNIQUE (post_id, reporter_id),
+    CONSTRAINT fk_report_post_post
+        FOREIGN KEY (post_id) REFERENCES community_post (id) ON DELETE CASCADE,
+    CONSTRAINT fk_report_post_reporter
+        FOREIGN KEY (reporter_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE report_comment
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    comment_id  BIGINT    NOT NULL,
+    reporter_id BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_report_comment_comment_reporter UNIQUE (comment_id, reporter_id),
+    CONSTRAINT fk_report_comment_comment
+        FOREIGN KEY (comment_id) REFERENCES community_comment (id) ON DELETE CASCADE,
+    CONSTRAINT fk_report_comment_reporter
+        FOREIGN KEY (reporter_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE mumu_text
+(
+    id              BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    text            TEXT         NOT NULL,
+    category        VARCHAR(100) NOT NULL,
+    show_start_date TIMESTAMP    NOT NULL,
+    show_end_date   TIMESTAMP    NOT NULL,
+    created_at      TIMESTAMP    NOT NULL,
+    updated_at      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT ck_mumu_text_period CHECK (show_start_date < show_end_date)
+);
+
+CREATE INDEX idx_mumu_text_period ON mumu_text (show_start_date, show_end_date);
+
+CREATE TABLE mumu_post_write_history
+(
+    id           BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id      BIGINT    NOT NULL,
+    written_date DATE      NOT NULL,
+    created_at   TIMESTAMP NOT NULL,
+    updated_at   TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_mumu_post_write_history_user_date UNIQUE (user_id, written_date),
+    CONSTRAINT fk_mumu_post_write_history_user
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);

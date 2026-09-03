@@ -10,6 +10,8 @@ public interface MeetingMemberJpaRepository extends JpaRepository<MeetingMemberE
 
   List<MeetingMemberEntity> findAllByMeetingId(Long meetingId);
 
+  List<MeetingMemberEntity> findAllByUserId(Long userId);
+
   Optional<MeetingMemberEntity> findByMeetingIdAndUserId(Long meetingId, Long userId);
 
   List<MeetingMemberEntity> findAllByMeetingIdInAndRole(List<Long> meetingIds, MemberRole role);
