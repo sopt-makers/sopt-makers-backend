@@ -30,7 +30,10 @@ import org.sopt.makers.domain.playground.community.comment.port.CommentRepositor
 import org.sopt.makers.domain.playground.community.comment.port.DeletedCommentRepositoryPort;
 import org.sopt.makers.domain.playground.community.comment.port.ReportCommentRepositoryPort;
 import org.sopt.makers.domain.playground.community.exception.CommunityException;
+import org.sopt.makers.domain.playground.community.member.CommunityMemberSummary;
 import org.sopt.makers.domain.playground.community.member.service.CommunityMemberAssembler;
+import org.sopt.makers.domain.playground.community.notification.service.CommunityNotificationPublisher;
+import org.sopt.makers.domain.playground.community.post.Post;
 import org.sopt.makers.domain.playground.community.post.port.PostRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,22 +54,26 @@ public class CommentCommandService {
   private final AnonymousProfileRetriever anonymousProfileRetriever;
   private final AnonymousNicknameRetriever anonymousNicknameRetriever;
   private final CommentMentionAnonymizer commentMentionAnonymizer;
+  private final CommunityNotificationPublisher communityNotificationPublisher;
 
   public record CreateCommentCommand(
       String content,
       Boolean isBlindWriter,
       Boolean isChildComment,
       Long parentCommentId,
-      String[] anonymousMentionNicknames) {}
+      String[] anonymousMentionNicknames,
+      String webLink,
+      Long[] mentionUserIds) {}
 
   @Transactional
   public Comment createComment(Long writerId, Long postId, CreateCommentCommand command) {
-    validateWriterExists(writerId);
-    validatePostExists(postId);
+    CommunityMemberSummary writer = getWriterOrThrow(writerId);
+    Post post = getPostOrThrow(postId);
     validateChildCommentConsistency(command);
 
+    Comment parentComment = null;
     if (Boolean.TRUE.equals(command.isChildComment())) {
-      validateParentCommentExists(command.parentCommentId());
+      parentComment = getCommentOrThrow(command.parentCommentId());
       validateAnonymousMentionNicknames(postId, command.anonymousMentionNicknames());
     }
 
@@ -78,6 +85,8 @@ public class CommentCommandService {
       AnonymousProfile profile = anonymousProfileService.getOrCreateAnonymousProfile(writerId, postId);
       created = commentRepositoryPort.save(created.withAnonymousProfileId(profile.id()));
     }
+
+    publishCommentNotifications(writerId, writer.name(), post, parentComment, command);
 
     return created;
   }
@@ -103,9 +112,13 @@ public class CommentCommandService {
 
   @Transactional
   public void reportComment(Long reporterId, Long commentId) {
-    getCommentOrThrow(commentId);
+    Comment comment = getCommentOrThrow(commentId);
 
-    // TODO: 신고 Slack 알림 연동은 SlackClient 마이그레이션 이후 별도 처리 예정.
+    CommunityMemberSummary reporter = communityMemberAssembler.getMemberSummary(reporterId);
+    if (reporter != null) {
+      communityNotificationPublisher.publishCommentReport(comment.postId(), reporter.name(), comment.content());
+    }
+
     reportCommentRepositoryPort.save(ReportComment.create(commentId, reporterId));
   }
 
@@ -154,10 +167,16 @@ public class CommentCommandService {
     return commentRepositoryPort.findById(commentId).orElseThrow(() -> new CommunityException(NOT_FOUND_COMMENT));
   }
 
-  private void validatePostExists(Long postId) {
-    if (!postRepositoryPort.existsById(postId)) {
-      throw new CommunityException(NOT_FOUND_COMMUNITY_POST);
+  private Post getPostOrThrow(Long postId) {
+    return postRepositoryPort.findById(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_COMMUNITY_POST));
+  }
+
+  private CommunityMemberSummary getWriterOrThrow(Long writerId) {
+    CommunityMemberSummary summary = communityMemberAssembler.getMemberSummary(writerId);
+    if (summary == null) {
+      throw new CommunityException(NOT_FOUND_WRITER);
     }
+    return summary;
   }
 
   private void validateChildCommentConsistency(CreateCommentCommand command) {
@@ -170,15 +189,35 @@ public class CommentCommandService {
     }
   }
 
-  private void validateParentCommentExists(Long parentCommentId) {
-    if (!commentRepositoryPort.existsById(parentCommentId)) {
-      throw new CommunityException(NOT_FOUND_COMMENT);
-    }
-  }
-
   private void validateWriterExists(Long writerId) {
     if (communityMemberAssembler.getMemberSummary(writerId) == null) {
       throw new CommunityException(NOT_FOUND_WRITER);
+    }
+  }
+
+  /** 댓글 작성자를 제외한 게시글 작성자/부모 댓글 작성자/멘션 대상에게 푸시 알림을 발행한다. */
+  private void publishCommentNotifications(
+      Long writerId, String writerName, Post post, Comment parentComment, CreateCommentCommand command) {
+    Long postAuthorId = post.writerId();
+
+    if (!Objects.equals(postAuthorId, writerId)) {
+      communityNotificationPublisher.publishCommentCreated(
+          postAuthorId, writerName, command.content(), command.isBlindWriter(), command.webLink());
+    }
+
+    if (parentComment != null) {
+      Long parentCommentAuthorId = parentComment.writerId();
+      if (!Objects.equals(parentCommentAuthorId, writerId) && !Objects.equals(parentCommentAuthorId, postAuthorId)) {
+        communityNotificationPublisher.publishReplyCreated(
+            parentCommentAuthorId, writerName, command.content(), command.isBlindWriter(), command.webLink());
+      }
+    }
+
+    if (command.mentionUserIds() != null && command.mentionUserIds().length > 0) {
+      List<Long> mentionedUserIds =
+          Arrays.stream(command.mentionUserIds()).filter(id -> !Objects.equals(id, writerId)).toList();
+      communityNotificationPublisher.publishMention(
+          mentionedUserIds, writerName, command.content(), command.isBlindWriter(), command.webLink());
     }
   }
 

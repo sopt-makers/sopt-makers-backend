@@ -15,7 +15,9 @@ import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousProfileService;
 import org.sopt.makers.domain.playground.community.comment.service.CommentCommandService;
 import org.sopt.makers.domain.playground.community.exception.CommunityException;
+import org.sopt.makers.domain.playground.community.member.CommunityMemberSummary;
 import org.sopt.makers.domain.playground.community.member.service.CommunityMemberAssembler;
+import org.sopt.makers.domain.playground.community.notification.service.CommunityNotificationPublisher;
 import org.sopt.makers.domain.playground.community.post.DeletedPost;
 import org.sopt.makers.domain.playground.community.post.Post;
 import org.sopt.makers.domain.playground.community.post.PostLike;
@@ -42,6 +44,7 @@ public class CommunityPostCommandService {
   private final CommunityMemberAssembler communityMemberAssembler;
   private final AnonymousProfileService anonymousProfileService;
   private final CommentCommandService commentCommandService;
+  private final CommunityNotificationPublisher communityNotificationPublisher;
 
   public record CreatePostCommand(
       CommunityCategoryCode categoryCode,
@@ -143,7 +146,11 @@ public class CommunityPostCommandService {
   public void reportPost(Long reporterId, Long postId) {
     getPostOrThrow(postId);
 
-    // TODO: 신고 Slack 알림 연동은 SlackClient 마이그레이션 이후 별도 처리 예정.
+    CommunityMemberSummary reporter = communityMemberAssembler.getMemberSummary(reporterId);
+    if (reporter != null) {
+      communityNotificationPublisher.publishPostReport(postId, reporter.name());
+    }
+
     reportPostRepositoryPort.save(ReportPost.create(postId, reporterId));
   }
 
