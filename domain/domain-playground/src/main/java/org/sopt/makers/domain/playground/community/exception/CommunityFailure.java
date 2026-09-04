@@ -16,7 +16,12 @@ public enum CommunityFailure implements FailureCode {
   NOT_FOUND_ANONYMOUS_NICKNAME(404, "존재하지 않는 익명 닉네임입니다."),
   MISSING_CATEGORY_PARAMETER(400, "categoryCode 또는 category 값이 필요합니다."),
   NOT_FOUND_POST(400, "존재하지 않는 postId입니다."),
-  INVALID_CURSOR(400, "유효하지 않은 cursor 값입니다.");
+  INVALID_CURSOR(400, "유효하지 않은 cursor 값입니다."),
+  NOT_FOUND_COMMUNITY_POST(404, "존재하지 않는 게시글의 id값 입니다."),
+  NOT_FOUND_WRITER(404, "존재하지 않는 사용자의 id값 입니다."),
+  UNAUTHORIZED_POST_ACCESS(400, "수정/삭제 권한이 없는 유저입니다."),
+  ALREADY_LIKED_POST(400, "이 게시물에는 이미 좋아요를 눌렀습니다."),
+  NOT_LIKED_POST(404, "이 게시물에는 아직 좋아요를 누르지 않았습니다.");
 
   private final int statusCode;
   private final String message;

@@ -115,6 +115,18 @@ public class PostEntity extends BaseEntity {
         .build();
   }
 
+  /** 기존 관리 대상(managed) 엔티티에 도메인 변경분을 반영한다. (CUD - 게시글 수정/익명 프로필 연결) */
+  public void applyChanges(Post post, CategoryEntity category) {
+    this.category = category;
+    this.title = post.title();
+    this.content = post.content();
+    this.images = post.images();
+    this.isQuestion = post.isQuestion();
+    this.isBlindWriter = post.isBlindWriter();
+    this.sopticleUrl = post.sopticleUrl();
+    this.anonymousProfileId = post.anonymousProfileId();
+  }
+
   public Post toDomain() {
     return new Post(
         id,

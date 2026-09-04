@@ -28,7 +28,17 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
   @Override
   public Post save(Post post) {
     CategoryEntity category = categoryJpaRepository.getReferenceById(post.categoryId());
-    return postJpaRepository.save(PostEntity.of(post, category)).toDomain();
+
+    if (post.id() == null) {
+      return postJpaRepository.save(PostEntity.of(post, category)).toDomain();
+    }
+
+    PostEntity entity =
+        postJpaRepository
+            .findById(post.id())
+            .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시글입니다. id: " + post.id()));
+    entity.applyChanges(post, category);
+    return postJpaRepository.saveAndFlush(entity).toDomain();
   }
 
   @Transactional

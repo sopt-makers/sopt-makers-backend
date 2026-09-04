@@ -46,4 +46,48 @@ public record Post(
         null,
         null);
   }
+
+  public Post update(
+      Long categoryId,
+      String title,
+      String content,
+      List<String> images,
+      Boolean isBlindWriter,
+      String sopticleUrl) {
+    return new Post(
+        id,
+        writerId,
+        categoryId,
+        title,
+        content,
+        hits,
+        images,
+        false,
+        isBlindWriter,
+        isReported,
+        isHot,
+        sopticleUrl,
+        anonymousProfileId,
+        createdAt,
+        updatedAt);
+  }
+
+  public Post withAnonymousProfileId(Long anonymousProfileId) {
+    return new Post(
+        id,
+        writerId,
+        categoryId,
+        title,
+        content,
+        hits,
+        images,
+        isQuestion,
+        isBlindWriter,
+        isReported,
+        isHot,
+        sopticleUrl,
+        anonymousProfileId,
+        createdAt,
+        updatedAt);
+  }
 }
