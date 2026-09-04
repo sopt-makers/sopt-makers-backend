@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.playground.community.comment.adapter;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,11 @@ public class CommentRepositoryAdapter implements CommentRepositoryPort {
       result.put(projection.getPostId(), projection.getCommentCount());
     }
     return result;
+  }
+
+  @Override
+  public int countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end) {
+    return commentJpaRepository.countAllByWriterIdAndCreatedAtBetween(writerId, start, end);
   }
 
   @Transactional

@@ -8,6 +8,7 @@ import static org.sopt.makers.api.controller.playground.community.CommunitySucce
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.GET_RECENT_POSTS;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.GET_RECENT_SOPTICLE_POSTS;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.GET_TODAY_HOT_POST;
+import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.HIT_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.LIKE_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.REPORT_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.SELECT_VOTE;
@@ -19,6 +20,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
+import org.sopt.makers.api.controller.playground.community.dto.CommunityHitRequest;
 import org.sopt.makers.api.controller.playground.community.dto.HotPostResponse;
 import org.sopt.makers.api.controller.playground.community.dto.PopularPostResponse;
 import org.sopt.makers.api.controller.playground.community.dto.PostAllResponse;
@@ -118,6 +120,13 @@ public class CommunityController implements CommunityApi {
   public ResponseEntity<BaseResponse<?>> getTodayHotPost() {
     Post hotPost = communityPostQueryService.getTodayHotPost().orElse(null);
     return ResponseFactory.success(GET_TODAY_HOT_POST, HotPostResponse.of(hotPost));
+  }
+
+  @Override
+  @PostMapping("/posts/hit")
+  public ResponseEntity<BaseResponse<?>> upPostHit(@RequestBody @Valid CommunityHitRequest request) {
+    communityPostCommandService.increaseHit(request.postIdList());
+    return ResponseFactory.success(HIT_POST);
   }
 
   @Override

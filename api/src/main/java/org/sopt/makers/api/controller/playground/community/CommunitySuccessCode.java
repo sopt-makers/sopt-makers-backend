@@ -15,6 +15,7 @@ public enum CommunitySuccessCode implements SuccessCode {
   GET_RECENT_SOPTICLE_POSTS(200, "커뮤니티 홈 최근 솝티클 목록 조회 성공"),
   GET_RECENT_POSTS(200, "커뮤니티 홈 모든 카테고리 최신글 조회 성공"),
   GET_TODAY_HOT_POST(200, "핫 게시물 조회 성공"),
+  HIT_POST(200, "커뮤니티 글 조회수 증가 성공"),
   CREATE_POST(201, "커뮤니티 글 생성 성공"),
   UPDATE_POST(200, "커뮤니티 글 수정 성공"),
   DELETE_POST(200, "커뮤니티 글 삭제 성공"),

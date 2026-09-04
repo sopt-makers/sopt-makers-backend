@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.playground.community.comment.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.storage.db.playground.community.comment.entity.CommentEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +15,8 @@ public interface CommentJpaRepository extends JpaRepository<CommentEntity, Long>
   List<CommentEntity> findAllByPostIdInOrderByPostIdAscIdAsc(List<Long> postIds);
 
   List<CommentEntity> findAllByParentCommentId(Long parentCommentId);
+
+  int countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end);
 
   @Query(
       """

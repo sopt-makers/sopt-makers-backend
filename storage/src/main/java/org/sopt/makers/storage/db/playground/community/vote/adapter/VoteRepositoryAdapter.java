@@ -1,7 +1,9 @@
 package org.sopt.makers.storage.db.playground.community.vote.adapter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.vote.Vote;
 import org.sopt.makers.domain.playground.community.vote.port.VoteRepositoryPort;
@@ -42,6 +44,28 @@ public class VoteRepositoryAdapter implements VoteRepositoryPort {
                     voteOptionJpaRepository.findAllByVoteId(voteEntity.getId()).stream()
                         .map(VoteOptionEntity::toDomain)
                         .toList()));
+  }
+
+  @Override
+  public List<Vote> findAllByPostIds(List<Long> postIds) {
+    List<VoteEntity> voteEntities = voteJpaRepository.findAllByPostIdIn(postIds);
+    if (voteEntities.isEmpty()) {
+      return List.of();
+    }
+
+    List<Long> voteIds = voteEntities.stream().map(VoteEntity::getId).toList();
+    Map<Long, List<VoteOptionEntity>> optionsByVoteId =
+        voteOptionJpaRepository.findAllByVoteIdIn(voteIds).stream()
+            .collect(Collectors.groupingBy(VoteOptionEntity::getVoteId));
+
+    return voteEntities.stream()
+        .map(
+            voteEntity ->
+                voteEntity.toDomain(
+                    optionsByVoteId.getOrDefault(voteEntity.getId(), List.of()).stream()
+                        .map(VoteOptionEntity::toDomain)
+                        .toList()))
+        .toList();
   }
 
   @Transactional

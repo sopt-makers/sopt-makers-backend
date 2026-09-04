@@ -144,6 +144,11 @@ public class CommunityPostCommandService {
   }
 
   @Transactional
+  public void increaseHit(List<Long> postIds) {
+    postIds.forEach(postRepositoryPort::increaseHits);
+  }
+
+  @Transactional
   public void reportPost(Long reporterId, Long postId) {
     getPostOrThrow(postId);
 

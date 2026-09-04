@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.sopt.makers.api.controller.playground.community.dto.CommunityHitRequest;
 import org.sopt.makers.api.controller.playground.community.dto.PostSaveRequest;
 import org.sopt.makers.api.controller.playground.community.dto.PostUpdateRequest;
 import org.sopt.makers.api.controller.playground.community.dto.VoteSelectionRequest;
@@ -59,6 +60,9 @@ public interface CommunityApi {
   @Deprecated
   @Operation(summary = "핫 게시물 조회 API")
   ResponseEntity<BaseResponse<?>> getTodayHotPost();
+
+  @Operation(summary = "커뮤니티 글 조회수 증가")
+  ResponseEntity<BaseResponse<?>> upPostHit(@Valid CommunityHitRequest request);
 
   @Operation(summary = "커뮤니티 글 생성")
   ResponseEntity<BaseResponse<?>> createPost(

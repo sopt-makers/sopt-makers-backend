@@ -568,6 +568,7 @@ public class CommunityPostQueryService {
     Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, Category> categoryMap = categoryQueryService.findAllByIdsAsMap(categoryIds);
     Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
+    Map<Long, Integer> totalVoteCountMap = voteQueryService.getTotalVoteCountMapByPostIds(postIds);
 
     List<RecentCandidate> candidates = new ArrayList<>();
 
@@ -587,7 +588,7 @@ public class CommunityPostQueryService {
               likeCountMap.getOrDefault(post.id(), 0),
               commentCountMap.getOrDefault(post.id(), 0),
               tag,
-              null); // TODO: vote 도메인 이관 후 연동
+              totalVoteCountMap.get(post.id()));
 
       candidates.add(new RecentCandidate(CommunityPostSourceType.COMMUNITY, post.createdAt(), post.id(), recentPost));
     }

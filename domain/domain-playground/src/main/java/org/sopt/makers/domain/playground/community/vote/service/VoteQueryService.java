@@ -2,8 +2,10 @@ package org.sopt.makers.domain.playground.community.vote.service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.vote.Vote;
 import org.sopt.makers.domain.playground.community.vote.VoteOption;
@@ -25,6 +27,15 @@ public class VoteQueryService {
 
   public Optional<VoteResult> getVoteByPostId(Long postId, Long viewerId) {
     return voteRepositoryPort.findByPostId(postId).map(vote -> toVoteResult(vote, viewerId));
+  }
+
+  public Map<Long, Integer> getTotalVoteCountMapByPostIds(List<Long> postIds) {
+    if (postIds == null || postIds.isEmpty()) {
+      return Map.of();
+    }
+
+    return voteRepositoryPort.findAllByPostIds(postIds).stream()
+        .collect(Collectors.toMap(Vote::postId, vote -> vote.options().stream().mapToInt(VoteOption::voteCount).sum()));
   }
 
   private VoteResult toVoteResult(Vote vote, Long viewerId) {

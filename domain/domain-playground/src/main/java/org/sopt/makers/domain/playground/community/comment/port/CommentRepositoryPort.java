@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.playground.community.comment.port;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +21,8 @@ public interface CommentRepositoryPort {
   List<Comment> findAllByParentCommentId(Long parentCommentId);
 
   Map<Long, Long> countNonDeletedByPostIds(List<Long> postIds);
+
+  int countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end);
 
   void deleteAllByPostId(Long postId);
 }
