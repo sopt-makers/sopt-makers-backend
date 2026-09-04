@@ -9,6 +9,7 @@ import static org.sopt.makers.domain.playground.community.exception.CommunityFai
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.playground.community.Category;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
@@ -26,11 +27,15 @@ import org.sopt.makers.domain.playground.community.post.port.DeletedPostReposito
 import org.sopt.makers.domain.playground.community.post.port.PostLikeRepositoryPort;
 import org.sopt.makers.domain.playground.community.post.port.PostRepositoryPort;
 import org.sopt.makers.domain.playground.community.post.port.ReportPostRepositoryPort;
+import org.sopt.makers.domain.playground.community.post.port.SopticleScraperPort;
+import org.sopt.makers.domain.playground.community.post.port.SopticleScraperPort.ScrapedSopticleArticle;
 import org.sopt.makers.domain.playground.community.service.CategoryQueryService;
+import org.sopt.makers.domain.playground.community.service.CommunityCategoryPolicy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /** 커뮤니티 게시글 생성/수정/삭제, 좋아요/좋아요 취소, 신고 유스케이스. */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,10 +46,12 @@ public class CommunityPostCommandService {
   private final ReportPostRepositoryPort reportPostRepositoryPort;
   private final DeletedPostRepositoryPort deletedPostRepositoryPort;
   private final CategoryQueryService categoryQueryService;
+  private final CommunityCategoryPolicy communityCategoryPolicy;
   private final CommunityMemberAssembler communityMemberAssembler;
   private final AnonymousProfileService anonymousProfileService;
   private final CommentCommandService commentCommandService;
   private final CommunityNotificationPublisher communityNotificationPublisher;
+  private final SopticleScraperPort sopticleScraperPort;
 
   public record CreatePostCommand(
       CommunityCategoryCode categoryCode,
@@ -69,19 +76,7 @@ public class CommunityPostCommandService {
     validateWriterExists(writerId);
     Category category = categoryQueryService.findActiveCategoryByCode(command.categoryCode());
 
-    // TODO: SOPTICLE 카테고리 URL 스크래핑(Sopticle 외부 API 연동)은 별도 Client Port 마이그레이션 이후 연동 예정.
-    // 현재는 요청값을 그대로 저장한다.
-    Post created =
-        postRepositoryPort.save(
-            Post.create(
-                writerId,
-                category.id(),
-                command.title(),
-                command.content(),
-                command.images(),
-                false,
-                command.isBlindWriter(),
-                command.link()));
+    Post created = postRepositoryPort.save(buildPostForCreate(writerId, category, command));
 
     if (Boolean.TRUE.equals(command.isBlindWriter())) {
       AnonymousProfile profile = anonymousProfileService.getOrCreateAnonymousProfile(writerId, created.id());
@@ -156,6 +151,52 @@ public class CommunityPostCommandService {
 
   private Post getPostOrThrow(Long postId) {
     return postRepositoryPort.findById(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_COMMUNITY_POST));
+  }
+
+  private Post buildPostForCreate(Long writerId, Category category, CreatePostCommand command) {
+    if (!communityCategoryPolicy.isSopticleCategoryCode(category.code())) {
+      return Post.create(
+          writerId,
+          category.id(),
+          command.title(),
+          command.content(),
+          command.images(),
+          false,
+          command.isBlindWriter(),
+          command.link());
+    }
+
+    ScrapedSopticleArticle scraped = scrapSopticleArticle(command.link());
+    if (scraped == null) {
+      return Post.create(
+          writerId,
+          category.id(),
+          command.title(),
+          command.content(),
+          command.images(),
+          false,
+          command.isBlindWriter(),
+          command.link());
+    }
+
+    return Post.create(
+        writerId,
+        category.id(),
+        scraped.title(),
+        scraped.description(),
+        List.of(scraped.thumbnailUrl()),
+        false,
+        false,
+        scraped.articleUrl());
+  }
+
+  private ScrapedSopticleArticle scrapSopticleArticle(String link) {
+    try {
+      return sopticleScraperPort.scrap(link);
+    } catch (RuntimeException e) {
+      log.warn("Sopticle 메타데이터 스크래핑 실패. 요청값으로 게시글을 생성합니다. link={}", link, e);
+      return null;
+    }
   }
 
   private void validateWriterExists(Long userId) {
