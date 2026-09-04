@@ -17,4 +17,8 @@ public interface AnonymousProfileRepositoryPort {
   List<String> findNicknamesByPostIdAndNicknamesIn(Long postId, List<String> nicknames);
 
   List<AnonymousProfile> findByPostIdAndNicknamesIn(Long postId, List<String> nicknames);
+
+  Optional<AnonymousProfile> findById(Long id);
+
+  List<AnonymousProfile> findAllByIds(List<Long> ids);
 }

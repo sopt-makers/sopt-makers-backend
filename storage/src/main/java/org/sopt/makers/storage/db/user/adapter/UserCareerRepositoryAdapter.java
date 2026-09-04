@@ -1,6 +1,8 @@
 package org.sopt.makers.storage.db.user.adapter;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.user.UserCareer;
 import org.sopt.makers.domain.user.port.UserCareerRepositoryPort;
@@ -37,5 +39,22 @@ public class UserCareerRepositoryAdapter implements UserCareerRepositoryPort {
     return userCareerJpaRepository.saveAll(entities).stream()
         .map(UserCareerEntity::toDomain)
         .toList();
+  }
+
+  @Override
+  public List<UserCareer> findLastCareersByUserIds(final List<Long> userIds) {
+    if (userIds == null || userIds.isEmpty()) {
+      return List.of();
+    }
+
+    List<UserCareerEntity> candidates =
+        userCareerJpaRepository.findAllByUserIdInOrderByUserIdAscStartDateDescIdDesc(userIds);
+
+    Map<Long, UserCareer> lastCareerByUserId = new LinkedHashMap<>();
+    for (UserCareerEntity candidate : candidates) {
+      lastCareerByUserId.putIfAbsent(candidate.getUserId(), candidate.toDomain());
+    }
+
+    return List.copyOf(lastCareerByUserId.values());
   }
 }

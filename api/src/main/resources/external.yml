@@ -35,3 +35,5 @@ external:
     bot-token: ${SLACK_BOT_TOKEN:}
     app-token: ${SLACK_APP_TOKEN:}
     socket-mode-enabled: ${SLACK_SOCKET_MODE_ENABLED:false}
+  crew:
+    url: ${CREW_INTERNAL_URL:}

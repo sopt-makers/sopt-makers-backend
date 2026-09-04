@@ -18,6 +18,13 @@ public interface AnonymousProfileJpaRepository
   @EntityGraph(attributePaths = {"nickname", "profileImage"})
   List<AnonymousProfileEntity> findAllByPostId(Long postId);
 
+  @EntityGraph(attributePaths = {"nickname", "profileImage"})
+  @Override
+  Optional<AnonymousProfileEntity> findById(Long id);
+
+  @EntityGraph(attributePaths = {"nickname", "profileImage"})
+  List<AnonymousProfileEntity> findAllByIdIn(List<Long> ids);
+
   @Query(
       """
       SELECT DISTINCT ap.nickname.nickname

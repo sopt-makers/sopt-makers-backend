@@ -2,7 +2,9 @@ package org.sopt.makers.domain.playground.community.anonymous.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
 import org.sopt.makers.domain.playground.community.anonymous.port.AnonymousProfileRepositoryPort;
@@ -42,5 +44,20 @@ public class AnonymousProfileRetriever {
       return new Long[0];
     }
     return profiles.stream().map(AnonymousProfile::userId).distinct().toArray(Long[]::new);
+  }
+
+  public Optional<AnonymousProfile> findById(Long id) {
+    if (id == null) {
+      return Optional.empty();
+    }
+    return anonymousProfileRepositoryPort.findById(id);
+  }
+
+  public Map<Long, AnonymousProfile> findAllByIdsAsMap(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return Map.of();
+    }
+    return anonymousProfileRepositoryPort.findAllByIds(ids).stream()
+        .collect(Collectors.toMap(AnonymousProfile::id, profile -> profile));
   }
 }

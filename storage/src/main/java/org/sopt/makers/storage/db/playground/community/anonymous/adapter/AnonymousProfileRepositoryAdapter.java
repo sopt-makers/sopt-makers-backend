@@ -69,4 +69,19 @@ public class AnonymousProfileRepositoryAdapter implements AnonymousProfileReposi
         .map(AnonymousProfileEntity::toDomain)
         .toList();
   }
+
+  @Override
+  public Optional<AnonymousProfile> findById(Long id) {
+    return anonymousProfileJpaRepository.findById(id).map(AnonymousProfileEntity::toDomain);
+  }
+
+  @Override
+  public List<AnonymousProfile> findAllByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    return anonymousProfileJpaRepository.findAllByIdIn(ids).stream()
+        .map(AnonymousProfileEntity::toDomain)
+        .toList();
+  }
 }

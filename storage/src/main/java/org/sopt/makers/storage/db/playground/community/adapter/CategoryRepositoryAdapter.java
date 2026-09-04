@@ -36,4 +36,17 @@ public class CategoryRepositoryAdapter implements CategoryRepositoryPort {
         .map(CategoryEntity::toDomain)
         .toList();
   }
+
+  @Override
+  public Optional<Category> findById(Long id) {
+    return categoryJpaRepository.findById(id).map(CategoryEntity::toDomain);
+  }
+
+  @Override
+  public List<Category> findAllByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    return categoryJpaRepository.findAllById(ids).stream().map(CategoryEntity::toDomain).toList();
+  }
 }

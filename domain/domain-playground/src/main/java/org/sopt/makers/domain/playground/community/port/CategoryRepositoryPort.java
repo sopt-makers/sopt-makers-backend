@@ -12,4 +12,8 @@ public interface CategoryRepositoryPort {
   List<Category> findAllByCodeInAndIsActiveTrue(List<CommunityCategoryCode> codes);
 
   List<Category> findAllActiveWithParentOrderByDisplayOrderAsc();
+
+  Optional<Category> findById(Long id);
+
+  List<Category> findAllByIds(List<Long> ids);
 }

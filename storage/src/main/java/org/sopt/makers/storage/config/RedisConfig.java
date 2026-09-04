@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.config;
 
+import org.sopt.makers.storage.redis.playground.cache.CachedCrewMeetingFeed;
 import org.sopt.makers.storage.redis.user.cache.CachedUserProfile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,17 @@ public class RedisConfig {
     template.setKeySerializer(new StringRedisSerializer());
     template.setValueSerializer(
         new JacksonJsonRedisSerializer<>(objectMapper, CachedUserProfile.class));
+    return template;
+  }
+
+  @Bean
+  public RedisTemplate<String, CachedCrewMeetingFeed> crewMeetingFeedRedisTemplate(
+      RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
+    RedisTemplate<String, CachedCrewMeetingFeed> template = new RedisTemplate<>();
+    template.setConnectionFactory(connectionFactory);
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setValueSerializer(
+        new JacksonJsonRedisSerializer<>(objectMapper, CachedCrewMeetingFeed.class));
     return template;
   }
 }
