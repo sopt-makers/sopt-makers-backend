@@ -8,10 +8,7 @@ import org.sopt.makers.domain.playground.community.CommunityPostSourceType;
 import org.sopt.makers.domain.playground.community.CommunityPostTag;
 import org.sopt.makers.domain.playground.community.post.PostFeedItem;
 
-/**
- * comments/vote는 각각 comment/vote 도메인이 아직 이관되지 않아 항상 빈 값이다(TODO). 필드 자체는 기존 응답 스키마 동결을 위해
- * 유지한다.
- */
+/** vote는 vote 도메인이 아직 이관되지 않아 항상 빈 값이다(TODO). 필드 자체는 기존 응답 스키마 동결을 위해 유지한다. */
 public record PostResponse(
     Long id,
     CommunityPostSourceType sourceType,
@@ -33,7 +30,7 @@ public record PostResponse(
     String sopticleUrl,
     AnonymousProfileResponse anonymousProfile,
     String createdAt,
-    List<Object> comments,
+    List<CommentResponse> comments,
     Object vote,
     Long meetingId) {
 
@@ -59,7 +56,7 @@ public record PostResponse(
         item.sopticleUrl(),
         AnonymousProfileResponse.from(item.anonymousProfile()),
         RelativeTimeFormatter.format(item.createdAt()),
-        List.of(),
+        item.comments().stream().map(CommentResponse::from).toList(),
         null,
         item.meetingId());
   }

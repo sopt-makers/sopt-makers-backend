@@ -7,11 +7,11 @@ import org.sopt.makers.domain.playground.community.CommunityCategoryGroup;
 import org.sopt.makers.domain.playground.community.CommunityPostSourceType;
 import org.sopt.makers.domain.playground.community.CommunityPostTag;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
+import org.sopt.makers.domain.playground.community.comment.CommentThread;
 import org.sopt.makers.domain.playground.community.member.CommunityMemberSummary;
 
 /**
- * 게시글 목록/피드에서 한 건을 표현하는 read model. commentCount는 comment 도메인이 아직 이관되지 않아 항상 0으로
- * 채워진다(TODO).
+ * 게시글 목록/피드에서 한 건을 표현하는 read model. 모임(MEETING) 게시글은 댓글이 크루 도메인 소관이라 comments가 항상 빈 목록이다.
  */
 public record PostFeedItem(
     CommunityPostSourceType sourceType,
@@ -29,6 +29,7 @@ public record PostFeedItem(
     String content,
     int hits,
     int commentCount,
+    List<CommentThread> comments,
     List<String> images,
     boolean isBlindWriter,
     String sopticleUrl,

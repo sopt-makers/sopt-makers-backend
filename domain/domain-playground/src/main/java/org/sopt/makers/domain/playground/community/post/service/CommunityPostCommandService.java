@@ -13,6 +13,7 @@ import org.sopt.makers.domain.playground.community.Category;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousProfileService;
+import org.sopt.makers.domain.playground.community.comment.service.CommentCommandService;
 import org.sopt.makers.domain.playground.community.exception.CommunityException;
 import org.sopt.makers.domain.playground.community.member.service.CommunityMemberAssembler;
 import org.sopt.makers.domain.playground.community.post.DeletedPost;
@@ -40,6 +41,7 @@ public class CommunityPostCommandService {
   private final CategoryQueryService categoryQueryService;
   private final CommunityMemberAssembler communityMemberAssembler;
   private final AnonymousProfileService anonymousProfileService;
+  private final CommentCommandService commentCommandService;
 
   public record CreatePostCommand(
       CommunityCategoryCode categoryCode,
@@ -110,6 +112,7 @@ public class CommunityPostCommandService {
     Post post = getPostOrThrow(postId);
     validateOwner(post, writerId);
 
+    commentCommandService.deleteCommentsByPostId(postId);
     deletedPostRepositoryPort.save(DeletedPost.from(post));
     postRepositoryPort.delete(post);
   }

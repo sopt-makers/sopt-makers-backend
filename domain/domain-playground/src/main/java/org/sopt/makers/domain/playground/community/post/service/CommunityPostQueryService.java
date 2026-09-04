@@ -24,6 +24,8 @@ import org.sopt.makers.domain.playground.community.CommunityPostSourceType;
 import org.sopt.makers.domain.playground.community.CommunityPostTag;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousProfileRetriever;
+import org.sopt.makers.domain.playground.community.comment.CommentThread;
+import org.sopt.makers.domain.playground.community.comment.service.CommentQueryService;
 import org.sopt.makers.domain.playground.community.exception.CommunityException;
 import org.sopt.makers.domain.playground.community.member.CommunityMemberSummary;
 import org.sopt.makers.domain.playground.community.member.service.CommunityMemberAssembler;
@@ -69,6 +71,7 @@ public class CommunityPostQueryService {
   private final AnonymousProfileRetriever anonymousProfileRetriever;
   private final CrewMeetingPostPort crewMeetingPostPort;
   private final CommunityFeedCursorCodec communityFeedCursorCodec;
+  private final CommentQueryService commentQueryService;
 
   private record FeedCandidate(
       CommunityPostSourceType sourceType,
@@ -287,6 +290,7 @@ public class CommunityPostQueryService {
         post.content(),
         post.viewCount(),
         post.commentCount(),
+        List.of(),
         post.images(),
         false,
         null,
@@ -313,9 +317,13 @@ public class CommunityPostQueryService {
     Map<Long, AnonymousProfile> anonymousProfileMap = anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
     Map<Long, Boolean> likedMap = getLikedMap(viewerId, postIds);
     Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
+    Map<Long, List<CommentThread>> commentMap = commentQueryService.getCommentThreadsByPostIds(viewerId, postIds);
 
     return posts.stream()
-        .map(post -> toPostFeedItem(post, viewerId, memberMap, categoryMap, anonymousProfileMap, likedMap, likeCountMap))
+        .map(
+            post ->
+                toPostFeedItem(
+                    post, viewerId, memberMap, categoryMap, anonymousProfileMap, likedMap, likeCountMap, commentMap))
         .toList();
   }
 
@@ -326,7 +334,8 @@ public class CommunityPostQueryService {
       Map<Long, Category> categoryMap,
       Map<Long, AnonymousProfile> anonymousProfileMap,
       Map<Long, Boolean> likedMap,
-      Map<Long, Integer> likeCountMap) {
+      Map<Long, Integer> likeCountMap,
+      Map<Long, List<CommentThread>> commentMap) {
     boolean isBlind = Boolean.TRUE.equals(post.isBlindWriter());
     CommunityMemberSummary member = isBlind ? null : memberMap.get(post.writerId());
     Long writerId = isBlind ? null : post.writerId();
@@ -334,6 +343,8 @@ public class CommunityPostQueryService {
     Category category = categoryMap.get(post.categoryId());
     AnonymousProfile anonymousProfile =
         isBlind && post.anonymousProfileId() != null ? anonymousProfileMap.get(post.anonymousProfileId()) : null;
+    List<CommentThread> comments = commentMap.getOrDefault(post.id(), List.of());
+    int commentCount = (int) comments.stream().filter(thread -> !Boolean.TRUE.equals(thread.comment().isDeleted())).count();
 
     return new PostFeedItem(
         CommunityPostSourceType.COMMUNITY,
@@ -350,7 +361,8 @@ public class CommunityPostQueryService {
         post.title(),
         post.content(),
         post.hits(),
-        0, // TODO: comment 도메인 이관 후 연동
+        commentCount,
+        comments,
         post.images(),
         post.isBlindWriter(),
         post.sopticleUrl(),
@@ -408,6 +420,7 @@ public class CommunityPostQueryService {
     Map<Long, AnonymousProfile> anonymousProfileMap = anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
     Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, Category> categoryMap = categoryQueryService.findAllByIdsAsMap(categoryIds);
+    Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
 
     List<PopularCandidate> candidates = new ArrayList<>();
 
@@ -427,7 +440,7 @@ public class CommunityPostQueryService {
       }
 
       int likeCount = likeCountMap.getOrDefault(postId, 0);
-      int commentCount = 0; // TODO: comment 도메인 이관 후 연동
+      int commentCount = commentCountMap.getOrDefault(postId, 0);
       int score = calculatePopularScore(post.hits(), commentCount, likeCount);
 
       Category category = categoryMap.get(post.categoryId());
@@ -550,6 +563,7 @@ public class CommunityPostQueryService {
 
     Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, Category> categoryMap = categoryQueryService.findAllByIdsAsMap(categoryIds);
+    Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
 
     List<RecentCandidate> candidates = new ArrayList<>();
 
@@ -567,7 +581,7 @@ public class CommunityPostQueryService {
               post.content(),
               post.createdAt(),
               likeCountMap.getOrDefault(post.id(), 0),
-              0, // TODO: comment 도메인 이관 후 연동
+              commentCountMap.getOrDefault(post.id(), 0),
               tag,
               null); // TODO: vote 도메인 이관 후 연동
 
@@ -638,16 +652,19 @@ public class CommunityPostQueryService {
   }
 
   private Post findTodayHotPost(List<Post> posts) {
+    List<Long> postIds = posts.stream().map(Post::id).toList();
+    Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
+
     return posts.stream()
-        .map(this::toPostWithPoints)
+        .map(post -> toPostWithPoints(post, commentCountMap))
         .filter(postWithPoints -> postWithPoints.points() >= MIN_POINTS_FOR_HOT_POST)
         .max(Comparator.comparingInt(PostWithPoints::points).thenComparingInt(PostWithPoints::hits))
         .map(PostWithPoints::post)
         .orElse(null);
   }
 
-  private PostWithPoints toPostWithPoints(Post post) {
-    int commentCount = 0; // TODO: comment 도메인 이관 후 연동
+  private PostWithPoints toPostWithPoints(Post post, Map<Long, Integer> commentCountMap) {
+    int commentCount = commentCountMap.getOrDefault(post.id(), 0);
     int likeCount = postLikeRepositoryPort.countAllByPostId(post.id());
     int points = commentCount * 2 + likeCount;
     return new PostWithPoints(post, points, post.hits());
