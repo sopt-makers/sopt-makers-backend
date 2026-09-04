@@ -20,7 +20,8 @@ public enum CommunitySuccessCode implements SuccessCode {
   DELETE_POST(200, "커뮤니티 글 삭제 성공"),
   LIKE_POST(201, "커뮤니티 게시글 좋아요 성공"),
   UNLIKE_POST(200, "커뮤니티 게시글 좋아요 취소 성공"),
-  REPORT_POST(201, "커뮤니티 글 신고 성공");
+  REPORT_POST(201, "커뮤니티 글 신고 성공"),
+  SELECT_VOTE(200, "커뮤니티 게시글 투표 선택 성공");
 
   private final int statusCode;
   private final String message;

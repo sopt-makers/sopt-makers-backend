@@ -46,6 +46,8 @@ import org.sopt.makers.domain.playground.community.post.port.PostLikeRepositoryP
 import org.sopt.makers.domain.playground.community.post.port.PostRepositoryPort;
 import org.sopt.makers.domain.playground.community.service.CategoryQueryService;
 import org.sopt.makers.domain.playground.community.service.CommunityCategoryPolicy;
+import org.sopt.makers.domain.playground.community.vote.VoteResult;
+import org.sopt.makers.domain.playground.community.vote.service.VoteQueryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +74,7 @@ public class CommunityPostQueryService {
   private final CrewMeetingPostPort crewMeetingPostPort;
   private final CommunityFeedCursorCodec communityFeedCursorCodec;
   private final CommentQueryService commentQueryService;
+  private final VoteQueryService voteQueryService;
 
   private record FeedCandidate(
       CommunityPostSourceType sourceType,
@@ -394,8 +397,9 @@ public class CommunityPostQueryService {
     int likes = postLikeRepositoryPort.countAllByPostId(postId);
     AnonymousProfile anonymousProfile =
         isBlind ? anonymousProfileRetriever.findById(post.anonymousProfileId()).orElse(null) : null;
+    VoteResult vote = voteQueryService.getVoteByPostId(postId, viewerId).orElse(null);
 
-    return new PostDetail(post, category, parentCategory, member, isMine, isLiked, likes, anonymousProfile);
+    return new PostDetail(post, category, parentCategory, member, isMine, isLiked, likes, anonymousProfile, vote);
   }
 
   // ==========================================

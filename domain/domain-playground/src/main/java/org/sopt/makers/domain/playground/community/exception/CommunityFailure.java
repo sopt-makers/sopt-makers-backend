@@ -31,7 +31,14 @@ public enum CommunityFailure implements FailureCode {
   NOT_FOUND_ANONYMOUS_NICKNAME_IN_POST(400, "해당 게시글에 존재하지 않는 익명 닉네임입니다."),
   MISSING_PARENT_COMMENT_ID(400, "답글 작성 시 부모 댓글 ID(parentCommentId)는 필수입니다."),
   INVALID_PARENT_COMMENT_ID(400, "일반 댓글 작성 시 부모 댓글 ID(parentCommentId)는 null이어야 합니다."),
-  SOPTICLE_SCRAP_FAILED(502, "솝티클 링크의 메타데이터를 가져오는데 실패했습니다.");
+  SOPTICLE_SCRAP_FAILED(502, "솝티클 링크의 메타데이터를 가져오는데 실패했습니다."),
+  NOT_FOUND_VOTE(404, "해당 게시글에는 투표가 존재하지 않습니다."),
+  ALREADY_VOTED(400, "이미 투표했습니다."),
+  SOPTICLE_VOTE_NOT_ALLOWED(400, "솝티클 카테고리는 투표를 만들 수 없습니다."),
+  INVALID_VOTE_OPTION_COUNT(400, "투표 옵션은 2개 이상 5개 이하만 가능합니다."),
+  INVALID_VOTE_OPTION_CONTENT(400, "투표 옵션 내용은 공백일 수 없고 40자까지만 입력 가능합니다."),
+  INVALID_VOTE_SELECTION_COUNT(400, "복수 선택 불가능한 투표입니다."),
+  INVALID_VOTE_SELECTION_OPTION(400, "존재하지 않는 투표 옵션이 포함되어 있습니다.");
 
   private final int statusCode;
   private final String message;

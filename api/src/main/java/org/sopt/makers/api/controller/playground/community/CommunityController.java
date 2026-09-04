@@ -10,6 +10,7 @@ import static org.sopt.makers.api.controller.playground.community.CommunitySucce
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.GET_TODAY_HOT_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.LIKE_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.REPORT_POST;
+import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.SELECT_VOTE;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.UNLIKE_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.UPDATE_POST;
 
@@ -28,6 +29,8 @@ import org.sopt.makers.api.controller.playground.community.dto.PostUpdateRequest
 import org.sopt.makers.api.controller.playground.community.dto.PostUpdateResponse;
 import org.sopt.makers.api.controller.playground.community.dto.RecentPostResponse;
 import org.sopt.makers.api.controller.playground.community.dto.SopticlePostResponse;
+import org.sopt.makers.api.controller.playground.community.dto.VoteResponse;
+import org.sopt.makers.api.controller.playground.community.dto.VoteSelectionRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.CommunityPostListCategory;
@@ -35,6 +38,7 @@ import org.sopt.makers.domain.playground.community.CommunityPostListFilter;
 import org.sopt.makers.domain.playground.community.post.Post;
 import org.sopt.makers.domain.playground.community.post.service.CommunityPostCommandService;
 import org.sopt.makers.domain.playground.community.post.service.CommunityPostQueryService;
+import org.sopt.makers.domain.playground.community.vote.service.VoteCommandService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +57,7 @@ public class CommunityController implements CommunityApi {
 
   private final CommunityPostQueryService communityPostQueryService;
   private final CommunityPostCommandService communityPostCommandService;
+  private final VoteCommandService voteCommandService;
 
   @Override
   @GetMapping("/posts/{postId}")
@@ -164,5 +169,15 @@ public class CommunityController implements CommunityApi {
       @PathVariable("postId") Long postId, @CurrentUserId Long userId) {
     communityPostCommandService.reportPost(userId, postId);
     return ResponseFactory.success(REPORT_POST);
+  }
+
+  @Override
+  @PostMapping("/posts/{postId}/vote")
+  public ResponseEntity<BaseResponse<?>> selectVote(
+      @CurrentUserId Long userId,
+      @PathVariable("postId") Long postId,
+      @RequestBody VoteSelectionRequest request) {
+    return ResponseFactory.success(
+        SELECT_VOTE, VoteResponse.from(voteCommandService.selectVote(userId, postId, request.selectedOptions())));
   }
 }

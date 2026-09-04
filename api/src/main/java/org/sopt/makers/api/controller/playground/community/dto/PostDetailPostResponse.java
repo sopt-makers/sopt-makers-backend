@@ -8,7 +8,6 @@ import org.sopt.makers.domain.playground.community.CommunityCategoryGroup;
 import org.sopt.makers.domain.playground.community.post.Post;
 import org.sopt.makers.domain.playground.community.post.PostDetail;
 
-/** vote는 vote 도메인이 아직 이관되지 않아 항상 null이다(TODO). */
 public record PostDetailPostResponse(
     Long id,
     CommunityCategoryGroup categoryGroup,
@@ -41,6 +40,6 @@ public record PostDetailPostResponse(
         post.isReported(),
         post.createdAt(),
         post.updatedAt(),
-        null);
+        detail.vote() == null ? null : VoteResponse.from(detail.vote()));
   }
 }

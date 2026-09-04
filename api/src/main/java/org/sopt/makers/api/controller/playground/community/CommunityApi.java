@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sopt.makers.api.controller.playground.community.dto.PostSaveRequest;
 import org.sopt.makers.api.controller.playground.community.dto.PostUpdateRequest;
+import org.sopt.makers.api.controller.playground.community.dto.VoteSelectionRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.CommunityPostListCategory;
@@ -82,4 +83,10 @@ public interface CommunityApi {
   @Operation(summary = "커뮤니티 글 신고 API")
   ResponseEntity<BaseResponse<?>> reportPost(
       @Parameter(description = "게시글 ID") Long postId, @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "커뮤니티 게시글 투표 선택 API")
+  ResponseEntity<BaseResponse<?>> selectVote(
+      @Parameter(hidden = true) Long userId,
+      @Parameter(description = "게시글 ID") Long postId,
+      VoteSelectionRequest request);
 }

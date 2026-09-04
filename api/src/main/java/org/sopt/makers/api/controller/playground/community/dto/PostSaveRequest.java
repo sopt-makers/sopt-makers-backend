@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.post.service.CommunityPostCommandService.CreatePostCommand;
+import org.sopt.makers.domain.playground.community.vote.service.VoteCommandService;
 
 public record PostSaveRequest(
     @Schema(required = true) @NotNull(message = "카테고리 코드는 필수 입력값입니다.") CommunityCategoryCode categoryCode,
@@ -18,6 +19,10 @@ public record PostSaveRequest(
     MentionRequest mention) {
 
   public CreatePostCommand toCommand() {
-    return new CreatePostCommand(categoryCode, title, content, isBlindWriter, images, link);
+    return new CreatePostCommand(categoryCode, title, content, isBlindWriter, images, link, toVoteCommand());
+  }
+
+  private VoteCommandService.CreateVoteCommand toVoteCommand() {
+    return vote == null ? null : new VoteCommandService.CreateVoteCommand(vote.isMultiple(), vote.voteOptions());
   }
 }

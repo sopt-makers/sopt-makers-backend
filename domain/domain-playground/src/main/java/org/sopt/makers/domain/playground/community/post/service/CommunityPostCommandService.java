@@ -31,6 +31,7 @@ import org.sopt.makers.domain.playground.community.post.port.SopticleScraperPort
 import org.sopt.makers.domain.playground.community.post.port.SopticleScraperPort.ScrapedSopticleArticle;
 import org.sopt.makers.domain.playground.community.service.CategoryQueryService;
 import org.sopt.makers.domain.playground.community.service.CommunityCategoryPolicy;
+import org.sopt.makers.domain.playground.community.vote.service.VoteCommandService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +53,7 @@ public class CommunityPostCommandService {
   private final CommentCommandService commentCommandService;
   private final CommunityNotificationPublisher communityNotificationPublisher;
   private final SopticleScraperPort sopticleScraperPort;
+  private final VoteCommandService voteCommandService;
 
   public record CreatePostCommand(
       CommunityCategoryCode categoryCode,
@@ -59,7 +61,8 @@ public class CommunityPostCommandService {
       String content,
       Boolean isBlindWriter,
       List<String> images,
-      String link) {}
+      String link,
+      VoteCommandService.CreateVoteCommand vote) {}
 
   public record UpdatePostCommand(
       CommunityCategoryCode categoryCode,
@@ -82,6 +85,8 @@ public class CommunityPostCommandService {
       AnonymousProfile profile = anonymousProfileService.getOrCreateAnonymousProfile(writerId, created.id());
       created = postRepositoryPort.save(created.withAnonymousProfileId(profile.id()));
     }
+
+    voteCommandService.createVote(created.id(), category.categoryGroup(), command.vote());
 
     return new PostMutationResult(created, category.code());
   }
@@ -111,6 +116,7 @@ public class CommunityPostCommandService {
     validateOwner(post, writerId);
 
     commentCommandService.deleteCommentsByPostId(postId);
+    voteCommandService.deleteVoteByPostId(postId);
     deletedPostRepositoryPort.save(DeletedPost.from(post));
     postRepositoryPort.delete(post);
   }
