@@ -1,9 +1,9 @@
-package org.sopt.makers.storage.db.playground.post.repository;
+package org.sopt.makers.storage.db.crew.mumu.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.sopt.makers.storage.db.playground.post.entity.MumuTextEntity;
+import org.sopt.makers.storage.db.crew.mumu.entity.MumuTextEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

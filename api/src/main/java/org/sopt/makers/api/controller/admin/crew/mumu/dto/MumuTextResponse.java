@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.admin.crew.mumu.dto;
 
 import java.time.LocalDateTime;
-import org.sopt.makers.domain.playground.post.mumu.MumuText;
+import org.sopt.makers.domain.crew.mumu.MumuText;
 
 public record MumuTextResponse(
     Long id,

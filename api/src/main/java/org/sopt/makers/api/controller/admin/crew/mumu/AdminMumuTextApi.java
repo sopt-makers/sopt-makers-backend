@@ -6,7 +6,7 @@ import org.sopt.makers.api.controller.admin.crew.mumu.dto.MumuTextUpsertRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
-@Tag(name = "어드민 Playground 무무 텍스트", description = "무무 텍스트 관리 API")
+@Tag(name = "어드민 CREW 무무 텍스트", description = "CREW 무무 텍스트 관리 API")
 public interface AdminMumuTextApi {
 
   @Operation(summary = "무무 텍스트 목록 조회")

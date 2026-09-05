@@ -1,11 +1,11 @@
-package org.sopt.makers.storage.db.playground.post.adapter;
+package org.sopt.makers.storage.db.crew.mumu.adapter;
 
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.playground.post.mumu.MumuPostWriteHistory;
-import org.sopt.makers.domain.playground.post.port.MumuPostWriteHistoryRepositoryPort;
-import org.sopt.makers.storage.db.playground.post.entity.MumuPostWriteHistoryEntity;
-import org.sopt.makers.storage.db.playground.post.repository.MumuPostWriteHistoryJpaRepository;
+import org.sopt.makers.domain.crew.mumu.MumuPostWriteHistory;
+import org.sopt.makers.domain.crew.mumu.port.MumuPostWriteHistoryRepositoryPort;
+import org.sopt.makers.storage.db.crew.mumu.entity.MumuPostWriteHistoryEntity;
+import org.sopt.makers.storage.db.crew.mumu.repository.MumuPostWriteHistoryJpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository

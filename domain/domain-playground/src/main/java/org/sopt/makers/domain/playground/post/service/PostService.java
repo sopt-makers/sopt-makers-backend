@@ -26,9 +26,8 @@ import org.sopt.makers.domain.playground.post.PostNotification;
 import org.sopt.makers.domain.playground.post.PostWriter;
 import org.sopt.makers.domain.playground.post.exception.PostException;
 import org.sopt.makers.domain.playground.post.like.PostLike;
-import org.sopt.makers.domain.playground.post.mumu.MumuPostWriteHistory;
 import org.sopt.makers.domain.playground.post.port.MeetingPostAccessPort;
-import org.sopt.makers.domain.playground.post.port.MumuPostWriteHistoryRepositoryPort;
+import org.sopt.makers.domain.playground.post.port.MumuPostPolicyPort;
 import org.sopt.makers.domain.playground.post.port.PostCommentRepositoryPort;
 import org.sopt.makers.domain.playground.post.port.PostLikeRepositoryPort;
 import org.sopt.makers.domain.playground.post.port.PostNotificationSenderPort;
@@ -53,8 +52,7 @@ public class PostService {
   private final PostReportRepositoryPort reportRepositoryPort;
   private final MeetingPostAccessPort meetingPostAccessPort;
   private final PlaygroundPostUserPort userPort;
-  private final MumuPostWriteHistoryRepositoryPort mumuWriteHistoryRepositoryPort;
-  private final MumuTextService mumuTextService;
+  private final MumuPostPolicyPort mumuPostPolicyPort;
   private final PostNotificationSenderPort notificationSenderPort;
   private final Clock clock;
 
@@ -154,14 +152,14 @@ public class PostService {
 
   public MumuHome getMumuHome(Long userId) {
     validateUser(userId);
-    String mumuText = mumuTextService.getCurrentText();
+    String mumuText = mumuPostPolicyPort.getCurrentText();
     List<MeetingPostContext> meetings = meetingPostAccessPort.findMeetingsByUserId(userId);
     if (meetings.isEmpty()) {
       return new MumuHome(true, false, false, mumuText, List.of());
     }
 
     LocalDate today = LocalDate.now(clock);
-    boolean written = mumuWriteHistoryRepositoryPort.existsByUserIdAndWrittenDate(userId, today);
+    boolean written = mumuPostPolicyPort.hasWritten(userId, today);
     if (!written) {
       return new MumuHome(false, false, false, mumuText, List.of());
     }
@@ -190,7 +188,7 @@ public class PostService {
   }
 
   public String getCurrentMumuText() {
-    return mumuTextService.getCurrentText();
+    return mumuPostPolicyPort.getCurrentText();
   }
 
   public void mentionUsers(Long postId, List<Long> mentionedUserIds, String contents, Long userId) {
@@ -217,10 +215,7 @@ public class PostService {
     if (post.contentType() != PostContentType.MUMU) {
       return;
     }
-    LocalDate today = LocalDate.now(clock);
-    if (!mumuWriteHistoryRepositoryPort.existsByUserIdAndWrittenDate(userId, today)) {
-      mumuWriteHistoryRepositoryPort.save(MumuPostWriteHistory.create(userId, today));
-    }
+    mumuPostPolicyPort.recordWrittenIfAbsent(userId, LocalDate.now(clock));
   }
 
   private PageResult<PostView> enrich(

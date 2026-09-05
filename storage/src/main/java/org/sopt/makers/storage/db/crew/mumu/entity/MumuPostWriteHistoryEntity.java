@@ -1,4 +1,4 @@
-package org.sopt.makers.storage.db.playground.post.entity;
+package org.sopt.makers.storage.db.crew.mumu.entity;
 
 import static lombok.AccessLevel.PRIVATE;
 import static lombok.AccessLevel.PROTECTED;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.makers.domain.playground.post.mumu.MumuPostWriteHistory;
+import org.sopt.makers.domain.crew.mumu.MumuPostWriteHistory;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
 @Entity

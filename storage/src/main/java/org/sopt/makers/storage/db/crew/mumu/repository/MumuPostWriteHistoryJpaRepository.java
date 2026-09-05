@@ -1,7 +1,7 @@
-package org.sopt.makers.storage.db.playground.post.repository;
+package org.sopt.makers.storage.db.crew.mumu.repository;
 
 import java.time.LocalDate;
-import org.sopt.makers.storage.db.playground.post.entity.MumuPostWriteHistoryEntity;
+import org.sopt.makers.storage.db.crew.mumu.entity.MumuPostWriteHistoryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MumuPostWriteHistoryJpaRepository

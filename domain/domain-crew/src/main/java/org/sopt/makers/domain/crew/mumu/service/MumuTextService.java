@@ -1,7 +1,7 @@
-package org.sopt.makers.domain.playground.post.service;
+package org.sopt.makers.domain.crew.mumu.service;
 
-import static org.sopt.makers.domain.playground.post.exception.PostFailure.NOT_FOUND_MUMU_TEXT;
-import static org.sopt.makers.domain.playground.post.exception.PostFailure.OVERLAPPED_MUMU_TEXT_PERIOD;
+import static org.sopt.makers.domain.crew.mumu.exception.MumuFailure.NOT_FOUND_MUMU_TEXT;
+import static org.sopt.makers.domain.crew.mumu.exception.MumuFailure.OVERLAPPED_MUMU_TEXT_PERIOD;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -9,9 +9,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.playground.post.exception.PostException;
-import org.sopt.makers.domain.playground.post.mumu.MumuText;
-import org.sopt.makers.domain.playground.post.port.MumuTextRepositoryPort;
+import org.sopt.makers.domain.crew.mumu.MumuText;
+import org.sopt.makers.domain.crew.mumu.exception.MumuException;
+import org.sopt.makers.domain.crew.mumu.port.MumuTextRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +59,7 @@ public class MumuTextService {
   private MumuText resolveRepeatedText(LocalDateTime now) {
     List<MumuText> texts = findAll();
     if (texts.isEmpty()) {
-      throw new PostException(NOT_FOUND_MUMU_TEXT);
+      throw new MumuException(NOT_FOUND_MUMU_TEXT);
     }
     long days =
         ChronoUnit.DAYS.between(texts.getFirst().showStartDate().toLocalDate(), now.toLocalDate());
@@ -67,12 +67,12 @@ public class MumuTextService {
   }
 
   private MumuText getById(Long id) {
-    return repositoryPort.findById(id).orElseThrow(() -> new PostException(NOT_FOUND_MUMU_TEXT));
+    return repositoryPort.findById(id).orElseThrow(() -> new MumuException(NOT_FOUND_MUMU_TEXT));
   }
 
   private void validateNoOverlap(Long id, LocalDateTime startDate, LocalDateTime endDate) {
     if (!repositoryPort.findOverlapping(id, startDate, endDate).isEmpty()) {
-      throw new PostException(OVERLAPPED_MUMU_TEXT_PERIOD);
+      throw new MumuException(OVERLAPPED_MUMU_TEXT_PERIOD);
     }
   }
 

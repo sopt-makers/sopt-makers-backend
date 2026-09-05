@@ -1,9 +1,9 @@
-package org.sopt.makers.domain.playground.post.mumu;
+package org.sopt.makers.domain.crew.mumu;
 
-import static org.sopt.makers.domain.playground.post.exception.PostFailure.INVALID_MUMU_TEXT_PERIOD;
+import static org.sopt.makers.domain.crew.mumu.exception.MumuFailure.INVALID_MUMU_TEXT_PERIOD;
 
 import java.time.LocalDateTime;
-import org.sopt.makers.domain.playground.post.exception.PostException;
+import org.sopt.makers.domain.crew.mumu.exception.MumuException;
 
 public record MumuText(
     Long id,
@@ -22,7 +22,7 @@ public record MumuText(
         || showStartDate == null
         || showEndDate == null
         || !showStartDate.isBefore(showEndDate)) {
-      throw new PostException(INVALID_MUMU_TEXT_PERIOD);
+      throw new MumuException(INVALID_MUMU_TEXT_PERIOD);
     }
   }
 

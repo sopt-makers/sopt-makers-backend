@@ -1,9 +1,9 @@
-package org.sopt.makers.domain.playground.post.port;
+package org.sopt.makers.domain.crew.mumu.port;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.sopt.makers.domain.playground.post.mumu.MumuText;
+import org.sopt.makers.domain.crew.mumu.MumuText;
 
 public interface MumuTextRepositoryPort {
 

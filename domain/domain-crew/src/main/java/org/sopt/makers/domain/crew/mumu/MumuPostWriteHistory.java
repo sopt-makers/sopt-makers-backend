@@ -1,4 +1,4 @@
-package org.sopt.makers.domain.playground.post.mumu;
+package org.sopt.makers.domain.crew.mumu;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

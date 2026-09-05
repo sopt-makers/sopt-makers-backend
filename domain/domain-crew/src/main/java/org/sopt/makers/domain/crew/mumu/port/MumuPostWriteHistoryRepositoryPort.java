@@ -1,7 +1,7 @@
-package org.sopt.makers.domain.playground.post.port;
+package org.sopt.makers.domain.crew.mumu.port;
 
 import java.time.LocalDate;
-import org.sopt.makers.domain.playground.post.mumu.MumuPostWriteHistory;
+import org.sopt.makers.domain.crew.mumu.MumuPostWriteHistory;
 
 public interface MumuPostWriteHistoryRepositoryPort {
 

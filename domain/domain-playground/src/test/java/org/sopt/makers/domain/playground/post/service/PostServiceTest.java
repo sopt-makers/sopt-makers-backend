@@ -23,7 +23,7 @@ import org.sopt.makers.domain.playground.post.PostCategory;
 import org.sopt.makers.domain.playground.post.PostContentType;
 import org.sopt.makers.domain.playground.post.exception.PostException;
 import org.sopt.makers.domain.playground.post.port.MeetingPostAccessPort;
-import org.sopt.makers.domain.playground.post.port.MumuPostWriteHistoryRepositoryPort;
+import org.sopt.makers.domain.playground.post.port.MumuPostPolicyPort;
 import org.sopt.makers.domain.playground.post.port.PostCommentRepositoryPort;
 import org.sopt.makers.domain.playground.post.port.PostLikeRepositoryPort;
 import org.sopt.makers.domain.playground.post.port.PostNotificationSenderPort;
@@ -52,8 +52,7 @@ class PostServiceTest {
             mock(PostReportRepositoryPort.class),
             meetingAccess,
             userPort,
-            mock(MumuPostWriteHistoryRepositoryPort.class),
-            mock(MumuTextService.class),
+            mock(MumuPostPolicyPort.class),
             mock(PostNotificationSenderPort.class),
             Clock.fixed(Instant.parse("2026-09-03T00:00:00Z"), ZoneOffset.UTC));
   }
