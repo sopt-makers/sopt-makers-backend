@@ -8,8 +8,6 @@ import org.sopt.makers.domain.app.poke.Friend;
 import org.sopt.makers.domain.app.poke.port.FriendRepositoryPort;
 import org.sopt.makers.storage.db.app.poke.entity.FriendEntity;
 import org.sopt.makers.storage.db.app.poke.repository.FriendJpaRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,14 +43,6 @@ public class FriendRepositoryAdapter implements FriendRepositoryPort {
   @Override
   public List<Friend> findAllByUserIdAndFriendUserIdIn(Long userId, List<Long> friendUserIds) {
     return toDomains(friendJpaRepository.findAllByUserIdAndFriendUserIdIn(userId, friendUserIds));
-  }
-
-  @Override
-  public Page<Friend> findAllByUserIdAndFriendUserIdInOrderByPokeCount(
-      Long userId, List<Long> friendUserIds, Pageable pageable) {
-    return friendJpaRepository
-        .findAllByUserIdAndFriendUserIdInOrderByPokeCount(userId, friendUserIds, pageable)
-        .map(FriendEntity::toDomain);
   }
 
   @Override

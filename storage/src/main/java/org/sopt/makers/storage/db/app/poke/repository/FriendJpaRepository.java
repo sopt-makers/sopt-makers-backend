@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.sopt.makers.storage.db.app.poke.entity.FriendEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -23,9 +21,6 @@ public interface FriendJpaRepository extends JpaRepository<FriendEntity, Long> {
   List<FriendEntity> findAllByUserId(Long userId);
 
   List<FriendEntity> findAllByUserIdAndFriendUserIdIn(Long userId, List<Long> friendUserIds);
-
-  Page<FriendEntity> findAllByUserIdAndFriendUserIdInOrderByPokeCount(
-      Long userId, List<Long> friendUserIds, Pageable pageable);
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(

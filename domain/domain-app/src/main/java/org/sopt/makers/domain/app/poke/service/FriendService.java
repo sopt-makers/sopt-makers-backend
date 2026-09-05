@@ -1,6 +1,5 @@
 package org.sopt.makers.domain.app.poke.service;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import org.sopt.makers.domain.app.poke.exception.PokeException;
 import org.sopt.makers.domain.app.poke.exception.PokeFailure;
 import org.sopt.makers.domain.app.poke.port.FriendRepositoryPort;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +31,7 @@ public class FriendService {
   public List<Friend> findAllFriendsByFriendship(Long userId, int lowerLimit, int upperLimit) {
     return getPokeCountMap(userId).entrySet().stream()
         .filter(entry -> entry.getValue() >= lowerLimit && entry.getValue() < upperLimit)
-        .sorted(Collections.reverseOrder(Entry.comparingByValue()))
+        .sorted(Entry.<Long, Integer>comparingByValue().reversed().thenComparing(Entry::getKey))
         .map(entry -> Friend.ofPokeCount(userId, entry.getKey(), entry.getValue()))
         .toList();
   }
@@ -47,15 +47,11 @@ public class FriendService {
   @Transactional(readOnly = true)
   public Page<Friend> findAllFriendsByFriendship(
       Long userId, int lowerLimit, int upperLimit, Pageable pageable) {
-    List<Long> friendIds =
-        getPokeCountMap(userId).entrySet().stream()
-            .filter(entry -> entry.getValue() >= lowerLimit && entry.getValue() < upperLimit)
-            .sorted(Collections.reverseOrder(Entry.comparingByValue()))
-            .map(Entry::getKey)
-            .toList();
+    List<Friend> friends = findAllFriendsByFriendship(userId, lowerLimit, upperLimit);
 
-    return friendRepositoryPort.findAllByUserIdAndFriendUserIdInOrderByPokeCount(
-        userId, friendIds, pageable);
+    int from = (int) Math.min(pageable.getOffset(), friends.size());
+    int to = Math.min(from + pageable.getPageSize(), friends.size());
+    return new PageImpl<>(friends.subList(from, to), pageable, friends.size());
   }
 
   private Map<Long, Integer> getPokeCountMap(Long userId) {

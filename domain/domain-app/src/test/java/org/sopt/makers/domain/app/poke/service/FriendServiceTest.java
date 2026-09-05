@@ -140,7 +140,7 @@ class FriendServiceTest {
   }
 
   @Test
-  @DisplayName("페이지 조회는 구간에 걸러진 친구들의 내 방향 row 를 돌려준다")
+  @DisplayName("페이지 조회는 구간에 걸러진 친구들을 합산 pokeCount 내림차순으로 돌려준다")
   void findAllFriendsByFriendshipWithPaging() {
     seedFriendships();
 
@@ -153,7 +153,67 @@ class FriendServiceTest {
 
     assertThat(page.getContent())
         .extracting(Friend::friendUserId, Friend::pokeCount)
-        .containsExactly(tuple(2L, 1), tuple(4L, 3));
+        .containsExactly(tuple(4L, 4), tuple(2L, 2));
+  }
+
+  @Test
+  @DisplayName("페이지 조회는 상대 방향 row 만 있는 친구도 빠뜨리지 않는다")
+  void findAllFriendsByFriendshipWithPagingIncludesReverseOnlyRows() {
+    friendRepository.seed(9L, ME, 3);
+
+    Page<Friend> page =
+        friendService.findAllFriendsByFriendship(
+            ME,
+            Friendship.NEW_FRIEND.getLowerLimit(),
+            Friendship.NEW_FRIEND.getUpperLimit(),
+            PageRequest.of(0, 10));
+
+    assertThat(page.getContent())
+        .extracting(Friend::friendUserId, Friend::pokeCount)
+        .containsExactly(tuple(9L, 3));
+  }
+
+  @Test
+  @DisplayName("합산 pokeCount 가 같으면 friendUserId 오름차순으로 순서가 고정된다")
+  void findAllFriendsByFriendshipBreaksTiesByFriendUserId() {
+    friendRepository.seed(ME, 17L, 2);
+    friendRepository.seed(ME, 2L, 2);
+    friendRepository.seed(ME, 9L, 2);
+
+    Page<Friend> firstPage =
+        friendService.findAllFriendsByFriendship(
+            ME,
+            Friendship.NEW_FRIEND.getLowerLimit(),
+            Friendship.NEW_FRIEND.getUpperLimit(),
+            PageRequest.of(0, 2));
+    Page<Friend> secondPage =
+        friendService.findAllFriendsByFriendship(
+            ME,
+            Friendship.NEW_FRIEND.getLowerLimit(),
+            Friendship.NEW_FRIEND.getUpperLimit(),
+            PageRequest.of(1, 2));
+
+    assertThat(firstPage.getContent()).extracting(Friend::friendUserId).containsExactly(2L, 9L);
+    assertThat(secondPage.getContent()).extracting(Friend::friendUserId).containsExactly(17L);
+  }
+
+  @Test
+  @DisplayName("페이지 조회는 정렬을 유지한 채 페이지 경계로 자른다")
+  void findAllFriendsByFriendshipWithPagingSlicesByPage() {
+    seedFriendships();
+
+    Page<Friend> page =
+        friendService.findAllFriendsByFriendship(
+            ME,
+            Friendship.NEW_FRIEND.getLowerLimit(),
+            Friendship.NEW_FRIEND.getUpperLimit(),
+            PageRequest.of(1, 1));
+
+    assertThat(page.getContent())
+        .extracting(Friend::friendUserId, Friend::pokeCount)
+        .containsExactly(tuple(2L, 2));
+    assertThat(page.getTotalElements()).isEqualTo(2);
+    assertThat(page.getNumber()).isEqualTo(1);
   }
 
   @Test

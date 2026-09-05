@@ -1,6 +1,5 @@
 package org.sopt.makers.domain.app.poke.fake;
 
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.sopt.makers.domain.app.poke.Friend;
 import org.sopt.makers.domain.app.poke.port.FriendRepositoryPort;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 public class InMemoryFriendRepository implements FriendRepositoryPort {
 
@@ -60,18 +56,6 @@ public class InMemoryFriendRepository implements FriendRepositoryPort {
         .filter(friend -> friend.userId().equals(userId))
         .filter(friend -> friendUserIds.contains(friend.friendUserId()))
         .toList();
-  }
-
-  @Override
-  public Page<Friend> findAllByUserIdAndFriendUserIdInOrderByPokeCount(
-      Long userId, List<Long> friendUserIds, Pageable pageable) {
-    List<Friend> matched =
-        findAllByUserIdAndFriendUserIdIn(userId, friendUserIds).stream()
-            .sorted(Comparator.comparingInt(Friend::pokeCount))
-            .toList();
-    int from = (int) Math.min(pageable.getOffset(), matched.size());
-    int to = Math.min(from + pageable.getPageSize(), matched.size());
-    return new PageImpl<>(matched.subList(from, to), pageable, matched.size());
   }
 
   @Override
