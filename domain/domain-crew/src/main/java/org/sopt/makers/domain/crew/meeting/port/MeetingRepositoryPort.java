@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.crew.meeting.port;
 
+import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.pagination.PageQuery;
 import org.sopt.makers.core.pagination.PageResult;
@@ -13,6 +14,8 @@ public interface MeetingRepositoryPort {
   Optional<Meeting> findById(Long meetingId);
 
   Optional<Meeting> findByIdForUpdate(Long meetingId);
+
+  List<Meeting> findAllByIds(List<Long> meetingIds);
 
   Optional<Long> findFirstIdByTitle(String title);
 

@@ -47,6 +47,23 @@ public class MemberRepositoryAdapter implements MemberRepositoryPort {
   }
 
   @Override
+  public List<Member> findAllByUserId(Long userId) {
+    return meetingMemberJpaRepository.findAllByUserId(userId).stream()
+        .map(MeetingMemberEntity::toDomain)
+        .toList();
+  }
+
+  @Override
+  public List<Member> findAllByMeetingIds(List<Long> meetingIds) {
+    if (meetingIds == null || meetingIds.isEmpty()) {
+      return List.of();
+    }
+    return meetingMemberJpaRepository.findAllByMeetingIdIn(meetingIds).stream()
+        .map(MeetingMemberEntity::toDomain)
+        .toList();
+  }
+
+  @Override
   public Optional<Member> findByMeetingIdAndUserId(Long meetingId, Long userId) {
     return meetingMemberJpaRepository
         .findByMeetingIdAndUserId(meetingId, userId)
