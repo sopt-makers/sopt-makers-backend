@@ -34,6 +34,7 @@ public final class SecurityConstant {
           "/api/v1/admin/auth/refresh",
           "/api/v1/admin/banners/images",
           "/slack/emoji",
+          "/api/v2/admin/soptamp",
           "/error",
           "/swagger-ui.html",
           "/swagger-ui",
