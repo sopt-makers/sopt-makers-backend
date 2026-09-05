@@ -34,6 +34,11 @@ public interface StampJpaRepository extends JpaRepository<StampEntity, Long> {
   @Query("UPDATE StampEntity s SET s.viewCount = s.viewCount + 1 WHERE s.id = :stampId")
   void increaseViewCount(@Param("stampId") Long stampId);
 
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+      "UPDATE VERSIONED StampEntity s SET s.clapCount = s.clapCount + :increment WHERE s.id = :stampId")
+  int increaseClapCount(@Param("stampId") Long stampId, @Param("increment") int increment);
+
   @Query(
       value =
           """
