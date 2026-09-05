@@ -10,4 +10,6 @@ public interface AnonymousNicknameRepositoryPort {
   AnonymousNickname findRandomOneExcludingIds(List<Long> excludeIds);
 
   List<AnonymousNickname> findAllByNicknameIn(List<String> nicknames);
+
+  List<AnonymousNickname> findAllByIds(List<Long> ids);
 }

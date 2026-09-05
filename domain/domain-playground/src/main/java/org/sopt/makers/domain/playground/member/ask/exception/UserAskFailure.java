@@ -19,7 +19,9 @@ public enum UserAskFailure implements FailureCode {
   ALREADY_ANSWERED_ASK(400, "이미 답변이 작성된 질문입니다"),
   UNAUTHORIZED_ANSWER_UPDATE(403, "답변 작성자만 수정할 수 있습니다"),
   UNAUTHORIZED_ANSWER_DELETE(403, "답변 작성자만 삭제할 수 있습니다"),
-  ALREADY_REPORTED_ASK(400, "이미 신고한 질문입니다");
+  ALREADY_REPORTED_ASK(400, "이미 신고한 질문입니다"),
+  ASK_NOT_BELONG_TO_MEMBER(400, "해당 멤버의 질문이 아닙니다"),
+  SELF_ASK_LOCATION_NOT_ALLOWED(400, "자신에게 질문할 수 없습니다");
 
   private final int statusCode;
   private final String message;

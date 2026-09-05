@@ -32,4 +32,14 @@ public class AnonymousNicknameRepositoryAdapter implements AnonymousNicknameRepo
         .map(AnonymousNicknameEntity::toDomain)
         .toList();
   }
+
+  @Override
+  public List<AnonymousNickname> findAllByIds(List<Long> ids) {
+    if (ids.isEmpty()) {
+      return List.of();
+    }
+    return anonymousNicknameJpaRepository.findAllByIdIn(ids).stream()
+        .map(AnonymousNicknameEntity::toDomain)
+        .toList();
+  }
 }

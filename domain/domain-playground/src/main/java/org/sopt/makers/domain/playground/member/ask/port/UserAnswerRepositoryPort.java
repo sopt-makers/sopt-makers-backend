@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.playground.member.ask.port;
 
+import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.playground.member.ask.UserAnswer;
 
@@ -12,4 +13,8 @@ public interface UserAnswerRepositoryPort {
   void deleteById(Long answerId);
 
   boolean existsByQuestionId(Long questionId);
+
+  Optional<UserAnswer> findByQuestionId(Long questionId);
+
+  List<UserAnswer> findAllByQuestionIds(List<Long> questionIds);
 }

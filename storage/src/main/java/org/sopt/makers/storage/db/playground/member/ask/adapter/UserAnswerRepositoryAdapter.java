@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.playground.member.ask.adapter;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.ask.UserAnswer;
@@ -36,5 +37,20 @@ public class UserAnswerRepositoryAdapter implements UserAnswerRepositoryPort {
   @Override
   public boolean existsByQuestionId(Long questionId) {
     return userAnswerJpaRepository.existsByQuestionId(questionId);
+  }
+
+  @Override
+  public Optional<UserAnswer> findByQuestionId(Long questionId) {
+    return userAnswerJpaRepository.findByQuestionId(questionId).map(UserAnswerEntity::toDomain);
+  }
+
+  @Override
+  public List<UserAnswer> findAllByQuestionIds(List<Long> questionIds) {
+    if (questionIds.isEmpty()) {
+      return List.of();
+    }
+    return userAnswerJpaRepository.findAllByQuestionIdIn(questionIds).stream()
+        .map(UserAnswerEntity::toDomain)
+        .toList();
   }
 }

@@ -1,6 +1,9 @@
 package org.sopt.makers.domain.playground.member.ask.port;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sopt.makers.domain.playground.member.ask.AskReaction;
 
 public interface AskReactionRepositoryPort {
@@ -12,4 +15,8 @@ public interface AskReactionRepositoryPort {
   void deleteById(Long reactionId);
 
   Optional<AskReaction> findByQuestionIdAndReactorUserId(Long questionId, Long reactorUserId);
+
+  Map<Long, Long> countGroupedByQuestionIds(List<Long> questionIds);
+
+  Set<Long> findReactedQuestionIdsByUser(List<Long> questionIds, Long reactorUserId);
 }

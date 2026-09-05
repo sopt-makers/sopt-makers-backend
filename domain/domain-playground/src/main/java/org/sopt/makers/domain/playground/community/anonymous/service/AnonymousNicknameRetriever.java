@@ -4,7 +4,9 @@ import static org.sopt.makers.domain.playground.community.exception.CommunityFai
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousNickname;
@@ -26,6 +28,14 @@ public class AnonymousNicknameRetriever {
 
     return anonymousNicknameRepositoryPort.findRandomOneExcludingIds(
         recentUsedAnonymousNicknames.stream().map(AnonymousNickname::id).toList());
+  }
+
+  public Map<Long, AnonymousNickname> findAllByIdsAsMap(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return Map.of();
+    }
+    return anonymousNicknameRepositoryPort.findAllByIds(ids).stream()
+        .collect(Collectors.toMap(AnonymousNickname::id, Function.identity()));
   }
 
   public void validateAnonymousNicknames(String[] nicknames) {

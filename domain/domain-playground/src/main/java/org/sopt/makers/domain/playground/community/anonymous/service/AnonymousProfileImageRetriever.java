@@ -1,5 +1,7 @@
 package org.sopt.makers.domain.playground.community.anonymous.service;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,5 +47,21 @@ public class AnonymousProfileImageRetriever {
     ensureInitialized();
     long randomImageNumber = ThreadLocalRandom.current().nextLong(1, 6);
     return profileImageMap.get(randomImageNumber);
+  }
+
+  /** 이미 메모리에 전량 캐싱되어 있으므로 추가 조회 없이 ID 집합으로 벌크 조회한다. */
+  public Map<Long, AnonymousProfileImage> getByIds(Collection<Long> ids) {
+    ensureInitialized();
+    if (ids == null || ids.isEmpty()) {
+      return Map.of();
+    }
+    Map<Long, AnonymousProfileImage> result = new HashMap<>();
+    for (Long id : ids) {
+      AnonymousProfileImage image = profileImageMap.get(id);
+      if (image != null) {
+        result.put(id, image);
+      }
+    }
+    return result;
   }
 }

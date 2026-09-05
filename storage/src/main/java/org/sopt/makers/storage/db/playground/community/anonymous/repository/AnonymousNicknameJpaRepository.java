@@ -18,4 +18,6 @@ public interface AnonymousNicknameJpaRepository extends JpaRepository<AnonymousN
   AnonymousNicknameEntity findRandomOne();
 
   List<AnonymousNicknameEntity> findAllByNicknameIn(List<String> nicknames);
+
+  List<AnonymousNicknameEntity> findAllByIdIn(List<Long> ids);
 }

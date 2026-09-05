@@ -1,6 +1,8 @@
 package org.sopt.makers.domain.user.adapter;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.port.PlaygroundAskUserPort;
 import org.sopt.makers.domain.user.service.UserQueryService;
 import org.springframework.stereotype.Component;
@@ -28,5 +30,10 @@ public class PlaygroundAskUserAdapter implements PlaygroundAskUserPort {
         .activities()
         .getLastSoptActivity()
         .generation();
+  }
+
+  @Override
+  public List<User> findAllWithActivitiesByIds(List<Long> userIds) {
+    return userQueryService.findAllWithActivitiesByIds(userIds);
   }
 }
