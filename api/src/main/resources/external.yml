@@ -36,5 +36,6 @@ external:
     app-token: ${SLACK_APP_TOKEN:}
     socket-mode-enabled: ${SLACK_SOCKET_MODE_ENABLED:false}
     community-report-channel-id: ${SLACK_COMMUNITY_REPORT_CHANNEL_ID:}
+    member-report-channel-id: ${SLACK_MEMBER_REPORT_CHANNEL_ID:}
   crew:
     url: ${CREW_INTERNAL_URL:}

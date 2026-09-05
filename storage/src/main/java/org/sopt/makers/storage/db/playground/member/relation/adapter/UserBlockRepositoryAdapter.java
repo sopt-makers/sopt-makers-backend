@@ -27,6 +27,14 @@ public class UserBlockRepositoryAdapter implements UserBlockRepositoryPort {
     return userBlockJpaRepository.findById(id).map(UserBlockEntity::toDomain);
   }
 
+  @Override
+  public Optional<UserBlock> findByBlockerUserIdAndBlockedUserId(
+      Long blockerUserId, Long blockedUserId) {
+    return userBlockJpaRepository
+        .findByBlockerUserIdAndBlockedUserId(blockerUserId, blockedUserId)
+        .map(UserBlockEntity::toDomain);
+  }
+
   @Transactional
   @Override
   public void deleteById(Long id) {

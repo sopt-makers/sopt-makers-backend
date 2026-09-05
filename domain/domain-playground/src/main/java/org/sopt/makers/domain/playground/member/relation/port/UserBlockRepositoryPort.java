@@ -9,5 +9,7 @@ public interface UserBlockRepositoryPort {
 
   Optional<UserBlock> findById(Long id);
 
+  Optional<UserBlock> findByBlockerUserIdAndBlockedUserId(Long blockerUserId, Long blockedUserId);
+
   void deleteById(Long id);
 }
