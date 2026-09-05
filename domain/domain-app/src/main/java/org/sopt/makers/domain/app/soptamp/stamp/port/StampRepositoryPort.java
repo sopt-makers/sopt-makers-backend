@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.app.soptamp.appjam.AppjamTodayRankSource;
 import org.sopt.makers.domain.app.soptamp.stamp.Stamp;
-import org.sopt.makers.domain.app.soptamp.stamp.StampCounts;
 import org.springframework.data.domain.Pageable;
 
 public interface StampRepositoryPort {
@@ -30,6 +29,8 @@ public interface StampRepositoryPort {
 
   Stamp save(Stamp stamp);
 
+  Stamp updateContents(Long stampId, String contents, List<String> images, String activityDate);
+
   void deleteById(Long stampId);
 
   void deleteAllByUserId(Long userId);
@@ -37,8 +38,6 @@ public interface StampRepositoryPort {
   void deleteAll();
 
   boolean existsByUserIdInAndMissionId(Collection<Long> userIds, Long missionId);
-
-  StampCounts incrementClapCountReturning(Long stampId, int increment);
 
   void increaseViewCount(Long stampId);
 }

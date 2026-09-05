@@ -1,0 +1,68 @@
+package org.sopt.makers.domain.app.soptamp;
+
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum SoptampPart {
+  PRESIDENT("회장", "회장"),
+  VICE_PRESIDENT("부회장", "부회장"),
+  GENERAL_AFFAIR("총무", "총무"),
+  MEDIA_TEAM_LEADER("미디어 팀장", "미팀장"),
+  OPERATIONS_TEAM_LEADER("운영 팀장", "운팀장"),
+  MAKERS_TEAM_LEADER("메이커스 팀장", "메팀장"),
+  ART_DIRECTOR("아트 디렉터", "아트디렉터"),
+  PLAN("기획", "기획"),
+  PLAN_PART_LEADER("기획 파트장", "기획파트장"),
+  DESIGN("디자인", "디자인"),
+  DESIGN_PART_LEADER("디자인 파트장", "디자인파트장"),
+  ANDROID("안드로이드", "안드"),
+  ANDROID_PART_LEADER("안드로이드 파트장", "안드파트장"),
+  IOS("iOS", "아요"),
+  IOS_PART_LEADER("iOS 파트장", "아요파트장"),
+  WEB("웹", "웹"),
+  WEB_PART_LEADER("웹 파트장", "웹파트장"),
+  SERVER("서버", "서버"),
+  SERVER_PART_LEADER("서버 파트장", "서버파트장"),
+  NONE("미상", "선배"),
+  PM("PM", "PM"),
+  FRONTEND("프론트엔드", "FE"),
+  BACKEND("백엔드", "BE"),
+  MARKETER("마케터", "마케터"),
+  RESEARCHER("리서처", "리서처"),
+  ORGANIZER("오거나이저", "오거나이저"),
+  CX("CX", "CX");
+
+  private static final Set<SoptampPart> SOPT_PARTS =
+      EnumSet.of(
+          PLAN,
+          PLAN_PART_LEADER,
+          DESIGN,
+          DESIGN_PART_LEADER,
+          ANDROID,
+          ANDROID_PART_LEADER,
+          IOS,
+          IOS_PART_LEADER,
+          WEB,
+          WEB_PART_LEADER,
+          SERVER,
+          SERVER_PART_LEADER);
+
+  private final String partName;
+  private final String shortedPartName;
+
+  public static SoptampPart findSoptPartByPartName(String partName) {
+    return Arrays.stream(values())
+        .filter(soptPart -> soptPart.partName.equalsIgnoreCase(partName))
+        .findAny()
+        .orElse(NONE);
+  }
+
+  public boolean isSoptPart() {
+    return SOPT_PARTS.contains(this);
+  }
+}
