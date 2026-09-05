@@ -19,7 +19,10 @@ public record PostSaveRequest(
     MentionRequest mention) {
 
   public CreatePostCommand toCommand() {
-    return new CreatePostCommand(categoryCode, title, content, isBlindWriter, images, link, toVoteCommand());
+    Long[] mentionUserIds = mention == null ? null : mention.userIds();
+    String mentionWebLink = mention == null ? null : mention.webLink();
+    return new CreatePostCommand(
+        categoryCode, title, content, isBlindWriter, images, link, toVoteCommand(), mentionUserIds, mentionWebLink);
   }
 
   private VoteCommandService.CreateVoteCommand toVoteCommand() {

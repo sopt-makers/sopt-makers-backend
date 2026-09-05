@@ -6,6 +6,7 @@ import static org.sopt.makers.domain.playground.community.exception.CommunityFai
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.NOT_LIKED_POST;
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.UNAUTHORIZED_POST_ACCESS;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +63,9 @@ public class CommunityPostCommandService {
       Boolean isBlindWriter,
       List<String> images,
       String link,
-      VoteCommandService.CreateVoteCommand vote) {}
+      VoteCommandService.CreateVoteCommand vote,
+      Long[] mentionUserIds,
+      String mentionWebLink) {}
 
   public record UpdatePostCommand(
       CommunityCategoryCode categoryCode,
@@ -70,13 +73,15 @@ public class CommunityPostCommandService {
       String content,
       Boolean isBlindWriter,
       List<String> images,
-      String link) {}
+      String link,
+      Long[] mentionUserIds,
+      String mentionWebLink) {}
 
   public record PostMutationResult(Post post, CommunityCategoryCode categoryCode) {}
 
   @Transactional
   public PostMutationResult createPost(Long writerId, CreatePostCommand command) {
-    validateWriterExists(writerId);
+    CommunityMemberSummary writer = getWriterOrThrow(writerId);
     Category category = categoryQueryService.findActiveCategoryByCode(command.categoryCode());
 
     Post created = postRepositoryPort.save(buildPostForCreate(writerId, category, command));
@@ -88,6 +93,14 @@ public class CommunityPostCommandService {
 
     voteCommandService.createVote(created.id(), category.categoryGroup(), command.vote());
 
+    publishMentionNotifications(
+        writerId,
+        writer.name(),
+        created.content(),
+        created.isBlindWriter(),
+        command.mentionUserIds(),
+        command.mentionWebLink());
+
     return new PostMutationResult(created, category.code());
   }
 
@@ -95,17 +108,18 @@ public class CommunityPostCommandService {
   public PostMutationResult updatePost(Long writerId, Long postId, UpdatePostCommand command) {
     Post post = getPostOrThrow(postId);
     validateOwner(post, writerId);
+    CommunityMemberSummary writer = getWriterOrThrow(writerId);
     Category category = categoryQueryService.findActiveCategoryByCode(command.categoryCode());
 
-    Post updated =
-        postRepositoryPort.save(
-            post.update(
-                category.id(),
-                command.title(),
-                command.content(),
-                command.images(),
-                command.isBlindWriter(),
-                command.link()));
+    Post updated = postRepositoryPort.save(buildPostForUpdate(post, category, command));
+
+    publishMentionNotifications(
+        writerId,
+        writer.name(),
+        updated.content(),
+        updated.isBlindWriter(),
+        command.mentionUserIds(),
+        command.mentionWebLink());
 
     return new PostMutationResult(updated, category.code());
   }
@@ -201,6 +215,22 @@ public class CommunityPostCommandService {
         scraped.articleUrl());
   }
 
+  private Post buildPostForUpdate(Post post, Category category, UpdatePostCommand command) {
+    if (!communityCategoryPolicy.isSopticleCategoryCode(category.code())) {
+      return post.update(
+          category.id(), command.title(), command.content(), command.images(), command.isBlindWriter(), command.link());
+    }
+
+    ScrapedSopticleArticle scraped = scrapSopticleArticle(command.link());
+    if (scraped == null) {
+      return post.update(
+          category.id(), command.title(), command.content(), command.images(), command.isBlindWriter(), command.link());
+    }
+
+    return post.update(
+        category.id(), scraped.title(), scraped.description(), List.of(scraped.thumbnailUrl()), false, scraped.articleUrl());
+  }
+
   private ScrapedSopticleArticle scrapSopticleArticle(String link) {
     try {
       return sopticleScraperPort.scrap(link);
@@ -214,6 +244,26 @@ public class CommunityPostCommandService {
     if (communityMemberAssembler.getMemberSummary(userId) == null) {
       throw new CommunityException(NOT_FOUND_WRITER);
     }
+  }
+
+  private CommunityMemberSummary getWriterOrThrow(Long writerId) {
+    CommunityMemberSummary writer = communityMemberAssembler.getMemberSummary(writerId);
+    if (writer == null) {
+      throw new CommunityException(NOT_FOUND_WRITER);
+    }
+    return writer;
+  }
+
+  /** 게시글 작성자를 제외한 멘션 대상에게 푸시 알림을 발행한다. */
+  private void publishMentionNotifications(
+      Long writerId, String writerName, String content, Boolean isBlindWriter, Long[] mentionUserIds, String webLink) {
+    if (mentionUserIds == null || mentionUserIds.length == 0) {
+      return;
+    }
+
+    List<Long> mentionedUserIds =
+        Arrays.stream(mentionUserIds).filter(id -> !Objects.equals(id, writerId)).toList();
+    communityNotificationPublisher.publishMention(mentionedUserIds, writerName, content, isBlindWriter, webLink);
   }
 
   private void validateOwner(Post post, Long userId) {

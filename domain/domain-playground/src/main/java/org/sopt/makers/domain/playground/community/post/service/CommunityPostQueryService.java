@@ -299,7 +299,8 @@ public class CommunityPostQueryService {
         null,
         null,
         post.createdAt(),
-        post.meetingId());
+        post.meetingId(),
+        null);
   }
 
   private List<PostFeedItem> toPostFeedItems(
@@ -321,12 +322,21 @@ public class CommunityPostQueryService {
     Map<Long, Boolean> likedMap = getLikedMap(viewerId, postIds);
     Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, List<CommentThread>> commentMap = commentQueryService.getCommentThreadsByPostIds(viewerId, postIds);
+    Map<Long, VoteResult> voteMap = voteQueryService.getVoteResultsByPostIds(postIds, viewerId);
 
     return posts.stream()
         .map(
             post ->
                 toPostFeedItem(
-                    post, viewerId, memberMap, categoryMap, anonymousProfileMap, likedMap, likeCountMap, commentMap))
+                    post,
+                    viewerId,
+                    memberMap,
+                    categoryMap,
+                    anonymousProfileMap,
+                    likedMap,
+                    likeCountMap,
+                    commentMap,
+                    voteMap))
         .toList();
   }
 
@@ -338,7 +348,8 @@ public class CommunityPostQueryService {
       Map<Long, AnonymousProfile> anonymousProfileMap,
       Map<Long, Boolean> likedMap,
       Map<Long, Integer> likeCountMap,
-      Map<Long, List<CommentThread>> commentMap) {
+      Map<Long, List<CommentThread>> commentMap,
+      Map<Long, VoteResult> voteMap) {
     boolean isBlind = Boolean.TRUE.equals(post.isBlindWriter());
     CommunityMemberSummary member = isBlind ? null : memberMap.get(post.writerId());
     Long writerId = isBlind ? null : post.writerId();
@@ -371,7 +382,8 @@ public class CommunityPostQueryService {
         post.sopticleUrl(),
         anonymousProfile,
         post.createdAt(),
-        null);
+        null,
+        voteMap.get(post.id()));
   }
 
   // ==========================================

@@ -1,5 +1,6 @@
 package org.sopt.makers.api.controller.playground.community;
 
+import static org.sopt.makers.api.controller.playground.community.CommunityCommentSuccessCode.DELETE_COMMENT;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.CREATE_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.DELETE_POST;
 import static org.sopt.makers.api.controller.playground.community.CommunitySuccessCode.GET_POPULAR_POSTS;
@@ -37,6 +38,7 @@ import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.CommunityPostListCategory;
 import org.sopt.makers.domain.playground.community.CommunityPostListFilter;
+import org.sopt.makers.domain.playground.community.comment.service.CommentCommandService;
 import org.sopt.makers.domain.playground.community.post.Post;
 import org.sopt.makers.domain.playground.community.post.service.CommunityPostCommandService;
 import org.sopt.makers.domain.playground.community.post.service.CommunityPostQueryService;
@@ -60,6 +62,7 @@ public class CommunityController implements CommunityApi {
   private final CommunityPostQueryService communityPostQueryService;
   private final CommunityPostCommandService communityPostCommandService;
   private final VoteCommandService voteCommandService;
+  private final CommentCommandService commentCommandService;
 
   @Override
   @GetMapping("/posts/{postId}")
@@ -188,5 +191,13 @@ public class CommunityController implements CommunityApi {
       @RequestBody VoteSelectionRequest request) {
     return ResponseFactory.success(
         SELECT_VOTE, VoteResponse.from(voteCommandService.selectVote(userId, postId, request.selectedOptions())));
+  }
+
+  @Override
+  @DeleteMapping("/comment/{commentId}")
+  public ResponseEntity<BaseResponse<?>> deleteComment(
+      @PathVariable("commentId") Long commentId, @CurrentUserId Long userId) {
+    commentCommandService.deleteComment(userId, commentId);
+    return ResponseFactory.success(DELETE_COMMENT);
   }
 }

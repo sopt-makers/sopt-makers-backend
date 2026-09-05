@@ -93,4 +93,8 @@ public interface CommunityApi {
       @Parameter(hidden = true) Long userId,
       @Parameter(description = "게시글 ID") Long postId,
       VoteSelectionRequest request);
+
+  @Operation(summary = "커뮤니티 댓글 삭제 API")
+  ResponseEntity<BaseResponse<?>> deleteComment(
+      @Parameter(description = "댓글 ID") Long commentId, @Parameter(hidden = true) Long userId);
 }

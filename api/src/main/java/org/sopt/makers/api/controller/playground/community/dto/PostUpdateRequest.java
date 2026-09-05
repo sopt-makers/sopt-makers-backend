@@ -17,6 +17,8 @@ public record PostUpdateRequest(
     MentionRequest mention) {
 
   public UpdatePostCommand toCommand() {
-    return new UpdatePostCommand(categoryCode, title, content, isBlindWriter, images, link);
+    Long[] mentionUserIds = mention == null ? null : mention.userIds();
+    String mentionWebLink = mention == null ? null : mention.webLink();
+    return new UpdatePostCommand(categoryCode, title, content, isBlindWriter, images, link, mentionUserIds, mentionWebLink);
   }
 }

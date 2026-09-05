@@ -1,7 +1,9 @@
 package org.sopt.makers.storage.db.playground.community.vote.adapter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.vote.VoteSelection;
 import org.sopt.makers.domain.playground.community.vote.port.VoteSelectionRepositoryPort;
@@ -31,6 +33,16 @@ public class VoteSelectionRepositoryAdapter implements VoteSelectionRepositoryPo
   @Override
   public int countDistinctUsersByVoteOptionIds(List<Long> voteOptionIds) {
     return voteSelectionJpaRepository.countDistinctUsersByVoteOptionIds(voteOptionIds);
+  }
+
+  @Override
+  public Map<Long, Integer> countDistinctUsersGroupedByVoteIds(List<Long> voteIds) {
+    if (voteIds.isEmpty()) {
+      return Map.of();
+    }
+
+    return voteSelectionJpaRepository.countDistinctUsersGroupedByVoteIds(voteIds).stream()
+        .collect(Collectors.toMap(row -> (Long) row[0], row -> ((Long) row[1]).intValue()));
   }
 
   @Override

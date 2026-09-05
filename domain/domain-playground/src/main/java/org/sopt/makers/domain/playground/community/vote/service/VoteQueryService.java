@@ -38,6 +38,34 @@ public class VoteQueryService {
         .collect(Collectors.toMap(Vote::postId, vote -> vote.options().stream().mapToInt(VoteOption::voteCount).sum()));
   }
 
+  /** postIds에 걸린 투표를 배치 조회해 postId -> VoteResult 맵으로 반환한다(N+1 없이 조회). */
+  public Map<Long, VoteResult> getVoteResultsByPostIds(List<Long> postIds, Long viewerId) {
+    if (postIds == null || postIds.isEmpty()) {
+      return Map.of();
+    }
+
+    List<Vote> votes = voteRepositoryPort.findAllByPostIds(postIds);
+    if (votes.isEmpty()) {
+      return Map.of();
+    }
+
+    List<Long> voteIds = votes.stream().map(Vote::id).toList();
+    List<Long> allOptionIds =
+        votes.stream().flatMap(vote -> vote.options().stream()).map(VoteOption::id).toList();
+
+    Set<Long> selectedOptionIds =
+        viewerId == null
+            ? Set.of()
+            : voteSelectionRepositoryPort.findSelectedOptionIdsByVoteOptionIdsAndUserId(allOptionIds, viewerId);
+    Map<Long, Integer> participantCountMap = voteSelectionRepositoryPort.countDistinctUsersGroupedByVoteIds(voteIds);
+
+    return votes.stream()
+        .collect(
+            Collectors.toMap(
+                Vote::postId,
+                vote -> toVoteResult(vote, selectedOptionIds, participantCountMap.getOrDefault(vote.id(), 0))));
+  }
+
   private VoteResult toVoteResult(Vote vote, Long viewerId) {
     List<VoteOption> sortedOptions = vote.options().stream().sorted(Comparator.comparing(VoteOption::id)).toList();
     List<Long> optionIds = sortedOptions.stream().map(VoteOption::id).toList();
@@ -46,8 +74,14 @@ public class VoteQueryService {
         viewerId == null
             ? Set.of()
             : voteSelectionRepositoryPort.findSelectedOptionIdsByVoteOptionIdsAndUserId(optionIds, viewerId);
-    boolean hasVoted = !selectedOptionIds.isEmpty();
     int totalParticipants = voteSelectionRepositoryPort.countDistinctUsersByVoteOptionIds(optionIds);
+
+    return toVoteResult(vote, selectedOptionIds, totalParticipants);
+  }
+
+  private VoteResult toVoteResult(Vote vote, Set<Long> selectedOptionIds, int totalParticipants) {
+    List<VoteOption> sortedOptions = vote.options().stream().sorted(Comparator.comparing(VoteOption::id)).toList();
+    boolean hasVoted = sortedOptions.stream().anyMatch(option -> selectedOptionIds.contains(option.id()));
     int totalVoteCount = sortedOptions.stream().mapToInt(VoteOption::voteCount).sum();
 
     List<VoteOptionResult> optionResults =

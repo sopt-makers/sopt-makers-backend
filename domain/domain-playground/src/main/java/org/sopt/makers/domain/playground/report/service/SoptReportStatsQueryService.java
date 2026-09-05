@@ -27,6 +27,7 @@ import org.sopt.makers.domain.playground.report.port.AmplitudeEventStatsPort;
 import org.sopt.makers.domain.playground.report.port.CrewReportClientPort;
 import org.sopt.makers.domain.playground.report.port.SoptReportStatsRepositoryPort;
 import org.sopt.makers.domain.playground.report.port.WordChainGameStatsPort;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SoptReportStatsQueryService {
 
+  private static final String TYPE_COMMON_SOPT_REPORT_STATS = "commonSoptReportStats";
+  private static final String TYPE_MY_SOPT_REPORT_STATS = "mySoptReportStats";
   private static final Integer REPORT_FILTER_YEAR = 2024;
   private static final LocalDateTime START_DATE_OF_YEAR = LocalDateTime.of(REPORT_FILTER_YEAR, 1, 1, 0, 0);
   private static final LocalDateTime END_DATE_OF_YEAR = LocalDateTime.of(REPORT_FILTER_YEAR, 12, 31, 23, 59);
@@ -51,6 +54,7 @@ public class SoptReportStatsQueryService {
   private final WordChainGameStatsPort wordChainGameStatsPort;
   private final CrewReportClientPort crewReportClientPort;
 
+  @Cacheable(cacheNames = TYPE_COMMON_SOPT_REPORT_STATS, key = "#category")
   public Map<String, Object> getSoptReportStats(SoptReportCategory category) {
     return soptReportStatsRepositoryPort.findByCategory(category.name()).stream()
         .collect(
@@ -58,6 +62,7 @@ public class SoptReportStatsQueryService {
                 SoptReportStats::templateKey, stats -> Objects.requireNonNull(serialize(stats.data()))));
   }
 
+  @Cacheable(cacheNames = TYPE_MY_SOPT_REPORT_STATS, key = "#memberId")
   public MySoptReportStatsResult getMySoptReportStats(Long memberId) {
     long totalVisitCount =
         amplitudeEventStatsPort.countAllByUserIdAndEventTypeAndEventTimeContains(
@@ -166,5 +171,6 @@ public class SoptReportStatsQueryService {
       List<String> topFastestJoinedGroupList,
       Integer playCount,
       Integer winCount,
-      List<String> wordList) {}
+      List<String> wordList)
+      implements java.io.Serializable {}
 }

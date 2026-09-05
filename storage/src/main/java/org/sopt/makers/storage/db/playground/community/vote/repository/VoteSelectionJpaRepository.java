@@ -29,6 +29,16 @@ public interface VoteSelectionJpaRepository extends JpaRepository<VoteSelectionE
   List<Long> findSelectedOptionIdsByVoteOptionIdsAndUserId(
       @Param("voteOptionIds") List<Long> voteOptionIds, @Param("userId") Long userId);
 
+  @Query(
+      """
+      SELECT option.voteId, COUNT(DISTINCT selection.userId)
+      FROM VoteSelectionEntity selection, VoteOptionEntity option
+      WHERE selection.voteOptionId = option.id
+        AND option.voteId IN :voteIds
+      GROUP BY option.voteId
+      """)
+  List<Object[]> countDistinctUsersGroupedByVoteIds(@Param("voteIds") List<Long> voteIds);
+
   @Modifying
   @Query("DELETE FROM VoteSelectionEntity selection WHERE selection.voteOptionId IN :voteOptionIds")
   void deleteAllByVoteOptionIds(@Param("voteOptionIds") List<Long> voteOptionIds);
