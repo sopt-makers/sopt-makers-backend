@@ -39,6 +39,7 @@ public class MeetingUserAdapter implements MeetingUserPort {
         user.id(),
         profile == null ? null : profile.name(),
         profile == null ? null : profile.profileImage(),
+        profile == null ? null : profile.phone(),
         activities == null ? List.of() : activities.activities());
   }
 }

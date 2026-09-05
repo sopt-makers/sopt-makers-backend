@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.user.Activity;
 
-public record MeetingUser(Long id, String name, String profileImage, List<Activity> activities) {
+public record MeetingUser(
+    Long id, String name, String profileImage, String phone, List<Activity> activities) {
+
+  public MeetingUser(Long id, String name, String profileImage, List<Activity> activities) {
+    this(id, name, profileImage, null, activities);
+  }
 
   public MeetingUser {
     activities = activities == null ? List.of() : List.copyOf(activities);
