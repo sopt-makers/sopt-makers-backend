@@ -130,14 +130,10 @@ public record Post(
 
   private static void validateCategory(
       PostCategory category, PostContentType contentType, Long meetingId) {
-    if (category == null || contentType == null) {
+    if (category != PostCategory.MEETING || meetingId == null) {
       throw new PostException(INVALID_POST_CATEGORY);
     }
-    boolean meetingPost = category == PostCategory.MEETING;
-    if (meetingPost != (meetingId != null)) {
-      throw new PostException(INVALID_POST_CATEGORY);
-    }
-    if (contentType == PostContentType.MUMU && !meetingPost) {
+    if (contentType == null) {
       throw new PostException(INVALID_POST_CONTENT_TYPE);
     }
   }
