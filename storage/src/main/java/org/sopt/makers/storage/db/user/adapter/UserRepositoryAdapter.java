@@ -1,9 +1,11 @@
 package org.sopt.makers.storage.db.user.adapter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -96,6 +98,17 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   @Override
   public User save(User user) {
     return userJpaRepository.save(UserEntity.fromDomain(user)).toDomain();
+  }
+
+  @Override
+  public List<Long> filterExistingIds(Collection<Long> userIds) {
+    return userJpaRepository.findExistingIds(userIds);
+  }
+
+  @Override
+  public Set<Long> findUserIdsByRecommendCondition(
+      Set<Integer> generations, String mbti, String university) {
+    return userQuerydslRepository.findUserIdsByRecommendCondition(generations, mbti, university);
   }
 
   /** QueryDSL로 조건/정렬에 맞는 id 목록을 먼저 조회하고, id IN 절로 활동 이력을 포함한 유저를 한 번에 로드한다. */

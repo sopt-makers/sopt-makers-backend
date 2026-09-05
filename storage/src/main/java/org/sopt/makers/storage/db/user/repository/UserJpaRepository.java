@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.user.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.type.OAuthPlatform;
@@ -22,4 +23,7 @@ public interface UserJpaRepository extends JpaRepository<UserEntity, Long> {
   Optional<UserEntity> findByPhone(String phone);
 
   boolean existsByPhone(String phone);
+
+  @Query("SELECT u.id FROM UserEntity u WHERE u.id IN :userIds")
+  List<Long> findExistingIds(@Param("userIds") Collection<Long> userIds);
 }

@@ -1,7 +1,9 @@
 package org.sopt.makers.domain.user.port;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserSearchCondition;
@@ -31,4 +33,9 @@ public interface UserRepositoryPort {
 
   Page<User> findPageByCondition(
       UserSearchCondition condition, Pageable pageable, UserSortType sortType);
+
+  List<Long> filterExistingIds(Collection<Long> userIds);
+
+  Set<Long> findUserIdsByRecommendCondition(
+      Set<Integer> generations, String mbti, String university);
 }
