@@ -10,4 +10,6 @@ public interface AskReportRepositoryPort {
   Optional<AskReport> findById(Long reportId);
 
   void deleteById(Long reportId);
+
+  boolean existsByQuestionIdAndReporterUserId(Long questionId, Long reporterUserId);
 }

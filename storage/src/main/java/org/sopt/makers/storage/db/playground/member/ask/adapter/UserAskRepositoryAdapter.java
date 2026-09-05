@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.playground.member.ask.adapter;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.ask.UserAsk;
@@ -31,5 +32,10 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
   @Override
   public void deleteById(Long questionId) {
     userAskJpaRepository.deleteById(questionId);
+  }
+
+  @Override
+  public List<Long> findDistinctAnonymousNicknameIdsByReceiverUserId(Long receiverUserId) {
+    return userAskJpaRepository.findDistinctAnonymousNicknameIdsByReceiverUserId(receiverUserId);
   }
 }

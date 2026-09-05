@@ -32,4 +32,11 @@ public class AskReactionRepositoryAdapter implements AskReactionRepositoryPort {
   public void deleteById(Long reactionId) {
     askReactionJpaRepository.deleteById(reactionId);
   }
+
+  @Override
+  public Optional<AskReaction> findByQuestionIdAndReactorUserId(Long questionId, Long reactorUserId) {
+    return askReactionJpaRepository
+        .findByQuestionIdAndReactorUserId(questionId, reactorUserId)
+        .map(AskReactionEntity::toDomain);
+  }
 }

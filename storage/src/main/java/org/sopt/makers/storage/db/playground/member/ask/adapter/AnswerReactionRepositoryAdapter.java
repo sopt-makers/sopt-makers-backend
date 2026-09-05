@@ -32,4 +32,11 @@ public class AnswerReactionRepositoryAdapter implements AnswerReactionRepository
   public void deleteById(Long reactionId) {
     answerReactionJpaRepository.deleteById(reactionId);
   }
+
+  @Override
+  public Optional<AnswerReaction> findByAnswerIdAndReactorUserId(Long answerId, Long reactorUserId) {
+    return answerReactionJpaRepository
+        .findByAnswerIdAndReactorUserId(answerId, reactorUserId)
+        .map(AnswerReactionEntity::toDomain);
+  }
 }

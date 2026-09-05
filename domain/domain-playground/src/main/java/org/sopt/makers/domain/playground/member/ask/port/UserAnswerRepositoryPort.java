@@ -10,4 +10,6 @@ public interface UserAnswerRepositoryPort {
   Optional<UserAnswer> findById(Long answerId);
 
   void deleteById(Long answerId);
+
+  boolean existsByQuestionId(Long questionId);
 }

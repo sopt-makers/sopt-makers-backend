@@ -10,4 +10,6 @@ public interface AnswerReactionRepositoryPort {
   Optional<AnswerReaction> findById(Long reactionId);
 
   void deleteById(Long reactionId);
+
+  Optional<AnswerReaction> findByAnswerIdAndReactorUserId(Long answerId, Long reactorUserId);
 }
