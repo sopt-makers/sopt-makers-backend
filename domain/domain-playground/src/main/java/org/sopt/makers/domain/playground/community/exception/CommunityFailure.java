@@ -15,6 +15,7 @@ public enum CommunityFailure implements FailureCode {
   NOT_FOUND_CATEGORY(404, "존재하지 않는 category code 값입니다."),
   NOT_FOUND_ANONYMOUS_NICKNAME(404, "존재하지 않는 익명 닉네임입니다."),
   MISSING_CATEGORY_PARAMETER(400, "categoryCode 또는 category 값이 필요합니다."),
+  INVALID_CATEGORY_CODE(400, "유효하지 않은 categoryCode 값입니다."),
   NOT_FOUND_POST(400, "존재하지 않는 postId입니다."),
   INVALID_CURSOR(400, "유효하지 않은 cursor 값입니다."),
   NOT_FOUND_COMMUNITY_POST(404, "존재하지 않는 게시글의 id값 입니다."),

@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.playground.community.post.service;
 
+import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.INVALID_CATEGORY_CODE;
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.MISSING_CATEGORY_PARAMETER;
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.NOT_FOUND_POST;
 
@@ -109,6 +110,10 @@ public class CommunityPostQueryService {
       String cursor) {
     // TODO: 회원 차단(Block) 도메인 이관 후 isBlockedOn 기반 게시글 제외 로직 연동 예정. 현재 Port는 이를 지원하지
     // 않는다.
+    if (categoryCode == CommunityCategoryCode.MEETING) {
+      throw new CommunityException(INVALID_CATEGORY_CODE);
+    }
+
     if (categoryCode == null && category == null) {
       throw new CommunityException(MISSING_CATEGORY_PARAMETER);
     }
@@ -116,12 +121,8 @@ public class CommunityPostQueryService {
     List<CommunityCategoryCode> categoryCodes =
         communityCategoryPolicy.resolveCategoryCodes(categoryCode, category, filter);
 
-    boolean isFreeRequest =
-        categoryCode != null
-            ? categoryCode == CommunityCategoryCode.FREE
-            : category == CommunityPostListCategory.FREE;
-    CommunityPostListCategory effectiveCategory =
-        categoryCode != null ? toListCategory(categoryCode) : category;
+    boolean isFreeRequest = categoryCodes.contains(CommunityCategoryCode.FREE);
+    CommunityPostListCategory effectiveCategory = toListCategory(categoryCodes.get(0));
 
     int normalizedLimit = normalizeLimit(limit);
     CommunityFeedCursor decodedCursor = communityFeedCursorCodec.decodeOrInitial(cursor);
