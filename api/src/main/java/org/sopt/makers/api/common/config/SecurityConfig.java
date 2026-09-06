@@ -3,6 +3,7 @@ package org.sopt.makers.api.common.config;
 import static org.sopt.makers.api.common.security.SecurityConstant.ADMIN;
 import static org.sopt.makers.api.common.security.SecurityConstant.API_KEY_SECURED_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.INTERNAL_SERVICE;
+import static org.sopt.makers.api.common.security.SecurityConstant.JWT_OPTIONAL_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.JWT_WHITELIST;
 import static org.sopt.makers.api.common.security.SecurityConstant.PATTERN_ALL;
 
@@ -77,7 +78,7 @@ public class SecurityConfig {
   private void setSecuredHttp(final HttpSecurity http, final boolean includeSwagger)
       throws Exception {
     String[] publicPatterns =
-        JWT_WHITELIST.stream()
+        Stream.concat(JWT_WHITELIST.stream(), JWT_OPTIONAL_PATHS.stream())
             .filter(p -> !p.startsWith("/swagger") && !p.startsWith("/v3/api-docs"))
             .flatMap(p -> Stream.of(p, p + PATTERN_ALL))
             .toArray(String[]::new);

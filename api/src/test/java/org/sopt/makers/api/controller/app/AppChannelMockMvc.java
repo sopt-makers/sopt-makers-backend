@@ -28,7 +28,11 @@ public final class AppChannelMockMvc {
         .build();
   }
 
-  private static HandlerMethodArgumentResolver fixedCurrentUserId(Long userId) {
+  public static MockMvc ofAnonymous(Object controller) {
+    return of(controller, null);
+  }
+
+  private static HandlerMethodArgumentResolver fixedCurrentUserId(@Nullable Long userId) {
     return new HandlerMethodArgumentResolver() {
       @Override
       public boolean supportsParameter(MethodParameter parameter) {
@@ -36,7 +40,7 @@ public final class AppChannelMockMvc {
       }
 
       @Override
-      public Object resolveArgument(
+      public @Nullable Object resolveArgument(
           MethodParameter parameter,
           @Nullable ModelAndViewContainer mavContainer,
           NativeWebRequest webRequest,

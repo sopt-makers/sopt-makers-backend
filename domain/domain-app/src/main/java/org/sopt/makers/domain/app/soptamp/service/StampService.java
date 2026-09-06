@@ -124,4 +124,16 @@ public class StampService {
       throw new SoptampException(SoptampFailure.INVALID_STAMP_MISSION_ID);
     }
   }
+
+  public int getCompletedMissionCount(Long userId) {
+    return stampRepositoryPort.findAllByUserId(userId).size();
+  }
+
+  public int getTotalViewCount(Long userId) {
+    return stampRepositoryPort.findAllByUserId(userId).stream().mapToInt(Stamp::viewCount).sum();
+  }
+
+  public int getTotalReceivedClapCount(Long userId) {
+    return stampRepositoryPort.findAllByUserId(userId).stream().mapToInt(Stamp::clapCount).sum();
+  }
 }

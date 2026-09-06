@@ -104,4 +104,8 @@ public class ClapService {
         profile.profileMessage(),
         clap.clapCount());
   }
+
+  public int getTotalGivenClapCount(Long userId) {
+    return clapRepositoryPort.findAllByUserId(userId).stream().mapToInt(Clap::clapCount).sum();
+  }
 }
