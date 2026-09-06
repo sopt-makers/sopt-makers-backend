@@ -41,7 +41,6 @@ import org.springframework.stereotype.Component;
 public class HomeFacade {
 
   private static final ZoneId KST = ZoneId.of("Asia/Seoul");
-  private static final int NO_SOPT_GENERATION = 0;
   private static final String PART_DELIMITER = "/";
 
   private final AppHomeUserPort appHomeUserPort;
@@ -191,15 +190,7 @@ public class HomeFacade {
   }
 
   private ActivityStatus getStatus(User user) {
-    long lastSoptGeneration =
-        user.activities().activities().stream()
-            .filter(Activity::isSopt)
-            .mapToInt(Activity::generation)
-            .max()
-            .orElse(NO_SOPT_GENERATION);
-    return lastSoptGeneration == currentGeneration
-        ? ActivityStatus.ACTIVE
-        : ActivityStatus.INACTIVE;
+    return ActivityStatus.of(user, currentGeneration);
   }
 
   private String getSoptActivityParts(User user) {
