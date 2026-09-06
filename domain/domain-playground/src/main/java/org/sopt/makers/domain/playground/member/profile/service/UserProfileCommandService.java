@@ -26,6 +26,8 @@ import org.sopt.makers.domain.user.enums.WorkPlace;
 import org.sopt.makers.domain.user.enums.WorkTime;
 import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @RequiredArgsConstructor
@@ -181,7 +183,7 @@ public class UserProfileCommandService {
             .filter(l -> l.userId().equals(userId))
             .orElseThrow(() -> new UserProfileException(UserProfileFailure.NOT_FOUND_LINK));
     playgroundProfileUserPort.deleteLinkById(link.id());
-    cardCachePort.evict(userId);
+    runAfterCommit(() -> cardCachePort.evict(userId));
   }
 
   /** editActivitiesAble은 활동 이력 유무로 파생되는 값이라 별도 상태 변경이 없다 — 유저 존재 여부만 검증한다. */
@@ -189,9 +191,27 @@ public class UserProfileCommandService {
     playgroundProfileUserPort.getUser(userId);
   }
 
+  /** 랭킹/카드 캐시 무효화는 트랜잭션이 실제로 커밋된 이후에만 실행한다 — 롤백 시 캐시가 잘못 비워지는 것을 방지한다. */
   private void evictProfileListCaches(Long userId) {
-    rankingCachePort.evictTopRanking();
-    cardCachePort.evict(userId);
+    runAfterCommit(
+        () -> {
+          rankingCachePort.evictTopRanking();
+          cardCachePort.evict(userId);
+        });
+  }
+
+  private void runAfterCommit(Runnable action) {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+          new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+              action.run();
+            }
+          });
+    } else {
+      action.run();
+    }
   }
 
   private void validateNoMultipleCurrentCareers(List<CareerInput> careers) {
