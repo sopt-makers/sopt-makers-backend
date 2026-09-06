@@ -1,6 +1,7 @@
 package org.sopt.makers.storage.db.playground.member.relation.adapter;
 
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.relation.UserBlock;
 import org.sopt.makers.domain.playground.member.relation.port.UserBlockRepositoryPort;
@@ -39,5 +40,10 @@ public class UserBlockRepositoryAdapter implements UserBlockRepositoryPort {
   @Override
   public void deleteById(Long id) {
     userBlockJpaRepository.deleteById(id);
+  }
+
+  @Override
+  public Set<Long> findBlockedUserIdsInvolving(Long userId) {
+    return Set.copyOf(userBlockJpaRepository.findBlockedCounterpartUserIds(userId));
   }
 }

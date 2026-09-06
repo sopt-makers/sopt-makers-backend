@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.playground.community.post.service;
 
+import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.BLOCKED_MEMBER_POST;
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.INVALID_CATEGORY_CODE;
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.MISSING_CATEGORY_PARAMETER;
 import static org.sopt.makers.domain.playground.community.exception.CommunityFailure.NOT_FOUND_POST;
@@ -49,6 +50,7 @@ import org.sopt.makers.domain.playground.community.service.CategoryQueryService;
 import org.sopt.makers.domain.playground.community.service.CommunityCategoryPolicy;
 import org.sopt.makers.domain.playground.community.vote.VoteResult;
 import org.sopt.makers.domain.playground.community.vote.service.VoteQueryService;
+import org.sopt.makers.domain.playground.member.relation.port.UserBlockRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +78,7 @@ public class CommunityPostQueryService {
   private final CommunityFeedCursorCodec communityFeedCursorCodec;
   private final CommentQueryService commentQueryService;
   private final VoteQueryService voteQueryService;
+  private final UserBlockRepositoryPort userBlockRepositoryPort;
 
   private record FeedCandidate(
       CommunityPostSourceType sourceType,
@@ -108,8 +111,6 @@ public class CommunityPostQueryService {
       Boolean isBlockedOn,
       Integer limit,
       String cursor) {
-    // TODO: 회원 차단(Block) 도메인 이관 후 isBlockedOn 기반 게시글 제외 로직 연동 예정. 현재 Port는 이를 지원하지
-    // 않는다.
     if (categoryCode == CommunityCategoryCode.MEETING) {
       throw new CommunityException(INVALID_CATEGORY_CODE);
     }
@@ -126,12 +127,21 @@ public class CommunityPostQueryService {
 
     int normalizedLimit = normalizeLimit(limit);
     CommunityFeedCursor decodedCursor = communityFeedCursorCodec.decodeOrInitial(cursor);
+    Set<Long> blockedWriterIds = resolveBlockedWriterIds(userId, isBlockedOn);
 
     if (isFreeRequest) {
-      return getFreePostsWithMeetingPosts(userId, normalizedLimit, decodedCursor, categoryCodes);
+      return getFreePostsWithMeetingPosts(userId, normalizedLimit, decodedCursor, categoryCodes, blockedWriterIds);
     }
 
-    return getCommunityOnlyPosts(userId, effectiveCategory, normalizedLimit, decodedCursor, categoryCodes);
+    return getCommunityOnlyPosts(
+        userId, effectiveCategory, normalizedLimit, decodedCursor, categoryCodes, blockedWriterIds);
+  }
+
+  private Set<Long> resolveBlockedWriterIds(Long userId, Boolean isBlockedOn) {
+    if (userId == null || !Boolean.TRUE.equals(isBlockedOn)) {
+      return Set.of();
+    }
+    return userBlockRepositoryPort.findBlockedUserIdsInvolving(userId);
   }
 
   private PostFeedResult getCommunityOnlyPosts(
@@ -139,7 +149,8 @@ public class CommunityPostQueryService {
       CommunityPostListCategory effectiveCategory,
       int limit,
       CommunityFeedCursor cursor,
-      List<CommunityCategoryCode> categoryCodes) {
+      List<CommunityCategoryCode> categoryCodes,
+      Set<Long> blockedWriterIds) {
     List<Post> posts =
         postRepositoryPort.findByCategoryCodesWithCursor(
             categoryCodes,
@@ -151,7 +162,8 @@ public class CommunityPostQueryService {
     boolean hasNext = posts.size() > limit;
     List<Post> sliced = hasNext ? posts.subList(0, limit) : posts;
 
-    List<PostFeedItem> items = toPostFeedItems(sliced, userId, categoryCodes);
+    List<PostFeedItem> items =
+        toVisiblePostFeedItems(sliced, userId, categoryCodes, blockedWriterIds);
 
     CommunityDbCursor nextDbCursor =
         sliced.isEmpty()
@@ -169,7 +181,11 @@ public class CommunityPostQueryService {
   }
 
   private PostFeedResult getFreePostsWithMeetingPosts(
-      Long userId, int limit, CommunityFeedCursor cursor, List<CommunityCategoryCode> freeCategoryCodes) {
+      Long userId,
+      int limit,
+      CommunityFeedCursor cursor,
+      List<CommunityCategoryCode> freeCategoryCodes,
+      Set<Long> blockedWriterIds) {
     List<Post> communityPosts =
         postRepositoryPort.findByCategoryCodesWithCursor(
             freeCategoryCodes,
@@ -178,7 +194,8 @@ public class CommunityPostQueryService {
             cursor.snapshotTime(),
             limit + 1);
 
-    List<PostFeedItem> communityItems = toPostFeedItems(communityPosts, userId, freeCategoryCodes);
+    List<PostFeedItem> communityItems =
+        toPostFeedItems(communityPosts, userId, freeCategoryCodes, blockedWriterIds);
 
     MeetingFetchResult meetingFetchResult =
         fetchMeetingItems(userId, cursor.snapshotTime(), cursor.safeMeetingConsumedCount(), limit + 1);
@@ -216,7 +233,14 @@ public class CommunityPostQueryService {
     List<FeedCandidate> slicedCandidates =
         sortedCandidates.size() > limit ? sortedCandidates.subList(0, limit) : sortedCandidates;
 
-    List<PostFeedItem> items = slicedCandidates.stream().map(FeedCandidate::item).toList();
+    Map<Long, Long> writerIdByCommunityPostId =
+        communityPosts.stream().collect(Collectors.toMap(Post::id, Post::writerId));
+
+    List<PostFeedItem> items =
+        slicedCandidates.stream()
+            .filter(candidate -> !isBlockedCommunityCandidate(candidate, writerIdByCommunityPostId, blockedWriterIds))
+            .map(FeedCandidate::item)
+            .toList();
 
     CommunityDbCursor nextDbCursor = cursor.community();
     int nextMeetingConsumedCount = cursor.safeMeetingConsumedCount();
@@ -304,8 +328,33 @@ public class CommunityPostQueryService {
         null);
   }
 
+  private List<PostFeedItem> toVisiblePostFeedItems(
+      List<Post> posts, Long viewerId, List<CommunityCategoryCode> categoryCodes, Set<Long> blockedWriterIds) {
+    List<PostFeedItem> items = toPostFeedItems(posts, viewerId, categoryCodes, blockedWriterIds);
+    if (blockedWriterIds.isEmpty()) {
+      return items;
+    }
+
+    List<PostFeedItem> visibleItems = new ArrayList<>();
+    for (int index = 0; index < posts.size(); index++) {
+      if (!blockedWriterIds.contains(posts.get(index).writerId())) {
+        visibleItems.add(items.get(index));
+      }
+    }
+    return visibleItems;
+  }
+
+  private boolean isBlockedCommunityCandidate(
+      FeedCandidate candidate, Map<Long, Long> writerIdByCommunityPostId, Set<Long> blockedWriterIds) {
+    if (blockedWriterIds.isEmpty() || candidate.sourceType() != CommunityPostSourceType.COMMUNITY) {
+      return false;
+    }
+    Long writerId = writerIdByCommunityPostId.get(candidate.communityPostId());
+    return writerId != null && blockedWriterIds.contains(writerId);
+  }
+
   private List<PostFeedItem> toPostFeedItems(
-      List<Post> posts, Long viewerId, List<CommunityCategoryCode> categoryCodes) {
+      List<Post> posts, Long viewerId, List<CommunityCategoryCode> categoryCodes, Set<Long> blockedWriterIds) {
     if (posts.isEmpty()) {
       return List.of();
     }
@@ -322,7 +371,8 @@ public class CommunityPostQueryService {
     Map<Long, AnonymousProfile> anonymousProfileMap = anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
     Map<Long, Boolean> likedMap = getLikedMap(viewerId, postIds);
     Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
-    Map<Long, List<CommentThread>> commentMap = commentQueryService.getCommentThreadsByPostIds(viewerId, postIds);
+    Map<Long, List<CommentThread>> commentMap =
+        commentQueryService.getCommentThreadsByPostIds(viewerId, postIds, blockedWriterIds);
     Map<Long, VoteResult> voteMap = voteQueryService.getVoteResultsByPostIds(postIds, viewerId);
 
     return posts.stream()
@@ -395,7 +445,12 @@ public class CommunityPostQueryService {
     Post post =
         postRepositoryPort.findByIdWithCategory(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_POST));
 
-    // TODO: 회원 차단(Block) 도메인 이관 후 isBlockedOn 기반 차단 검증 로직 연동 예정
+    if (Boolean.TRUE.equals(isBlockedOn)
+        && viewerId != null
+        && !Objects.equals(viewerId, post.writerId())
+        && resolveBlockedWriterIds(viewerId, isBlockedOn).contains(post.writerId())) {
+      throw new CommunityException(BLOCKED_MEMBER_POST);
+    }
 
     Category category = categoryQueryService.findById(post.categoryId()).orElse(null);
     Category parentCategory =

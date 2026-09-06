@@ -18,6 +18,7 @@ import org.sopt.makers.domain.playground.community.exception.CommunityException;
 import org.sopt.makers.domain.playground.community.member.CommunityMemberSummary;
 import org.sopt.makers.domain.playground.community.member.service.CommunityMemberAssembler;
 import org.sopt.makers.domain.playground.community.post.port.PostRepositoryPort;
+import org.sopt.makers.domain.playground.member.relation.port.UserBlockRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,25 +33,45 @@ public class CommentQueryService {
   private final PostRepositoryPort postRepositoryPort;
   private final CommunityMemberAssembler communityMemberAssembler;
   private final AnonymousProfileRetriever anonymousProfileRetriever;
+  private final UserBlockRepositoryPort userBlockRepositoryPort;
 
-  public List<CommentThread> getCommentThreadsByPostId(Long viewerId, Long postId) {
+  public List<CommentThread> getCommentThreadsByPostId(Long viewerId, Long postId, Boolean isBlockOn) {
     if (!postRepositoryPort.existsById(postId)) {
       throw new CommunityException(NOT_FOUND_COMMUNITY_POST);
     }
 
-    return toCommentThreads(commentRepositoryPort.findAllByPostId(postId), viewerId);
+    Set<Long> blockedWriterIds = resolveBlockedWriterIds(viewerId, isBlockOn);
+    List<Comment> comments = excludeBlockedWriters(commentRepositoryPort.findAllByPostId(postId), blockedWriterIds);
+
+    return toCommentThreads(comments, viewerId);
   }
 
-  public Map<Long, List<CommentThread>> getCommentThreadsByPostIds(Long viewerId, List<Long> postIds) {
+  public Map<Long, List<CommentThread>> getCommentThreadsByPostIds(
+      Long viewerId, List<Long> postIds, Set<Long> blockedWriterIds) {
     if (postIds == null || postIds.isEmpty()) {
       return Map.of();
     }
 
-    List<CommentThread> threads = toCommentThreads(commentRepositoryPort.findAllByPostIds(postIds), viewerId);
+    List<Comment> comments = excludeBlockedWriters(commentRepositoryPort.findAllByPostIds(postIds), blockedWriterIds);
+    List<CommentThread> threads = toCommentThreads(comments, viewerId);
     Map<Long, List<CommentThread>> grouped =
         threads.stream().collect(Collectors.groupingBy(thread -> thread.comment().postId()));
 
     return postIds.stream().collect(Collectors.toMap(postId -> postId, postId -> grouped.getOrDefault(postId, List.of())));
+  }
+
+  private Set<Long> resolveBlockedWriterIds(Long viewerId, Boolean isBlockOn) {
+    if (viewerId == null || !Boolean.TRUE.equals(isBlockOn)) {
+      return Set.of();
+    }
+    return userBlockRepositoryPort.findBlockedUserIdsInvolving(viewerId);
+  }
+
+  private List<Comment> excludeBlockedWriters(List<Comment> comments, Set<Long> blockedWriterIds) {
+    if (blockedWriterIds == null || blockedWriterIds.isEmpty()) {
+      return comments;
+    }
+    return comments.stream().filter(comment -> !blockedWriterIds.contains(comment.writerId())).toList();
   }
 
   public Map<Long, Integer> countNonDeletedCommentsByPostIds(List<Long> postIds) {

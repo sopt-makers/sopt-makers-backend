@@ -53,8 +53,7 @@ public class CommunityCommentController implements CommunityCommentApi {
       @CurrentUserId Long userId,
       @PathVariable("postId") Long postId,
       @RequestParam(value = "isBlockOn", required = false, defaultValue = "true") Boolean isBlockOn) {
-    // TODO: 회원 차단(Block) 도메인 이관 후 isBlockOn 기반 댓글 제외 로직 연동 예정. 현재 Port는 이를 지원하지 않는다.
-    List<CommentThread> threads = commentQueryService.getCommentThreadsByPostId(userId, postId);
+    List<CommentThread> threads = commentQueryService.getCommentThreadsByPostId(userId, postId, isBlockOn);
     List<CommentResponse> flatComments = threads.stream().map(CommentResponse::from).toList();
     List<CommentResponse> hierarchicalComments = CommentResponse.buildHierarchy(flatComments);
     return ResponseFactory.success(GET_COMMENTS, hierarchicalComments);

@@ -39,7 +39,8 @@ public enum CommunityFailure implements FailureCode {
   INVALID_VOTE_OPTION_COUNT(400, "투표 옵션은 2개 이상 5개 이하만 가능합니다."),
   INVALID_VOTE_OPTION_CONTENT(400, "투표 옵션 내용은 공백일 수 없고 40자까지만 입력 가능합니다."),
   INVALID_VOTE_SELECTION_COUNT(400, "복수 선택 불가능한 투표입니다."),
-  INVALID_VOTE_SELECTION_OPTION(400, "존재하지 않는 투표 옵션이 포함되어 있습니다.");
+  INVALID_VOTE_SELECTION_OPTION(400, "존재하지 않는 투표 옵션이 포함되어 있습니다."),
+  BLOCKED_MEMBER_POST(400, "차단 관계인 사용자의 게시글은 조회할 수 없습니다.");
 
   private final int statusCode;
   private final String message;
