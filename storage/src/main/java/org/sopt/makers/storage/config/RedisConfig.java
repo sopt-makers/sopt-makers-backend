@@ -1,6 +1,8 @@
 package org.sopt.makers.storage.config;
 
 import org.sopt.makers.storage.redis.playground.cache.CachedCrewMeetingFeed;
+import org.sopt.makers.storage.redis.playground.member.profile.cache.CachedMemberProfileCard;
+import org.sopt.makers.storage.redis.playground.member.profile.cache.CachedMemberProfileRanking;
 import org.sopt.makers.storage.redis.user.cache.CachedUserProfile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +34,28 @@ public class RedisConfig {
     template.setKeySerializer(new StringRedisSerializer());
     template.setValueSerializer(
         new JacksonJsonRedisSerializer<>(objectMapper, CachedCrewMeetingFeed.class));
+    return template;
+  }
+
+  @Bean
+  public RedisTemplate<String, CachedMemberProfileRanking> memberProfileRankingRedisTemplate(
+      RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
+    RedisTemplate<String, CachedMemberProfileRanking> template = new RedisTemplate<>();
+    template.setConnectionFactory(connectionFactory);
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setValueSerializer(
+        new JacksonJsonRedisSerializer<>(objectMapper, CachedMemberProfileRanking.class));
+    return template;
+  }
+
+  @Bean
+  public RedisTemplate<String, CachedMemberProfileCard> memberProfileCardRedisTemplate(
+      RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
+    RedisTemplate<String, CachedMemberProfileCard> template = new RedisTemplate<>();
+    template.setConnectionFactory(connectionFactory);
+    template.setKeySerializer(new StringRedisSerializer());
+    template.setValueSerializer(
+        new JacksonJsonRedisSerializer<>(objectMapper, CachedMemberProfileCard.class));
     return template;
   }
 }

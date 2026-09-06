@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileException;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFailure;
+import org.sopt.makers.domain.playground.member.profile.port.MemberProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.MemberProfileRankingCachePort;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.domain.user.Team;
@@ -30,6 +32,8 @@ import org.springframework.stereotype.Service;
 public class UserProfileCommandService {
 
   private final PlaygroundProfileUserPort playgroundProfileUserPort;
+  private final MemberProfileRankingCachePort rankingCachePort;
+  private final MemberProfileCardCachePort cardCachePort;
 
   public record ActivityInput(Integer generation, String team) {}
 
@@ -105,6 +109,7 @@ public class UserProfileCommandService {
         toCareers(userId, careers));
 
     playgroundProfileUserPort.completeFirstLogin(userId);
+    evictProfileListCaches(userId);
 
     return playgroundProfileUserPort.getUser(userId);
   }
@@ -160,6 +165,7 @@ public class UserProfileCommandService {
         toWorkPreference(workPreference),
         toLinksWithId(userId, links),
         toCareers(userId, careers));
+    evictProfileListCaches(userId);
 
     return playgroundProfileUserPort.getUser(userId);
   }
@@ -175,11 +181,17 @@ public class UserProfileCommandService {
             .filter(l -> l.userId().equals(userId))
             .orElseThrow(() -> new UserProfileException(UserProfileFailure.NOT_FOUND_LINK));
     playgroundProfileUserPort.deleteLinkById(link.id());
+    cardCachePort.evict(userId);
   }
 
   /** editActivitiesAble은 활동 이력 유무로 파생되는 값이라 별도 상태 변경이 없다 — 유저 존재 여부만 검증한다. */
   public void checkActivity(Long userId, Boolean isCheck) {
     playgroundProfileUserPort.getUser(userId);
+  }
+
+  private void evictProfileListCaches(Long userId) {
+    rankingCachePort.evictTopRanking();
+    cardCachePort.evict(userId);
   }
 
   private void validateNoMultipleCurrentCareers(List<CareerInput> careers) {

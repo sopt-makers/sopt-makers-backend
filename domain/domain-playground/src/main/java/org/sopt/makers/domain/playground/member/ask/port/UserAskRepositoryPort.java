@@ -41,4 +41,7 @@ public interface UserAskRepositoryPort {
   List<UserAsk> findLatestAnswered(int limit);
 
   boolean existsByReceiverUserIdAndCreatedAtAfter(Long receiverUserId, LocalDateTime since);
+
+  /** 각 receiverUserId별 since 이후 생성된 미신고 질문 중 가장 최근 1건씩을 반환한다. */
+  List<UserAsk> findLatestRecentByReceiverUserIds(List<Long> receiverUserIds, LocalDateTime since);
 }

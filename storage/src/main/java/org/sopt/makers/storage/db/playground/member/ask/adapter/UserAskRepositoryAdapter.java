@@ -111,6 +111,15 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
     return userAskJpaRepository.existsByReceiverUserIdAndCreatedAtAfter(receiverUserId, since);
   }
 
+  @Override
+  public List<UserAsk> findLatestRecentByReceiverUserIds(List<Long> receiverUserIds, LocalDateTime since) {
+    if (receiverUserIds == null || receiverUserIds.isEmpty()) {
+      return List.of();
+    }
+    return toDomainList(
+        userAskJpaRepository.findLatestRecentByReceiverUserIds(receiverUserIds, since));
+  }
+
   private List<UserAsk> toDomainList(List<UserAskEntity> entities) {
     return entities.stream().map(UserAskEntity::toDomain).toList();
   }

@@ -84,4 +84,16 @@ public interface UserAskJpaRepository extends JpaRepository<UserAskEntity, Long>
           + "WHERE a.questionId = q.id AND q.isReported = false "
           + "ORDER BY a.createdAt DESC, q.id DESC")
   List<UserAskEntity> findLatestAnswered(Pageable pageable);
+
+  @Query(
+      "SELECT q FROM UserAskEntity q WHERE q.receiverUserId IN :receiverUserIds "
+          + "AND q.isReported = false AND q.createdAt >= :since "
+          + "AND NOT EXISTS ("
+          + "  SELECT 1 FROM UserAskEntity newer WHERE newer.receiverUserId = q.receiverUserId "
+          + "    AND newer.isReported = false AND newer.createdAt >= :since "
+          + "    AND (newer.createdAt > q.createdAt OR (newer.createdAt = q.createdAt AND newer.id > q.id))"
+          + ") "
+          + "ORDER BY q.createdAt DESC, q.id DESC")
+  List<UserAskEntity> findLatestRecentByReceiverUserIds(
+      @Param("receiverUserIds") List<Long> receiverUserIds, @Param("since") LocalDateTime since);
 }

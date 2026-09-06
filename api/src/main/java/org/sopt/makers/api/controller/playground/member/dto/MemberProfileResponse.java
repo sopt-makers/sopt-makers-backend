@@ -51,6 +51,11 @@ public record MemberProfileResponse(
   public record MemberQuestionPreviewResponse(Long questionId, String content) {}
 
   public static MemberProfileResponse from(User user, boolean isCoffeeChatActivate) {
+    return from(user, isCoffeeChatActivate, null);
+  }
+
+  public static MemberProfileResponse from(
+      User user, boolean isCoffeeChatActivate, MemberQuestionPreviewResponse questionPreview) {
     List<MemberSoptActivityResponse> activities =
         user.activities().activities().stream()
             .sorted(Comparator.comparingInt(Activity::generation).thenComparing(a -> !a.isSopt()))
@@ -107,7 +112,7 @@ public record MemberProfileResponse(
         activities,
         links,
         careers,
-        null,
+        questionPreview,
         user.profile().allowOfficial(),
         isCoffeeChatActivate);
   }

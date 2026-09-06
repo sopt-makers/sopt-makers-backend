@@ -69,6 +69,10 @@ public class UserQueryService {
     return userRepositoryPort.findAllUserIds();
   }
 
+  public List<Long> findAllUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed) {
+    return userRepositoryPort.findAllUserIdsWithProfileByMbtiAndEmployed(mbti, employed);
+  }
+
   public List<User> findAllWithActivitiesByIds(List<Long> userIds) {
     if (userIds == null || userIds.isEmpty()) {
       return List.of();

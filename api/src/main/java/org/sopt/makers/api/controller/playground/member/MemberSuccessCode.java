@@ -17,6 +17,7 @@ public enum MemberSuccessCode implements SuccessCode {
   UPDATE_WORK_PREFERENCE(200, "작업 성향이 성공적으로 업데이트되었습니다."),
   GET_WORK_PREFERENCE(200, "작업 성향 조회 성공"),
   GET_PROFILE(200, "멤버 프로필 조회 성공"),
+  GET_PROFILE_LIST(200, "멤버 프로필 목록 조회 성공"),
   CHECK_ACTIVITY(200, "활동 기수 확인 여부 변경 성공"),
   DELETE_PROFILE_LINK(200, "성공적으로 link를 삭제했습니다.");
 

@@ -85,6 +85,11 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   }
 
   @Override
+  public List<Long> findAllUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed) {
+    return userQuerydslRepository.findUserIdsWithProfileByMbtiAndEmployed(mbti, employed);
+  }
+
+  @Override
   public boolean existsByPhone(String phone) {
     return userJpaRepository.existsByPhone(phone);
   }

@@ -6,6 +6,7 @@ import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MEMBER;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MY_INFO;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_PROFILE;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_PROFILE_LIST;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_WORK_PREFERENCE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.SEARCH_MEMBER;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.UPDATE_PROFILE;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.playground.member.dto.CheckActivityRequest;
+import org.sopt.makers.api.controller.playground.member.dto.MemberAllProfileResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberInfoResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileSaveRequest;
@@ -28,6 +30,7 @@ import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceRespon
 import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceUpdateRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileCommandService;
+import org.sopt.makers.domain.playground.member.profile.service.UserProfileListService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileQueryService;
 import org.sopt.makers.domain.user.User;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +52,7 @@ public class MemberController implements MemberApi {
 
   private final UserProfileQueryService userProfileQueryService;
   private final UserProfileCommandService userProfileCommandService;
+  private final UserProfileListService userProfileListService;
 
   @Override
   @GetMapping("/{id}")
@@ -160,6 +164,25 @@ public class MemberController implements MemberApi {
   public ResponseEntity<BaseResponse<?>> getMyProfile(@CurrentUserId Long userId) {
     return ResponseFactory.success(
         GET_PROFILE, MemberProfileSpecificResponse.from(userProfileQueryService.getProfileDetail(userId, userId)));
+  }
+
+  @Override
+  @GetMapping("/profile")
+  public ResponseEntity<BaseResponse<?>> getProfiles(
+      @RequestParam(required = false) Integer filter,
+      @RequestParam(required = false) Integer limit,
+      @RequestParam(required = false) Integer offset,
+      @RequestParam(required = false) String search,
+      @RequestParam(required = false) Integer generation,
+      @RequestParam(required = false) Integer employed,
+      @RequestParam(required = false) Integer orderBy,
+      @RequestParam(required = false) String mbti,
+      @RequestParam(required = false) String team) {
+    return ResponseFactory.success(
+        GET_PROFILE_LIST,
+        MemberAllProfileResponse.from(
+            userProfileListService.getProfiles(
+                filter, limit, offset, search, generation, employed, orderBy, mbti, team)));
   }
 
   @Override

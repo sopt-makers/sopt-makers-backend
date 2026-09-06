@@ -25,6 +25,12 @@ public interface UserRepositoryPort {
 
   List<Long> findAllUserIds();
 
+  /**
+   * 프로필이 있는(isFirstLogin=false) 유저 중 mbti/재직여부 DB 필터를 만족하는 id 목록을 반환한다. mbti, employed가 각각 null이면
+   * 해당 조건은 적용하지 않는다.
+   */
+  List<Long> findAllUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed);
+
   boolean existsByPhone(String phone);
 
   int countByGenerationAndIsSopt(int generation, boolean isSopt);

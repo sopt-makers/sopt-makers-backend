@@ -16,6 +16,7 @@ import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfileIma
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousNicknameRetriever;
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousProfileImageRetriever;
 import org.sopt.makers.domain.playground.member.ask.AskAnswerDetail;
+import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.ask.AskDetail;
 import org.sopt.makers.domain.playground.member.ask.AskLocation;
 import org.sopt.makers.domain.playground.member.ask.AskPage;
@@ -50,6 +51,7 @@ public class UserAskQueryService {
   private static final int LATEST_CARD_COUNT = 5;
   private static final int LATEST_FETCH_SIZE = 50;
   private static final int RECENT_ASK_DAYS = 7;
+  private static final int QUESTION_PREVIEW_DAYS = 7;
 
   private final UserAskRepositoryPort userAskRepositoryPort;
   private final UserAnswerRepositoryPort userAnswerRepositoryPort;
@@ -93,6 +95,16 @@ public class UserAskQueryService {
   public boolean hasRecentAsk(Long receiverUserId) {
     return userAskRepositoryPort.existsByReceiverUserIdAndCreatedAtAfter(
         receiverUserId, LocalDateTime.now().minusDays(RECENT_ASK_DAYS));
+  }
+
+  /** 페이지(최대 50명 등)에 한해 최근 7일 이내 미신고 질문 미리보기를 receiverUserId별로 최대 1건씩 조회한다. */
+  public Map<Long, AskPreview> findRecentAskPreviews(List<Long> receiverUserIds) {
+    if (receiverUserIds == null || receiverUserIds.isEmpty()) {
+      return Map.of();
+    }
+    LocalDateTime since = LocalDateTime.now().minusDays(QUESTION_PREVIEW_DAYS);
+    return userAskRepositoryPort.findLatestRecentByReceiverUserIds(receiverUserIds, since).stream()
+        .collect(Collectors.toMap(UserAsk::receiverUserId, ask -> new AskPreview(ask.id(), ask.content())));
   }
 
   public AskLocation getAskLocation(Long receiverUserId, Long questionId) {

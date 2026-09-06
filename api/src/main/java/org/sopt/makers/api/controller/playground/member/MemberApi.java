@@ -52,6 +52,21 @@ public interface MemberApi {
   @Operation(summary = "자신의 토큰으로 프로필 조회 API")
   ResponseEntity<BaseResponse<?>> getMyProfile(@Parameter(hidden = true) Long userId);
 
+  @Operation(
+      summary = "멤버 프로필 목록 조회 API",
+      description =
+          "filter/limit/offset/search/generation/employed/orderBy/mbti/team 조건으로 멤버 프로필 목록을 조회합니다.")
+  ResponseEntity<BaseResponse<?>> getProfiles(
+      Integer filter,
+      Integer limit,
+      Integer offset,
+      String search,
+      Integer generation,
+      Integer employed,
+      Integer orderBy,
+      String mbti,
+      String team);
+
   @Operation(summary = "본인 활동 기수 확인 여부 API", description = "해당 API를 호출하면 유저의 editActivitiesAble이 false로 바뀝니다")
   ResponseEntity<BaseResponse<?>> checkActivity(
       @Parameter(hidden = true) Long userId, @Valid CheckActivityRequest request);

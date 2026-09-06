@@ -63,6 +63,11 @@ public class PlaygroundProfileUserAdapter implements PlaygroundProfileUserPort {
   }
 
   @Override
+  public List<Long> findCandidateUserIds(String mbti, Boolean employed) {
+    return userQueryService.findAllUserIdsWithProfileByMbtiAndEmployed(mbti, employed);
+  }
+
+  @Override
   public void updateProfile(
       Long userId,
       String email,

@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.user.querydsl;
 
+import java.util.List;
 import java.util.Set;
 import org.sopt.makers.domain.user.UserSearchCondition;
 import org.sopt.makers.domain.user.UserSortType;
@@ -13,4 +14,6 @@ public interface UserQuerydslRepository {
 
   Set<Long> findUserIdsByRecommendCondition(
       Set<Integer> generations, String mbti, String university);
+
+  List<Long> findUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed);
 }

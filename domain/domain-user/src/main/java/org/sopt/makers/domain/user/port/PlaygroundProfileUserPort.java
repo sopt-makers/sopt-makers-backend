@@ -22,6 +22,9 @@ public interface PlaygroundProfileUserPort {
   /** 이름 검색, 최신 활동 기수 순 정렬, 최대 limit건. */
   List<User> searchUsersByName(String name, int limit);
 
+  /** 프로필이 있는 유저 중 mbti/재직여부 DB 필터를 만족하는 id 목록. 각 조건이 null이면 미적용. */
+  List<Long> findCandidateUserIds(String mbti, Boolean employed);
+
   /** Playground 프로필 저장/수정 전용 갱신 — 전화번호 인증 검증을 거치지 않는다(레거시 동작 보존). */
   void updateProfile(
       Long userId,
