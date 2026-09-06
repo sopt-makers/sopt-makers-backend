@@ -32,6 +32,7 @@ sopt:
   soptamp:
     admin:
       password: ${SOPTAMP_ADMIN_PASSWORD}
+      notification-api-key: ${SOPTAMP_NOTIFICATION_API_KEY}
     appjam-mode: ${SOPTAMP_APPJAM_MODE:false}
     scheduler:
       rank-reload:
