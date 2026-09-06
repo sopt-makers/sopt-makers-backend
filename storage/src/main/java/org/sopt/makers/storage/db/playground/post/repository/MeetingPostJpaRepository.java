@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.playground.post.PostContentType;
-import org.sopt.makers.storage.db.playground.post.entity.PostEntity;
+import org.sopt.makers.storage.db.playground.post.entity.MeetingPostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,17 +13,17 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
+public interface MeetingPostJpaRepository extends JpaRepository<MeetingPostEntity, Long> {
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("SELECT post FROM PostEntity post WHERE post.id = :postId")
-  Optional<PostEntity> findByIdForUpdate(@Param("postId") Long postId);
+  @Query("SELECT post FROM MeetingPostEntity post WHERE post.id = :postId")
+  Optional<MeetingPostEntity> findByIdForUpdate(@Param("postId") Long postId);
 
-  Page<PostEntity> findAllByMeetingId(Long meetingId, Pageable pageable);
+  Page<MeetingPostEntity> findAllByMeetingId(Long meetingId, Pageable pageable);
 
-  Page<PostEntity> findAllByMeetingIdIn(List<Long> meetingIds, Pageable pageable);
+  Page<MeetingPostEntity> findAllByMeetingIdIn(List<Long> meetingIds, Pageable pageable);
 
-  List<PostEntity>
+  List<MeetingPostEntity>
       findAllByMeetingIdInAndContentTypeAndCreatedAtGreaterThanEqualAndCreatedAtLessThanAndWriterIdNotOrderByCreatedAtDesc(
           List<Long> meetingIds,
           PostContentType contentType,

@@ -25,8 +25,8 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "community_post")
-public class PostEntity extends BaseEntity {
+@Table(name = "meeting_post")
+public class MeetingPostEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,7 +77,7 @@ public class PostEntity extends BaseEntity {
   private boolean isHot;
 
   @Builder(access = PRIVATE)
-  private PostEntity(
+  private MeetingPostEntity(
       Long id,
       Long writerId,
       PostCategory category,
@@ -131,8 +131,8 @@ public class PostEntity extends BaseEntity {
         getUpdatedAt());
   }
 
-  public static PostEntity fromDomain(Post post) {
-    return PostEntity.builder()
+  public static MeetingPostEntity fromDomain(Post post) {
+    return MeetingPostEntity.builder()
         .id(post.id())
         .writerId(post.writerId())
         .category(post.category())
