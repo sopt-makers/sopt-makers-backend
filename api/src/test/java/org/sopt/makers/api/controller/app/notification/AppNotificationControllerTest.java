@@ -1,6 +1,9 @@
 package org.sopt.makers.api.controller.app.notification;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,11 +46,9 @@ class AppNotificationControllerTest {
   }
 
   @Test
-  void read_없는_경로도_그대로_받는다() throws Exception {
-    mockMvc.perform(patch("/api/v2/notification/abc-2")).andExpect(status().isOk());
-    verify(appNotificationService).markAsRead(USER_ID, "abc-2");
-
-    mockMvc.perform(patch("/api/v2/notification")).andExpect(status().isOk());
-    verify(appNotificationService).markAsRead(USER_ID, null);
+  void read_없는_경로는_받지_않는다() throws Exception {
+    mockMvc.perform(patch("/api/v2/notification/abc-2")).andExpect(status().isNotFound());
+    mockMvc.perform(patch("/api/v2/notification")).andExpect(status().isNotFound());
+    verify(appNotificationService, never()).markAsRead(anyLong(), any());
   }
 }
