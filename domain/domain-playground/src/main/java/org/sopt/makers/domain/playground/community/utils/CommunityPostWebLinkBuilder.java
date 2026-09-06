@@ -2,7 +2,10 @@ package org.sopt.makers.domain.playground.community.utils;
 
 import java.util.Objects;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CommunityPostWebLinkBuilder {
 
     private static final String PROD_PROFILE = "prod";
@@ -11,7 +14,7 @@ public class CommunityPostWebLinkBuilder {
 
     private final String activeProfile;
 
-    public CommunityPostWebLinkBuilder(String activeProfile) {
+    public CommunityPostWebLinkBuilder(@Value("${spring.profiles.active:}") String activeProfile) {
         this.activeProfile = activeProfile;
     }
 

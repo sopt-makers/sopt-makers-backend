@@ -158,6 +158,46 @@ public class UserRecommendationService {
     return crewRelationPort.findJoinedMeetings(userId, pageNo, limit);
   }
 
+  /**
+   * 레거시 InternalOpenApiController(POST /internal/api/v1/members/profile/recommend)의
+   * InternalApiService#getMemberIdsByRecommendFilter를 대체한다. 세대(SOPT 기수) 필터에 해당하는 유저 중,
+   * university/mbti 조건(둘 다 nullable)을 모두 만족하는 유저 id만 남긴다.
+   *
+   * <p>레거시는 university를 부분 일치(LIKE)로 비교했지만, 이 코드베이스의 다른 추천 기능(예: {@link
+   * #findSameUniversityCandidate})과 동일하게 완전 일치로 비교한다.
+   */
+  public Set<Long> getRecommendedMemberIdsByGenerationAndFilter(
+      List<Integer> generations, String university, String mbti) {
+    Set<Long> generationUserIds = new HashSet<>();
+    for (int generation : generations) {
+      generationUserIds.addAll(recommendationUserPort.findUserIdsByActivity(generation, null, true));
+    }
+
+    boolean hasUniversity = university != null && !university.isBlank();
+    boolean hasMbti = mbti != null && !mbti.isBlank();
+    if (!hasUniversity && !hasMbti) {
+      return generationUserIds;
+    }
+
+    Set<Long> filteredIds = resolveProfileFilterUserIds(university, mbti, hasUniversity, hasMbti);
+    generationUserIds.retainAll(filteredIds);
+    return generationUserIds;
+  }
+
+  private Set<Long> resolveProfileFilterUserIds(
+      String university, String mbti, boolean hasUniversity, boolean hasMbti) {
+    if (hasUniversity && hasMbti) {
+      Set<Long> universityIds = new HashSet<>(recommendationUserPort.findUserIdsByUniversity(university));
+      return recommendationUserPort.findUserIdsByMbti(mbti).stream()
+          .filter(universityIds::contains)
+          .collect(Collectors.toSet());
+    }
+    if (hasUniversity) {
+      return new HashSet<>(recommendationUserPort.findUserIdsByUniversity(university));
+    }
+    return new HashSet<>(recommendationUserPort.findUserIdsByMbti(mbti));
+  }
+
   private List<UserRecommendation> buildRecommendations(
       Long userId, List<RecommendationType> criteria) {
     User currentUser = playgroundProfileUserPort.getUserWithActivities(userId);

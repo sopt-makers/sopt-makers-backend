@@ -103,6 +103,33 @@ public class UserProfileQueryService {
     return new UserProfileDetail(user, isMine, isCoffeeChatActivate, hasRecentQuestion, projects);
   }
 
+  /**
+   * 레거시 InternalOpenApiController(GET /internal/api/v1/members/profile/me)의
+   * MemberService#getMemberById를 대체한다. 앱팀이 사용하는 단일 프로필 조회 전용 메서드.
+   */
+  public User getMemberProfileForInternalApi(Long userId) {
+    return playgroundProfileUserPort.getUserWithActivities(userId);
+  }
+
+  /**
+   * 레거시 InternalOpenApiController(GET /internal/api/v1/members/profile)의
+   * MemberService#getMemberProfileListById를 대체한다. hasProfile 필터는 이 코드베이스의 다른 프로필
+   * 조회(toSummary 참고)와 동일하게 isFirstLogin의 역으로 판단한다.
+   */
+  public List<User> getMemberProfileListForInternalApi(List<Long> userIds) {
+    return playgroundProfileUserPort.findAllWithActivitiesByIds(userIds).stream()
+        .filter(user -> !user.isFirstLogin())
+        .toList();
+  }
+
+  /**
+   * 레거시 InternalOpenApiController(POST /internal/api/v1/members,
+   * DELETE /internal/api/v1/members/[memberId])의 존재 검증 전용 메서드.
+   */
+  public boolean existsMember(Long userId) {
+    return playgroundProfileUserPort.findUser(userId).isPresent();
+  }
+
   private UserSummary toSummary(User user) {
     List<Activity> activities = user.activities().activities();
     Integer generation =
