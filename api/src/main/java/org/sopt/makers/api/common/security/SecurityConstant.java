@@ -35,6 +35,7 @@ public final class SecurityConstant {
           "/api/v1/admin/banners/images",
           "/slack/emoji",
           "/api/v2/admin/soptamp",
+          "/api/v2/admin/notification",
           "/api/v2/config",
           "/api/v2/firebase",
           "/error",
