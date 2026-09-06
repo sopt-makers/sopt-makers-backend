@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.soptamp.SoptampUser;
+import org.sopt.makers.domain.app.soptamp.clap.service.ClapService;
 import org.sopt.makers.domain.app.soptamp.exception.SoptampException;
 import org.sopt.makers.domain.app.soptamp.exception.SoptampFailure;
 import org.sopt.makers.domain.app.soptamp.mission.Mission;
 import org.sopt.makers.domain.app.soptamp.mission.MissionCompleteness;
+import org.sopt.makers.domain.app.soptamp.mission.port.MissionRepositoryPort;
 import org.sopt.makers.domain.app.soptamp.port.SoptampPointUpdaterPort;
 import org.sopt.makers.domain.app.soptamp.port.SoptampUserQueryPort;
 import org.sopt.makers.domain.app.soptamp.service.MissionService;
@@ -15,6 +17,7 @@ import org.sopt.makers.domain.app.soptamp.service.StampService;
 import org.sopt.makers.domain.app.soptamp.stamp.Stamp;
 import org.sopt.makers.domain.app.soptamp.stamp.port.StampClapQueryPort;
 import org.sopt.makers.domain.app.soptamp.stamp.port.StampFileStoragePort;
+import org.sopt.makers.domain.app.soptamp.stamp.port.StampRepositoryPort;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,9 @@ public class SoptampFacade {
   private final SoptampUserQueryPort soptampUserQueryPort;
   private final StampClapQueryPort stampClapQueryPort;
   private final StampFileStoragePort stampFileStoragePort;
+  private final StampRepositoryPort stampRepositoryPort;
+  private final MissionRepositoryPort missionRepositoryPort;
+  private final ClapService clapService;
 
   private static final String STAMP_IMAGE_DIRECTORY = "stamp";
   private static final String MISSION_IMAGE_DIRECTORY = "mission";
@@ -118,4 +124,31 @@ public class SoptampFacade {
   public SoptampReport getReportUrl() {
     return new SoptampReport(formUrl);
   }
+
+  public UserMissions findUserMissionsByNickname(String nickname) {
+    SoptampUser user =
+        soptampUserQueryPort
+            .findByNickname(nickname)
+            .orElseThrow(() -> new SoptampException(SoptampFailure.NOT_FOUND_SOPTAMP_USER));
+
+    List<Long> missionIds =
+        stampRepositoryPort.findAllByUserId(user.userId()).stream().map(Stamp::missionId).toList();
+
+    return new UserMissions(user, missionRepositoryPort.findByIdsOrderByLevelAndTitle(missionIds));
+  }
+
+  public ClapResult addClap(Long userId, Long stampId, int clapCount) {
+    int appliedCount = clapService.addClap(userId, stampId, clapCount);
+
+    Stamp stamp =
+        stampRepositoryPort
+            .findById(stampId)
+            .orElseThrow(() -> new SoptampException(SoptampFailure.NOT_FOUND_STAMP));
+
+    return new ClapResult(appliedCount, stamp.clapCount());
+  }
+
+  public record UserMissions(SoptampUser user, List<Mission> missions) {}
+
+  public record ClapResult(int appliedCount, int totalClapCount) {}
 }

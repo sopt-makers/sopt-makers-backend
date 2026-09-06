@@ -39,5 +39,7 @@ public interface StampRepositoryPort {
 
   boolean existsByUserIdInAndMissionId(Collection<Long> userIds, Long missionId);
 
+  int increaseClapCount(Long stampId, int increment);
+
   void increaseViewCount(Long stampId);
 }

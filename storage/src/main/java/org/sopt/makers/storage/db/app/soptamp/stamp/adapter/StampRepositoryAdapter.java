@@ -52,6 +52,9 @@ public class StampRepositoryAdapter implements StampRepositoryPort {
 
   @Override
   public List<Stamp> findAllByUserIdIn(Collection<Long> userIds) {
+    if (userIds.isEmpty()) {
+      return List.of();
+    }
     return stampJpaRepository.findAllByUserIdIn(userIds).stream()
         .map(StampEntity::toDomain)
         .toList();
@@ -108,12 +111,21 @@ public class StampRepositoryAdapter implements StampRepositoryPort {
   @Override
   @Transactional
   public void deleteAll() {
-    stampJpaRepository.deleteAll();
+    stampJpaRepository.deleteAllInBatch();
   }
 
   @Override
   public boolean existsByUserIdInAndMissionId(Collection<Long> userIds, Long missionId) {
+    if (userIds.isEmpty()) {
+      return false;
+    }
     return stampJpaRepository.existsByUserIdInAndMissionId(userIds, missionId);
+  }
+
+  @Override
+  @Transactional
+  public int increaseClapCount(Long stampId, int increment) {
+    return stampJpaRepository.increaseClapCount(stampId, increment);
   }
 
   @Override

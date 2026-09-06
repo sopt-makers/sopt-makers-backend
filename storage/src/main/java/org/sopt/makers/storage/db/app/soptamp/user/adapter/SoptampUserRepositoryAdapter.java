@@ -1,16 +1,20 @@
 package org.sopt.makers.storage.db.app.soptamp.user.adapter;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.type.Part;
+import org.sopt.makers.domain.app.soptamp.SoptampPart;
 import org.sopt.makers.domain.app.soptamp.SoptampUser;
 import org.sopt.makers.domain.app.soptamp.port.SoptampUserQueryPort;
 import org.sopt.makers.storage.db.app.soptamp.user.entity.SoptampUserEntity;
 import org.sopt.makers.storage.db.app.soptamp.user.repository.SoptampUserJpaRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class SoptampUserRepositoryAdapter implements SoptampUserQueryPort {
 
   private final SoptampUserJpaRepository soptampUserJpaRepository;
+
+  @Value("${sopt.current.generation}")
+  private Long currentGeneration;
 
   @Override
   public Optional<SoptampUser> findByUserId(Long userId) {
@@ -41,10 +48,40 @@ public class SoptampUserRepositoryAdapter implements SoptampUserQueryPort {
   }
 
   @Override
+  public List<SoptampUser> findAllOfCurrentGeneration() {
+    return findAllByGeneration(currentGeneration);
+  }
+
+  @Override
+  public List<SoptampUser> findAllByPartAndCurrentGeneration(Part part) {
+    return soptampUserJpaRepository
+        .findAllByNicknameStartingWithAndGeneration(
+            SoptampPart.of(part).getShortName(), currentGeneration)
+        .stream()
+        .map(SoptampUserEntity::toDomain)
+        .toList();
+  }
+
+  @Override
   public Map<Long, SoptampUser> findByUserIdsAsMap(Collection<Long> userIds) {
+    if (userIds.isEmpty()) {
+      return Map.of();
+    }
     return soptampUserJpaRepository.findAllByUserIdIn(userIds).stream()
         .map(SoptampUserEntity::toDomain)
-        .collect(Collectors.toMap(SoptampUser::userId, Function.identity()));
+        .collect(
+            Collectors.toMap(
+                SoptampUser::userId, Function.identity(), (a, b) -> a, LinkedHashMap::new));
+  }
+
+  @Override
+  public List<Long> findAllUserIds() {
+    return soptampUserJpaRepository.findAllUserIds();
+  }
+
+  @Override
+  public boolean existsByNicknameAndUserIdNot(String nickname, Long userId) {
+    return soptampUserJpaRepository.existsByNicknameAndUserIdNot(nickname, userId);
   }
 
   @Override
