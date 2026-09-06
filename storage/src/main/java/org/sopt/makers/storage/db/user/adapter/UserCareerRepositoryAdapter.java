@@ -16,6 +16,23 @@ public class UserCareerRepositoryAdapter implements UserCareerRepositoryPort {
 
   private final UserCareerJpaRepository userCareerJpaRepository;
 
+  @Override
+  public List<UserCareer> findByUserId(Long userId) {
+    return userCareerJpaRepository.findAllByUserId(userId).stream()
+        .map(UserCareerEntity::toDomain)
+        .toList();
+  }
+
+  @Override
+  public List<UserCareer> findByUserIdIn(List<Long> userIds) {
+    if (userIds == null || userIds.isEmpty()) {
+      return List.of();
+    }
+    return userCareerJpaRepository.findAllByUserIdIn(userIds).stream()
+        .map(UserCareerEntity::toDomain)
+        .toList();
+  }
+
   @Transactional
   @Override
   public List<UserCareer> replaceAll(final Long userId, final List<UserCareer> careers) {

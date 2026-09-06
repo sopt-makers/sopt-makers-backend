@@ -12,6 +12,9 @@ management:
         include: health
       base-path: ${ACTUATOR_PATH}
 
+admin:
+  key: ${ADMIN_KEY:}
+
 auth:
   bypass-login:
     phone: ${BYPASS_LOGIN_PHONE}

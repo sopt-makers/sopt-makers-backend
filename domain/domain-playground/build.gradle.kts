@@ -3,4 +3,5 @@ dependencies {
     implementation(project(":domain:domain-user"))
     implementation("org.springframework:spring-context")
     implementation("org.springframework:spring-tx")
+    implementation("tools.jackson.core:jackson-databind")
 }
