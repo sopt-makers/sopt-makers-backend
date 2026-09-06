@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.sopt.makers.api.controller.app.AppChannelMockMvc;
+import org.sopt.makers.api.controller.crew.CrewChannelMockMvc;
 import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.domain.crew.meeting.MeetingStatus;
@@ -27,7 +27,7 @@ class MeetingControllerTest {
   private final MeetingService meetingService = mock(MeetingService.class);
   private final MeetingFacade meetingFacade = mock(MeetingFacade.class);
   private final MockMvc mockMvc =
-      AppChannelMockMvc.of(new MeetingController(meetingService, meetingFacade), USER_ID);
+      CrewChannelMockMvc.of(new MeetingController(meetingService, meetingFacade), USER_ID);
 
   @Test
   void 모임_목록은_검색어_카테고리_상태를_전달한다() throws Exception {
