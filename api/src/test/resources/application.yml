@@ -82,3 +82,5 @@ sopt:
   soptamp:
     admin:
       password: test-admin-password
+  app:
+    available: true
