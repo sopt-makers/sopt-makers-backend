@@ -57,7 +57,7 @@ public class AppNotificationController implements AppNotificationApi {
   }
 
   @Override
-  @PatchMapping({"/read/{notificationId}", "/read", "/{notificationId}", ""})
+  @PatchMapping({"/read/{notificationId}", "/read"})
   public ResponseEntity<BaseResponse<?>> updateNotificationRead(
       @CurrentUserId Long userId, @PathVariable(required = false) String notificationId) {
     appNotificationService.markAsRead(userId, notificationId);
