@@ -33,6 +33,7 @@ import org.sopt.makers.domain.crew.meeting.MeetingUser;
 import org.sopt.makers.domain.crew.meeting.Member;
 import org.sopt.makers.domain.crew.meeting.MemberRole;
 import org.sopt.makers.domain.crew.meeting.exception.MeetingException;
+import org.sopt.makers.domain.crew.meeting.exception.MeetingFailure;
 import org.sopt.makers.domain.crew.meeting.port.MeetingApplyRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
@@ -139,6 +140,40 @@ class MeetingServiceTest {
   }
 
   @Test
+  @DisplayName("모임 신청을 승인하면 승인 상태와 PARTICIPANT Member를 함께 반영한다")
+  void applyAndApprovalCreatesParticipantMember() {
+    Meeting openMeeting = meeting(1L);
+    MeetingApply waiting = apply(MeetingApplyStatus.WAITING);
+    when(meetingRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(openMeeting));
+    when(userPort.findById(20L))
+        .thenReturn(
+            Optional.of(
+                new MeetingUser(
+                    20L, "지원자", null, List.of(Activity.of(36, Team.MAKERS, Part.SERVER, true)))));
+    when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
+    when(applyRepository.findAllByMeetingId(1L)).thenReturn(List.of());
+    when(applyRepository.save(any(MeetingApply.class)))
+        .thenAnswer(
+            invocation -> {
+              MeetingApply candidate = invocation.getArgument(0);
+              return candidate.id() == null ? waiting : candidate;
+            });
+
+    MeetingApply saved =
+        service.applyGeneralMeeting(new MeetingService.ApplyMeetingCommand(1L, "신청합니다."), 20L);
+    when(applyRepository.findById(100L)).thenReturn(Optional.of(saved));
+    when(memberRepository.countByMeetingIdAndRole(1L, MemberRole.PARTICIPANT)).thenReturn(0L);
+    when(memberRepository.findByMeetingIdAndUserId(1L, 20L)).thenReturn(Optional.empty());
+
+    MeetingApply approved =
+        service.updateApplyStatus(
+            1L, new MeetingService.UpdateApplyStatusCommand(100L, MeetingApplyStatus.APPROVE), 10L);
+
+    assertThat(approved.status()).isEqualTo(MeetingApplyStatus.APPROVE);
+    verify(memberRepository).save(Member.participant(1L, 20L));
+  }
+
+  @Test
   @DisplayName("이미 운영 역할이 있는 사용자를 승인해도 참여자로 덮어쓰지 않는다")
   void approvalDoesNotReplaceManagerRole() {
     MeetingApply rejected = apply(MeetingApplyStatus.REJECT);
@@ -208,6 +243,21 @@ class MeetingServiceTest {
     assertThat(result).hasSize(1);
     assertThat(result.getFirst().apply()).isEqualTo(waiting);
     assertThat(result.getFirst().user().id()).isEqualTo(20L);
+  }
+
+  @Test
+  @DisplayName("일반 참여자는 지원자 목록을 조회할 수 없다")
+  void participantCannotGetApplicants() {
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L))
+        .thenReturn(List.of(Member.leader(1L, 10L), Member.participant(1L, 20L)));
+
+    assertThatThrownBy(() -> service.getApplicants(1L, 20L))
+        .isInstanceOf(MeetingException.class)
+        .extracting(exception -> ((MeetingException) exception).getError())
+        .isEqualTo(MeetingFailure.FORBIDDEN_MEETING);
+
+    verify(applyRepository, never()).findAllByMeetingId(1L);
   }
 
   @Test

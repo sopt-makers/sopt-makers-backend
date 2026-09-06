@@ -54,6 +54,14 @@ public class SwaggerConfig {
   }
 
   @Bean
+  public GroupedOpenApi crewApi() {
+    return GroupedOpenApi.builder()
+        .group("Crew")
+        .packagesToScan("org.sopt.makers.api.controller.crew")
+        .build();
+  }
+
+  @Bean
   public GroupedOpenApi officialApi() {
     return GroupedOpenApi.builder()
         .group("Official")
