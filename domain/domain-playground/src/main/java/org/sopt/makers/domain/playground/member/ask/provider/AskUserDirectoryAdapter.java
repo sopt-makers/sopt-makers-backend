@@ -1,4 +1,4 @@
-package org.sopt.makers.clients.notification;
+package org.sopt.makers.domain.playground.member.ask.provider;
 
 import java.util.List;
 import java.util.Map;

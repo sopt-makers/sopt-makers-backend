@@ -1,4 +1,4 @@
-package org.sopt.makers.clients.notification;
+package org.sopt.makers.domain.playground.member.ask.provider;
 
 import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.springframework.stereotype.Component;
