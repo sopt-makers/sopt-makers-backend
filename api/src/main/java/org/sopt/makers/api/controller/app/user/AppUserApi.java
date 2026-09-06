@@ -14,4 +14,7 @@ public interface AppUserApi {
 
   @Operation(summary = "현재 기수와 활동 상태 조회")
   ResponseEntity<BaseResponse<?>> getGenerationInfo(@Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "나의 솝트로그 조회")
+  ResponseEntity<BaseResponse<?>> getMySoptLog(@Parameter(hidden = true) Long userId);
 }

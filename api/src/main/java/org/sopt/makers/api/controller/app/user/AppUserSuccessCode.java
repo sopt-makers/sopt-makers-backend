@@ -10,7 +10,8 @@ import org.sopt.makers.core.code.SuccessCode;
 @RequiredArgsConstructor(access = PRIVATE)
 public enum AppUserSuccessCode implements SuccessCode {
   GET_MAIN_VIEW(200, "메인 뷰 조회에 성공했습니다."),
-  GET_GENERATION(200, "기수 정보 조회에 성공했습니다.");
+  GET_GENERATION(200, "기수 정보 조회에 성공했습니다."),
+  GET_MY_SOPT_LOG(200, "나의 솝트로그 조회에 성공했습니다.");
 
   private final int statusCode;
   private final String message;
