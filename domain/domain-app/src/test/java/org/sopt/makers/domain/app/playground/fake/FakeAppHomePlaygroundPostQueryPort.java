@@ -3,9 +3,9 @@ package org.sopt.makers.domain.app.playground.fake;
 import java.util.List;
 import org.sopt.makers.domain.app.playground.PlaygroundPopularPost;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPost;
-import org.sopt.makers.domain.app.playground.port.PlaygroundPostQueryPort;
+import org.sopt.makers.domain.app.playground.port.AppHomePlaygroundPostQueryPort;
 
-public final class FakePlaygroundPostQueryPort implements PlaygroundPostQueryPort {
+public final class FakeAppHomePlaygroundPostQueryPort implements AppHomePlaygroundPostQueryPort {
 
   private List<PlaygroundRecentPost> recent = List.of();
   private List<PlaygroundPopularPost> popular = List.of();

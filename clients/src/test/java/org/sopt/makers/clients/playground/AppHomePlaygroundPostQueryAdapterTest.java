@@ -15,18 +15,18 @@ import org.sopt.makers.domain.app.playground.PlaygroundPopularPost;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPost;
 import org.springframework.web.client.RestClientException;
 
-@DisplayName("PlaygroundPostQueryAdapter 테스트")
-class PlaygroundPostQueryAdapterTest {
+@DisplayName("AppHomePlaygroundPostQueryAdapter 테스트")
+class AppHomePlaygroundPostQueryAdapterTest {
 
   private MockWebServer playgroundServer;
-  private PlaygroundPostQueryAdapter adapter;
+  private AppHomePlaygroundPostQueryAdapter adapter;
 
   @BeforeEach
   void setUp() throws Exception {
     playgroundServer = new MockWebServer();
     playgroundServer.start();
     String baseUrl = playgroundServer.url("/").toString().replaceAll("/$", "");
-    adapter = new PlaygroundPostQueryAdapter(new PlaygroundProperty(baseUrl, null));
+    adapter = new AppHomePlaygroundPostQueryAdapter(new PlaygroundProperty(baseUrl, null));
   }
 
   @AfterEach

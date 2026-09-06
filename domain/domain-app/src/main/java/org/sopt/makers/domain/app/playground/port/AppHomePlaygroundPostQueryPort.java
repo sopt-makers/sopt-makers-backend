@@ -4,7 +4,7 @@ import java.util.List;
 import org.sopt.makers.domain.app.playground.PlaygroundPopularPost;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPost;
 
-public interface PlaygroundPostQueryPort {
+public interface AppHomePlaygroundPostQueryPort {
 
   List<PlaygroundRecentPost> getPlaygroundRecentPosts();
 

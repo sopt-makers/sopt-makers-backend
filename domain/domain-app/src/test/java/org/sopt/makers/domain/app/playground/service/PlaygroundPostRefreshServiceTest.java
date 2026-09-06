@@ -17,19 +17,19 @@ import org.sopt.makers.domain.app.operationconfig.port.OperationConfigPort;
 import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService;
 import org.sopt.makers.domain.app.playground.PlaygroundPopularPost;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPost;
-import org.sopt.makers.domain.app.playground.fake.FakePlaygroundPostQueryPort;
+import org.sopt.makers.domain.app.playground.fake.FakeAppHomePlaygroundPostQueryPort;
 import org.sopt.makers.domain.app.playground.fake.InMemoryPlaygroundPostCacheRepositoryPort;
 
 @DisplayName("PlaygroundPostRefreshService 테스트")
 class PlaygroundPostRefreshServiceTest {
 
-  private FakePlaygroundPostQueryPort queryPort;
+  private FakeAppHomePlaygroundPostQueryPort queryPort;
   private InMemoryPlaygroundPostCacheRepositoryPort cachePort;
   private PlaygroundPostRefreshService refreshService;
 
   @BeforeEach
   void setUp() {
-    queryPort = new FakePlaygroundPostQueryPort();
+    queryPort = new FakeAppHomePlaygroundPostQueryPort();
     cachePort = new InMemoryPlaygroundPostCacheRepositoryPort();
     InMemoryOperationConfigPort configPort = new InMemoryOperationConfigPort();
     configPort.add(

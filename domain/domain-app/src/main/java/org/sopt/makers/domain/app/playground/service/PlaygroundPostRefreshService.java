@@ -11,8 +11,8 @@ import org.sopt.makers.domain.app.operationconfig.OperationConfigCategory;
 import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService;
 import org.sopt.makers.domain.app.playground.PlaygroundPopularPost;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPost;
+import org.sopt.makers.domain.app.playground.port.AppHomePlaygroundPostQueryPort;
 import org.sopt.makers.domain.app.playground.port.PlaygroundPostCacheRepositoryPort;
-import org.sopt.makers.domain.app.playground.port.PlaygroundPostQueryPort;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -22,7 +22,7 @@ public class PlaygroundPostRefreshService {
 
   private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
-  private final PlaygroundPostQueryPort playgroundPostQueryPort;
+  private final AppHomePlaygroundPostQueryPort appHomePlaygroundPostQueryPort;
   private final PlaygroundPostCacheRepositoryPort playgroundPostCacheRepositoryPort;
   private final PlaygroundPostCacheService playgroundPostCacheService;
   private final OperationConfigService operationConfigService;
@@ -38,7 +38,7 @@ public class PlaygroundPostRefreshService {
           operationConfigService.getValuesByCategory(OperationConfigCategory.PLAYGROUND_POST);
       LocalDateTime now = LocalDateTime.now(clock.withZone(KST));
       List<PlaygroundRecentPost> posts =
-          playgroundPostQueryPort.getPlaygroundRecentPosts().stream()
+          appHomePlaygroundPostQueryPort.getPlaygroundRecentPosts().stream()
               .map(post -> post.resolveOutdated(imageConfigMap, now))
               .toList();
       playgroundPostCacheService.cacheRecentPosts(posts);
@@ -54,7 +54,8 @@ public class PlaygroundPostRefreshService {
       return;
     }
     try {
-      List<PlaygroundPopularPost> posts = playgroundPostQueryPort.getPlaygroundPopularPosts();
+      List<PlaygroundPopularPost> posts =
+          appHomePlaygroundPostQueryPort.getPlaygroundPopularPosts();
       playgroundPostCacheService.cachePopularPosts(posts);
       log.info("Playground 인기 게시글 캐시 갱신 완료");
     } catch (Exception e) {
