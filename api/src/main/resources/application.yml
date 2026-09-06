@@ -38,3 +38,8 @@ sopt:
         enabled: ${SOPTAMP_RANK_RELOAD_SCHEDULER_ENABLED:false}
       upsert:
         enabled: ${SOPTAMP_UPSERT_SCHEDULER_ENABLED:false}
+  playground:
+    post-refresh-scheduler:
+      enabled: ${PLAYGROUND_POST_REFRESH_SCHEDULER_ENABLED:false}
+  app:
+    available: ${APP_IS_AVAILABLE:true}
