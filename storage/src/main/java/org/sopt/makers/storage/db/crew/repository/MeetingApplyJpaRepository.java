@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.crew.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.crew.meeting.MeetingApplyStatus;
 import org.sopt.makers.storage.db.crew.entity.MeetingApplyEntity;
@@ -17,6 +18,9 @@ public interface MeetingApplyJpaRepository extends JpaRepository<MeetingApplyEnt
       Long meetingId, List<MeetingApplyStatus> statuses);
 
   List<MeetingApplyEntity> findAllByUserIdAndStatus(Long userId, MeetingApplyStatus status);
+
+  List<MeetingApplyEntity> findAllByUserIdAndAppliedDateBetween(
+      Long userId, LocalDateTime startDate, LocalDateTime endDate);
 
   boolean existsByMeetingIdAndUserId(Long meetingId, Long userId);
 

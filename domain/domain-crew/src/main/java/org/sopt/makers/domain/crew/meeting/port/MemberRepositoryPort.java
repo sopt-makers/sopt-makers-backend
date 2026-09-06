@@ -13,6 +13,10 @@ public interface MemberRepositoryPort {
 
   List<Member> findAllByMeetingId(Long meetingId);
 
+  List<Member> findAllByUserId(Long userId);
+
+  List<Member> findAllByMeetingIds(List<Long> meetingIds);
+
   Optional<Member> findByMeetingIdAndUserId(Long meetingId, Long userId);
 
   List<Member> findAllByMeetingIdsAndRole(List<Long> meetingIds, MemberRole role);

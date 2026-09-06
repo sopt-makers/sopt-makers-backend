@@ -1,6 +1,7 @@
 package org.sopt.makers.storage.db.crew.adapter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,16 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
   @Override
   public Optional<Meeting> findByIdForUpdate(Long meetingId) {
     return meetingJpaRepository.findByIdForUpdate(meetingId).map(MeetingEntity::toDomain);
+  }
+
+  @Override
+  public List<Meeting> findAllByIds(List<Long> meetingIds) {
+    if (meetingIds == null || meetingIds.isEmpty()) {
+      return List.of();
+    }
+    return meetingJpaRepository.findAllById(meetingIds).stream()
+        .map(MeetingEntity::toDomain)
+        .toList();
   }
 
   @Override

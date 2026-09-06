@@ -1,5 +1,6 @@
 package org.sopt.makers.domain.crew.meeting.port;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
@@ -14,6 +15,9 @@ public interface MeetingApplyRepositoryPort {
   List<MeetingApply> findAllByMeetingId(Long meetingId);
 
   List<MeetingApply> findAllByMeetingIds(List<Long> meetingIds);
+
+  List<MeetingApply> findAllByUserIdAndAppliedDateBetween(
+      Long userId, LocalDateTime startDate, LocalDateTime endDate);
 
   long countByMeetingIdAndStatus(Long meetingId, MeetingApplyStatus status);
 
