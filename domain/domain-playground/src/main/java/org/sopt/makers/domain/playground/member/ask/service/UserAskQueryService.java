@@ -49,6 +49,7 @@ public class UserAskQueryService {
   private static final int NEW_ASK_DAYS = 7;
   private static final int LATEST_CARD_COUNT = 5;
   private static final int LATEST_FETCH_SIZE = 50;
+  private static final int RECENT_ASK_DAYS = 7;
 
   private final UserAskRepositoryPort userAskRepositoryPort;
   private final UserAnswerRepositoryPort userAnswerRepositoryPort;
@@ -87,6 +88,11 @@ public class UserAskQueryService {
 
   public long getUnansweredCount(Long userId) {
     return userAskRepositoryPort.countUnansweredByReceiverUserId(userId);
+  }
+
+  public boolean hasRecentAsk(Long receiverUserId) {
+    return userAskRepositoryPort.existsByReceiverUserIdAndCreatedAtAfter(
+        receiverUserId, LocalDateTime.now().minusDays(RECENT_ASK_DAYS));
   }
 
   public AskLocation getAskLocation(Long receiverUserId, Long questionId) {

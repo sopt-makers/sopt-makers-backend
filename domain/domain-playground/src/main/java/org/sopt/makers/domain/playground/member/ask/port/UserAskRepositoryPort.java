@@ -39,4 +39,6 @@ public interface UserAskRepositoryPort {
       Long receiverUserId, LocalDateTime askCreatedAt, Long questionId);
 
   List<UserAsk> findLatestAnswered(int limit);
+
+  boolean existsByReceiverUserIdAndCreatedAtAfter(Long receiverUserId, LocalDateTime since);
 }

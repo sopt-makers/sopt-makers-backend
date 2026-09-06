@@ -36,6 +36,8 @@ public interface UserAskJpaRepository extends JpaRepository<UserAskEntity, Long>
 
   long countByReceiverUserId(@Param("receiverUserId") Long receiverUserId);
 
+  boolean existsByReceiverUserIdAndCreatedAtAfter(Long receiverUserId, LocalDateTime since);
+
   @Query(
       "SELECT COUNT(q) FROM UserAskEntity q WHERE q.receiverUserId = :receiverUserId "
           + "AND EXISTS (SELECT 1 FROM UserAnswerEntity a WHERE a.questionId = q.id)")

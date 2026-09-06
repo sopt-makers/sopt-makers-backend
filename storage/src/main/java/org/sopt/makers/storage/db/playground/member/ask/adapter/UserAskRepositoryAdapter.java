@@ -106,6 +106,11 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
     return toDomainList(userAskJpaRepository.findLatestAnswered(PageRequest.of(0, limit)));
   }
 
+  @Override
+  public boolean existsByReceiverUserIdAndCreatedAtAfter(Long receiverUserId, LocalDateTime since) {
+    return userAskJpaRepository.existsByReceiverUserIdAndCreatedAtAfter(receiverUserId, since);
+  }
+
   private List<UserAsk> toDomainList(List<UserAskEntity> entities) {
     return entities.stream().map(UserAskEntity::toDomain).toList();
   }
