@@ -11,8 +11,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileCardCachePort;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileRankingCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.domain.user.ActivityList;
 import org.sopt.makers.domain.user.Profile;
 import org.sopt.makers.domain.user.User;
@@ -28,8 +28,8 @@ class UserProfileCommandServiceTest {
   private static final Long LINK_ID = 100L;
 
   private final PlaygroundProfileUserPort playgroundProfileUserPort = mock(PlaygroundProfileUserPort.class);
-  private final MemberProfileRankingCachePort rankingCachePort = mock(MemberProfileRankingCachePort.class);
-  private final MemberProfileCardCachePort cardCachePort = mock(MemberProfileCardCachePort.class);
+  private final UserProfileRankingCachePort rankingCachePort = mock(UserProfileRankingCachePort.class);
+  private final UserProfileCardCachePort cardCachePort = mock(UserProfileCardCachePort.class);
 
   private final UserProfileCommandService service =
       new UserProfileCommandService(playgroundProfileUserPort, rankingCachePort, cardCachePort);

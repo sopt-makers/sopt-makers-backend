@@ -11,13 +11,13 @@ import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
 import org.sopt.makers.domain.playground.member.profile.MemberProfileListItem;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileListResult;
+import org.sopt.makers.domain.playground.member.profile.UserProfileListResult;
 import org.sopt.makers.domain.playground.member.profile.MemberProfileRanking;
 import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatActivationPort;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileCardCachePort;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileRankingCachePort;
-import org.sopt.makers.domain.playground.member.profile.service.sorting.MemberProfileFilter;
-import org.sopt.makers.domain.playground.member.profile.service.sorting.MemberSortingService;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
+import org.sopt.makers.domain.playground.member.profile.service.sorting.UserProfileFilter;
+import org.sopt.makers.domain.playground.member.profile.service.sorting.UserSortingService;
 import org.sopt.makers.domain.playground.member.profile.service.sorting.ProfileOrderBy;
 import org.sopt.makers.domain.playground.member.profile.service.sorting.ProfileTeamFilter;
 import org.sopt.makers.domain.user.User;
@@ -38,11 +38,11 @@ public class UserProfileListService {
   private final PlaygroundProfileUserPort playgroundProfileUserPort;
   private final CoffeeChatActivationPort coffeeChatActivationPort;
   private final UserAskQueryService userAskQueryService;
-  private final MemberSortingService memberSortingService;
-  private final MemberProfileRankingCachePort rankingCachePort;
-  private final MemberProfileCardCachePort cardCachePort;
+  private final UserSortingService memberSortingService;
+  private final UserProfileRankingCachePort rankingCachePort;
+  private final UserProfileCardCachePort cardCachePort;
 
-  public MemberProfileListResult getProfiles(
+  public UserProfileListResult getProfiles(
       Integer filter,
       Integer limit,
       Integer offset,
@@ -72,12 +72,12 @@ public class UserProfileListService {
     return getLivePage(filter, limitValue, offsetValue, search, generation, employed, orderBy, mbti, team);
   }
 
-  private MemberProfileListResult getCachedDefaultPage(int offset, int limit) {
+  private UserProfileListResult getCachedDefaultPage(int offset, int limit) {
     MemberProfileRanking ranking = rankingCachePort.getTopRanking().orElseGet(this::recomputeAndCacheRanking);
 
     List<Long> pageIds = sliceIds(ranking.topUserIds(), offset, limit);
     if (pageIds.isEmpty()) {
-      return MemberProfileListResult.empty();
+      return UserProfileListResult.empty();
     }
 
     List<User> users = loadUsersWithCardCache(pageIds);
@@ -118,7 +118,7 @@ public class UserProfileListService {
     return ids.stream().map(merged::get).filter(Objects::nonNull).toList();
   }
 
-  private MemberProfileListResult getLivePage(
+  private UserProfileListResult getLivePage(
       Integer filter,
       int limitValue,
       int offsetValue,
@@ -132,25 +132,25 @@ public class UserProfileListService {
     Boolean employedFilter = employed == null ? null : employed == EMPLOYED_TRUE;
     List<Long> candidateIds = playgroundProfileUserPort.findCandidateUserIds(mbti, employedFilter);
     if (candidateIds.isEmpty()) {
-      return MemberProfileListResult.empty();
+      return UserProfileListResult.empty();
     }
 
     List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(candidateIds);
 
-    Part partFilter = MemberProfileFilter.resolvePartFilter(filter);
+    Part partFilter = UserProfileFilter.resolvePartFilter(filter);
     ProfileTeamFilter teamFilter = ProfileTeamFilter.fromRawCode(team);
     List<User> filteredByActivity =
         users.stream()
-            .filter(u -> MemberProfileFilter.matchesActivityConditions(u, partFilter, teamFilter, generation))
+            .filter(u -> UserProfileFilter.matchesActivityConditions(u, partFilter, teamFilter, generation))
             .toList();
     if (filteredByActivity.isEmpty()) {
-      return MemberProfileListResult.empty();
+      return UserProfileListResult.empty();
     }
 
     List<User> filteredBySearch =
-        filteredByActivity.stream().filter(u -> MemberProfileFilter.matchesSearch(u, search)).toList();
+        filteredByActivity.stream().filter(u -> UserProfileFilter.matchesSearch(u, search)).toList();
     if (filteredBySearch.isEmpty()) {
-      return MemberProfileListResult.empty();
+      return UserProfileListResult.empty();
     }
 
     ProfileOrderBy orderBy = ProfileOrderBy.fromCode(orderByCode);
@@ -159,19 +159,19 @@ public class UserProfileListService {
             .sorted(
                 orderBy != null
                     ? memberSortingService.createComparatorByOrderCondition(orderBy, employed)
-                    : memberSortingService.createComparator(employed, MemberProfileFilter.toSortingTeam(teamFilter)))
+                    : memberSortingService.createComparator(employed, UserProfileFilter.toSortingTeam(teamFilter)))
             .toList();
 
     List<User> pagedUsers = sortedUsers.stream().skip(offsetValue).limit(limitValue).toList();
     if (pagedUsers.isEmpty()) {
-      return MemberProfileListResult.empty();
+      return UserProfileListResult.empty();
     }
 
     boolean hasNext = (offsetValue + limitValue) < sortedUsers.size();
     return buildResult(pagedUsers, hasNext, sortedUsers.size());
   }
 
-  private MemberProfileListResult buildResult(List<User> pagedUsers, boolean hasNext, int totalCount) {
+  private UserProfileListResult buildResult(List<User> pagedUsers, boolean hasNext, int totalCount) {
     List<Long> pagedIds = pagedUsers.stream().map(User::id).toList();
     Set<Long> activeCoffeeChatIds = coffeeChatActivationPort.findActiveUserIds(pagedIds);
     Map<Long, AskPreview> previewByReceiverId = userAskQueryService.findRecentAskPreviews(pagedIds);
@@ -184,7 +184,7 @@ public class UserProfileListService {
                         user, activeCoffeeChatIds.contains(user.id()), previewByReceiverId.get(user.id())))
             .toList();
 
-    return new MemberProfileListResult(items, hasNext, totalCount);
+    return new UserProfileListResult(items, hasNext, totalCount);
   }
 
   private List<Long> sliceIds(List<Long> ids, int offset, int limit) {

@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileException;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFailure;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileCardCachePort;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileRankingCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.domain.user.Team;
@@ -34,8 +34,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class UserProfileCommandService {
 
   private final PlaygroundProfileUserPort playgroundProfileUserPort;
-  private final MemberProfileRankingCachePort rankingCachePort;
-  private final MemberProfileCardCachePort cardCachePort;
+  private final UserProfileRankingCachePort rankingCachePort;
+  private final UserProfileCardCachePort cardCachePort;
 
   public record ActivityInput(Integer generation, String team) {}
 

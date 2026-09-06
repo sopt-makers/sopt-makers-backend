@@ -5,7 +5,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.playground.member.profile.MemberProfileRanking;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileRankingCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.storage.redis.playground.member.profile.cache.CachedMemberProfileRanking;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MemberProfileRankingCacheAdapter implements MemberProfileRankingCachePort {
+public class MemberProfileRankingCacheAdapter implements UserProfileRankingCachePort {
 
   private static final String KEY = "members:top50:ids";
   private static final Duration TTL = Duration.ofMinutes(10);

@@ -33,7 +33,7 @@ import org.sopt.makers.domain.playground.member.ask.UserAsk;
 import org.sopt.makers.domain.playground.member.ask.exception.UserAskException;
 import org.sopt.makers.domain.playground.member.ask.exception.UserAskFailure;
 import org.sopt.makers.domain.playground.member.ask.port.AnswerReactionRepositoryPort;
-import org.sopt.makers.domain.playground.member.ask.port.AskMemberDirectoryPort;
+import org.sopt.makers.domain.playground.member.ask.port.AskUserDirectoryPort;
 import org.sopt.makers.domain.playground.member.ask.port.AskReactionRepositoryPort;
 import org.sopt.makers.domain.playground.member.ask.port.UserAnswerRepositoryPort;
 import org.sopt.makers.domain.playground.member.ask.port.UserAskRepositoryPort;
@@ -69,7 +69,7 @@ public class UserAskQueryService {
   private final PlaygroundAskUserPort playgroundAskUserPort;
   private final AnonymousNicknameRetriever anonymousNicknameRetriever;
   private final AnonymousProfileImageRetriever anonymousProfileImageRetriever;
-  private final AskMemberDirectoryPort askMemberDirectoryPort;
+  private final AskUserDirectoryPort askMemberDirectoryPort;
 
   public AskPage getAsks(Long currentUserId, Long receiverUserId, QuestionTab tab, Integer page, Integer size) {
     int pageNumber = page != null ? page : 0;

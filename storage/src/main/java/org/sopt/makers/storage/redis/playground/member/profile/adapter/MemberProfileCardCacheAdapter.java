@@ -8,7 +8,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.playground.member.profile.port.MemberProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.ActivityList;
 import org.sopt.makers.domain.user.Profile;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MemberProfileCardCacheAdapter implements MemberProfileCardCachePort {
+public class MemberProfileCardCacheAdapter implements UserProfileCardCachePort {
 
   private static final String KEY_PREFIX = "member:card:";
   private static final Duration TTL = Duration.ofMinutes(40);
