@@ -75,7 +75,9 @@ public final class InMemoryStampStore implements StampRepositoryPort {
 
   @Override
   public Optional<Stamp> findByUserIdAndMissionId(Long userId, Long missionId) {
-    throw new UnsupportedOperationException();
+    return stamps.stream()
+        .filter(it -> it.userId().equals(userId) && it.missionId().equals(missionId))
+        .findFirst();
   }
 
   @Override
@@ -85,7 +87,7 @@ public final class InMemoryStampStore implements StampRepositoryPort {
 
   @Override
   public List<Stamp> findAllByUserId(Long userId) {
-    throw new UnsupportedOperationException();
+    return stamps.stream().filter(it -> it.userId().equals(userId)).toList();
   }
 
   @Override

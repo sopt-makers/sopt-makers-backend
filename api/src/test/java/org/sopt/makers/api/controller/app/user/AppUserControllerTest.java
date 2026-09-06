@@ -11,8 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.sopt.makers.api.controller.app.AppChannelMockMvc;
 import org.sopt.makers.domain.app.home.ActivityStatus;
 import org.sopt.makers.domain.app.home.MainView;
+import org.sopt.makers.domain.app.home.MySoptLog;
 import org.sopt.makers.domain.app.home.UserActiveInfo;
 import org.sopt.makers.domain.app.home.facade.HomeFacade;
+import org.sopt.makers.domain.app.home.facade.MySoptLogFacade;
 import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,9 +23,11 @@ class AppUserControllerTest {
   private static final Long USER_ID = 1L;
 
   private final HomeFacade homeFacade = mock(HomeFacade.class);
-  private final MockMvc mockMvc = AppChannelMockMvc.of(new AppUserController(homeFacade), USER_ID);
+  private final MySoptLogFacade mySoptLogFacade = mock(MySoptLogFacade.class);
+  private final MockMvc mockMvc =
+      AppChannelMockMvc.of(new AppUserController(homeFacade, mySoptLogFacade), USER_ID);
   private final MockMvc anonymousMockMvc =
-      AppChannelMockMvc.ofAnonymous(new AppUserController(homeFacade));
+      AppChannelMockMvc.ofAnonymous(new AppUserController(homeFacade, mySoptLogFacade));
 
   @Test
   void 토큰_없는_메인_뷰는_UNAUTHENTICATED_기본값() throws Exception {
@@ -97,6 +101,31 @@ class AppUserControllerTest {
                       "success": true,
                       "message": "기수 정보 조회에 성공했습니다.",
                       "data": {"currentGeneration": 38, "status": "INACTIVE"}
+                    }
+                    """,
+                    JsonCompareMode.STRICT));
+  }
+
+  @Test
+  void 나의_솝트로그_응답_모양() throws Exception {
+    given(mySoptLogFacade.getMySoptLog(USER_ID))
+        .willReturn(MySoptLog.ofInactiveNonAppjam(false, false, "오늘 내 운세는?", 2, 3, 0, 12));
+
+    mockMvc
+        .perform(get("/api/v2/user/my-sopt-log"))
+        .andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(
+                    """
+                    {
+                      "success": true,
+                      "message": "나의 솝트로그 조회에 성공했습니다.",
+                      "data": {
+                        "isAppjamMode": false, "isActive": false, "isAppjamParticipant": false,
+                        "isFortuneChecked": false, "todayFortuneText": "오늘 내 운세는?",
+                        "totalPokeCount": 2, "newFriendsPokeCount": 3, "bestFriendsPokeCount": 0, "soulmatesPokeCount": 12
+                      }
                     }
                     """,
                     JsonCompareMode.STRICT));

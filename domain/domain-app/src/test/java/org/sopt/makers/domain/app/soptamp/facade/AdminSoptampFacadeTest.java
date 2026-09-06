@@ -16,12 +16,17 @@ import org.sopt.makers.domain.app.soptamp.exception.SoptampException;
 import org.sopt.makers.domain.app.soptamp.exception.SoptampFailure;
 import org.sopt.makers.domain.app.soptamp.rank.RankedScore;
 import org.sopt.makers.domain.app.soptamp.rank.service.RankService;
+import org.sopt.makers.domain.app.soptamp.service.MissionService;
 import org.sopt.makers.domain.app.soptamp.service.SoptampUserService;
+import org.sopt.makers.domain.app.soptamp.service.StampService;
 import org.sopt.makers.domain.app.soptamp.stamp.Stamp;
+import org.sopt.makers.domain.app.soptamp.support.FakePushSender;
 import org.sopt.makers.domain.app.soptamp.support.InMemoryClapStore;
+import org.sopt.makers.domain.app.soptamp.support.InMemoryMissionStore;
 import org.sopt.makers.domain.app.soptamp.support.InMemoryRankCache;
 import org.sopt.makers.domain.app.soptamp.support.InMemorySoptampUserStore;
 import org.sopt.makers.domain.app.soptamp.support.InMemoryStampStore;
+import org.sopt.makers.domain.app.soptamp.support.NoopStampFileStorage;
 import org.springframework.data.domain.PageRequest;
 
 @DisplayName("AdminSoptampFacade 테스트")
@@ -164,7 +169,11 @@ class AdminSoptampFacadeTest {
         deletedImages::addAll,
         soptampUserService,
         rankService,
-        soptampMode);
+        soptampMode,
+        userStore,
+        new MissionService(new InMemoryMissionStore(), stampStore),
+        new FakePushSender(),
+        new StampService(stampStore, new NoopStampFileStorage()));
   }
 
   private static SoptampUser user(Long userId, Long totalPoints) {
