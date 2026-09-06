@@ -31,4 +31,9 @@ public class CoffeeChatActivationAdapter implements CoffeeChatActivationPort {
         .map(CoffeeChatEntity::getMemberId)
         .collect(Collectors.toSet());
   }
+
+  @Override
+  public boolean existsCoffeeChat(Long userId) {
+    return coffeeChatJpaRepository.existsByMemberId(userId);
+  }
 }

@@ -1,10 +1,14 @@
 package org.sopt.makers.api.controller.playground.member;
 
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.ACTIVATE_BLOCK;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.CHECK_ACTIVITY;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.CREATE_PROFILE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.DELETE_PROFILE_LINK;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_ASK_MEMBERS;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_BLOCK_STATUS;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MEMBER;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MEMBER_CREW;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MEMBER_PROPERTY;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MY_INFO;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_PROFILE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_PROFILE_LIST;
@@ -13,6 +17,7 @@ import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_TL_MEMBERS;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_WORK_PREFERENCE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_WORK_PREFERENCE_RECOMMENDATIONS;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.REPORT_MEMBER;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.SEARCH_MEMBER;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.UPDATE_PROFILE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.UPDATE_WORK_PREFERENCE;
@@ -23,15 +28,20 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
+import org.sopt.makers.api.controller.playground.member.dto.AskMemberResponse;
 import org.sopt.makers.api.controller.playground.member.dto.CheckActivityRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberAllProfileResponse;
+import org.sopt.makers.api.controller.playground.member.dto.MemberBlockRequest;
+import org.sopt.makers.api.controller.playground.member.dto.MemberBlockResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberCrewResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberInfoResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileSaveRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileSpecificResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileUpdateRequest;
+import org.sopt.makers.api.controller.playground.member.dto.MemberPropertiesResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberRecommendResponse;
+import org.sopt.makers.api.controller.playground.member.dto.MemberReportRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberResponse;
 import org.sopt.makers.api.controller.playground.member.dto.SameGenerationAndPartRecommendResponse;
 import org.sopt.makers.api.controller.playground.member.dto.TlMemberResponse;
@@ -39,11 +49,16 @@ import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceRecomm
 import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceResponse;
 import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceUpdateRequest;
 import org.sopt.makers.core.response.BaseResponse;
+import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
+import org.sopt.makers.domain.playground.member.profile.MemberSummary;
 import org.sopt.makers.domain.playground.member.profile.service.AppJamTlService;
+import org.sopt.makers.domain.playground.member.profile.service.MemberPropertyService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileCommandService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileListService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileQueryService;
 import org.sopt.makers.domain.playground.member.profile.service.UserRecommendationService;
+import org.sopt.makers.domain.playground.member.relation.UserBlock;
+import org.sopt.makers.domain.playground.member.relation.service.UserRelationService;
 import org.sopt.makers.domain.user.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -70,6 +85,9 @@ public class MemberController implements MemberApi {
   private final UserProfileListService userProfileListService;
   private final UserRecommendationService userRecommendationService;
   private final AppJamTlService appJamTlService;
+  private final UserAskQueryService userAskQueryService;
+  private final UserRelationService userRelationService;
+  private final MemberPropertyService memberPropertyService;
 
   @Override
   @GetMapping("/{id}")
@@ -281,6 +299,51 @@ public class MemberController implements MemberApi {
     int limit = take == null ? DEFAULT_CREW_TAKE : take;
     return ResponseFactory.success(
         GET_MEMBER_CREW, MemberCrewResponse.from(userRecommendationService.getCrewMeetings(id, pageNo, limit)));
+  }
+
+  @Override
+  @GetMapping("/ask/list")
+  public ResponseEntity<BaseResponse<?>> getAskMembers(@RequestParam(required = false) String part) {
+    return ResponseFactory.success(
+        GET_ASK_MEMBERS, AskMemberResponse.from(userAskQueryService.getAskTargetMembers(part)));
+  }
+
+  @Override
+  @PatchMapping("/block/activate")
+  public ResponseEntity<BaseResponse<?>> activateBlock(
+      @Valid @RequestBody MemberBlockRequest request, @CurrentUserId Long userId) {
+    userRelationService.activateBlock(userId, request.blockedMemberId());
+    return ResponseFactory.success(ACTIVATE_BLOCK, Map.of("유저 차단 활성 성공", true));
+  }
+
+  @Override
+  @GetMapping("/block/{memberId}")
+  public ResponseEntity<BaseResponse<?>> getBlockStatus(
+      @PathVariable Long memberId, @CurrentUserId Long userId) {
+    boolean status =
+        userRelationService
+            .getBlockStatus(userId, memberId)
+            .map(UserBlock::isBlocked)
+            .orElse(false);
+    MemberSummary blockingMember = userProfileQueryService.getMemberSummary(userId);
+    MemberSummary blockedMember = userProfileQueryService.getMemberSummary(memberId);
+    return ResponseFactory.success(
+        GET_BLOCK_STATUS, MemberBlockResponse.of(status, blockingMember, blockedMember));
+  }
+
+  @Override
+  @PostMapping("/report")
+  public ResponseEntity<BaseResponse<?>> reportMember(
+      @Valid @RequestBody MemberReportRequest request, @CurrentUserId Long userId) {
+    userRelationService.reportUser(userId, request.reportMemberId());
+    return ResponseFactory.success(REPORT_MEMBER, Map.of("유저 신고 성공", true));
+  }
+
+  @Override
+  @GetMapping("/property")
+  public ResponseEntity<BaseResponse<?>> getMemberProperty(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_MEMBER_PROPERTY, MemberPropertiesResponse.from(memberPropertyService.getMemberProperties(userId)));
   }
 
   private List<UserProfileCommandService.ActivityInput> toActivityInputs(

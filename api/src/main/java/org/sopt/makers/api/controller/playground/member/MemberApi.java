@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.sopt.makers.api.controller.playground.member.dto.CheckActivityRequest;
+import org.sopt.makers.api.controller.playground.member.dto.MemberBlockRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileSaveRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileUpdateRequest;
+import org.sopt.makers.api.controller.playground.member.dto.MemberReportRequest;
 import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceUpdateRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
@@ -97,4 +99,29 @@ public interface MemberApi {
 
   @Operation(summary = "멤버 크루 조회 API")
   ResponseEntity<BaseResponse<?>> getUserCrew(Long id, Integer page, Integer take);
+
+  @Operation(
+      summary = "질문 대상 멤버 조회 API",
+      description =
+          """
+          질문을 받을 수 있는 대상 멤버들을 파트별로 조회합니다.
+          part 파라미터가 없으면 모든 파트의 멤버를 반환합니다.
+          part 파라미터 옵션: 서버, SERVER, iOS, 안드로이드, ANDROID, 웹, WEB, 디자인, DESIGN, 기획, PLAN
+          각 파트별로 하드코딩된 멤버를 반환합니다.
+          """)
+  ResponseEntity<BaseResponse<?>> getAskMembers(String part);
+
+  @Operation(summary = "유저 차단 활성하기 API")
+  ResponseEntity<BaseResponse<?>> activateBlock(
+      @Valid MemberBlockRequest request, @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "유저 차단 여부 조회하기 API")
+  ResponseEntity<BaseResponse<?>> getBlockStatus(Long memberId, @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "유저 신고하기 API")
+  ResponseEntity<BaseResponse<?>> reportMember(
+      @Valid MemberReportRequest request, @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "Amplitude 를 위한 user properties 반환 API")
+  ResponseEntity<BaseResponse<?>> getMemberProperty(@Parameter(hidden = true) Long userId);
 }

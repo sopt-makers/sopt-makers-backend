@@ -8,4 +8,6 @@ public interface CoffeeChatActivationPort {
   boolean isCoffeeChatActive(Long userId);
 
   Set<Long> findActiveUserIds(Collection<Long> userIds);
+
+  boolean existsCoffeeChat(Long userId);
 }

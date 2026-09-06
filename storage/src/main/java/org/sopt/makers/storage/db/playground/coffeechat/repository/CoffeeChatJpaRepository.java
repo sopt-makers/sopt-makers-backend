@@ -9,5 +9,7 @@ public interface CoffeeChatJpaRepository extends JpaRepository<CoffeeChatEntity,
 
   boolean existsByMemberIdAndIsCoffeeChatActivateTrue(Long memberId);
 
+  boolean existsByMemberId(Long memberId);
+
   List<CoffeeChatEntity> findAllByMemberIdInAndIsCoffeeChatActivateTrue(Collection<Long> memberIds);
 }

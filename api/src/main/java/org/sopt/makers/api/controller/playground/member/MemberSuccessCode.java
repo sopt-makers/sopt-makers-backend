@@ -24,7 +24,12 @@ public enum MemberSuccessCode implements SuccessCode {
   GET_WORK_PREFERENCE_RECOMMENDATIONS(200, "작업 성향 유사 멤버 추천 성공"),
   GET_RECOMMENDATIONS(200, "멤버 추천 성공"),
   GET_SAME_GENERATION_AND_PART_RECOMMENDATIONS(200, "동일 기수/파트 멤버 추천 성공"),
-  GET_MEMBER_CREW(200, "멤버 크루 조회 성공");
+  GET_MEMBER_CREW(200, "멤버 크루 조회 성공"),
+  GET_ASK_MEMBERS(200, "질문 대상 멤버 조회 성공"),
+  ACTIVATE_BLOCK(200, "유저 차단 활성화 성공"),
+  GET_BLOCK_STATUS(200, "유저 차단 여부 조회 성공"),
+  REPORT_MEMBER(200, "유저 신고 성공"),
+  GET_MEMBER_PROPERTY(200, "유저 프로퍼티 조회 성공");
 
   private final int statusCode;
   private final String message;
