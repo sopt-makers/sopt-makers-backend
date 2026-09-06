@@ -18,6 +18,7 @@ public enum SoptampFailure implements FailureCode {
   INVALID_STAMP_ACTIVITY_DATE(400, "스탬프 활동 날짜가 존재하지 않습니다."),
   INVALID_STAMP_MISSION_ID(400, "스탬프 미션 ID가 존재하지 않습니다."),
   INVALID_APP_ADMIN_PASSWORD(401, "잘못된 앱 어드민 패스워드입니다."),
+  INVALID_SOPTAMP_NOTIFICATION_API_KEY(401, "잘못된 솝탬프 알림 API 키입니다."),
   FORBIDDEN_SELF_CLAP(403, "타인의 스탬프에만 박수 칠 수 있습니다."),
   FORBIDDEN_CLAP_LIST(403, "내 미션에서만 박수 목록을 조회할 수 있습니다."),
   STAMP_DELETE_FORBIDDEN(403, "자신의 스탬프만 삭제할 수 있습니다."),
