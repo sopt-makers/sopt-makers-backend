@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.api.controller.playground.internal.dto.CreateDefaultUserProfileRequest;
 import org.sopt.makers.api.controller.playground.internal.dto.InternalLatestPostResponse;
 import org.sopt.makers.api.controller.playground.internal.dto.InternalMemberProfileListResponse;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,6 +50,7 @@ import org.springframework.web.server.ResponseStatusException;
  * URL/HTTP Status/응답 문구는 그대로 유지하되, 실제로는 존재 여부만 확인하고 DB를 변경하지 않는
  * no-op으로 동작한다.
  */
+@Slf4j
 @RestController
 @RequestMapping("/internal/api/v1")
 @RequiredArgsConstructor
@@ -163,5 +166,17 @@ public class InternalOpenApiController implements InternalOpenApiApi {
     if (!Objects.equals(internalPlatformApiKey, providedApiKey)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "잘못된 api key 입니다.");
     }
+  }
+
+  /**
+   * 이 컨트롤러 내부에서만 적용되는 로컬 핸들러. {@code GlobalExceptionHandler}(BaseResponse 공통 규격)를 거치지
+   * 않고 이 클래스 안에서 던진 {@link ResponseStatusException}(apiKey 검증 실패 401, 중복 생성 409, 존재하지 않는
+   * 유저 삭제 404 등)만 격리해서 처리한다 — {@code Exception.class} catch-all에 가로채져 500으로 뭉개지는 것을
+   * 막되, 다른 도메인의 전역 에러 규격에는 영향을 주지 않는다.
+   */
+  @ExceptionHandler(ResponseStatusException.class)
+  public ResponseEntity<String> handleResponseStatusException(final ResponseStatusException e) {
+    log.warn(e.getMessage());
+    return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
   }
 }

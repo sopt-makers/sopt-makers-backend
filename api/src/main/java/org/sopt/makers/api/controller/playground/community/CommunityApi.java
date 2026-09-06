@@ -62,7 +62,8 @@ public interface CommunityApi {
   ResponseEntity<BaseResponse<?>> getTodayHotPost();
 
   @Operation(summary = "커뮤니티 글 조회수 증가")
-  ResponseEntity<BaseResponse<?>> upPostHit(@Valid CommunityHitRequest request);
+  ResponseEntity<BaseResponse<?>> upPostHit(
+      @Parameter(hidden = true) Long userId, @Valid CommunityHitRequest request);
 
   @Operation(summary = "커뮤니티 글 생성")
   ResponseEntity<BaseResponse<?>> createPost(

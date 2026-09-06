@@ -127,8 +127,9 @@ public class CommunityController implements CommunityApi {
 
   @Override
   @PostMapping("/posts/hit")
-  public ResponseEntity<BaseResponse<?>> upPostHit(@RequestBody @Valid CommunityHitRequest request) {
-    communityPostCommandService.increaseHit(request.postIdList());
+  public ResponseEntity<BaseResponse<?>> upPostHit(
+      @CurrentUserId Long userId, @RequestBody @Valid CommunityHitRequest request) {
+    communityPostCommandService.increaseHit(userId, request.postIdList());
     return ResponseFactory.success(HIT_POST);
   }
 

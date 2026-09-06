@@ -27,6 +27,7 @@ import org.sopt.makers.domain.playground.community.post.ReportPost;
 import org.sopt.makers.domain.playground.community.post.port.DeletedPostRepositoryPort;
 import org.sopt.makers.domain.playground.community.post.port.PostLikeRepositoryPort;
 import org.sopt.makers.domain.playground.community.post.port.PostRepositoryPort;
+import org.sopt.makers.domain.playground.community.post.port.PostViewDedupePort;
 import org.sopt.makers.domain.playground.community.post.port.ReportPostRepositoryPort;
 import org.sopt.makers.domain.playground.community.post.port.SopticleScraperPort;
 import org.sopt.makers.domain.playground.community.post.port.SopticleScraperPort.ScrapedSopticleArticle;
@@ -44,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommunityPostCommandService {
 
   private final PostRepositoryPort postRepositoryPort;
+  private final PostViewDedupePort postViewDedupePort;
   private final PostLikeRepositoryPort postLikeRepositoryPort;
   private final ReportPostRepositoryPort reportPostRepositoryPort;
   private final DeletedPostRepositoryPort deletedPostRepositoryPort;
@@ -158,8 +160,10 @@ public class CommunityPostCommandService {
   }
 
   @Transactional
-  public void increaseHit(List<Long> postIds) {
-    postIds.forEach(postRepositoryPort::increaseHits);
+  public void increaseHit(Long userId, List<Long> postIds) {
+    postIds.stream()
+        .filter(postId -> postViewDedupePort.markAsViewedIfAbsent(userId, postId))
+        .forEach(postRepositoryPort::increaseHits);
   }
 
   @Transactional
