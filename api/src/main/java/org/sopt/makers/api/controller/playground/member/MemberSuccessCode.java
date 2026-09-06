@@ -19,7 +19,12 @@ public enum MemberSuccessCode implements SuccessCode {
   GET_PROFILE(200, "멤버 프로필 조회 성공"),
   GET_PROFILE_LIST(200, "멤버 프로필 목록 조회 성공"),
   CHECK_ACTIVITY(200, "활동 기수 확인 여부 변경 성공"),
-  DELETE_PROFILE_LINK(200, "성공적으로 link를 삭제했습니다.");
+  DELETE_PROFILE_LINK(200, "성공적으로 link를 삭제했습니다."),
+  GET_TL_MEMBERS(200, "앱잼 TL 멤버 조회 성공"),
+  GET_WORK_PREFERENCE_RECOMMENDATIONS(200, "작업 성향 유사 멤버 추천 성공"),
+  GET_RECOMMENDATIONS(200, "멤버 추천 성공"),
+  GET_SAME_GENERATION_AND_PART_RECOMMENDATIONS(200, "동일 기수/파트 멤버 추천 성공"),
+  GET_MEMBER_CREW(200, "멤버 크루 조회 성공");
 
   private final int statusCode;
   private final String message;

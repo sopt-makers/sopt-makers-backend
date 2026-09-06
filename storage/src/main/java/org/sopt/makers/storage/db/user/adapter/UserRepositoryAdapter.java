@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.OAuthPlatform;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserSearchCondition;
 import org.sopt.makers.domain.user.UserSortType;
@@ -87,6 +88,26 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   @Override
   public List<Long> findAllUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed) {
     return userQuerydslRepository.findUserIdsWithProfileByMbtiAndEmployed(mbti, employed);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileByActivity(Integer generation, Part part, boolean isSopt) {
+    return userQuerydslRepository.findUserIdsWithProfileByActivity(generation, part, isSopt);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileByMbti(String mbti) {
+    return userQuerydslRepository.findUserIdsWithProfileByMbti(mbti);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileByUniversity(String university) {
+    return userQuerydslRepository.findUserIdsWithProfileByUniversity(university);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileAndWorkPreference() {
+    return userQuerydslRepository.findUserIdsWithProfileAndWorkPreference();
   }
 
   @Override

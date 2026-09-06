@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.playground.member.tl.adapter;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.tl.TlUser;
@@ -25,6 +26,13 @@ public class TlUserRepositoryAdapter implements TlUserRepositoryPort {
   @Override
   public Optional<TlUser> findById(Long id) {
     return tlUserJpaRepository.findById(id).map(TlUserEntity::toDomain);
+  }
+
+  @Override
+  public List<TlUser> findAllByTlGeneration(Integer tlGeneration) {
+    return tlUserJpaRepository.findAllByTlGeneration(tlGeneration).stream()
+        .map(TlUserEntity::toDomain)
+        .toList();
   }
 
   @Transactional

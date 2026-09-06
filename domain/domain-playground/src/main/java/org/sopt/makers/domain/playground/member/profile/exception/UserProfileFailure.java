@@ -16,7 +16,8 @@ public enum UserProfileFailure implements FailureCode {
   INVALID_ACTIVITY_TEAM(400, "잘못된 솝트 활동 팀 이름입니다."),
   ACTIVITY_GENERATION_MISMATCH(400, "요청된 활동 기수 정보가 유저의 기존 정보와 일치하지 않습니다."),
   MULTIPLE_CURRENT_CAREERS(400, "현재 직장이 2개 이상입니다."),
-  NO_WORK_PREFERENCE(400, "작업 성향이 설정되지 않았습니다.");
+  NO_WORK_PREFERENCE(400, "작업 성향이 설정되지 않았습니다."),
+  NOT_CURRENT_GENERATION_MEMBER(400, "최신 기수가 아닌 유저입니다.");
 
   private final int statusCode;
   private final String message;

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.OAuthPlatform;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserSearchCondition;
 import org.sopt.makers.domain.user.UserSortType;
@@ -104,6 +105,22 @@ public class UserQueryService {
   public Set<Long> findUserIdsByRecommendCondition(
       Set<Integer> generations, String mbti, String university) {
     return userRepositoryPort.findUserIdsByRecommendCondition(generations, mbti, university);
+  }
+
+  public List<Long> findUserIdsWithProfileByActivity(Integer generation, Part part, boolean isSopt) {
+    return userRepositoryPort.findUserIdsWithProfileByActivity(generation, part, isSopt);
+  }
+
+  public List<Long> findUserIdsWithProfileByMbti(String mbti) {
+    return userRepositoryPort.findUserIdsWithProfileByMbti(mbti);
+  }
+
+  public List<Long> findUserIdsWithProfileByUniversity(String university) {
+    return userRepositoryPort.findUserIdsWithProfileByUniversity(university);
+  }
+
+  public List<Long> findUserIdsWithProfileAndWorkPreference() {
+    return userRepositoryPort.findUserIdsWithProfileAndWorkPreference();
   }
 
   private void loadMissingIntoCache(List<Long> userIds, Map<Long, User> cached) {

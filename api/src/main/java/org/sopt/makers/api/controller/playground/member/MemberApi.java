@@ -73,4 +73,28 @@ public interface MemberApi {
 
   @Operation(summary = "멤버 프로필 링크 삭제 API")
   ResponseEntity<BaseResponse<?>> deleteProfileLink(Long linkId, @Parameter(hidden = true) Long userId);
+
+  @Operation(
+      summary = "앱잼 TL 멤버 조회 API",
+      description = "최신 기수의 앱잼 TL로 참여한 멤버들을 이름 가나다순으로 조회합니다.")
+  ResponseEntity<BaseResponse<?>> getTlMembers(@Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "작업 성향 유사 멤버 추천 API")
+  ResponseEntity<BaseResponse<?>> getWorkPreferenceRecommendations(@Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "나와 유사한 멤버 추천 API")
+  ResponseEntity<BaseResponse<?>> getRecommendationsForMe(@Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "특정 유저와 유사한 멤버 추천 API")
+  ResponseEntity<BaseResponse<?>> getRecommendationsForUser(Long userId);
+
+  @Operation(summary = "나와 동일 기수/파트 멤버 추천 API")
+  ResponseEntity<BaseResponse<?>> getSameGenerationAndPartRecommendationsForMe(
+      @Parameter(hidden = true) Long userId);
+
+  @Operation(summary = "특정 유저와 동일 기수/파트 멤버 추천 API")
+  ResponseEntity<BaseResponse<?>> getSameGenerationAndPartRecommendationsForUser(Long userId);
+
+  @Operation(summary = "멤버 크루 조회 API")
+  ResponseEntity<BaseResponse<?>> getUserCrew(Long id, Integer page, Integer take);
 }

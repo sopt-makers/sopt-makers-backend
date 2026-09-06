@@ -4,10 +4,15 @@ import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.CREATE_PROFILE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.DELETE_PROFILE_LINK;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MEMBER;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MEMBER_CREW;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_MY_INFO;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_PROFILE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_PROFILE_LIST;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_RECOMMENDATIONS;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_SAME_GENERATION_AND_PART_RECOMMENDATIONS;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_TL_MEMBERS;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_WORK_PREFERENCE;
+import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.GET_WORK_PREFERENCE_RECOMMENDATIONS;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.SEARCH_MEMBER;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.UPDATE_PROFILE;
 import static org.sopt.makers.api.controller.playground.member.MemberSuccessCode.UPDATE_WORK_PREFERENCE;
@@ -20,18 +25,25 @@ import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.playground.member.dto.CheckActivityRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberAllProfileResponse;
+import org.sopt.makers.api.controller.playground.member.dto.MemberCrewResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberInfoResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileSaveRequest;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileSpecificResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberProfileUpdateRequest;
+import org.sopt.makers.api.controller.playground.member.dto.MemberRecommendResponse;
 import org.sopt.makers.api.controller.playground.member.dto.MemberResponse;
+import org.sopt.makers.api.controller.playground.member.dto.SameGenerationAndPartRecommendResponse;
+import org.sopt.makers.api.controller.playground.member.dto.TlMemberResponse;
+import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceRecommendationResponse;
 import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceResponse;
 import org.sopt.makers.api.controller.playground.member.dto.WorkPreferenceUpdateRequest;
 import org.sopt.makers.core.response.BaseResponse;
+import org.sopt.makers.domain.playground.member.profile.service.AppJamTlService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileCommandService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileListService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileQueryService;
+import org.sopt.makers.domain.playground.member.profile.service.UserRecommendationService;
 import org.sopt.makers.domain.user.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,9 +62,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/members")
 public class MemberController implements MemberApi {
 
+  private static final int DEFAULT_CREW_PAGE_NO = 1;
+  private static final int DEFAULT_CREW_TAKE = 10;
+
   private final UserProfileQueryService userProfileQueryService;
   private final UserProfileCommandService userProfileCommandService;
   private final UserProfileListService userProfileListService;
+  private final UserRecommendationService userRecommendationService;
+  private final AppJamTlService appJamTlService;
 
   @Override
   @GetMapping("/{id}")
@@ -199,6 +216,71 @@ public class MemberController implements MemberApi {
       @PathVariable Long linkId, @CurrentUserId Long userId) {
     userProfileCommandService.deleteLink(userId, linkId);
     return ResponseFactory.success(DELETE_PROFILE_LINK);
+  }
+
+  @Override
+  @GetMapping("/tl")
+  public ResponseEntity<BaseResponse<?>> getTlMembers(@CurrentUserId Long userId) {
+    List<TlMemberResponse> responses =
+        appJamTlService.getCurrentGenerationTlMembers(userId).stream().map(TlMemberResponse::from).toList();
+    return ResponseFactory.success(GET_TL_MEMBERS, responses);
+  }
+
+  @Override
+  @GetMapping("/work-preference/recommendations")
+  public ResponseEntity<BaseResponse<?>> getWorkPreferenceRecommendations(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_WORK_PREFERENCE_RECOMMENDATIONS,
+        WorkPreferenceRecommendationResponse.from(
+            userRecommendationService.getWorkPreferenceRecommendations(userId)));
+  }
+
+  @Override
+  @GetMapping("/recommend/me")
+  public ResponseEntity<BaseResponse<?>> getRecommendationsForMe(@CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_RECOMMENDATIONS,
+        MemberRecommendResponse.from(userRecommendationService.getRecommendationsForMe(userId)));
+  }
+
+  @Override
+  @GetMapping("/recommend/{userId}")
+  public ResponseEntity<BaseResponse<?>> getRecommendationsForUser(@PathVariable Long userId) {
+    return ResponseFactory.success(
+        GET_RECOMMENDATIONS,
+        MemberRecommendResponse.from(userRecommendationService.getRecommendationsForUser(userId)));
+  }
+
+  @Override
+  @GetMapping("/recommend/me/generation-part")
+  public ResponseEntity<BaseResponse<?>> getSameGenerationAndPartRecommendationsForMe(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_SAME_GENERATION_AND_PART_RECOMMENDATIONS,
+        SameGenerationAndPartRecommendResponse.from(
+            userRecommendationService.getSameGenerationAndPartRecommendations(userId)));
+  }
+
+  @Override
+  @GetMapping("/recommend/{userId}/generation-part")
+  public ResponseEntity<BaseResponse<?>> getSameGenerationAndPartRecommendationsForUser(
+      @PathVariable Long userId) {
+    return ResponseFactory.success(
+        GET_SAME_GENERATION_AND_PART_RECOMMENDATIONS,
+        SameGenerationAndPartRecommendResponse.from(
+            userRecommendationService.getSameGenerationAndPartRecommendations(userId)));
+  }
+
+  @Override
+  @GetMapping("/crew/{id}")
+  public ResponseEntity<BaseResponse<?>> getUserCrew(
+      @PathVariable Long id,
+      @RequestParam(required = false) Integer page,
+      @RequestParam(required = false) Integer take) {
+    int pageNo = page == null ? DEFAULT_CREW_PAGE_NO : page;
+    int limit = take == null ? DEFAULT_CREW_TAKE : take;
+    return ResponseFactory.success(
+        GET_MEMBER_CREW, MemberCrewResponse.from(userRecommendationService.getCrewMeetings(id, pageNo, limit)));
   }
 
   private List<UserProfileCommandService.ActivityInput> toActivityInputs(
