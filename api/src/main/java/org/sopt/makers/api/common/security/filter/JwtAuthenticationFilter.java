@@ -1,6 +1,8 @@
 package org.sopt.makers.api.common.security.filter;
 
+import static org.sopt.makers.api.common.security.SecurityConstant.JWT_OPTIONAL_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.JWT_WHITELIST;
+import static org.sopt.makers.api.common.security.SecurityConstant.TOKEN_HEADER;
 import static org.sopt.makers.domain.auth.exception.AuthFailure.MISSING_AUTHORIZATION_HEADER;
 
 import jakarta.servlet.FilterChain;
@@ -47,7 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   public boolean shouldNotFilter(final HttpServletRequest request) {
-    return isWhiteRequest(request) || isApiKeyAuthenticationExists();
+    return isWhiteRequest(request)
+        || isApiKeyAuthenticationExists()
+        || isAnonymousOptionalRequest(request);
   }
 
   private String getAuthorizationToken(final HttpServletRequest request) {
@@ -68,6 +72,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private boolean isWhiteRequest(final HttpServletRequest request) {
     String uri = request.getRequestURI();
     return JWT_WHITELIST.stream().anyMatch(whitePath -> isWhitePath(whitePath, uri));
+  }
+
+  private boolean isAnonymousOptionalRequest(final HttpServletRequest request) {
+    if (hasBearerToken(request)) {
+      return false;
+    }
+    String uri = request.getRequestURI();
+    return JWT_OPTIONAL_PATHS.stream().anyMatch(optionalPath -> isWhitePath(optionalPath, uri));
+  }
+
+  private boolean hasBearerToken(final HttpServletRequest request) {
+    String authorizationHeaderValue = request.getHeader(HttpHeaders.AUTHORIZATION);
+    return authorizationHeaderValue != null
+        && authorizationHeaderValue.trim().startsWith(TOKEN_HEADER);
   }
 
   private boolean isWhitePath(final String whitePath, final String uri) {

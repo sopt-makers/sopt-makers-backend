@@ -35,10 +35,20 @@ public final class SecurityConstant {
           "/api/v1/admin/banners/images",
           "/slack/emoji",
           "/api/v2/admin/soptamp",
+          "/api/v2/config",
+          "/api/v2/firebase",
           "/error",
           "/swagger-ui.html",
           "/swagger-ui",
           "/v3/api-docs");
+
+  public static final List<String> JWT_OPTIONAL_PATHS =
+      List.of(
+          "/api/v2/user/main",
+          "/api/v2/home/app-service",
+          "/api/v2/home/tab-app-service",
+          "/api/v2/home/floating-button",
+          "/api/v2/home/review-form");
 
   public static final String INTERNAL_API_PATH = "/api/v1/internal";
   public static final List<String> API_KEY_SECURED_PATHS = List.of(INTERNAL_API_PATH);
