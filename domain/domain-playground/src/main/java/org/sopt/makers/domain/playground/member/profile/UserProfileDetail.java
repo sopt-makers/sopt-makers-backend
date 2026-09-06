@@ -4,7 +4,7 @@ import java.util.List;
 import org.sopt.makers.domain.playground.project.Project;
 import org.sopt.makers.domain.user.User;
 
-public record MemberProfileDetail(
+public record UserProfileDetail(
     User user,
     boolean isMine,
     boolean isCoffeeChatActivate,

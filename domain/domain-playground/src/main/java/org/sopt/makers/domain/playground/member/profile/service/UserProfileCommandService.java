@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileException;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFailure;
+import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.domain.user.Activity;
@@ -36,6 +37,7 @@ public class UserProfileCommandService {
   private final PlaygroundProfileUserPort playgroundProfileUserPort;
   private final UserProfileRankingCachePort rankingCachePort;
   private final UserProfileCardCachePort cardCachePort;
+  private final UserActivityCheckPort userActivityCheckPort;
 
   public record ActivityInput(Integer generation, String team) {}
 
@@ -183,12 +185,13 @@ public class UserProfileCommandService {
             .filter(l -> l.userId().equals(userId))
             .orElseThrow(() -> new UserProfileException(UserProfileFailure.NOT_FOUND_LINK));
     playgroundProfileUserPort.deleteLinkById(link.id());
-    runAfterCommit(() -> cardCachePort.evict(userId));
+    evictProfileListCaches(userId);
   }
 
-  /** editActivitiesAble은 활동 이력 유무로 파생되는 값이라 별도 상태 변경이 없다 — 유저 존재 여부만 검증한다. */
+  /** 유저의 기수 확인 여부(editActivitiesAble)를 영속화한다 — 이후 프로필 조회 시 이 값이 그대로 반영된다. */
   public void checkActivity(Long userId, Boolean isCheck) {
     playgroundProfileUserPort.getUser(userId);
+    userActivityCheckPort.updateEditActivitiesAble(userId, isCheck);
   }
 
   /** 랭킹/카드 캐시 무효화는 트랜잭션이 실제로 커밋된 이후에만 실행한다 — 롤백 시 캐시가 잘못 비워지는 것을 방지한다. */

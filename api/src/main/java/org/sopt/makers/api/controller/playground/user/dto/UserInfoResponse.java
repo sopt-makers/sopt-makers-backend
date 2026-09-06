@@ -1,6 +1,6 @@
 package org.sopt.makers.api.controller.playground.user.dto;
 
-import org.sopt.makers.domain.playground.member.profile.MemberInfo;
+import org.sopt.makers.domain.playground.member.profile.UserInfo;
 
 public record UserInfoResponse(
     Long id,
@@ -13,7 +13,7 @@ public record UserInfoResponse(
     Boolean hasWorkPreference,
     Boolean enableWorkPreferenceEvent) {
 
-  public static UserInfoResponse from(MemberInfo info) {
+  public static UserInfoResponse from(UserInfo info) {
     return new UserInfoResponse(
         info.summary().id(),
         info.summary().name(),

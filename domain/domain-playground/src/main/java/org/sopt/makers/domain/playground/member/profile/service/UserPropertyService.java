@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.post.port.PostRepositoryPort;
 import org.sopt.makers.domain.playground.member.profile.CoffeeChatStatus;
-import org.sopt.makers.domain.playground.member.profile.MemberProperties;
+import org.sopt.makers.domain.playground.member.profile.UserProperties;
 import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatActivationPort;
 import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatHistoryPort;
 import org.sopt.makers.domain.playground.member.profile.port.OfficialReviewCountPort;
@@ -32,7 +32,7 @@ public class UserPropertyService {
   private final PostRepositoryPort postRepositoryPort;
   private final OfficialReviewCountPort officialReviewCountPort;
 
-  public MemberProperties getMemberProperties(Long userId) {
+  public UserProperties getMemberProperties(Long userId) {
     User user = playgroundProfileUserPort.getUserWithActivities(userId);
     UserCareer lastCareer =
         userCareerRepositoryPort.findLastCareersByUserIds(List.of(userId)).stream()
@@ -59,7 +59,7 @@ public class UserPropertyService {
     long uploadSopticleCount = postRepositoryPort.countSopticleByWriterId(userId);
     int uploadReviewCount = officialReviewCountPort.countReviewsByAuthor(user.profile().name());
 
-    return new MemberProperties(
+    return new UserProperties(
         userId,
         major,
         job,

@@ -11,7 +11,7 @@ public record UserProfileSaveRequest(
     String profileImage,
     LocalDate birthday,
     // 레거시 Constant.PHONE_NUMBER_REGEX와 동일한 패턴('-' 제외 11자리 숫자)
-    @Pattern(regexp = "^\\d{11}$", message = "잘못된 전화번호 형식입니다. '-'을 제외한 11자의 번호를 입력해주세요.") String phone,
+    @Pattern(regexp = "^(010|015)\\d{8}$", message = "잘못된 전화번호 형식입니다. '-'을 제외한 11자의 번호를 입력해주세요.") String phone,
     String email,
     String address,
     String university,

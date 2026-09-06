@@ -2,7 +2,7 @@ package org.sopt.makers.api.controller.playground.user.dto;
 
 import java.util.List;
 import org.sopt.makers.domain.playground.member.profile.CoffeeChatStatus;
-import org.sopt.makers.domain.playground.member.profile.MemberProperties;
+import org.sopt.makers.domain.playground.member.profile.UserProperties;
 
 public record UserPropertiesResponse(
     Long id,
@@ -17,7 +17,7 @@ public record UserPropertiesResponse(
     Long uploadSopticleCount,
     Long uploadReviewCount) {
 
-  public static UserPropertiesResponse from(MemberProperties properties) {
+  public static UserPropertiesResponse from(UserProperties properties) {
     return new UserPropertiesResponse(
         properties.id(),
         properties.major(),

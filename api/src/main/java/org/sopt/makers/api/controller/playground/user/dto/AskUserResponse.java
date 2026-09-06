@@ -2,7 +2,7 @@ package org.sopt.makers.api.controller.playground.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import org.sopt.makers.domain.playground.member.ask.AskTargetMember;
+import org.sopt.makers.domain.playground.member.ask.AskTargetUser;
 
 @Schema(description = "질문 대상 멤버 응답 DTO")
 public record AskUserResponse(
@@ -22,7 +22,7 @@ public record AskUserResponse(
 
   public record AskMemberCareerResponse(String companyName, String title) {}
 
-  public static AskUserResponse from(List<AskTargetMember> targets) {
+  public static AskUserResponse from(List<AskTargetUser> targets) {
     List<QuestionTargetMember> members =
         targets.stream()
             .map(

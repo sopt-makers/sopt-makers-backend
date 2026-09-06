@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.domain.user.ActivityList;
@@ -30,9 +31,11 @@ class UserProfileCommandServiceTest {
   private final PlaygroundProfileUserPort playgroundProfileUserPort = mock(PlaygroundProfileUserPort.class);
   private final UserProfileRankingCachePort rankingCachePort = mock(UserProfileRankingCachePort.class);
   private final UserProfileCardCachePort cardCachePort = mock(UserProfileCardCachePort.class);
+  private final UserActivityCheckPort userActivityCheckPort = mock(UserActivityCheckPort.class);
 
   private final UserProfileCommandService service =
-      new UserProfileCommandService(playgroundProfileUserPort, rankingCachePort, cardCachePort);
+      new UserProfileCommandService(
+          playgroundProfileUserPort, rankingCachePort, cardCachePort, userActivityCheckPort);
 
   @AfterEach
   void tearDown() {
@@ -42,7 +45,7 @@ class UserProfileCommandServiceTest {
   }
 
   @Test
-  @DisplayName("트랜잭션 동기화가 활성화된 상태에서 링크를 삭제하면 카드 캐시 무효화는 afterCommit 이전에는 실행되지 않는다")
+  @DisplayName("트랜잭션 동기화가 활성화된 상태에서 링크를 삭제하면 랭킹/카드 캐시 무효화는 afterCommit 이전에는 실행되지 않는다")
   void deleteLinkDoesNotEvictBeforeCommit() {
     TransactionSynchronizationManager.initSynchronization();
     when(playgroundProfileUserPort.findLinkById(LINK_ID))
@@ -50,12 +53,13 @@ class UserProfileCommandServiceTest {
 
     service.deleteLink(USER_ID, LINK_ID);
 
+    verify(rankingCachePort, never()).evictTopRanking();
     verify(cardCachePort, never()).evict(USER_ID);
     assertThat(TransactionSynchronizationManager.getSynchronizations()).hasSize(1);
   }
 
   @Test
-  @DisplayName("afterCommit이 호출되면 그제서야 카드 캐시가 무효화된다")
+  @DisplayName("afterCommit이 호출되면 그제서야 랭킹/카드 캐시가 모두 무효화된다")
   void deleteLinkEvictsOnlyAfterCommitFires() {
     TransactionSynchronizationManager.initSynchronization();
     when(playgroundProfileUserPort.findLinkById(LINK_ID))
@@ -66,6 +70,7 @@ class UserProfileCommandServiceTest {
       synchronization.afterCommit();
     }
 
+    verify(rankingCachePort).evictTopRanking();
     verify(cardCachePort).evict(USER_ID);
   }
 
@@ -78,6 +83,7 @@ class UserProfileCommandServiceTest {
 
     service.deleteLink(USER_ID, LINK_ID);
 
+    verify(rankingCachePort).evictTopRanking();
     verify(cardCachePort).evict(USER_ID);
   }
 

@@ -50,7 +50,7 @@ import org.sopt.makers.api.controller.playground.user.dto.WorkPreferenceResponse
 import org.sopt.makers.api.controller.playground.user.dto.WorkPreferenceUpdateRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
-import org.sopt.makers.domain.playground.member.profile.MemberSummary;
+import org.sopt.makers.domain.playground.member.profile.UserSummary;
 import org.sopt.makers.domain.playground.member.profile.service.AppJamTlService;
 import org.sopt.makers.domain.playground.member.profile.service.UserPropertyService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileCommandService;
@@ -325,8 +325,8 @@ public class PlaygroundUserController implements PlaygroundUserApi {
             .getBlockStatus(userId, memberId)
             .map(UserBlock::isBlocked)
             .orElse(false);
-    MemberSummary blockingMember = userProfileQueryService.getMemberSummary(userId);
-    MemberSummary blockedMember = userProfileQueryService.getMemberSummary(memberId);
+    UserSummary blockingMember = userProfileQueryService.getMemberSummary(userId);
+    UserSummary blockedMember = userProfileQueryService.getMemberSummary(memberId);
     return ResponseFactory.success(
         GET_BLOCK_STATUS, UserBlockResponse.of(status, blockingMember, blockedMember));
   }

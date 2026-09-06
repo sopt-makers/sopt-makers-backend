@@ -16,9 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.member.profile.AppJamObMemberIds;
-import org.sopt.makers.domain.playground.member.profile.MemberRecommendation;
+import org.sopt.makers.domain.playground.member.profile.UserRecommendation;
 import org.sopt.makers.domain.playground.member.profile.RecommendationType;
-import org.sopt.makers.domain.playground.member.profile.SameGenerationAndPartMember;
+import org.sopt.makers.domain.playground.member.profile.SameGenerationAndPartUser;
 import org.sopt.makers.domain.playground.member.profile.WorkPreferenceRecommendationResult;
 import org.sopt.makers.domain.playground.member.profile.WorkPreferenceRecommendationResult.WorkPreferenceRecommendedMember;
 import org.sopt.makers.domain.playground.member.profile.port.PlaygroundCrewRelationPort;
@@ -65,15 +65,15 @@ public class UserRecommendationService {
   private final PlaygroundProjectRelationPort projectRelationPort;
   private final CurrentGenerationProvider currentGenerationProvider;
 
-  public List<MemberRecommendation> getRecommendationsForMe(Long userId) {
+  public List<UserRecommendation> getRecommendationsForMe(Long userId) {
     return buildRecommendations(userId, ME_CRITERIA);
   }
 
-  public List<MemberRecommendation> getRecommendationsForUser(Long userId) {
+  public List<UserRecommendation> getRecommendationsForUser(Long userId) {
     return buildRecommendations(userId, USER_CRITERIA);
   }
 
-  public List<SameGenerationAndPartMember> getSameGenerationAndPartRecommendations(Long userId) {
+  public List<SameGenerationAndPartUser> getSameGenerationAndPartRecommendations(Long userId) {
     User user = playgroundProfileUserPort.getUserWithActivities(userId);
     List<Activity> activities = user.activities().activities();
 
@@ -158,7 +158,7 @@ public class UserRecommendationService {
     return crewRelationPort.findJoinedMeetings(userId, pageNo, limit);
   }
 
-  private List<MemberRecommendation> buildRecommendations(
+  private List<UserRecommendation> buildRecommendations(
       Long userId, List<RecommendationType> criteria) {
     User currentUser = playgroundProfileUserPort.getUserWithActivities(userId);
     List<Activity> myActivities = currentUser.activities().activities();
@@ -181,13 +181,13 @@ public class UserRecommendationService {
     Set<Long> excludeIds = new HashSet<>();
     excludeIds.add(userId);
 
-    List<MemberRecommendation> recommendations = new ArrayList<>();
+    List<UserRecommendation> recommendations = new ArrayList<>();
     int criteriaPointer = 0;
     for (int slot = 0; slot < RECOMMENDATION_SET_SIZE && criteriaPointer < criteria.size(); slot++) {
       boolean isFound = false;
       while (criteriaPointer < criteria.size() && !isFound) {
         RecommendationType type = criteria.get(criteriaPointer++);
-        Optional<MemberRecommendation> result =
+        Optional<UserRecommendation> result =
             switch (type) {
               case SAME_PART -> findSamePartCandidate(myParts, excludeIds);
               case SAME_CREW -> findSameCrewCandidate(userId, excludeIds);
@@ -208,7 +208,7 @@ public class UserRecommendationService {
     return recommendations;
   }
 
-  private Optional<MemberRecommendation> findSamePartCandidate(Set<Part> myParts, Set<Long> excludeIds) {
+  private Optional<UserRecommendation> findSamePartCandidate(Set<Part> myParts, Set<Long> excludeIds) {
     if (myParts.isEmpty()) {
       return Optional.empty();
     }
@@ -219,7 +219,7 @@ public class UserRecommendationService {
     return pickAndBuildFromIds(new ArrayList<>(candidateIds), RecommendationType.SAME_PART);
   }
 
-  private Optional<MemberRecommendation> findSameCrewCandidate(Long userId, Set<Long> excludeIds) {
+  private Optional<UserRecommendation> findSameCrewCandidate(Long userId, Set<Long> excludeIds) {
     List<Long> relatedIds =
         crewRelationPort.findRelatedUserIds(userId).stream()
             .filter(id -> !excludeIds.contains(id))
@@ -246,7 +246,7 @@ public class UserRecommendationService {
     return pickAndBuildFromInfos(pool, RecommendationType.SAME_CREW);
   }
 
-  private Optional<MemberRecommendation> findSameMbtiCandidate(String mbti, Set<Long> excludeIds) {
+  private Optional<UserRecommendation> findSameMbtiCandidate(String mbti, Set<Long> excludeIds) {
     if (mbti == null || mbti.isBlank()) {
       return Optional.empty();
     }
@@ -257,7 +257,7 @@ public class UserRecommendationService {
     return pickAndBuildFromIds(candidates, RecommendationType.SAME_MBTI);
   }
 
-  private Optional<MemberRecommendation> findSameProjectCandidate(Long userId, Set<Long> excludeIds) {
+  private Optional<UserRecommendation> findSameProjectCandidate(Long userId, Set<Long> excludeIds) {
     List<Project> myProjects = projectRelationPort.findProjectsByUserId(userId);
     if (myProjects.isEmpty()) {
       return Optional.empty();
@@ -270,7 +270,7 @@ public class UserRecommendationService {
     return pickAndBuildFromIds(candidates, RecommendationType.SAME_PROJECT);
   }
 
-  private Optional<MemberRecommendation> findSameUniversityCandidate(
+  private Optional<UserRecommendation> findSameUniversityCandidate(
       String university, Set<Long> excludeIds) {
     if (university == null || university.isBlank()) {
       return Optional.empty();
@@ -282,7 +282,7 @@ public class UserRecommendationService {
     return pickAndBuildFromIds(candidates, RecommendationType.SAME_UNIVERSITY);
   }
 
-  private Optional<MemberRecommendation> findSameGenerationCandidate(
+  private Optional<UserRecommendation> findSameGenerationCandidate(
       int myLatestGeneration, Set<Long> excludeIds) {
     if (myLatestGeneration < 0) {
       return Optional.empty();
@@ -294,7 +294,7 @@ public class UserRecommendationService {
     return pickAndBuildFromIds(candidates, RecommendationType.SAME_GENERATION);
   }
 
-  private Optional<MemberRecommendation> pickAndBuildFromIds(
+  private Optional<UserRecommendation> pickAndBuildFromIds(
       List<Long> candidateIds, RecommendationType type) {
     if (candidateIds.isEmpty()) {
       return Optional.empty();
@@ -310,7 +310,7 @@ public class UserRecommendationService {
     return Optional.of(toRecommendation(infos.get(0), type));
   }
 
-  private Optional<MemberRecommendation> pickAndBuildFromInfos(
+  private Optional<UserRecommendation> pickAndBuildFromInfos(
       List<RecommendationUserInfo> infos, RecommendationType type) {
     if (infos.isEmpty()) {
       return Optional.empty();
@@ -320,7 +320,7 @@ public class UserRecommendationService {
     return Optional.of(toRecommendation(shuffled.get(0), type));
   }
 
-  private MemberRecommendation toRecommendation(RecommendationUserInfo info, RecommendationType type) {
+  private UserRecommendation toRecommendation(RecommendationUserInfo info, RecommendationType type) {
     Activity latest = info.activities().stream().max(Comparator.comparingInt(Activity::generation)).orElse(null);
     Activity latestSopt =
         info.activities().stream()
@@ -336,10 +336,10 @@ public class UserRecommendationService {
       part = latestSopt != null && latestSopt.part() != null ? latestSopt.part().getName() : null;
     }
 
-    return new MemberRecommendation(info.id(), info.name(), info.profileImage(), generation, part, type);
+    return new UserRecommendation(info.id(), info.name(), info.profileImage(), generation, part, type);
   }
 
-  private List<SameGenerationAndPartMember> findSameGenerationAndPartSoptCandidates(
+  private List<SameGenerationAndPartUser> findSameGenerationAndPartSoptCandidates(
       Long excludeId, Activity latestSopt) {
     if (latestSopt.part() == null) {
       return List.of();
@@ -353,7 +353,7 @@ public class UserRecommendationService {
     return pickTopSameGenerationAndPartMembers(candidates, latestSopt.generation(), latestSopt.part().getName());
   }
 
-  private List<SameGenerationAndPartMember> findSameGenerationAndPartMakersCandidates(
+  private List<SameGenerationAndPartUser> findSameGenerationAndPartMakersCandidates(
       Long excludeId, Activity latestMakers) {
     List<Long> candidates =
         recommendationUserPort.findUserIdsByActivity(latestMakers.generation(), null, false).stream()
@@ -362,7 +362,7 @@ public class UserRecommendationService {
     return pickTopSameGenerationAndPartMembers(candidates, latestMakers.generation(), "메이커스");
   }
 
-  private List<SameGenerationAndPartMember> pickTopSameGenerationAndPartMembers(
+  private List<SameGenerationAndPartUser> pickTopSameGenerationAndPartMembers(
       List<Long> candidateIds, int generation, String part) {
     List<Long> shuffled = new ArrayList<>(candidateIds);
     Collections.shuffle(shuffled);
@@ -378,7 +378,7 @@ public class UserRecommendationService {
     return picked.stream()
         .map(infoById::get)
         .filter(Objects::nonNull)
-        .map(info -> new SameGenerationAndPartMember(info.id(), info.name(), info.profileImage(), generation, part))
+        .map(info -> new SameGenerationAndPartUser(info.id(), info.name(), info.profileImage(), generation, part))
         .toList();
   }
 

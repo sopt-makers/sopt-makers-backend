@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import org.sopt.makers.api.controller.playground.user.dto.UserProfileResponse.MemberQuestionPreviewResponse;
 import org.sopt.makers.domain.playground.member.ask.AskPreview;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileListItem;
+import org.sopt.makers.domain.playground.member.profile.UserProfileListItem;
 import org.sopt.makers.domain.playground.member.profile.UserProfileListResult;
 
 public record UserAllProfileResponse(
@@ -18,7 +18,7 @@ public record UserAllProfileResponse(
     return new UserAllProfileResponse(members, result.hasNext(), result.totalCount());
   }
 
-  private static UserProfileResponse toMemberProfileResponse(MemberProfileListItem item) {
+  private static UserProfileResponse toMemberProfileResponse(UserProfileListItem item) {
     return UserProfileResponse.from(item.user(), item.isCoffeeChatActivate(), toPreview(item.questionPreview()));
   }
 

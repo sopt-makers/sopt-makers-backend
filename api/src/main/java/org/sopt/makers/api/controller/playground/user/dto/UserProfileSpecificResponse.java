@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileDetail;
+import org.sopt.makers.domain.playground.member.profile.UserProfileDetail;
 import org.sopt.makers.domain.playground.project.Project;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.User;
@@ -82,7 +82,7 @@ public record UserProfileSpecificResponse(
 
   public record MemberProjectVo(Long id, Integer generation, String name, String category) {}
 
-  public static UserProfileSpecificResponse from(MemberProfileDetail detail) {
+  public static UserProfileSpecificResponse from(UserProfileDetail detail) {
     User user = detail.user();
     List<Activity> sortedActivities =
         user.activities().activities().stream()

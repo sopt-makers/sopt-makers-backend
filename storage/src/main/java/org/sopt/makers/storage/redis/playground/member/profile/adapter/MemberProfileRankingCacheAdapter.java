@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileRanking;
+import org.sopt.makers.domain.playground.member.profile.UserProfileRanking;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.storage.redis.playground.member.profile.cache.CachedMemberProfileRanking;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,11 +22,11 @@ public class MemberProfileRankingCacheAdapter implements UserProfileRankingCache
   private final RedisTemplate<String, CachedMemberProfileRanking> memberProfileRankingRedisTemplate;
 
   @Override
-  public Optional<MemberProfileRanking> getTopRanking() {
+  public Optional<UserProfileRanking> getTopRanking() {
     try {
       CachedMemberProfileRanking cached = memberProfileRankingRedisTemplate.opsForValue().get(KEY);
       return Optional.ofNullable(cached)
-          .map(c -> new MemberProfileRanking(c.topUserIds(), c.totalCount()));
+          .map(c -> new UserProfileRanking(c.topUserIds(), c.totalCount()));
     } catch (Exception exception) {
       log.warn("멤버 프로필 랭킹 캐시 조회 실패", exception);
       return Optional.empty();
@@ -34,7 +34,7 @@ public class MemberProfileRankingCacheAdapter implements UserProfileRankingCache
   }
 
   @Override
-  public void putTopRanking(MemberProfileRanking ranking) {
+  public void putTopRanking(UserProfileRanking ranking) {
     try {
       memberProfileRankingRedisTemplate
           .opsForValue()

@@ -2,7 +2,7 @@ package org.sopt.makers.domain.playground.member.profile;
 
 import java.util.List;
 
-public record MemberProperties(
+public record UserProperties(
     Long id,
     String major,
     String job,

@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.playground.user.dto;
 
 import java.util.List;
-import org.sopt.makers.domain.playground.member.profile.MakersMemberProfile;
+import org.sopt.makers.domain.playground.member.profile.MakersUserProfile;
 
 public record MakersUserProfileResponse(
     Long id,
@@ -14,7 +14,7 @@ public record MakersUserProfileResponse(
 
   public record MemberCareerResponse(Long id, String companyName, String title, Boolean isCurrent) {}
 
-  public static MakersUserProfileResponse from(MakersMemberProfile profile) {
+  public static MakersUserProfileResponse from(MakersUserProfile profile) {
     List<MemberSoptActivityResponse> activities =
         profile.activities().stream().map(a -> new MemberSoptActivityResponse(a.id(), a.generation())).toList();
 

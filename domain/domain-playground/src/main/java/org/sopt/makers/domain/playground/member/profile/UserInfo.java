@@ -1,7 +1,7 @@
 package org.sopt.makers.domain.playground.member.profile;
 
-public record MemberInfo(
-    MemberSummary summary,
+public record UserInfo(
+    UserSummary summary,
     boolean hasCoffeeChat,
     boolean hasWorkPreference,
     boolean enableWorkPreferenceEvent) {}

@@ -1,7 +1,7 @@
 package org.sopt.makers.api.controller.playground.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.sopt.makers.domain.playground.member.profile.MemberSummary;
+import org.sopt.makers.domain.playground.member.profile.UserSummary;
 
 public record UserResponse(
     @Schema(required = true) Long id,
@@ -11,7 +11,7 @@ public record UserResponse(
     @Schema(required = true) Boolean hasProfile,
     @Schema(required = true) Boolean editActivitiesAble) {
 
-  public static UserResponse from(MemberSummary summary) {
+  public static UserResponse from(UserSummary summary) {
     return new UserResponse(
         summary.id(),
         summary.name(),

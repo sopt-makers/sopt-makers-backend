@@ -24,7 +24,7 @@ import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.ask.AskDetail;
 import org.sopt.makers.domain.playground.member.ask.AskLocation;
 import org.sopt.makers.domain.playground.member.ask.AskPage;
-import org.sopt.makers.domain.playground.member.ask.AskTargetMember;
+import org.sopt.makers.domain.playground.member.ask.AskTargetUser;
 import org.sopt.makers.domain.playground.member.ask.LatestAnsweredAskCard;
 import org.sopt.makers.domain.playground.member.ask.MyLatestAnsweredAskLocation;
 import org.sopt.makers.domain.playground.member.ask.QuestionTab;
@@ -103,7 +103,7 @@ public class UserAskQueryService {
   }
 
   /** 질문 가능 대상 멤버를 파트별로 큐레이션된 목록에서 조회한다. partName이 인식되지 않으면 전체 파트를 반환한다. */
-  public List<AskTargetMember> getAskTargetMembers(String partName) {
+  public List<AskTargetUser> getAskTargetMembers(String partName) {
     Part part = resolvePart(partName);
     List<Long> memberIds = askMemberDirectoryPort.getAskMemberIds(part);
     if (memberIds.isEmpty()) {
@@ -112,7 +112,7 @@ public class UserAskQueryService {
 
     List<User> users = playgroundAskUserPort.findAllWithActivitiesByIds(memberIds);
 
-    List<AskTargetMember> targets = new ArrayList<>();
+    List<AskTargetUser> targets = new ArrayList<>();
     for (User user : users) {
       if (user.isFirstLogin()) {
         continue;
@@ -122,7 +122,7 @@ public class UserAskQueryService {
         continue;
       }
       UserCareer career = resolveCareer(user.profile().careers());
-      targets.add(new AskTargetMember(user, latestActivity, career));
+      targets.add(new AskTargetUser(user, latestActivity, career));
     }
     return targets;
   }

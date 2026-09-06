@@ -10,9 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileListItem;
+import org.sopt.makers.domain.playground.member.profile.UserProfileListItem;
 import org.sopt.makers.domain.playground.member.profile.UserProfileListResult;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileRanking;
+import org.sopt.makers.domain.playground.member.profile.UserProfileRanking;
 import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatActivationPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
@@ -73,7 +73,7 @@ public class UserProfileListService {
   }
 
   private UserProfileListResult getCachedDefaultPage(int offset, int limit) {
-    MemberProfileRanking ranking = rankingCachePort.getTopRanking().orElseGet(this::recomputeAndCacheRanking);
+    UserProfileRanking ranking = rankingCachePort.getTopRanking().orElseGet(this::recomputeAndCacheRanking);
 
     List<Long> pageIds = sliceIds(ranking.topUserIds(), offset, limit);
     if (pageIds.isEmpty()) {
@@ -85,10 +85,10 @@ public class UserProfileListService {
     return buildResult(orderByIds(users, pageIds), hasNext, ranking.totalCount());
   }
 
-  private MemberProfileRanking recomputeAndCacheRanking() {
+  private UserProfileRanking recomputeAndCacheRanking() {
     List<Long> candidateIds = playgroundProfileUserPort.findCandidateUserIds(null, null);
     if (candidateIds.isEmpty()) {
-      MemberProfileRanking ranking = new MemberProfileRanking(List.of(), 0);
+      UserProfileRanking ranking = new UserProfileRanking(List.of(), 0);
       rankingCachePort.putTopRanking(ranking);
       return ranking;
     }
@@ -99,7 +99,7 @@ public class UserProfileListService {
 
     top.forEach(cardCachePort::put);
 
-    MemberProfileRanking ranking = new MemberProfileRanking(top.stream().map(User::id).toList(), sorted.size());
+    UserProfileRanking ranking = new UserProfileRanking(top.stream().map(User::id).toList(), sorted.size());
     rankingCachePort.putTopRanking(ranking);
     return ranking;
   }
@@ -176,11 +176,11 @@ public class UserProfileListService {
     Set<Long> activeCoffeeChatIds = coffeeChatActivationPort.findActiveUserIds(pagedIds);
     Map<Long, AskPreview> previewByReceiverId = userAskQueryService.findRecentAskPreviews(pagedIds);
 
-    List<MemberProfileListItem> items =
+    List<UserProfileListItem> items =
         pagedUsers.stream()
             .map(
                 user ->
-                    new MemberProfileListItem(
+                    new UserProfileListItem(
                         user, activeCoffeeChatIds.contains(user.id()), previewByReceiverId.get(user.id())))
             .toList();
 

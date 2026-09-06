@@ -7,14 +7,15 @@ import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvid
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
 import org.sopt.makers.domain.playground.member.profile.AppJamObMemberIds;
 import org.sopt.makers.domain.playground.member.profile.MakersMemberIds;
-import org.sopt.makers.domain.playground.member.profile.MakersMemberProfile;
-import org.sopt.makers.domain.playground.member.profile.MemberInfo;
-import org.sopt.makers.domain.playground.member.profile.MemberProfileDetail;
-import org.sopt.makers.domain.playground.member.profile.MemberSummary;
+import org.sopt.makers.domain.playground.member.profile.MakersUserProfile;
+import org.sopt.makers.domain.playground.member.profile.UserInfo;
+import org.sopt.makers.domain.playground.member.profile.UserProfileDetail;
+import org.sopt.makers.domain.playground.member.profile.UserSummary;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileException;
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFailure;
 import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatActivationPort;
 import org.sopt.makers.domain.playground.member.profile.port.PlaygroundProjectRelationPort;
+import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPort;
 import org.sopt.makers.domain.playground.project.Project;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.User;
@@ -35,8 +36,9 @@ public class UserProfileQueryService {
   private final CoffeeChatActivationPort coffeeChatActivationPort;
   private final UserAskQueryService userAskQueryService;
   private final CurrentGenerationProvider currentGenerationProvider;
+  private final UserActivityCheckPort userActivityCheckPort;
 
-  public MemberSummary getMemberSummary(Long id) {
+  public UserSummary getMemberSummary(Long id) {
     User user = playgroundProfileUserPort.getUserWithActivities(id);
     return toSummary(user);
   }
@@ -49,9 +51,9 @@ public class UserProfileQueryService {
     return coffeeChatActivationPort.isCoffeeChatActive(userId);
   }
 
-  public MemberInfo getMyInfo(Long userId) {
+  public UserInfo getMyInfo(Long userId) {
     User user = playgroundProfileUserPort.getUserWithActivities(userId);
-    MemberSummary summary = toSummary(user);
+    UserSummary summary = toSummary(user);
 
     boolean hasCoffeeChat = coffeeChatActivationPort.isCoffeeChatActive(userId);
     boolean hasWorkPreference = user.profile().workPreference() != null;
@@ -60,22 +62,22 @@ public class UserProfileQueryService {
                 && Objects.equals(summary.generation(), currentGenerationProvider.getCurrentGeneration()))
             || AppJamObMemberIds.IDS.contains(userId);
 
-    return new MemberInfo(summary, hasCoffeeChat, hasWorkPreference, enableWorkPreferenceEvent);
+    return new UserInfo(summary, hasCoffeeChat, hasWorkPreference, enableWorkPreferenceEvent);
   }
 
-  public List<MemberSummary> searchByName(String name) {
+  public List<UserSummary> searchByName(String name) {
     return playgroundProfileUserPort.searchUsersByName(name, SEARCH_LIMIT).stream()
         .map(this::toSummary)
         .toList();
   }
 
-  public List<MakersMemberProfile> getMakersProfiles() {
+  public List<MakersUserProfile> getMakersProfiles() {
     List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(MakersMemberIds.IDS);
     return users.stream()
         .filter(user -> !user.isFirstLogin())
         .map(
             user ->
-                new MakersMemberProfile(
+                new MakersUserProfile(
                     user.id(),
                     user.profile().name(),
                     user.profile().profileImage(),
@@ -84,7 +86,7 @@ public class UserProfileQueryService {
         .toList();
   }
 
-  public MemberProfileDetail getProfileDetail(Long profileId, Long viewerId) {
+  public UserProfileDetail getProfileDetail(Long profileId, Long viewerId) {
     User user = playgroundProfileUserPort.getUserWithActivities(profileId);
     if (user.isFirstLogin()) {
       throw new UserProfileException(UserProfileFailure.NOT_FOUND_PROFILE);
@@ -98,19 +100,19 @@ public class UserProfileQueryService {
     boolean isCoffeeChatActivate = coffeeChatActivationPort.isCoffeeChatActive(profileId);
     boolean hasRecentQuestion = userAskQueryService.hasRecentAsk(profileId);
 
-    return new MemberProfileDetail(user, isMine, isCoffeeChatActivate, hasRecentQuestion, projects);
+    return new UserProfileDetail(user, isMine, isCoffeeChatActivate, hasRecentQuestion, projects);
   }
 
-  private MemberSummary toSummary(User user) {
+  private UserSummary toSummary(User user) {
     List<Activity> activities = user.activities().activities();
     Integer generation =
         activities.isEmpty()
             ? null
             : activities.stream().map(Activity::generation).max(Integer::compareTo).orElse(null);
     boolean hasProfile = !user.isFirstLogin();
-    boolean editActivitiesAble = activities.isEmpty();
+    boolean editActivitiesAble = userActivityCheckPort.isEditActivitiesAble(user.id());
 
-    return new MemberSummary(
+    return new UserSummary(
         user.id(), user.profile().name(), generation, user.profile().profileImage(), hasProfile,
         editActivitiesAble);
   }
