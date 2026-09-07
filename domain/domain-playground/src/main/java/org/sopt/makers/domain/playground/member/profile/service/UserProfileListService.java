@@ -21,6 +21,8 @@ import org.sopt.makers.domain.playground.member.profile.service.sorting.UserSort
 import org.sopt.makers.domain.playground.member.profile.service.sorting.ProfileOrderBy;
 import org.sopt.makers.domain.playground.member.profile.service.sorting.ProfileTeamFilter;
 import org.sopt.makers.domain.user.User;
+import org.sopt.makers.domain.user.UserCareer;
+import org.sopt.makers.domain.user.UserLink;
 import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +95,7 @@ public class UserProfileListService {
       return ranking;
     }
 
-    List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(candidateIds);
+    List<User> users = findProfilesWithLinksAndCareers(candidateIds);
     List<User> sorted = users.stream().sorted(memberSortingService.createComparator(null, null)).toList();
     List<User> top = sorted.stream().limit(TOP_RANK_SIZE).toList();
 
@@ -111,7 +113,7 @@ public class UserProfileListService {
       return ids.stream().map(cached::get).toList();
     }
 
-    List<User> loaded = playgroundProfileUserPort.findAllWithActivitiesByIds(missingIds);
+    List<User> loaded = findProfilesWithLinksAndCareers(missingIds);
     loaded.forEach(cardCachePort::put);
     Map<Long, User> merged = new HashMap<>(cached);
     loaded.forEach(u -> merged.put(u.id(), u));
@@ -135,7 +137,7 @@ public class UserProfileListService {
       return UserProfileListResult.empty();
     }
 
-    List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(candidateIds);
+    List<User> users = findProfilesWithLinksAndCareers(candidateIds);
 
     Part partFilter = UserProfileFilter.resolvePartFilter(filter);
     ProfileTeamFilter teamFilter = ProfileTeamFilter.fromRawCode(team);
@@ -185,6 +187,30 @@ public class UserProfileListService {
             .toList();
 
     return new UserProfileListResult(items, hasNext, totalCount);
+  }
+
+  /**
+   * activity와 동일한 수준으로 최적화한다: 대상 ID 전체를 links/careers 각각 단일 벌크 IN 쿼리로 조회해
+   * {@code Map<Long, List<...>>}로 그룹핑한 뒤, 유저별로 인메모리에서 매칭해 붙인다(멤버당 개별 조회 없음).
+   */
+  private List<User> findProfilesWithLinksAndCareers(List<Long> userIds) {
+    List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(userIds);
+    if (users.isEmpty()) {
+      return users;
+    }
+
+    Map<Long, List<UserLink>> linksByUserId = playgroundProfileUserPort.findAllLinksByUserIds(userIds);
+    Map<Long, List<UserCareer>> careersByUserId = playgroundProfileUserPort.findAllCareersByUserIds(userIds);
+
+    return users.stream()
+        .map(
+            user ->
+                user.updateProfile(
+                    user.profile()
+                        .withLinksAndCareers(
+                            linksByUserId.getOrDefault(user.id(), List.of()),
+                            careersByUserId.getOrDefault(user.id(), List.of()))))
+        .toList();
   }
 
   private List<Long> sliceIds(List<Long> ids, int offset, int limit) {

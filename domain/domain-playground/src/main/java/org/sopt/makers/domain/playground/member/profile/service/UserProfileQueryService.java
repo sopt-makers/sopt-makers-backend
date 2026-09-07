@@ -2,6 +2,7 @@ package org.sopt.makers.domain.playground.member.profile.service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
@@ -19,6 +20,7 @@ import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPo
 import org.sopt.makers.domain.playground.project.Project;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.User;
+import org.sopt.makers.domain.user.UserCareer;
 import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,8 +73,11 @@ public class UserProfileQueryService {
         .toList();
   }
 
+  /** `MakersUserProfile.careers`는 벌크 조회로 채운다(links는 응답 DTO에 없어 조회하지 않는다). */
   public List<MakersUserProfile> getMakersProfiles() {
     List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(MakersMemberIds.IDS);
+    Map<Long, List<UserCareer>> careersByUserId =
+        playgroundProfileUserPort.findAllCareersByUserIds(MakersMemberIds.IDS);
     return users.stream()
         .filter(user -> !user.isFirstLogin())
         .map(
@@ -82,10 +87,11 @@ public class UserProfileQueryService {
                     user.profile().name(),
                     user.profile().profileImage(),
                     sortActivities(user.activities().activities()),
-                    user.profile().careers()))
+                    careersByUserId.getOrDefault(user.id(), List.of())))
         .toList();
   }
 
+  /** links/careers는 단건 조회로 채운다(GET /profile/{id}, GET /profile/me 응답에 필요). */
   public UserProfileDetail getProfileDetail(Long profileId, Long viewerId) {
     User user = playgroundProfileUserPort.getUserWithActivities(profileId);
     if (user.isFirstLogin()) {
@@ -94,6 +100,7 @@ public class UserProfileQueryService {
     if (user.activities().activities().isEmpty()) {
       throw new UserProfileException(UserProfileFailure.NOT_FOUND_LEGACY_GENERATION_MEMBER);
     }
+    user = enrichWithLinksAndCareers(user);
 
     boolean isMine = Objects.equals(profileId, viewerId);
     List<Project> projects = projectRelationPort.findProjectsByUserId(profileId);
@@ -101,6 +108,14 @@ public class UserProfileQueryService {
     boolean hasRecentQuestion = userAskQueryService.hasRecentAsk(profileId);
 
     return new UserProfileDetail(user, isMine, isCoffeeChatActivate, hasRecentQuestion, projects);
+  }
+
+  private User enrichWithLinksAndCareers(User user) {
+    return user.updateProfile(
+        user.profile()
+            .withLinksAndCareers(
+                playgroundProfileUserPort.findLinksByUserId(user.id()),
+                playgroundProfileUserPort.findCareersByUserId(user.id())));
   }
 
   /**

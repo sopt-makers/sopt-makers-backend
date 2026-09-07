@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.user.adapter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.user.Profile;
@@ -13,6 +14,7 @@ import org.sopt.makers.domain.user.UserSortType;
 import org.sopt.makers.domain.user.WorkPreference;
 import org.sopt.makers.domain.user.command.ActivityUpdateCommand;
 import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
+import org.sopt.makers.domain.user.port.UserCareerRepositoryPort;
 import org.sopt.makers.domain.user.port.UserLinkRepositoryPort;
 import org.sopt.makers.domain.user.service.UserCommandService;
 import org.sopt.makers.domain.user.service.UserQueryService;
@@ -31,6 +33,7 @@ public class PlaygroundProfileUserAdapter implements PlaygroundProfileUserPort {
   private final UserQueryService userQueryService;
   private final UserCommandService userCommandService;
   private final UserLinkRepositoryPort userLinkRepositoryPort;
+  private final UserCareerRepositoryPort userCareerRepositoryPort;
 
   @Override
   public Optional<User> findUser(Long userId) {
@@ -50,6 +53,26 @@ public class PlaygroundProfileUserAdapter implements PlaygroundProfileUserPort {
   @Override
   public List<User> findAllWithActivitiesByIds(List<Long> userIds) {
     return userQueryService.findAllWithActivitiesByIds(userIds);
+  }
+
+  @Override
+  public Map<Long, List<UserLink>> findAllLinksByUserIds(List<Long> userIds) {
+    return userLinkRepositoryPort.findAllLinksByUserIds(userIds);
+  }
+
+  @Override
+  public Map<Long, List<UserCareer>> findAllCareersByUserIds(List<Long> userIds) {
+    return userCareerRepositoryPort.findAllCareersByUserIds(userIds);
+  }
+
+  @Override
+  public List<UserLink> findLinksByUserId(Long userId) {
+    return userLinkRepositoryPort.findAllByUserId(userId);
+  }
+
+  @Override
+  public List<UserCareer> findCareersByUserId(Long userId) {
+    return userCareerRepositoryPort.findAllByUserId(userId);
   }
 
   @Override
