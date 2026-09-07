@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.storage.db.playground.community.entity.QCategoryEntity;
@@ -28,7 +29,8 @@ public class PostQuerydslRepositoryImpl implements PostQuerydslRepository {
       LocalDateTime cursorCreatedAt,
       Long cursorPostId,
       LocalDateTime snapshotTime,
-      int limit) {
+      int limit,
+      Set<Long> excludedWriterIds) {
     JPAQuery<PostEntity> query =
         queryFactory
             .selectFrom(post)
@@ -39,7 +41,8 @@ public class PostQuerydslRepositoryImpl implements PostQuerydslRepository {
             .where(
                 category.code.in(categoryCodes),
                 post.createdAt.loe(snapshotTime),
-                ltCursor(cursorCreatedAt, cursorPostId))
+                ltCursor(cursorCreatedAt, cursorPostId),
+                excludeWriters(excludedWriterIds))
             .orderBy(post.createdAt.desc(), post.id.desc())
             .limit(limit);
 
@@ -59,5 +62,12 @@ public class PostQuerydslRepositoryImpl implements PostQuerydslRepository {
     return post.createdAt
         .lt(cursorCreatedAt)
         .or(post.createdAt.eq(cursorCreatedAt).and(post.id.lt(cursorPostId)));
+  }
+
+  private BooleanExpression excludeWriters(Set<Long> excludedWriterIds) {
+    if (excludedWriterIds == null || excludedWriterIds.isEmpty()) {
+      return null;
+    }
+    return post.writerId.notIn(excludedWriterIds);
   }
 }

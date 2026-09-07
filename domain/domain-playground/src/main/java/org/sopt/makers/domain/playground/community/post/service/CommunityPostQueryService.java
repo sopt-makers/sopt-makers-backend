@@ -164,13 +164,14 @@ public class CommunityPostQueryService {
             cursorCreatedAt(cursor),
             cursorPostId(cursor),
             cursor.snapshotTime(),
-            limit + 1);
+            limit + 1,
+            blockedWriterIds);
 
     boolean hasNext = posts.size() > limit;
     List<Post> sliced = hasNext ? posts.subList(0, limit) : posts;
 
-    List<PostFeedItem> items =
-        toVisiblePostFeedItems(sliced, userId, categoryCodes, blockedWriterIds);
+    // 차단 작성자는 이미 쿼리 단계(NOT IN)에서 제외되었으므로 여기서는 추가 필터링이 필요 없다.
+    List<PostFeedItem> items = toPostFeedItems(sliced, userId, categoryCodes, blockedWriterIds);
 
     CommunityDbCursor nextDbCursor =
         sliced.isEmpty()
@@ -199,7 +200,8 @@ public class CommunityPostQueryService {
             cursorCreatedAt(cursor),
             cursorPostId(cursor),
             cursor.snapshotTime(),
-            limit + 1);
+            limit + 1,
+            blockedWriterIds);
 
     List<PostFeedItem> communityItems =
         toPostFeedItems(communityPosts, userId, freeCategoryCodes, blockedWriterIds);
@@ -240,14 +242,9 @@ public class CommunityPostQueryService {
     List<FeedCandidate> slicedCandidates =
         sortedCandidates.size() > limit ? sortedCandidates.subList(0, limit) : sortedCandidates;
 
-    Map<Long, Long> writerIdByCommunityPostId =
-        communityPosts.stream().collect(Collectors.toMap(Post::id, Post::writerId));
-
-    List<PostFeedItem> items =
-        slicedCandidates.stream()
-            .filter(candidate -> !isBlockedCommunityCandidate(candidate, writerIdByCommunityPostId, blockedWriterIds))
-            .map(FeedCandidate::item)
-            .toList();
+    // COMMUNITY 후보는 이미 쿼리 단계(NOT IN)에서 차단 작성자가 제외되었고, MEETING 후보는 레거시와 동일하게
+    // 차단 필터링 대상이 아니므로 별도의 사후 필터링이 필요 없다.
+    List<PostFeedItem> items = slicedCandidates.stream().map(FeedCandidate::item).toList();
 
     CommunityDbCursor nextDbCursor = cursor.community();
     int nextMeetingConsumedCount = cursor.safeMeetingConsumedCount();
@@ -333,31 +330,6 @@ public class CommunityPostQueryService {
         post.createdAt(),
         post.meetingId(),
         null);
-  }
-
-  private List<PostFeedItem> toVisiblePostFeedItems(
-      List<Post> posts, Long viewerId, List<CommunityCategoryCode> categoryCodes, Set<Long> blockedWriterIds) {
-    List<PostFeedItem> items = toPostFeedItems(posts, viewerId, categoryCodes, blockedWriterIds);
-    if (blockedWriterIds.isEmpty()) {
-      return items;
-    }
-
-    List<PostFeedItem> visibleItems = new ArrayList<>();
-    for (int index = 0; index < posts.size(); index++) {
-      if (!blockedWriterIds.contains(posts.get(index).writerId())) {
-        visibleItems.add(items.get(index));
-      }
-    }
-    return visibleItems;
-  }
-
-  private boolean isBlockedCommunityCandidate(
-      FeedCandidate candidate, Map<Long, Long> writerIdByCommunityPostId, Set<Long> blockedWriterIds) {
-    if (blockedWriterIds.isEmpty() || candidate.sourceType() != CommunityPostSourceType.COMMUNITY) {
-      return false;
-    }
-    Long writerId = writerIdByCommunityPostId.get(candidate.communityPostId());
-    return writerId != null && blockedWriterIds.contains(writerId);
   }
 
   private List<PostFeedItem> toPostFeedItems(

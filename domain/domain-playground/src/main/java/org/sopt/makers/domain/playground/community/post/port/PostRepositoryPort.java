@@ -3,6 +3,7 @@ package org.sopt.makers.domain.playground.community.post.port;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.CommunityCategoryGroup;
 import org.sopt.makers.domain.playground.community.post.Post;
@@ -38,7 +39,8 @@ public interface PostRepositoryPort {
       LocalDateTime cursorCreatedAt,
       Long cursorPostId,
       LocalDateTime snapshotTime,
-      int limit);
+      int limit,
+      Set<Long> excludedWriterIds);
 
   Optional<Post> findMostRecentHotPost();
 

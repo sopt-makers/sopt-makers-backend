@@ -3,6 +3,7 @@ package org.sopt.makers.storage.db.playground.community.post.adapter;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
 import org.sopt.makers.domain.playground.community.CommunityCategoryGroup;
@@ -111,9 +112,11 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
       LocalDateTime cursorCreatedAt,
       Long cursorPostId,
       LocalDateTime snapshotTime,
-      int limit) {
+      int limit,
+      Set<Long> excludedWriterIds) {
     return postJpaRepository
-        .findByCategoryCodesWithCursor(categoryCodes, cursorCreatedAt, cursorPostId, snapshotTime, limit)
+        .findByCategoryCodesWithCursor(
+            categoryCodes, cursorCreatedAt, cursorPostId, snapshotTime, limit, excludedWriterIds)
         .stream()
         .map(PostEntity::toDomain)
         .toList();
