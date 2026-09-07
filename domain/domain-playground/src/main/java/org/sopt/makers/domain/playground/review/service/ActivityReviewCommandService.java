@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.playground.review.service;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.review.ActivityReview;
 import org.sopt.makers.domain.playground.review.exception.ActivityReviewException;
 import org.sopt.makers.domain.playground.review.exception.ActivityReviewFailure;
@@ -13,21 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ActivityReviewCommandService {
 
-  // TODO: 새 기수 시작 전 값 변경 필수
-  private static final int CURRENT_GENERATION = 38;
-
   private final ActivityReviewRepositoryPort activityReviewRepositoryPort;
   private final ActivityReviewUserPort activityReviewUserPort;
+  private final CurrentGenerationProvider currentGenerationProvider;
 
   @Transactional
   public void createActivityReview(Long userId, String content) {
     validateCurrentGeneration(userId);
     activityReviewRepositoryPort.save(
-        ActivityReview.create(userId, content, CURRENT_GENERATION));
+        ActivityReview.create(userId, content, currentGenerationProvider.getCurrentGeneration()));
   }
 
   private void validateCurrentGeneration(Long userId) {
-    if (activityReviewUserPort.getLastGeneration(userId) != CURRENT_GENERATION) {
+    if (activityReviewUserPort.getLastGeneration(userId) != currentGenerationProvider.getCurrentGeneration()) {
       throw new ActivityReviewException(ActivityReviewFailure.NOT_CURRENT_GENERATION);
     }
   }
