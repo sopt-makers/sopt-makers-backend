@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.playground.community.Category;
 import org.sopt.makers.domain.playground.community.CommunityCategoryCode;
+import org.sopt.makers.domain.playground.community.CommunityMakersMemberIds;
 import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfile;
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousProfileService;
 import org.sopt.makers.domain.playground.community.comment.service.CommentCommandService;
@@ -102,6 +103,10 @@ public class CommunityPostCommandService {
         created.isBlindWriter(),
         command.mentionUserIds(),
         command.mentionWebLink());
+
+    if (!CommunityMakersMemberIds.IDS.contains(writerId)) {
+      communityNotificationPublisher.publishNonMakersPost(created.id());
+    }
 
     return new PostMutationResult(created, category.code());
   }
@@ -197,18 +202,7 @@ public class CommunityPostCommandService {
           command.link());
     }
 
-    ScrapedSopticleArticle scraped = scrapSopticleArticle(command.link());
-    if (scraped == null) {
-      return Post.create(
-          writerId,
-          category.id(),
-          command.title(),
-          command.content(),
-          command.images(),
-          false,
-          command.isBlindWriter(),
-          command.link());
-    }
+    ScrapedSopticleArticle scraped = sopticleScraperPort.scrap(command.link());
 
     return Post.create(
         writerId,
@@ -227,23 +221,10 @@ public class CommunityPostCommandService {
           category.id(), command.title(), command.content(), command.images(), command.isBlindWriter(), command.link());
     }
 
-    ScrapedSopticleArticle scraped = scrapSopticleArticle(command.link());
-    if (scraped == null) {
-      return post.update(
-          category.id(), command.title(), command.content(), command.images(), command.isBlindWriter(), command.link());
-    }
+    ScrapedSopticleArticle scraped = sopticleScraperPort.scrap(command.link());
 
     return post.update(
         category.id(), scraped.title(), scraped.description(), List.of(scraped.thumbnailUrl()), false, scraped.articleUrl());
-  }
-
-  private ScrapedSopticleArticle scrapSopticleArticle(String link) {
-    try {
-      return sopticleScraperPort.scrap(link);
-    } catch (RuntimeException e) {
-      log.warn("Sopticle 메타데이터 스크래핑 실패. 요청값으로 게시글을 생성합니다. link={}", link, e);
-      return null;
-    }
   }
 
   private void validateWriterExists(Long userId) {

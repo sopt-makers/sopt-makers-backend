@@ -2,6 +2,7 @@ package org.sopt.makers.domain.playground.community.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.makers.domain.playground.community.notification.CommunityNotMakersPostEvent;
 import org.sopt.makers.domain.playground.community.notification.CommunityPushNotification;
 import org.sopt.makers.domain.playground.community.notification.CommunitySlackReportEvent;
 import org.sopt.makers.domain.playground.community.notification.port.CommunityPushNotificationPort;
@@ -40,6 +41,16 @@ public class CommunityNotificationEventListener {
       communitySlackNotificationPort.sendReportMessage(event.message());
     } catch (Exception exception) {
       log.error("커뮤니티 신고 슬랙 알림 발송 실패.", exception);
+    }
+  }
+
+  @Async
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void handleNotMakersPost(CommunityNotMakersPostEvent event) {
+    try {
+      communitySlackNotificationPort.sendNotMakersMessage(event.message());
+    } catch (Exception exception) {
+      log.error("비 메이커스 게시글 작성 슬랙 알림 발송 실패.", exception);
     }
   }
 }

@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.playground.community.notification.service;
 
 import java.util.List;
+import org.sopt.makers.domain.playground.community.notification.CommunityNotMakersPostEvent;
 import org.sopt.makers.domain.playground.community.notification.CommunityPushNotificationFactory;
 import org.sopt.makers.domain.playground.community.notification.CommunityReportSlackMessageFactory;
 import org.sopt.makers.domain.playground.community.notification.CommunitySlackReportEvent;
@@ -26,6 +27,11 @@ public class CommunityNotificationPublisher {
     eventPublisher.publishEvent(
         new CommunitySlackReportEvent(
             CommunityReportSlackMessageFactory.forCommentReport(postId, reporterName, commentContent)));
+  }
+
+  public void publishNonMakersPost(Long postId) {
+    eventPublisher.publishEvent(
+        new CommunityNotMakersPostEvent(CommunityReportSlackMessageFactory.forNotMakersPost(postId)));
   }
 
   public void publishCommentCreated(

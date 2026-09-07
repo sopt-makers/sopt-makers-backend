@@ -8,7 +8,9 @@ public record SlackProperties(
     String appToken,
     boolean socketModeEnabled,
     String communityReportChannelId,
-    String memberReportChannelId) {
+    String memberReportChannelId,
+    String communityNotMakersChannelId,
+    String newProfileChannelId) {
 
   public void validateSocketModeConfiguration() {
     if (!socketModeEnabled) {

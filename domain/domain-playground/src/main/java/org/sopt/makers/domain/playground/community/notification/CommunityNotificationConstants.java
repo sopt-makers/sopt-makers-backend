@@ -16,4 +16,6 @@ final class CommunityNotificationConstants {
   static final String POST_REPORT_TEXT_FORMAT = "🚨글 신고 발생!🚨\n*신고자:*\n%s\n*글 링크:*\n<https://playground.sopt.org/feed/%d|글>";
   static final String COMMENT_REPORT_TEXT_FORMAT =
       "🚨댓글 신고 발생!🚨\n*신고자:*\n%s\n*댓글 내용:*\n%s\n*링크:*\n<https://playground.sopt.org/feed/%d|글>";
+  static final String NOT_MAKERS_POST_TEXT_FORMAT =
+      "💙 비 메이커스 유저 글 작성\n비 메이커스 유저가 글을 작성했어요!\n*글 링크:*\n<https://playground.sopt.org/feed/%d|링크>";
 }

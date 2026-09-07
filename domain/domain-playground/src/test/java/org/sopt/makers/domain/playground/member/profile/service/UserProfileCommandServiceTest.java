@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileNotifierPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.domain.user.ActivityList;
 import org.sopt.makers.domain.user.Profile;
@@ -32,10 +33,15 @@ class UserProfileCommandServiceTest {
   private final UserProfileRankingCachePort rankingCachePort = mock(UserProfileRankingCachePort.class);
   private final UserProfileCardCachePort cardCachePort = mock(UserProfileCardCachePort.class);
   private final UserActivityCheckPort userActivityCheckPort = mock(UserActivityCheckPort.class);
+  private final UserProfileNotifierPort userProfileNotifierPort = mock(UserProfileNotifierPort.class);
 
   private final UserProfileCommandService service =
       new UserProfileCommandService(
-          playgroundProfileUserPort, rankingCachePort, cardCachePort, userActivityCheckPort);
+          playgroundProfileUserPort,
+          rankingCachePort,
+          cardCachePort,
+          userActivityCheckPort,
+          userProfileNotifierPort);
 
   @AfterEach
   void tearDown() {

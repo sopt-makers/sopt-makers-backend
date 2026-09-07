@@ -10,6 +10,7 @@ import org.sopt.makers.domain.playground.member.profile.exception.UserProfileExc
 import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFailure;
 import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
+import org.sopt.makers.domain.playground.member.profile.port.UserProfileNotifierPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.Role;
@@ -38,6 +39,7 @@ public class UserProfileCommandService {
   private final UserProfileRankingCachePort rankingCachePort;
   private final UserProfileCardCachePort cardCachePort;
   private final UserActivityCheckPort userActivityCheckPort;
+  private final UserProfileNotifierPort userProfileNotifierPort;
 
   public record ActivityInput(Integer generation, String team) {}
 
@@ -115,7 +117,9 @@ public class UserProfileCommandService {
     playgroundProfileUserPort.completeFirstLogin(userId);
     evictProfileListCaches(userId);
 
-    return playgroundProfileUserPort.getUser(userId);
+    User saved = playgroundProfileUserPort.getUser(userId);
+    userProfileNotifierPort.notifyNewProfile(userId, saved.profile().name(), idealType);
+    return saved;
   }
 
   public User updateProfile(

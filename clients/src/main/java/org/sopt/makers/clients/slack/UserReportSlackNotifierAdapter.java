@@ -1,9 +1,7 @@
 package org.sopt.makers.clients.slack;
 
 import com.slack.api.Slack;
-import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
-import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.playground.member.relation.port.UserReportNotifierPort;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +43,7 @@ public class UserReportSlackNotifierAdapter implements UserReportNotifierPort {
       if (!response.isOk()) {
         log.error("유저 신고 슬랙 메시지 전송 실패: {}", response.getError());
       }
-    } catch (IOException | SlackApiException exception) {
+    } catch (Exception exception) {
       log.error("유저 신고 슬랙 메시지 전송 실패", exception);
     }
   }
