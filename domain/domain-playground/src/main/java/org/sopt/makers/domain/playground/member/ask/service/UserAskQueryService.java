@@ -75,13 +75,14 @@ public class UserAskQueryService {
     int pageNumber = page != null ? page : 0;
     int pageSize = normalizePageSize(size);
 
-    // 레거시 호환: tab 파라미터가 없으면 전체 조회가 아니라 ANSWERED 탭을 기본값으로 사용한다.
-    QuestionTab effectiveTab = tab != null ? tab : QuestionTab.ANSWERED;
-
     List<UserAsk> asks;
     long totalElements;
 
-    if (effectiveTab == QuestionTab.ANSWERED) {
+    // 레거시 호환: tab 파라미터가 없으면 답변완료+미답변 전체를 최신순으로 반환한다.
+    if (tab == null) {
+      asks = userAskRepositoryPort.findAllByReceiverUserId(receiverUserId, pageNumber, pageSize);
+      totalElements = userAskRepositoryPort.countAllByReceiverUserId(receiverUserId);
+    } else if (tab == QuestionTab.ANSWERED) {
       asks = userAskRepositoryPort.findAnsweredByReceiverUserId(receiverUserId, pageNumber, pageSize);
       totalElements = userAskRepositoryPort.countAnsweredByReceiverUserId(receiverUserId);
     } else {
