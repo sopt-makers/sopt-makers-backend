@@ -12,6 +12,8 @@ public interface PostLikeRepositoryPort {
 
   void delete(PostLike postLike);
 
+  void deleteAllByPostId(Long postId);
+
   boolean existsByUserIdAndPostId(Long userId, Long postId);
 
   Optional<PostLike> findByUserIdAndPostId(Long userId, Long postId);

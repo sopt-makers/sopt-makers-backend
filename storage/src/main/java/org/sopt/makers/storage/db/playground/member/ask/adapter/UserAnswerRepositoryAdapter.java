@@ -34,6 +34,12 @@ public class UserAnswerRepositoryAdapter implements UserAnswerRepositoryPort {
     userAnswerJpaRepository.deleteById(answerId);
   }
 
+  @Transactional
+  @Override
+  public void deleteByQuestionId(Long questionId) {
+    userAnswerJpaRepository.deleteByQuestionId(questionId);
+  }
+
   @Override
   public boolean existsByQuestionId(Long questionId) {
     return userAnswerJpaRepository.existsByQuestionId(questionId);

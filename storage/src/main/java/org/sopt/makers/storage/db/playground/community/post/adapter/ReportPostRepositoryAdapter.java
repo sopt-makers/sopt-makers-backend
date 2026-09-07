@@ -20,4 +20,10 @@ public class ReportPostRepositoryAdapter implements ReportPostRepositoryPort {
   public ReportPost save(ReportPost reportPost) {
     return reportPostJpaRepository.save(ReportPostEntity.from(reportPost)).toDomain();
   }
+
+  @Transactional
+  @Override
+  public void deleteAllByPostId(Long postId) {
+    reportPostJpaRepository.deleteAllByPostId(postId);
+  }
 }

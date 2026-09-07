@@ -33,6 +33,12 @@ public class PostLikeRepositoryAdapter implements PostLikeRepositoryPort {
     postLikeJpaRepository.deleteById(postLike.id());
   }
 
+  @Transactional
+  @Override
+  public void deleteAllByPostId(Long postId) {
+    postLikeJpaRepository.deleteAllByPostId(postId);
+  }
+
   @Override
   public boolean existsByUserIdAndPostId(Long userId, Long postId) {
     return postLikeJpaRepository.existsByUserIdAndPostId(userId, postId);

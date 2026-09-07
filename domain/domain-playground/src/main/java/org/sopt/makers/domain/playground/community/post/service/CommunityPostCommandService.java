@@ -133,6 +133,8 @@ public class CommunityPostCommandService {
 
     commentCommandService.deleteCommentsByPostId(postId);
     voteCommandService.deleteVoteByPostId(postId);
+    postLikeRepositoryPort.deleteAllByPostId(postId);
+    reportPostRepositoryPort.deleteAllByPostId(postId);
     deletedPostRepositoryPort.save(DeletedPost.from(post));
     postRepositoryPort.delete(post);
   }

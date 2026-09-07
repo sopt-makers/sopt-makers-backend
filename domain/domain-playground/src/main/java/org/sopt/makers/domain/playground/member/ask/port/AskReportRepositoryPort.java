@@ -11,5 +11,7 @@ public interface AskReportRepositoryPort {
 
   void deleteById(Long reportId);
 
+  void deleteAllByQuestionId(Long questionId);
+
   boolean existsByQuestionIdAndReporterUserId(Long questionId, Long reporterUserId);
 }

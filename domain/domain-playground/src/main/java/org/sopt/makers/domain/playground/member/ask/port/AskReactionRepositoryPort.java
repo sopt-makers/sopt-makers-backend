@@ -14,6 +14,8 @@ public interface AskReactionRepositoryPort {
 
   void deleteById(Long reactionId);
 
+  void deleteAllByQuestionId(Long questionId);
+
   Optional<AskReaction> findByQuestionIdAndReactorUserId(Long questionId, Long reactorUserId);
 
   Map<Long, Long> countGroupedByQuestionIds(List<Long> questionIds);

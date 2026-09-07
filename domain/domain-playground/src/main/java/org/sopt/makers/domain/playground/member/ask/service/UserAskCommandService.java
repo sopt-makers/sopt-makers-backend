@@ -40,6 +40,9 @@ public class UserAskCommandService {
 
   @Transactional
   public UserAsk createAsk(Long askerId, Long receiverId, String content, Boolean isAnonymous) {
+    // if (askerId.equals(receiverId)) { throw new BadRequestException("자기 자신에게 질문할 수 없습니다."); }
+    // 레거시부터 자기 자신에게 질문 생성을 막는 검증이 의도적으로 비활성화(주석 처리)되어 있었고, 그 상태를 그대로 유지한다.
+    // (단, getMyLatestAnsweredQuestionLocation류 위치 조회에서는 self-check가 여전히 차단 동작한다.)
     Long anonymousNicknameId = null;
     Long anonymousProfileImageId = null;
 
@@ -115,6 +118,12 @@ public class UserAskCommandService {
       throw new UserAskException(UserAskFailure.ANSWERED_ASK_DELETE_NOT_ALLOWED);
     }
 
+    userAnswerRepositoryPort
+        .findByQuestionId(askId)
+        .ifPresent(answer -> answerReactionRepositoryPort.deleteAllByAnswerId(answer.id()));
+    userAnswerRepositoryPort.deleteByQuestionId(askId);
+    askReactionRepositoryPort.deleteAllByQuestionId(askId);
+    askReportRepositoryPort.deleteAllByQuestionId(askId);
     userAskRepositoryPort.deleteById(askId);
   }
 
@@ -151,6 +160,7 @@ public class UserAskCommandService {
     UserAsk ask = getAskOrThrow(answer.questionId());
     validateAnswerOwner(ask, userId, UserAskFailure.UNAUTHORIZED_ANSWER_DELETE);
 
+    answerReactionRepositoryPort.deleteAllByAnswerId(answerId);
     userAnswerRepositoryPort.deleteById(answerId);
   }
 
