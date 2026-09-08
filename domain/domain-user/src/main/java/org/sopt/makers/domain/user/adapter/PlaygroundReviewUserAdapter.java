@@ -12,6 +12,11 @@ public class PlaygroundReviewUserAdapter implements PlaygroundReviewUserPort {
   private final UserQueryService userQueryService;
 
   @Override
+  public boolean existsById(Long userId) {
+    return userQueryService.existsById(userId);
+  }
+
+  @Override
   public int getLastGeneration(Long userId) {
     return userQueryService
         .getWithActivitiesById(userId)

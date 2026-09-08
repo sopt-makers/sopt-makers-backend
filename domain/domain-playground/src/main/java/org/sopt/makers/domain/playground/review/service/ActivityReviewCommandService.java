@@ -20,9 +20,16 @@ public class ActivityReviewCommandService {
 
   @Transactional
   public void createActivityReview(Long userId, String content) {
+    validateUserExists(userId);
     validateCurrentGeneration(userId);
     activityReviewRepositoryPort.save(
         ActivityReview.create(userId, content, currentGenerationProvider.getCurrentGeneration()));
+  }
+
+  private void validateUserExists(Long userId) {
+    if (!activityReviewUserPort.existsById(userId)) {
+      throw new ActivityReviewException(ActivityReviewFailure.NOT_FOUND_USER);
+    }
   }
 
   private void validateCurrentGeneration(Long userId) {

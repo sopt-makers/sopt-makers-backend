@@ -12,6 +12,11 @@ public class ActivityReviewUserAdapter implements ActivityReviewUserPort {
   private final PlaygroundReviewUserPort playgroundReviewUserPort;
 
   @Override
+  public boolean existsById(Long userId) {
+    return playgroundReviewUserPort.existsById(userId);
+  }
+
+  @Override
   public int getLastGeneration(Long userId) {
     return playgroundReviewUserPort.getLastGeneration(userId);
   }
