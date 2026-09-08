@@ -2,7 +2,6 @@ package org.sopt.makers.domain.playground.resolution.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.resolution.ResolutionTag;
 import org.sopt.makers.domain.playground.resolution.UserResolution;
 import org.sopt.makers.domain.playground.resolution.exception.ResolutionException;
@@ -17,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserResolutionService {
 
+  // TODO: 새 기수 시작 전 값 변경 필수
+  private static final int CURRENT_GENERATION = 38;
+
   private final UserResolutionRepositoryPort userResolutionRepositoryPort;
   private final UserResolutionLuckyPickRepositoryPort userResolutionLuckyPickRepositoryPort;
   private final ResolutionUserPort resolutionUserPort;
-  private final CurrentGenerationProvider currentGenerationProvider;
 
   @Transactional(readOnly = true)
   public ResolutionResult getResolution(Long userId) {
@@ -28,7 +29,7 @@ public class UserResolutionService {
     boolean hasDrawnLuckyPick =
         userResolutionLuckyPickRepositoryPort.existsByUserIdAndHasDrawnTrue(userId);
     return userResolutionRepositoryPort
-        .findByUserIdAndGeneration(userId, currentGenerationProvider.getCurrentGeneration())
+        .findByUserIdAndGeneration(userId, CURRENT_GENERATION)
         .map(r -> ResolutionResult.of(true, r.resolutionTags(), r.content(), hasDrawnLuckyPick))
         .orElseGet(() -> ResolutionResult.of(false, null, null, hasDrawnLuckyPick));
   }
@@ -36,7 +37,7 @@ public class UserResolutionService {
   @Transactional(readOnly = true)
   public boolean isRegistered(Long userId) {
     validateUserExists(userId);
-    return userResolutionRepositoryPort.existsByUserIdAndGeneration(userId, currentGenerationProvider.getCurrentGeneration());
+    return userResolutionRepositoryPort.existsByUserIdAndGeneration(userId, CURRENT_GENERATION);
   }
 
   @Transactional
@@ -47,7 +48,7 @@ public class UserResolutionService {
     validateExistingResolution(userId);
 
     userResolutionRepositoryPort.save(
-        new UserResolution(null, userId, content, currentGenerationProvider.getCurrentGeneration(), tags));
+        new UserResolution(null, userId, content, CURRENT_GENERATION, tags));
   }
 
   @Transactional
@@ -58,7 +59,7 @@ public class UserResolutionService {
 
     UserResolution resolution =
         userResolutionRepositoryPort
-            .findByUserIdAndGeneration(userId, currentGenerationProvider.getCurrentGeneration())
+            .findByUserIdAndGeneration(userId, CURRENT_GENERATION)
             .orElseThrow(() -> new ResolutionException(ResolutionFailure.NOT_FOUND_RESOLUTION));
 
     userResolutionRepositoryPort.delete(resolution);
@@ -77,13 +78,13 @@ public class UserResolutionService {
   }
 
   private void validateGeneration(Long userId) {
-    if (resolutionUserPort.getLastGeneration(userId) != currentGenerationProvider.getCurrentGeneration()) {
+    if (resolutionUserPort.getLastGeneration(userId) != CURRENT_GENERATION) {
       throw new ResolutionException(ResolutionFailure.NOT_CURRENT_GENERATION);
     }
   }
 
   private void validateExistingResolution(Long userId) {
-    if (userResolutionRepositoryPort.existsByUserIdAndGeneration(userId, currentGenerationProvider.getCurrentGeneration())) {
+    if (userResolutionRepositoryPort.existsByUserIdAndGeneration(userId, CURRENT_GENERATION)) {
       throw new ResolutionException(ResolutionFailure.ALREADY_EXISTS_RESOLUTION);
     }
   }

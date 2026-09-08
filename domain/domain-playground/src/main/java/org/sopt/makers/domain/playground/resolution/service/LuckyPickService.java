@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.resolution.UserResolution;
 import org.sopt.makers.domain.playground.resolution.UserResolutionLuckyPick;
 import org.sopt.makers.domain.playground.resolution.port.UserResolutionLuckyPickRepositoryPort;
@@ -18,11 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LuckyPickService {
 
+  // TODO: 새 기수 시작 전 값 변경 필수
+  private static final int CURRENT_GENERATION = 38;
   private static final int WINNER_COUNT = 3;
 
   private final UserResolutionRepositoryPort userResolutionRepositoryPort;
   private final UserResolutionLuckyPickRepositoryPort luckyPickRepositoryPort;
-  private final CurrentGenerationProvider currentGenerationProvider;
 
   @Transactional
   public boolean checkLuckyPickResult(Long userId) {
@@ -49,7 +49,7 @@ public class LuckyPickService {
     }
 
     List<UserResolution> resolutions =
-        userResolutionRepositoryPort.findAllByGeneration(currentGenerationProvider.getCurrentGeneration());
+        userResolutionRepositoryPort.findAllByGeneration(CURRENT_GENERATION);
     List<Long> participantIds =
         resolutions.stream().map(UserResolution::userId).distinct().toList();
 
