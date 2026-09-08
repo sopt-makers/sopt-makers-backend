@@ -129,7 +129,7 @@ public class CommentQueryService {
       return Map.of();
     }
 
-    List<Long> likedCommentIds = commentLikeRepositoryPort.findLikedCommentIdsByMemberIdAndCommentIds(viewerId, commentIds);
+    List<Long> likedCommentIds = commentLikeRepositoryPort.findLikedCommentIdsByUserIdAndCommentIds(viewerId, commentIds);
     Set<Long> likedCommentIdSet = Set.copyOf(likedCommentIds);
 
     return commentIds.stream().collect(Collectors.toMap(commentId -> commentId, likedCommentIdSet::contains));

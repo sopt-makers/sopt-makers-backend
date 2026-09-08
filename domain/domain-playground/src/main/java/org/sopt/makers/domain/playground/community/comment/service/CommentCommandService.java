@@ -123,24 +123,24 @@ public class CommentCommandService {
   }
 
   @Transactional
-  public void likeComment(Long memberId, Long postId, Long commentId) {
-    validateWriterExists(memberId);
+  public void likeComment(Long userId, Long postId, Long commentId) {
+    validateWriterExists(userId);
     Comment comment = validateCommentBelongsToPost(postId, commentId);
 
-    if (commentLikeRepositoryPort.existsByMemberIdAndCommentId(memberId, commentId)) {
+    if (commentLikeRepositoryPort.existsByUserIdAndCommentId(userId, commentId)) {
       throw new CommunityException(ALREADY_LIKED_COMMENT);
     }
 
-    commentLikeRepositoryPort.save(CommentLike.create(memberId, comment.id()));
+    commentLikeRepositoryPort.save(CommentLike.create(userId, comment.id()));
   }
 
   @Transactional
-  public void unlikeComment(Long memberId, Long postId, Long commentId) {
+  public void unlikeComment(Long userId, Long postId, Long commentId) {
     validateCommentBelongsToPost(postId, commentId);
 
     CommentLike like =
         commentLikeRepositoryPort
-            .findByMemberIdAndCommentId(memberId, commentId)
+            .findByUserIdAndCommentId(userId, commentId)
             .orElseThrow(() -> new CommunityException(NOT_LIKED_COMMENT));
 
     commentLikeRepositoryPort.delete(like);

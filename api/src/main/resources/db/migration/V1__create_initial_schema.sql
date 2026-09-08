@@ -563,13 +563,13 @@ CREATE TABLE community_comment
 CREATE TABLE community_comment_like
 (
     community_comment_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
-    member_id                  BIGINT    NOT NULL,
+    user_id                    BIGINT    NOT NULL,
     comment_id                  BIGINT    NOT NULL,
     created_at                  TIMESTAMP NOT NULL,
     updated_at                  TIMESTAMP NOT NULL,
     PRIMARY KEY (community_comment_like_id),
-    CONSTRAINT uk_comment_like_member_comment UNIQUE (member_id, comment_id),
-    CONSTRAINT fk_community_comment_like_member FOREIGN KEY (member_id) REFERENCES users (id),
+    CONSTRAINT uk_comment_like_user_comment UNIQUE (user_id, comment_id),
+    CONSTRAINT fk_community_comment_like_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_community_comment_like_comment FOREIGN KEY (comment_id) REFERENCES community_comment (id)
 );
 
@@ -598,13 +598,16 @@ CREATE TABLE report_comment
     CONSTRAINT fk_report_comment_reporter FOREIGN KEY (reporter_id) REFERENCES users (id)
 );
 
+-- created_at/updated_at는 레거시 vote/vote_option/vote_selection 원본 스키마에는 없던 컬럼이라
+-- 레거시 운영 데이터 이관 시 값이 없을 수 있으므로 NOT NULL을 걸지 않는다. 애플리케이션에서 신규 생성하는
+-- row는 BaseEntity(@CreatedDate/@LastModifiedDate)가 항상 값을 채운다.
 CREATE TABLE vote
 (
     id                  BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
     post_id             BIGINT    NOT NULL,
     is_multiple_options BOOLEAN   NOT NULL,
-    created_at          TIMESTAMP NOT NULL,
-    updated_at          TIMESTAMP NOT NULL,
+    created_at          TIMESTAMP,
+    updated_at          TIMESTAMP,
     PRIMARY KEY (id),
     CONSTRAINT uk_vote_post UNIQUE (post_id),
     CONSTRAINT fk_vote_post FOREIGN KEY (post_id) REFERENCES community_post (id)
@@ -616,8 +619,8 @@ CREATE TABLE vote_option
     vote_id    BIGINT      NOT NULL,
     content    VARCHAR(40) NOT NULL,
     vote_count INT         NOT NULL DEFAULT 0,
-    created_at TIMESTAMP   NOT NULL,
-    updated_at TIMESTAMP   NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
     PRIMARY KEY (id),
     CONSTRAINT fk_vote_option_vote FOREIGN KEY (vote_id) REFERENCES vote (id)
 );
@@ -627,8 +630,8 @@ CREATE TABLE vote_selection
     id             BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
     user_id        BIGINT    NOT NULL,
     vote_option_id BIGINT    NOT NULL,
-    created_at     TIMESTAMP NOT NULL,
-    updated_at     TIMESTAMP NOT NULL,
+    created_at     TIMESTAMP,
+    updated_at     TIMESTAMP,
     PRIMARY KEY (id),
     CONSTRAINT uk_vote_selection_user_option UNIQUE (user_id, vote_option_id),
     CONSTRAINT fk_vote_selection_user FOREIGN KEY (user_id) REFERENCES users (id),

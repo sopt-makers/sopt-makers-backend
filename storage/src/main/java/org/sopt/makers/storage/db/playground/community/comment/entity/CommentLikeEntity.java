@@ -21,7 +21,7 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Table(
     name = "community_comment_like",
     uniqueConstraints = {
-      @UniqueConstraint(name = "uk_comment_like_member_comment", columnNames = {"member_id", "comment_id"})
+      @UniqueConstraint(name = "uk_comment_like_user_comment", columnNames = {"user_id", "comment_id"})
     })
 public class CommentLikeEntity extends BaseEntity {
 
@@ -30,23 +30,23 @@ public class CommentLikeEntity extends BaseEntity {
   @Column(name = "community_comment_like_id")
   private Long id;
 
-  @Column(name = "member_id", nullable = false)
-  private Long memberId;
+  @Column(name = "user_id", nullable = false)
+  private Long userId;
 
   @Column(name = "comment_id", nullable = false)
   private Long commentId;
 
   @Builder(access = PROTECTED)
-  private CommentLikeEntity(Long memberId, Long commentId) {
-    this.memberId = memberId;
+  private CommentLikeEntity(Long userId, Long commentId) {
+    this.userId = userId;
     this.commentId = commentId;
   }
 
   public static CommentLikeEntity from(CommentLike commentLike) {
-    return CommentLikeEntity.builder().memberId(commentLike.memberId()).commentId(commentLike.commentId()).build();
+    return CommentLikeEntity.builder().userId(commentLike.userId()).commentId(commentLike.commentId()).build();
   }
 
   public CommentLike toDomain() {
-    return new CommentLike(id, memberId, commentId, getCreatedAt(), getUpdatedAt());
+    return new CommentLike(id, userId, commentId, getCreatedAt(), getUpdatedAt());
   }
 }

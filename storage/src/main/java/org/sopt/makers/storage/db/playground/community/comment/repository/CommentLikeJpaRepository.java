@@ -10,9 +10,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface CommentLikeJpaRepository extends JpaRepository<CommentLikeEntity, Long> {
 
-  boolean existsByMemberIdAndCommentId(Long memberId, Long commentId);
+  boolean existsByUserIdAndCommentId(Long userId, Long commentId);
 
-  Optional<CommentLikeEntity> findByMemberIdAndCommentId(Long memberId, Long commentId);
+  Optional<CommentLikeEntity> findByUserIdAndCommentId(Long userId, Long commentId);
 
   int countAllByCommentId(Long commentId);
 
@@ -20,11 +20,11 @@ public interface CommentLikeJpaRepository extends JpaRepository<CommentLikeEntit
       """
       SELECT commentLike.commentId
       FROM CommentLikeEntity commentLike
-      WHERE commentLike.memberId = :memberId
+      WHERE commentLike.userId = :userId
         AND commentLike.commentId IN :commentIds
       """)
-  List<Long> findLikedCommentIdsByMemberIdAndCommentIds(
-      @Param("memberId") Long memberId, @Param("commentIds") List<Long> commentIds);
+  List<Long> findLikedCommentIdsByUserIdAndCommentIds(
+      @Param("userId") Long userId, @Param("commentIds") List<Long> commentIds);
 
   @Query(
       """

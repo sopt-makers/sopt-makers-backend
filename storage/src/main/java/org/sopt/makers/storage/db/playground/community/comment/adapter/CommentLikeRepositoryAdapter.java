@@ -33,13 +33,13 @@ public class CommentLikeRepositoryAdapter implements CommentLikeRepositoryPort {
   }
 
   @Override
-  public boolean existsByMemberIdAndCommentId(Long memberId, Long commentId) {
-    return commentLikeJpaRepository.existsByMemberIdAndCommentId(memberId, commentId);
+  public boolean existsByUserIdAndCommentId(Long userId, Long commentId) {
+    return commentLikeJpaRepository.existsByUserIdAndCommentId(userId, commentId);
   }
 
   @Override
-  public Optional<CommentLike> findByMemberIdAndCommentId(Long memberId, Long commentId) {
-    return commentLikeJpaRepository.findByMemberIdAndCommentId(memberId, commentId).map(CommentLikeEntity::toDomain);
+  public Optional<CommentLike> findByUserIdAndCommentId(Long userId, Long commentId) {
+    return commentLikeJpaRepository.findByUserIdAndCommentId(userId, commentId).map(CommentLikeEntity::toDomain);
   }
 
   @Override
@@ -48,8 +48,8 @@ public class CommentLikeRepositoryAdapter implements CommentLikeRepositoryPort {
   }
 
   @Override
-  public List<Long> findLikedCommentIdsByMemberIdAndCommentIds(Long memberId, List<Long> commentIds) {
-    return commentLikeJpaRepository.findLikedCommentIdsByMemberIdAndCommentIds(memberId, commentIds);
+  public List<Long> findLikedCommentIdsByUserIdAndCommentIds(Long userId, List<Long> commentIds) {
+    return commentLikeJpaRepository.findLikedCommentIdsByUserIdAndCommentIds(userId, commentIds);
   }
 
   @Override

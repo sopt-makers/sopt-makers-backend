@@ -11,13 +11,13 @@ public interface CommentLikeRepositoryPort {
 
   void delete(CommentLike commentLike);
 
-  boolean existsByMemberIdAndCommentId(Long memberId, Long commentId);
+  boolean existsByUserIdAndCommentId(Long userId, Long commentId);
 
-  Optional<CommentLike> findByMemberIdAndCommentId(Long memberId, Long commentId);
+  Optional<CommentLike> findByUserIdAndCommentId(Long userId, Long commentId);
 
   int countAllByCommentId(Long commentId);
 
-  List<Long> findLikedCommentIdsByMemberIdAndCommentIds(Long memberId, List<Long> commentIds);
+  List<Long> findLikedCommentIdsByUserIdAndCommentIds(Long userId, List<Long> commentIds);
 
   Map<Long, Long> countLikesByCommentIds(List<Long> commentIds);
 
