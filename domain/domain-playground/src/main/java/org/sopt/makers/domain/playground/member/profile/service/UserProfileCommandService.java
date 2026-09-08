@@ -28,6 +28,7 @@ import org.sopt.makers.domain.user.enums.WorkPlace;
 import org.sopt.makers.domain.user.enums.WorkTime;
 import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -63,6 +64,11 @@ public class UserProfileCommandService {
       String workPlace,
       String feedbackStyle) {}
 
+  /**
+   * updateProfile/completeFirstLogin이 서로 다른 트랜잭션으로 분리 커밋되어 완료 처리가 실패해도 앞선 프로필
+   * 갱신이 롤백되지 않던 원자성 문제를 막기 위해 메서드 전체를 하나의 트랜잭션으로 묶는다.
+   */
+  @Transactional
   public User saveProfile(
       Long userId,
       String email,
