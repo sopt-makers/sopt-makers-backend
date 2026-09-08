@@ -23,7 +23,7 @@ public interface UserResolutionApi {
   ResponseEntity<BaseResponse<?>> validation(@Parameter(hidden = true) Long userId);
 
   @Operation(summary = "다짐 메세지 삭제")
-  ResponseEntity<BaseResponse<?>> deleteResolution(@Parameter(hidden = true) Long userId);
+  ResponseEntity<Void> deleteResolution(@Parameter(hidden = true) Long userId);
 
   @Operation(summary = "행운 뽑기 결과 조회")
   ResponseEntity<BaseResponse<?>> getLuckyPickResult(@Parameter(hidden = true) Long userId);
