@@ -20,39 +20,52 @@ public class CommunityNotificationPublisher {
 
   public void publishPostReport(Long postId, String reporterName) {
     eventPublisher.publishEvent(
-        new CommunitySlackReportEvent(CommunityReportSlackMessageFactory.forPostReport(postId, reporterName)));
+        new CommunitySlackReportEvent(
+            CommunityReportSlackMessageFactory.forPostReport(postId, reporterName)));
   }
 
   public void publishCommentReport(Long postId, String reporterName, String commentContent) {
     eventPublisher.publishEvent(
         new CommunitySlackReportEvent(
-            CommunityReportSlackMessageFactory.forCommentReport(postId, reporterName, commentContent)));
+            CommunityReportSlackMessageFactory.forCommentReport(
+                postId, reporterName, commentContent)));
   }
 
   public void publishNonMakersPost(Long postId) {
     eventPublisher.publishEvent(
-        new CommunityNotMakersPostEvent(CommunityReportSlackMessageFactory.forNotMakersPost(postId)));
+        new CommunityNotMakersPostEvent(
+            CommunityReportSlackMessageFactory.forNotMakersPost(postId)));
   }
 
   public void publishCommentCreated(
       Long postAuthorId, String writerName, String content, Boolean isBlindWriter, String webLink) {
     eventPublisher.publishEvent(
-        CommunityPushNotificationFactory.forComment(postAuthorId, writerName, content, isBlindWriter, webLink));
+        CommunityPushNotificationFactory.forComment(
+            postAuthorId, writerName, content, isBlindWriter, webLink));
   }
 
   public void publishReplyCreated(
-      Long parentCommentAuthorId, String writerName, String content, Boolean isBlindWriter, String webLink) {
+      Long parentCommentAuthorId,
+      String writerName,
+      String content,
+      Boolean isBlindWriter,
+      String webLink) {
     eventPublisher.publishEvent(
         CommunityPushNotificationFactory.forReply(
             parentCommentAuthorId, writerName, content, isBlindWriter, webLink));
   }
 
   public void publishMention(
-      List<Long> mentionedUserIds, String writerName, String content, Boolean isBlindWriter, String webLink) {
+      List<Long> mentionedUserIds,
+      String writerName,
+      String content,
+      Boolean isBlindWriter,
+      String webLink) {
     if (mentionedUserIds == null || mentionedUserIds.isEmpty()) {
       return;
     }
     eventPublisher.publishEvent(
-        CommunityPushNotificationFactory.forMention(mentionedUserIds, writerName, content, isBlindWriter, webLink));
+        CommunityPushNotificationFactory.forMention(
+            mentionedUserIds, writerName, content, isBlindWriter, webLink));
   }
 }

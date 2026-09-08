@@ -28,20 +28,25 @@ public class UserRelationService {
     validateUserExists(blockedUserId);
     return userBlockRepositoryPort
         .findByBlockerUserIdAndBlockedUserId(blockerUserId, blockedUserId)
-        .map(existing -> userBlockRepositoryPort.save(
-            new UserBlock(
-                existing.id(),
-                existing.blockerUserId(),
-                existing.blockedUserId(),
-                true,
-                existing.createdAt(),
-                existing.updatedAt())))
-        .orElseGet(() -> userBlockRepositoryPort.save(
-            new UserBlock(null, blockerUserId, blockedUserId, true, null, null)));
+        .map(
+            existing ->
+                userBlockRepositoryPort.save(
+                    new UserBlock(
+                        existing.id(),
+                        existing.blockerUserId(),
+                        existing.blockedUserId(),
+                        true,
+                        existing.createdAt(),
+                        existing.updatedAt())))
+        .orElseGet(
+            () ->
+                userBlockRepositoryPort.save(
+                    new UserBlock(null, blockerUserId, blockedUserId, true, null, null)));
   }
 
   public Optional<UserBlock> getBlockStatus(Long blockerUserId, Long blockedUserId) {
-    return userBlockRepositoryPort.findByBlockerUserIdAndBlockedUserId(blockerUserId, blockedUserId);
+    return userBlockRepositoryPort.findByBlockerUserIdAndBlockedUserId(
+        blockerUserId, blockedUserId);
   }
 
   @Transactional

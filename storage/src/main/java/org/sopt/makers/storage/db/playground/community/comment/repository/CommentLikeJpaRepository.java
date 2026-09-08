@@ -34,7 +34,8 @@ public interface CommentLikeJpaRepository extends JpaRepository<CommentLikeEntit
       WHERE commentLike.commentId IN :commentIds
       GROUP BY commentLike.commentId
       """)
-  List<CommentLikeCountProjection> countLikesByCommentIds(@Param("commentIds") List<Long> commentIds);
+  List<CommentLikeCountProjection> countLikesByCommentIds(
+      @Param("commentIds") List<Long> commentIds);
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query("DELETE FROM CommentLikeEntity commentLike WHERE commentLike.commentId IN :commentIds")

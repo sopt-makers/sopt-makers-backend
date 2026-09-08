@@ -30,10 +30,12 @@ import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.playground.user.dto.AskUserResponse;
 import org.sopt.makers.api.controller.playground.user.dto.CheckActivityRequest;
+import org.sopt.makers.api.controller.playground.user.dto.MemberCrewResponse;
+import org.sopt.makers.api.controller.playground.user.dto.SameGenerationAndPartRecommendResponse;
+import org.sopt.makers.api.controller.playground.user.dto.TlMemberResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UserAllProfileResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UserBlockRequest;
 import org.sopt.makers.api.controller.playground.user.dto.UserBlockResponse;
-import org.sopt.makers.api.controller.playground.user.dto.MemberCrewResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UserInfoResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UserProfileResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UserProfileSaveRequest;
@@ -43,8 +45,6 @@ import org.sopt.makers.api.controller.playground.user.dto.UserPropertiesResponse
 import org.sopt.makers.api.controller.playground.user.dto.UserRecommendResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UserReportRequest;
 import org.sopt.makers.api.controller.playground.user.dto.UserResponse;
-import org.sopt.makers.api.controller.playground.user.dto.SameGenerationAndPartRecommendResponse;
-import org.sopt.makers.api.controller.playground.user.dto.TlMemberResponse;
 import org.sopt.makers.api.controller.playground.user.dto.WorkPreferenceRecommendationResponse;
 import org.sopt.makers.api.controller.playground.user.dto.WorkPreferenceResponse;
 import org.sopt.makers.api.controller.playground.user.dto.WorkPreferenceUpdateRequest;
@@ -52,10 +52,10 @@ import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
 import org.sopt.makers.domain.playground.member.profile.UserSummary;
 import org.sopt.makers.domain.playground.member.profile.service.AppJamTlService;
-import org.sopt.makers.domain.playground.member.profile.service.UserPropertyService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileCommandService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileListService;
 import org.sopt.makers.domain.playground.member.profile.service.UserProfileQueryService;
+import org.sopt.makers.domain.playground.member.profile.service.UserPropertyService;
 import org.sopt.makers.domain.playground.member.profile.service.UserRecommendationService;
 import org.sopt.makers.domain.playground.member.relation.UserBlock;
 import org.sopt.makers.domain.playground.member.relation.service.UserRelationService;
@@ -92,13 +92,15 @@ public class PlaygroundUserController implements PlaygroundUserApi {
   @Override
   @GetMapping("/{id}")
   public ResponseEntity<BaseResponse<?>> getMember(@PathVariable Long id) {
-    return ResponseFactory.success(GET_MEMBER, UserResponse.from(userProfileQueryService.getMemberSummary(id)));
+    return ResponseFactory.success(
+        GET_MEMBER, UserResponse.from(userProfileQueryService.getMemberSummary(id)));
   }
 
   @Override
   @GetMapping("/me")
   public ResponseEntity<BaseResponse<?>> getMyInfo(@CurrentUserId Long userId) {
-    return ResponseFactory.success(GET_MY_INFO, UserInfoResponse.from(userProfileQueryService.getMyInfo(userId)));
+    return ResponseFactory.success(
+        GET_MY_INFO, UserInfoResponse.from(userProfileQueryService.getMyInfo(userId)));
   }
 
   @Override
@@ -137,7 +139,8 @@ public class PlaygroundUserController implements PlaygroundUserApi {
             request.allowOfficial(),
             request.isPhoneBlind());
     boolean isCoffeeChatActivate = userProfileQueryService.isCoffeeChatActive(userId);
-    return ResponseFactory.success(CREATE_PROFILE, UserProfileResponse.from(member, isCoffeeChatActivate));
+    return ResponseFactory.success(
+        CREATE_PROFILE, UserProfileResponse.from(member, isCoffeeChatActivate));
   }
 
   @Override
@@ -169,7 +172,8 @@ public class PlaygroundUserController implements PlaygroundUserApi {
             request.allowOfficial(),
             request.isPhoneBlind());
     boolean isCoffeeChatActivate = userProfileQueryService.isCoffeeChatActive(userId);
-    return ResponseFactory.success(UPDATE_PROFILE, UserProfileResponse.from(member, isCoffeeChatActivate));
+    return ResponseFactory.success(
+        UPDATE_PROFILE, UserProfileResponse.from(member, isCoffeeChatActivate));
   }
 
   @Override
@@ -184,21 +188,25 @@ public class PlaygroundUserController implements PlaygroundUserApi {
   @GetMapping("/work-preference")
   public ResponseEntity<BaseResponse<?>> getWorkPreference(@CurrentUserId Long userId) {
     User user = userProfileQueryService.getMemberUser(userId);
-    return ResponseFactory.success(GET_WORK_PREFERENCE, WorkPreferenceResponse.from(user.profile().workPreference()));
+    return ResponseFactory.success(
+        GET_WORK_PREFERENCE, WorkPreferenceResponse.from(user.profile().workPreference()));
   }
 
   @Override
   @GetMapping("/profile/{id}")
-  public ResponseEntity<BaseResponse<?>> getProfile(@PathVariable Long id, @CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<?>> getProfile(
+      @PathVariable Long id, @CurrentUserId Long userId) {
     return ResponseFactory.success(
-        GET_PROFILE, UserProfileSpecificResponse.from(userProfileQueryService.getProfileDetail(id, userId)));
+        GET_PROFILE,
+        UserProfileSpecificResponse.from(userProfileQueryService.getProfileDetail(id, userId)));
   }
 
   @Override
   @GetMapping("/profile/me")
   public ResponseEntity<BaseResponse<?>> getMyProfile(@CurrentUserId Long userId) {
     return ResponseFactory.success(
-        GET_PROFILE, UserProfileSpecificResponse.from(userProfileQueryService.getProfileDetail(userId, userId)));
+        GET_PROFILE,
+        UserProfileSpecificResponse.from(userProfileQueryService.getProfileDetail(userId, userId)));
   }
 
   @Override
@@ -240,13 +248,16 @@ public class PlaygroundUserController implements PlaygroundUserApi {
   @GetMapping("/tl")
   public ResponseEntity<BaseResponse<?>> getTlMembers(@CurrentUserId Long userId) {
     List<TlMemberResponse> responses =
-        appJamTlService.getCurrentGenerationTlMembers(userId).stream().map(TlMemberResponse::from).toList();
+        appJamTlService.getCurrentGenerationTlMembers(userId).stream()
+            .map(TlMemberResponse::from)
+            .toList();
     return ResponseFactory.success(GET_TL_MEMBERS, responses);
   }
 
   @Override
   @GetMapping("/work-preference/recommendations")
-  public ResponseEntity<BaseResponse<?>> getWorkPreferenceRecommendations(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<?>> getWorkPreferenceRecommendations(
+      @CurrentUserId Long userId) {
     return ResponseFactory.success(
         GET_WORK_PREFERENCE_RECOMMENDATIONS,
         WorkPreferenceRecommendationResponse.from(
@@ -298,12 +309,14 @@ public class PlaygroundUserController implements PlaygroundUserApi {
     int pageNo = page == null ? DEFAULT_CREW_PAGE_NO : page;
     int limit = take == null ? DEFAULT_CREW_TAKE : take;
     return ResponseFactory.success(
-        GET_MEMBER_CREW, MemberCrewResponse.from(userRecommendationService.getCrewMeetings(id, pageNo, limit)));
+        GET_MEMBER_CREW,
+        MemberCrewResponse.from(userRecommendationService.getCrewMeetings(id, pageNo, limit)));
   }
 
   @Override
   @GetMapping("/ask/list")
-  public ResponseEntity<BaseResponse<?>> getAskMembers(@RequestParam(required = false) String part) {
+  public ResponseEntity<BaseResponse<?>> getAskMembers(
+      @RequestParam(required = false) String part) {
     return ResponseFactory.success(
         GET_ASK_MEMBERS, AskUserResponse.from(userAskQueryService.getAskTargetMembers(part)));
   }
@@ -343,7 +356,8 @@ public class PlaygroundUserController implements PlaygroundUserApi {
   @GetMapping("/property")
   public ResponseEntity<BaseResponse<?>> getMemberProperty(@CurrentUserId Long userId) {
     return ResponseFactory.success(
-        GET_MEMBER_PROPERTY, UserPropertiesResponse.from(memberPropertyService.getMemberProperties(userId)));
+        GET_MEMBER_PROPERTY,
+        UserPropertiesResponse.from(memberPropertyService.getMemberProperties(userId)));
   }
 
   private List<UserProfileCommandService.ActivityInput> toActivityInputs(
@@ -400,13 +414,20 @@ public class PlaygroundUserController implements PlaygroundUserApi {
       return null;
     }
     return new UserProfileCommandService.WorkPreferenceInput(
-        request.ideationStyle(), request.workTime(), request.communicationStyle(), request.workPlace(),
+        request.ideationStyle(),
+        request.workTime(),
+        request.communicationStyle(),
+        request.workPlace(),
         request.feedbackStyle());
   }
 
-  private UserProfileCommandService.WorkPreferenceInput toWorkPreferenceInput(WorkPreferenceUpdateRequest request) {
+  private UserProfileCommandService.WorkPreferenceInput toWorkPreferenceInput(
+      WorkPreferenceUpdateRequest request) {
     return new UserProfileCommandService.WorkPreferenceInput(
-        request.ideationStyle(), request.workTime(), request.communicationStyle(), request.workPlace(),
+        request.ideationStyle(),
+        request.workTime(),
+        request.communicationStyle(),
+        request.workPlace(),
         request.feedbackStyle());
   }
 
@@ -415,7 +436,9 @@ public class PlaygroundUserController implements PlaygroundUserApi {
     if (links == null) {
       return List.of();
     }
-    return links.stream().map(l -> new UserProfileCommandService.LinkInput(null, l.title(), l.url())).toList();
+    return links.stream()
+        .map(l -> new UserProfileCommandService.LinkInput(null, l.title(), l.url()))
+        .toList();
   }
 
   private List<UserProfileCommandService.LinkInput> toLinkInputsFromUpdate(
@@ -423,7 +446,9 @@ public class PlaygroundUserController implements PlaygroundUserApi {
     if (links == null) {
       return List.of();
     }
-    return links.stream().map(l -> new UserProfileCommandService.LinkInput(l.id(), l.title(), l.url())).toList();
+    return links.stream()
+        .map(l -> new UserProfileCommandService.LinkInput(l.id(), l.title(), l.url()))
+        .toList();
   }
 
   private List<UserProfileCommandService.CareerInput> toCareerInputs(

@@ -41,7 +41,8 @@ public class UserPropertyService {
 
     String major = lastCareer == null ? user.profile().major() : null;
     String job = lastCareer != null ? lastCareer.title() : null;
-    String organization = lastCareer != null ? lastCareer.companyName() : user.profile().university();
+    String organization =
+        lastCareer != null ? lastCareer.companyName() : user.profile().university();
 
     List<Activity> sortedActivities =
         user.activities().activities().stream()
@@ -74,8 +75,11 @@ public class UserPropertyService {
   }
 
   // NOTE: 레거시는 is_coffee_chat_activate=true인 row만 확인하여 비활성화 유저도 NONE으로 응답하던 버그가 있었음.
-  // 클라이언트(Web/App)가 NONE/ON 2가지 상태만 처리하도록 구현되어 있을 위험이 있어 레거시 응답 스펙을 의도적으로 유지함. (추후 클라이언트 대응 후 OFF 복원 필요)
+  // 클라이언트(Web/App)가 NONE/ON 2가지 상태만 처리하도록 구현되어 있을 위험이 있어 레거시 응답 스펙을 의도적으로 유지함. (추후 클라이언트 대응 후 OFF
+  // 복원 필요)
   private CoffeeChatStatus resolveCoffeeChatStatus(Long userId) {
-    return coffeeChatActivationPort.isCoffeeChatActive(userId) ? CoffeeChatStatus.ON : CoffeeChatStatus.NONE;
+    return coffeeChatActivationPort.isCoffeeChatActive(userId)
+        ? CoffeeChatStatus.ON
+        : CoffeeChatStatus.NONE;
   }
 }

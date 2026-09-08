@@ -80,8 +80,7 @@ public class CrewMeetingPostRepositoryAdapter implements CrewMeetingPostPort {
     CacheRebuildResult rebuildResult = rebuildCache(userId, snapshotTime, targetCount);
 
     if (rebuildResult.failed()) {
-      log.warn(
-          "모임 피드 캐시 재구성 실패. 기존 캐시를 유지합니다. userId: {}, snapshotTime: {}", userId, snapshotTime);
+      log.warn("모임 피드 캐시 재구성 실패. 기존 캐시를 유지합니다. userId: {}, snapshotTime: {}", userId, snapshotTime);
       return fallbackWithoutMore(cache);
     }
 
@@ -89,7 +88,8 @@ public class CrewMeetingPostRepositoryAdapter implements CrewMeetingPostPort {
     return rebuildResult.cache();
   }
 
-  private CacheRebuildResult rebuildCache(Long userId, LocalDateTime snapshotTime, int targetCount) {
+  private CacheRebuildResult rebuildCache(
+      Long userId, LocalDateTime snapshotTime, int targetCount) {
     int page = 1;
     boolean hasMorePage = true;
     List<CachedCrewMeetingPost> cachedPosts = new ArrayList<>();
@@ -98,7 +98,8 @@ public class CrewMeetingPostRepositoryAdapter implements CrewMeetingPostPort {
       CrewMeetingPage crewPage = safeFetchPosts(userId, page);
 
       if (crewPage.fetchFailed()) {
-        return new CacheRebuildResult(new CachedCrewMeetingFeed(normalize(cachedPosts), true), true);
+        return new CacheRebuildResult(
+            new CachedCrewMeetingFeed(normalize(cachedPosts), true), true);
       }
 
       for (CrewMeetingPost post : crewPage.posts()) {
@@ -112,7 +113,8 @@ public class CrewMeetingPostRepositoryAdapter implements CrewMeetingPostPort {
       page++;
     }
 
-    return new CacheRebuildResult(new CachedCrewMeetingFeed(normalize(cachedPosts), hasMorePage), false);
+    return new CacheRebuildResult(
+        new CachedCrewMeetingFeed(normalize(cachedPosts), hasMorePage), false);
   }
 
   private CacheRebuildResult rebuildCacheUntil(
@@ -125,7 +127,8 @@ public class CrewMeetingPostRepositoryAdapter implements CrewMeetingPostPort {
       CrewMeetingPage crewPage = safeFetchPosts(userId, page);
 
       if (crewPage.fetchFailed()) {
-        return new CacheRebuildResult(new CachedCrewMeetingFeed(normalize(cachedPosts), true), true);
+        return new CacheRebuildResult(
+            new CachedCrewMeetingFeed(normalize(cachedPosts), true), true);
       }
 
       boolean reachedOlderThanSince = false;
@@ -151,7 +154,8 @@ public class CrewMeetingPostRepositoryAdapter implements CrewMeetingPostPort {
       page++;
     }
 
-    return new CacheRebuildResult(new CachedCrewMeetingFeed(normalize(cachedPosts), hasMorePage), false);
+    return new CacheRebuildResult(
+        new CachedCrewMeetingFeed(normalize(cachedPosts), hasMorePage), false);
   }
 
   private boolean containsOlderThanOrEqualToSince(

@@ -16,10 +16,10 @@ import org.sopt.makers.domain.playground.member.profile.UserProfileRanking;
 import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatActivationPort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileCardCachePort;
 import org.sopt.makers.domain.playground.member.profile.port.UserProfileRankingCachePort;
-import org.sopt.makers.domain.playground.member.profile.service.sorting.UserProfileFilter;
-import org.sopt.makers.domain.playground.member.profile.service.sorting.UserSortingService;
 import org.sopt.makers.domain.playground.member.profile.service.sorting.ProfileOrderBy;
 import org.sopt.makers.domain.playground.member.profile.service.sorting.ProfileTeamFilter;
+import org.sopt.makers.domain.playground.member.profile.service.sorting.UserProfileFilter;
+import org.sopt.makers.domain.playground.member.profile.service.sorting.UserSortingService;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserCareer;
 import org.sopt.makers.domain.user.UserLink;
@@ -71,11 +71,13 @@ public class UserProfileListService {
     if (cacheable) {
       return getCachedDefaultPage(offsetValue, limitValue);
     }
-    return getLivePage(filter, limitValue, offsetValue, search, generation, employed, orderBy, mbti, team);
+    return getLivePage(
+        filter, limitValue, offsetValue, search, generation, employed, orderBy, mbti, team);
   }
 
   private UserProfileListResult getCachedDefaultPage(int offset, int limit) {
-    UserProfileRanking ranking = rankingCachePort.getTopRanking().orElseGet(this::recomputeAndCacheRanking);
+    UserProfileRanking ranking =
+        rankingCachePort.getTopRanking().orElseGet(this::recomputeAndCacheRanking);
 
     List<Long> pageIds = sliceIds(ranking.topUserIds(), offset, limit);
     if (pageIds.isEmpty()) {
@@ -96,12 +98,14 @@ public class UserProfileListService {
     }
 
     List<User> users = findProfilesWithLinksAndCareers(candidateIds);
-    List<User> sorted = users.stream().sorted(memberSortingService.createComparator(null, null)).toList();
+    List<User> sorted =
+        users.stream().sorted(memberSortingService.createComparator(null, null)).toList();
     List<User> top = sorted.stream().limit(TOP_RANK_SIZE).toList();
 
     top.forEach(cardCachePort::put);
 
-    UserProfileRanking ranking = new UserProfileRanking(top.stream().map(User::id).toList(), sorted.size());
+    UserProfileRanking ranking =
+        new UserProfileRanking(top.stream().map(User::id).toList(), sorted.size());
     rankingCachePort.putTopRanking(ranking);
     return ranking;
   }
@@ -143,14 +147,19 @@ public class UserProfileListService {
     ProfileTeamFilter teamFilter = ProfileTeamFilter.fromRawCode(team);
     List<User> filteredByActivity =
         users.stream()
-            .filter(u -> UserProfileFilter.matchesActivityConditions(u, partFilter, teamFilter, generation))
+            .filter(
+                u ->
+                    UserProfileFilter.matchesActivityConditions(
+                        u, partFilter, teamFilter, generation))
             .toList();
     if (filteredByActivity.isEmpty()) {
       return UserProfileListResult.empty();
     }
 
     List<User> filteredBySearch =
-        filteredByActivity.stream().filter(u -> UserProfileFilter.matchesSearch(u, search)).toList();
+        filteredByActivity.stream()
+            .filter(u -> UserProfileFilter.matchesSearch(u, search))
+            .toList();
     if (filteredBySearch.isEmpty()) {
       return UserProfileListResult.empty();
     }
@@ -161,7 +170,8 @@ public class UserProfileListService {
             .sorted(
                 orderBy != null
                     ? memberSortingService.createComparatorByOrderCondition(orderBy, employed)
-                    : memberSortingService.createComparator(employed, UserProfileFilter.toSortingTeam(teamFilter)))
+                    : memberSortingService.createComparator(
+                        employed, UserProfileFilter.toSortingTeam(teamFilter)))
             .toList();
 
     List<User> pagedUsers = sortedUsers.stream().skip(offsetValue).limit(limitValue).toList();
@@ -173,7 +183,8 @@ public class UserProfileListService {
     return buildResult(pagedUsers, hasNext, sortedUsers.size());
   }
 
-  private UserProfileListResult buildResult(List<User> pagedUsers, boolean hasNext, int totalCount) {
+  private UserProfileListResult buildResult(
+      List<User> pagedUsers, boolean hasNext, int totalCount) {
     List<Long> pagedIds = pagedUsers.stream().map(User::id).toList();
     Set<Long> activeCoffeeChatIds = coffeeChatActivationPort.findActiveUserIds(pagedIds);
     Map<Long, AskPreview> previewByReceiverId = userAskQueryService.findRecentAskPreviews(pagedIds);
@@ -183,15 +194,17 @@ public class UserProfileListService {
             .map(
                 user ->
                     new UserProfileListItem(
-                        user, activeCoffeeChatIds.contains(user.id()), previewByReceiverId.get(user.id())))
+                        user,
+                        activeCoffeeChatIds.contains(user.id()),
+                        previewByReceiverId.get(user.id())))
             .toList();
 
     return new UserProfileListResult(items, hasNext, totalCount);
   }
 
   /**
-   * activity와 동일한 수준으로 최적화한다: 대상 ID 전체를 links/careers 각각 단일 벌크 IN 쿼리로 조회해
-   * {@code Map<Long, List<...>>}로 그룹핑한 뒤, 유저별로 인메모리에서 매칭해 붙인다(멤버당 개별 조회 없음).
+   * activity와 동일한 수준으로 최적화한다: 대상 ID 전체를 links/careers 각각 단일 벌크 IN 쿼리로 조회해 {@code Map<Long,
+   * List<...>>}로 그룹핑한 뒤, 유저별로 인메모리에서 매칭해 붙인다(멤버당 개별 조회 없음).
    */
   private List<User> findProfilesWithLinksAndCareers(List<Long> userIds) {
     List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(userIds);
@@ -199,8 +212,10 @@ public class UserProfileListService {
       return users;
     }
 
-    Map<Long, List<UserLink>> linksByUserId = playgroundProfileUserPort.findAllLinksByUserIds(userIds);
-    Map<Long, List<UserCareer>> careersByUserId = playgroundProfileUserPort.findAllCareersByUserIds(userIds);
+    Map<Long, List<UserLink>> linksByUserId =
+        playgroundProfileUserPort.findAllLinksByUserIds(userIds);
+    Map<Long, List<UserCareer>> careersByUserId =
+        playgroundProfileUserPort.findAllCareersByUserIds(userIds);
 
     return users.stream()
         .map(

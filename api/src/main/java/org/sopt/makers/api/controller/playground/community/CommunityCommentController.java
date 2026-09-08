@@ -42,7 +42,9 @@ public class CommunityCommentController implements CommunityCommentApi {
   @Override
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createComment(
-      @PathVariable("postId") Long postId, @CurrentUserId Long userId, @RequestBody @Valid CommentSaveRequest request) {
+      @PathVariable("postId") Long postId,
+      @CurrentUserId Long userId,
+      @RequestBody @Valid CommentSaveRequest request) {
     commentCommandService.createComment(userId, postId, request.toCommand());
     return ResponseFactory.success(CREATE_COMMENT);
   }
@@ -52,8 +54,10 @@ public class CommunityCommentController implements CommunityCommentApi {
   public ResponseEntity<BaseResponse<?>> getComments(
       @CurrentUserId Long userId,
       @PathVariable("postId") Long postId,
-      @RequestParam(value = "isBlockOn", required = false, defaultValue = "true") Boolean isBlockOn) {
-    List<CommentThread> threads = commentQueryService.getCommentThreadsByPostId(userId, postId, isBlockOn);
+      @RequestParam(value = "isBlockOn", required = false, defaultValue = "true")
+          Boolean isBlockOn) {
+    List<CommentThread> threads =
+        commentQueryService.getCommentThreadsByPostId(userId, postId, isBlockOn);
     List<CommentResponse> flatComments = threads.stream().map(CommentResponse::from).toList();
     List<CommentResponse> hierarchicalComments = CommentResponse.buildHierarchy(flatComments);
     return ResponseFactory.success(GET_COMMENTS, hierarchicalComments);

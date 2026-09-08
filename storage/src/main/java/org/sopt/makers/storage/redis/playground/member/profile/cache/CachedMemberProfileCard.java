@@ -37,5 +37,10 @@ public record CachedMemberProfileCard(
   public record CachedMemberLink(Long id, String title, String url) {}
 
   public record CachedMemberCareer(
-      Long id, String companyName, String title, String startDate, String endDate, Boolean isCurrent) {}
+      Long id,
+      String companyName,
+      String title,
+      String startDate,
+      String endDate,
+      Boolean isCurrent) {}
 }

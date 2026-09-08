@@ -21,8 +21,12 @@ public class SopticleScraperAdapter implements SopticleScraperPort {
     try {
       LinkSource source = LinkSource.parseSource(url);
       ScrapedArticle article = crawlerComposite.crawl(source, url);
-      String articleUrl = article.articleUrl() == null || article.articleUrl().isBlank() ? url : article.articleUrl();
-      return new ScrapedSopticleArticle(article.thumbnailUrl(), article.title(), article.description(), articleUrl);
+      String articleUrl =
+          article.articleUrl() == null || article.articleUrl().isBlank()
+              ? url
+              : article.articleUrl();
+      return new ScrapedSopticleArticle(
+          article.thumbnailUrl(), article.title(), article.description(), articleUrl);
     } catch (IOException e) {
       log.error("Sopticle scraping failed for URL: {}", url, e);
       throw new CommunityException(CommunityFailure.SOPTICLE_SCRAP_FAILED);

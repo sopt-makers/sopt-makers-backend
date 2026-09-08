@@ -20,10 +20,10 @@ import org.sopt.makers.domain.playground.community.anonymous.AnonymousProfileIma
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousNicknameRetriever;
 import org.sopt.makers.domain.playground.community.anonymous.service.AnonymousProfileImageRetriever;
 import org.sopt.makers.domain.playground.member.ask.AskAnswerDetail;
-import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.ask.AskDetail;
 import org.sopt.makers.domain.playground.member.ask.AskLocation;
 import org.sopt.makers.domain.playground.member.ask.AskPage;
+import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.ask.AskTargetUser;
 import org.sopt.makers.domain.playground.member.ask.LatestAnsweredAskCard;
 import org.sopt.makers.domain.playground.member.ask.MyLatestAnsweredAskLocation;
@@ -33,8 +33,8 @@ import org.sopt.makers.domain.playground.member.ask.UserAsk;
 import org.sopt.makers.domain.playground.member.ask.exception.UserAskException;
 import org.sopt.makers.domain.playground.member.ask.exception.UserAskFailure;
 import org.sopt.makers.domain.playground.member.ask.port.AnswerReactionRepositoryPort;
-import org.sopt.makers.domain.playground.member.ask.port.AskUserDirectoryPort;
 import org.sopt.makers.domain.playground.member.ask.port.AskReactionRepositoryPort;
+import org.sopt.makers.domain.playground.member.ask.port.AskUserDirectoryPort;
 import org.sopt.makers.domain.playground.member.ask.port.UserAnswerRepositoryPort;
 import org.sopt.makers.domain.playground.member.ask.port.UserAskRepositoryPort;
 import org.sopt.makers.domain.user.Activity;
@@ -60,7 +60,8 @@ public class UserAskQueryService {
   private static final int RECENT_ASK_DAYS = 7;
   private static final int QUESTION_PREVIEW_DAYS = 7;
 
-  private static final DateTimeFormatter CAREER_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
+  private static final DateTimeFormatter CAREER_DATE_FORMATTER =
+      DateTimeFormatter.ofPattern("yyyy-MM");
 
   private final UserAskRepositoryPort userAskRepositoryPort;
   private final UserAnswerRepositoryPort userAnswerRepositoryPort;
@@ -71,7 +72,8 @@ public class UserAskQueryService {
   private final AnonymousProfileImageRetriever anonymousProfileImageRetriever;
   private final AskUserDirectoryPort askMemberDirectoryPort;
 
-  public AskPage getAsks(Long currentUserId, Long receiverUserId, QuestionTab tab, Integer page, Integer size) {
+  public AskPage getAsks(
+      Long currentUserId, Long receiverUserId, QuestionTab tab, Integer page, Integer size) {
     int pageNumber = page != null ? page : 0;
     int pageSize = normalizePageSize(size);
 
@@ -83,10 +85,13 @@ public class UserAskQueryService {
       asks = userAskRepositoryPort.findAllByReceiverUserId(receiverUserId, pageNumber, pageSize);
       totalElements = userAskRepositoryPort.countAllByReceiverUserId(receiverUserId);
     } else if (tab == QuestionTab.ANSWERED) {
-      asks = userAskRepositoryPort.findAnsweredByReceiverUserId(receiverUserId, pageNumber, pageSize);
+      asks =
+          userAskRepositoryPort.findAnsweredByReceiverUserId(receiverUserId, pageNumber, pageSize);
       totalElements = userAskRepositoryPort.countAnsweredByReceiverUserId(receiverUserId);
     } else {
-      asks = userAskRepositoryPort.findUnansweredByReceiverUserId(receiverUserId, pageNumber, pageSize);
+      asks =
+          userAskRepositoryPort.findUnansweredByReceiverUserId(
+              receiverUserId, pageNumber, pageSize);
       totalElements = userAskRepositoryPort.countUnansweredByReceiverUserId(receiverUserId);
     }
 
@@ -96,7 +101,8 @@ public class UserAskQueryService {
     boolean hasNext = pageNumber < totalPages - 1;
     boolean hasPrevious = pageNumber > 0;
 
-    return new AskPage(askDetails, pageNumber, pageSize, totalElements, totalPages, hasNext, hasPrevious);
+    return new AskPage(
+        askDetails, pageNumber, pageSize, totalElements, totalPages, hasNext, hasPrevious);
   }
 
   public long getUnansweredCount(Long userId) {
@@ -193,12 +199,16 @@ public class UserAskQueryService {
     }
     LocalDateTime since = LocalDateTime.now().minusDays(QUESTION_PREVIEW_DAYS);
     return userAskRepositoryPort.findLatestRecentByReceiverUserIds(receiverUserIds, since).stream()
-        .collect(Collectors.toMap(UserAsk::receiverUserId, ask -> new AskPreview(ask.id(), ask.content())));
+        .collect(
+            Collectors.toMap(
+                UserAsk::receiverUserId, ask -> new AskPreview(ask.id(), ask.content())));
   }
 
   public AskLocation getAskLocation(Long receiverUserId, Long questionId) {
     UserAsk ask =
-        userAskRepositoryPort.findById(questionId).orElseThrow(() -> new UserAskException(UserAskFailure.NOT_FOUND_ASK));
+        userAskRepositoryPort
+            .findById(questionId)
+            .orElseThrow(() -> new UserAskException(UserAskFailure.NOT_FOUND_ASK));
 
     if (!Objects.equals(ask.receiverUserId(), receiverUserId)) {
       throw new UserAskException(UserAskFailure.ASK_NOT_BELONG_TO_MEMBER);
@@ -208,20 +218,23 @@ public class UserAskQueryService {
     return calculateLocation(ask, answer);
   }
 
-  public MyLatestAnsweredAskLocation getMyLatestAnsweredAskLocation(Long userId, Long receiverUserId) {
+  public MyLatestAnsweredAskLocation getMyLatestAnsweredAskLocation(
+      Long userId, Long receiverUserId) {
     if (Objects.equals(userId, receiverUserId)) {
       throw new UserAskException(UserAskFailure.SELF_ASK_LOCATION_NOT_ALLOWED);
     }
 
     List<UserAsk> myAnsweredAsks =
-        userAskRepositoryPort.findAllAnsweredByAskerUserIdAndReceiverUserIdOrderByLatest(userId, receiverUserId);
+        userAskRepositoryPort.findAllAnsweredByAskerUserIdAndReceiverUserIdOrderByLatest(
+            userId, receiverUserId);
 
     if (myAnsweredAsks.isEmpty()) {
       return new MyLatestAnsweredAskLocation(null, null, null);
     }
 
     UserAsk latestAsk = myAnsweredAsks.get(0);
-    List<Long> allAnsweredIds = userAskRepositoryPort.findAllAnsweredIdsByReceiverUserIdOrderByLatest(receiverUserId);
+    List<Long> allAnsweredIds =
+        userAskRepositoryPort.findAllAnsweredIdsByReceiverUserIdOrderByLatest(receiverUserId);
 
     int targetIndexInTotal = allAnsweredIds.indexOf(latestAsk.id());
     if (targetIndexInTotal == -1) {
@@ -249,7 +262,8 @@ public class UserAskQueryService {
             .collect(Collectors.toMap(UserAnswer::questionId, Function.identity()));
 
     List<Long> receiverIds = selectedAsks.stream().map(UserAsk::receiverUserId).distinct().toList();
-    Map<Long, User> receiverInfoMap = indexById(playgroundAskUserPort.findAllWithActivitiesByIds(receiverIds));
+    Map<Long, User> receiverInfoMap =
+        indexById(playgroundAskUserPort.findAllWithActivitiesByIds(receiverIds));
 
     return selectedAsks.stream()
         .map(
@@ -279,10 +293,14 @@ public class UserAskQueryService {
             .collect(Collectors.toMap(UserAnswer::questionId, Function.identity()));
     List<Long> answerIds = answersByQuestionId.values().stream().map(UserAnswer::id).toList();
 
-    Map<Long, Long> askReactionCounts = askReactionRepositoryPort.countGroupedByQuestionIds(questionIds);
-    Set<Long> reactedQuestionIds = askReactionRepositoryPort.findReactedQuestionIdsByUser(questionIds, currentUserId);
-    Map<Long, Long> answerReactionCounts = answerReactionRepositoryPort.countGroupedByAnswerIds(answerIds);
-    Set<Long> reactedAnswerIds = answerReactionRepositoryPort.findReactedAnswerIdsByUser(answerIds, currentUserId);
+    Map<Long, Long> askReactionCounts =
+        askReactionRepositoryPort.countGroupedByQuestionIds(questionIds);
+    Set<Long> reactedQuestionIds =
+        askReactionRepositoryPort.findReactedQuestionIdsByUser(questionIds, currentUserId);
+    Map<Long, Long> answerReactionCounts =
+        answerReactionRepositoryPort.countGroupedByAnswerIds(answerIds);
+    Set<Long> reactedAnswerIds =
+        answerReactionRepositoryPort.findReactedAnswerIdsByUser(answerIds, currentUserId);
 
     Set<Long> userIds = new HashSet<>();
     asks.forEach(
@@ -302,7 +320,8 @@ public class UserAskQueryService {
             .filter(Objects::nonNull)
             .distinct()
             .toList();
-    Map<Long, AnonymousNickname> anonymousNicknameMap = anonymousNicknameRetriever.findAllByIdsAsMap(anonymousNicknameIds);
+    Map<Long, AnonymousNickname> anonymousNicknameMap =
+        anonymousNicknameRetriever.findAllByIdsAsMap(anonymousNicknameIds);
 
     List<Long> anonymousProfileImageIds =
         asks.stream()
@@ -348,8 +367,10 @@ public class UserAskQueryService {
 
     Long askerId = isAnonymous ? null : ask.askerUserId();
     String askerName = isAnonymous ? null : (askerInfo != null ? askerInfo.profile().name() : null);
-    String askerProfileImage = isAnonymous ? null : (askerInfo != null ? askerInfo.profile().profileImage() : null);
-    String askerLatestGenerationLabel = askerInfo != null ? formatLatestGenerationLabel(askerInfo) : null;
+    String askerProfileImage =
+        isAnonymous ? null : (askerInfo != null ? askerInfo.profile().profileImage() : null);
+    String askerLatestGenerationLabel =
+        askerInfo != null ? formatLatestGenerationLabel(askerInfo) : null;
 
     String anonymousNickname = null;
     String anonymousProfileImageUrl = null;
@@ -357,7 +378,8 @@ public class UserAskQueryService {
       AnonymousNickname nickname = anonymousNicknameMap.get(ask.anonymousNicknameId());
       anonymousNickname = nickname != null ? nickname.nickname() : null;
       if (ask.anonymousProfileImageId() != null) {
-        AnonymousProfileImage profileImage = anonymousProfileImageMap.get(ask.anonymousProfileImageId());
+        AnonymousProfileImage profileImage =
+            anonymousProfileImageMap.get(ask.anonymousProfileImageId());
         anonymousProfileImageUrl = profileImage != null ? profileImage.imageUrl() : null;
       }
     }
@@ -466,7 +488,8 @@ public class UserAskQueryService {
     if (activities.isEmpty()) {
       return null;
     }
-    Activity latest = activities.stream().max(Comparator.comparingInt(Activity::generation)).orElse(null);
+    Activity latest =
+        activities.stream().max(Comparator.comparingInt(Activity::generation)).orElse(null);
     if (latest == null) {
       return null;
     }
@@ -475,7 +498,9 @@ public class UserAskQueryService {
   }
 
   private Map<Long, User> indexById(List<User> users) {
-    return users.stream().collect(Collectors.toMap(User::id, Function.identity(), (existing, replacement) -> existing));
+    return users.stream()
+        .collect(
+            Collectors.toMap(User::id, Function.identity(), (existing, replacement) -> existing));
   }
 
   private int normalizePageSize(Integer size) {

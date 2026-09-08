@@ -31,8 +31,8 @@ import org.sopt.makers.domain.playground.community.vote.service.VoteQueryService
 import org.sopt.makers.domain.playground.member.relation.port.UserBlockRepositoryPort;
 
 /**
- * 1-B 회귀 검증: 차단 작성자 필터링이 페이지네이션 쿼리(NOT IN) 단계에서 이미 끝나 있다는 전제 하에, 서비스가 결과를 추가로 솎아내
- * limit/hasNext를 왜곡시키지 않는지 확인한다.
+ * 1-B 회귀 검증: 차단 작성자 필터링이 페이지네이션 쿼리(NOT IN) 단계에서 이미 끝나 있다는 전제 하에, 서비스가 결과를 추가로 솎아내 limit/hasNext를
+ * 왜곡시키지 않는지 확인한다.
  */
 class CommunityPostQueryServiceTest {
 
@@ -43,15 +43,19 @@ class CommunityPostQueryServiceTest {
   private final PostLikeRepositoryPort postLikeRepositoryPort = mock(PostLikeRepositoryPort.class);
   private final CategoryQueryService categoryQueryService = mock(CategoryQueryService.class);
   private final CommunityCategoryPolicy communityCategoryPolicy = new CommunityCategoryPolicy();
-  private final CommunityMemberAssembler communityMemberAssembler = mock(CommunityMemberAssembler.class);
-  private final AnonymousProfileRetriever anonymousProfileRetriever = mock(AnonymousProfileRetriever.class);
+  private final CommunityMemberAssembler communityMemberAssembler =
+      mock(CommunityMemberAssembler.class);
+  private final AnonymousProfileRetriever anonymousProfileRetriever =
+      mock(AnonymousProfileRetriever.class);
   private final CrewMeetingPostPort crewMeetingPostPort = mock(CrewMeetingPostPort.class);
   private final CommunityFeedCursorCodec communityFeedCursorCodec = new CommunityFeedCursorCodec();
   private final CommentQueryService commentQueryService = mock(CommentQueryService.class);
   private final VoteQueryService voteQueryService = mock(VoteQueryService.class);
-  private final UserBlockRepositoryPort userBlockRepositoryPort = mock(UserBlockRepositoryPort.class);
+  private final UserBlockRepositoryPort userBlockRepositoryPort =
+      mock(UserBlockRepositoryPort.class);
   private final CommunityMemberPort communityMemberPort = mock(CommunityMemberPort.class);
-  private final CommunityPostWebLinkBuilder communityPostWebLinkBuilder = mock(CommunityPostWebLinkBuilder.class);
+  private final CommunityPostWebLinkBuilder communityPostWebLinkBuilder =
+      mock(CommunityPostWebLinkBuilder.class);
 
   private final CommunityPostQueryService service =
       new CommunityPostQueryService(
@@ -86,7 +90,8 @@ class CommunityPostQueryServiceTest {
 
     ArgumentCaptor<Set<Long>> excludedCaptor = ArgumentCaptor.forClass(Set.class);
     verify(postRepositoryPort)
-        .findByCategoryCodesWithCursor(any(), any(), any(), any(), eq(limit + 1), excludedCaptor.capture());
+        .findByCategoryCodesWithCursor(
+            any(), any(), any(), any(), eq(limit + 1), excludedCaptor.capture());
     assertThat(excludedCaptor.getValue()).isEqualTo(blockedIds);
 
     assertThat(result.items()).hasSize(limit);
@@ -101,7 +106,8 @@ class CommunityPostQueryServiceTest {
 
     List<Post> pageWithExtraRow =
         List.of(post(1L, 10L), post(2L, 11L), post(3L, 12L), post(4L, 13L));
-    when(postRepositoryPort.findByCategoryCodesWithCursor(any(), any(), any(), any(), anyInt(), any()))
+    when(postRepositoryPort.findByCategoryCodesWithCursor(
+            any(), any(), any(), any(), anyInt(), any()))
         .thenReturn(pageWithExtraRow);
 
     PostFeedResult result =

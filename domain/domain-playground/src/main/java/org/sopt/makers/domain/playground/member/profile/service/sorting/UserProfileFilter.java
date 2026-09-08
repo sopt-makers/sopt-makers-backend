@@ -69,7 +69,8 @@ public final class UserProfileFilter {
 
   private static boolean matches(
       Activity activity, Part partFilter, ProfileTeamFilter teamFilter, Integer generation) {
-    boolean generationMatch = generation == null || Objects.equals(activity.generation(), generation);
+    boolean generationMatch =
+        generation == null || Objects.equals(activity.generation(), generation);
     boolean partMatch = partFilter == null || normalizePart(activity.part()) == partFilter;
     if (!generationMatch || !partMatch) {
       return false;
@@ -81,7 +82,10 @@ public final class UserProfileFilter {
     return switch (teamFilter) {
         // 레거시에서 "임원진"은 미디어팀/운영팀이 아닌 별도 직책(회장/부회장/파트장 등)을 뜻했다. 새 도메인에서는
         // 팀장(TEAM_LEADER)만 운영팀/미디어팀 소속으로 남고 그 외 비-MEMBER 역할이 그 의미에 대응한다.
-      case EXECUTIVE -> activity.isSopt() && activity.role() != Role.MEMBER && activity.role() != Role.TEAM_LEADER;
+      case EXECUTIVE ->
+          activity.isSopt()
+              && activity.role() != Role.MEMBER
+              && activity.role() != Role.TEAM_LEADER;
       case MAKERS -> !activity.isSopt() || activity.team() == Team.MAKERS;
       case OPERATION -> activity.team() == Team.OPERATION;
       case MEDIA -> activity.team() == Team.MEDIA;

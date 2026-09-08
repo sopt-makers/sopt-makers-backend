@@ -10,7 +10,8 @@ public record UserProfileUpdateRequest(
     @Schema(required = true) String name,
     String profileImage,
     LocalDate birthday,
-    @Pattern(regexp = "^(010|015)\\d{8}$", message = "잘못된 전화번호 형식입니다. '-'을 제외한 11자의 번호를 입력해주세요.") String phone,
+    @Pattern(regexp = "^(010|015)\\d{8}$", message = "잘못된 전화번호 형식입니다. '-'을 제외한 11자의 번호를 입력해주세요.")
+        String phone,
     String email,
     String address,
     String university,
@@ -40,11 +41,16 @@ public record UserProfileUpdateRequest(
       Boolean isRiceTteokLover) {}
 
   public record WorkPreferenceRequest(
-      String ideationStyle, String workTime, String communicationStyle, String workPlace, String feedbackStyle) {}
+      String ideationStyle,
+      String workTime,
+      String communicationStyle,
+      String workPlace,
+      String feedbackStyle) {}
 
   public record MemberLinkUpdateRequest(Long id, String title, String url) {}
 
-  public record MemberSoptActivityUpdateRequest(Long id, Integer generation, String part, String team) {}
+  public record MemberSoptActivityUpdateRequest(
+      Long id, Integer generation, String part, String team) {}
 
   public record MemberCareerUpdateRequest(
       String companyName,

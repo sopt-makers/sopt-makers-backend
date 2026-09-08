@@ -13,11 +13,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
- * 해당 모임 게시글 조회 기능이 이 백엔드의 domain-playground 자체로 이관되면서,
- * 커뮤니티 자유피드 병합 경로는 같은 프로세스 내 호출로 대체한다.
- * 두 Port 모두 domain-playground 소속이라 모듈 경계를 넘지 않는다. 레거시 HTTP 기반
- * {@code clients.crew.CrewMeetingClientAdapter}는 다른 소비자가 있을 수 있어 그대로 남겨두되, 이 어댑터를
- * {@code @Primary}로 지정해 실제 호출 경로는 내부 Port를 타도록 한다.
+ * 해당 모임 게시글 조회 기능이 이 백엔드의 domain-playground 자체로 이관되면서, 커뮤니티 자유피드 병합 경로는 같은 프로세스 내 호출로 대체한다. 두 Port
+ * 모두 domain-playground 소속이라 모듈 경계를 넘지 않는다. 레거시 HTTP 기반 {@code
+ * clients.crew.CrewMeetingClientAdapter}는 다른 소비자가 있을 수 있어 그대로 남겨두되, 이 어댑터를 {@code @Primary}로 지정해 실제
+ * 호출 경로는 내부 Port를 타도록 한다.
  */
 @Primary
 @Component

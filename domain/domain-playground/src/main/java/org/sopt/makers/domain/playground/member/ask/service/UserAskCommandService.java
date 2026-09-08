@@ -137,7 +137,8 @@ public class UserAskCommandService {
       throw new UserAskException(UserAskFailure.ALREADY_ANSWERED_ASK);
     }
 
-    UserAnswer created = userAnswerRepositoryPort.save(new UserAnswer(null, askId, content, null, null));
+    UserAnswer created =
+        userAnswerRepositoryPort.save(new UserAnswer(null, askId, content, null, null));
 
     userAskNotificationPort.sendAnswerNotification(askId, ask.askerUserId(), userId, content);
 
@@ -151,7 +152,8 @@ public class UserAskCommandService {
     validateAnswerOwner(ask, userId, UserAskFailure.UNAUTHORIZED_ANSWER_UPDATE);
 
     userAnswerRepositoryPort.save(
-        new UserAnswer(answer.id(), answer.questionId(), content, answer.createdAt(), answer.updatedAt()));
+        new UserAnswer(
+            answer.id(), answer.questionId(), content, answer.createdAt(), answer.updatedAt()));
   }
 
   @Transactional
@@ -183,7 +185,9 @@ public class UserAskCommandService {
         .findByAnswerIdAndReactorUserId(answerId, userId)
         .ifPresentOrElse(
             reaction -> answerReactionRepositoryPort.deleteById(reaction.id()),
-            () -> answerReactionRepositoryPort.save(new AnswerReaction(null, answerId, userId, null, null)));
+            () ->
+                answerReactionRepositoryPort.save(
+                    new AnswerReaction(null, answerId, userId, null, null)));
   }
 
   @Transactional
@@ -216,7 +220,8 @@ public class UserAskCommandService {
     List<AnonymousNickname> excludeNicknames =
         excludeIds.stream().map(id -> new AnonymousNickname(id, null)).toList();
 
-    AnonymousNickname nickname = anonymousNicknameRetriever.findRandomAnonymousNickname(excludeNicknames);
+    AnonymousNickname nickname =
+        anonymousNicknameRetriever.findRandomAnonymousNickname(excludeNicknames);
     AnonymousProfileImage profileImage = anonymousProfileImageRetriever.getAnonymousProfileImage();
 
     return new AnonymousIdentity(nickname.id(), profileImage.id());
@@ -241,7 +246,9 @@ public class UserAskCommandService {
   }
 
   private UserAsk getAskOrThrow(Long askId) {
-    return userAskRepositoryPort.findById(askId).orElseThrow(() -> new UserAskException(UserAskFailure.NOT_FOUND_ASK));
+    return userAskRepositoryPort
+        .findById(askId)
+        .orElseThrow(() -> new UserAskException(UserAskFailure.NOT_FOUND_ASK));
   }
 
   private UserAnswer getAnswerOrThrow(Long answerId) {

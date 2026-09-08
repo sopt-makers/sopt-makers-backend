@@ -46,7 +46,8 @@ public class AskReactionRepositoryAdapter implements AskReactionRepositoryPort {
   }
 
   @Override
-  public Optional<AskReaction> findByQuestionIdAndReactorUserId(Long questionId, Long reactorUserId) {
+  public Optional<AskReaction> findByQuestionIdAndReactorUserId(
+      Long questionId, Long reactorUserId) {
     return askReactionJpaRepository
         .findByQuestionIdAndReactorUserId(questionId, reactorUserId)
         .map(AskReactionEntity::toDomain);
@@ -66,6 +67,7 @@ public class AskReactionRepositoryAdapter implements AskReactionRepositoryPort {
     if (questionIds.isEmpty()) {
       return Set.of();
     }
-    return new HashSet<>(askReactionJpaRepository.findReactedQuestionIds(questionIds, reactorUserId));
+    return new HashSet<>(
+        askReactionJpaRepository.findReactedQuestionIds(questionIds, reactorUserId));
   }
 }

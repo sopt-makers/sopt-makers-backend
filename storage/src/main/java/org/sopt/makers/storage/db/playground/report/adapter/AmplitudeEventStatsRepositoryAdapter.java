@@ -30,14 +30,20 @@ public class AmplitudeEventStatsRepositoryAdapter implements AmplitudeEventStats
   @Override
   public int countByUserIdAndEventTypeAndPagePathAndEventTimeContains(
       String userId, String eventType, String pagePath, String eventTimeContains) {
-    return amplitudeEventRawDataJpaRepository.countByUserIdAndEventTypeAndEventPropertiesPagePathAndEventTimeContains(
-        userId, eventType, pagePath, eventTimeContains);
+    return amplitudeEventRawDataJpaRepository
+        .countByUserIdAndEventTypeAndEventPropertiesPagePathAndEventTimeContains(
+            userId, eventType, pagePath, eventTimeContains);
   }
 
   @Override
   public int countByUserIdAndEventTypeAndPagePathAndEventTimeBetween(
-      String userId, String eventType, String pagePath, String startEventTime, String endEventTime) {
-    return amplitudeEventRawDataJpaRepository.countByUserIdAndEventTypeAndEventPropertiesPagePathAndEventTimeBetween(
-        userId, eventType, pagePath, startEventTime, endEventTime);
+      String userId,
+      String eventType,
+      String pagePath,
+      String startEventTime,
+      String endEventTime) {
+    return amplitudeEventRawDataJpaRepository
+        .countByUserIdAndEventTypeAndEventPropertiesPagePathAndEventTimeBetween(
+            userId, eventType, pagePath, startEventTime, endEventTime);
   }
 }

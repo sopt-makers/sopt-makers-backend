@@ -48,7 +48,9 @@ public record CommunityCategoryResponse(
       Category category, Map<Long, List<Category>> childCategoriesByParentId) {
     return childCategoriesByParentId.getOrDefault(category.id(), List.of()).stream()
         .sorted(CATEGORY_DISPLAY_ORDER_COMPARATOR)
-        .map(childCategory -> CommunityCategoryResponse.from(childCategory, childCategoriesByParentId))
+        .map(
+            childCategory ->
+                CommunityCategoryResponse.from(childCategory, childCategoriesByParentId))
         .toList();
   }
 

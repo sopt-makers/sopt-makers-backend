@@ -44,7 +44,8 @@ public class MemberProfileCardCacheAdapter implements UserProfileCardCachePort {
     try {
       List<Long> ids = List.copyOf(userIds);
       List<String> keys = ids.stream().map(id -> KEY_PREFIX + id).toList();
-      List<CachedMemberProfileCard> values = memberProfileCardRedisTemplate.opsForValue().multiGet(keys);
+      List<CachedMemberProfileCard> values =
+          memberProfileCardRedisTemplate.opsForValue().multiGet(keys);
 
       Map<Long, User> result = new HashMap<>();
       if (values != null) {
@@ -98,14 +99,21 @@ public class MemberProfileCardCacheAdapter implements UserProfileCardCachePort {
             .toList();
 
     List<CachedMemberLink> links =
-        profile.links().stream().map(l -> new CachedMemberLink(l.id(), l.title(), l.url())).toList();
+        profile.links().stream()
+            .map(l -> new CachedMemberLink(l.id(), l.title(), l.url()))
+            .toList();
 
     List<CachedMemberCareer> careers =
         profile.careers().stream()
             .map(
                 c ->
                     new CachedMemberCareer(
-                        c.id(), c.companyName(), c.title(), c.startDate(), c.endDate(), c.isCurrent()))
+                        c.id(),
+                        c.companyName(),
+                        c.title(),
+                        c.startDate(),
+                        c.endDate(),
+                        c.isCurrent()))
             .toList();
 
     return new CachedMemberProfileCard(
@@ -168,12 +176,19 @@ public class MemberProfileCardCacheAdapter implements UserProfileCardCachePort {
             cached.allowOfficial(),
             cached.isPhoneBlind(),
             null,
-            cached.links().stream().map(l -> UserLink.of(l.id(), cached.userId(), l.title(), l.url())).toList(),
+            cached.links().stream()
+                .map(l -> UserLink.of(l.id(), cached.userId(), l.title(), l.url()))
+                .toList(),
             cached.careers().stream()
                 .map(
                     c ->
                         UserCareer.of(
-                            c.id(), cached.userId(), c.companyName(), c.title(), c.startDate(), c.endDate(),
+                            c.id(),
+                            cached.userId(),
+                            c.companyName(),
+                            c.title(),
+                            c.startDate(),
+                            c.endDate(),
                             c.isCurrent()))
                 .toList());
 

@@ -15,9 +15,16 @@ public record CommentSaveRequest(
     AnonymousMentionRequest anonymousMention) {
 
   public CreateCommentCommand toCommand() {
-    String[] anonymousNicknames = anonymousMention == null ? null : anonymousMention.anonymousNicknames();
+    String[] anonymousNicknames =
+        anonymousMention == null ? null : anonymousMention.anonymousNicknames();
     Long[] mentionUserIds = mention == null ? null : mention.userIds();
     return new CreateCommentCommand(
-        content, isBlindWriter, isChildComment, parentCommentId, anonymousNicknames, webLink, mentionUserIds);
+        content,
+        isBlindWriter,
+        isChildComment,
+        parentCommentId,
+        anonymousNicknames,
+        webLink,
+        mentionUserIds);
   }
 }

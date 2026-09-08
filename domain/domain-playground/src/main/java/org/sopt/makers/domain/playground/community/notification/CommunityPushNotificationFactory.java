@@ -27,7 +27,11 @@ public final class CommunityPushNotificationFactory {
   }
 
   public static CommunityPushNotification forReply(
-      Long parentCommentAuthorId, String writerName, String content, Boolean isBlindWriter, String webLink) {
+      Long parentCommentAuthorId,
+      String writerName,
+      String content,
+      Boolean isBlindWriter,
+      String webLink) {
     return new CommunityPushNotification(
         List.of(parentCommentAuthorId),
         REPLY_NOTIFICATION_TITLE,
@@ -36,7 +40,11 @@ public final class CommunityPushNotificationFactory {
   }
 
   public static CommunityPushNotification forMention(
-      List<Long> mentionedUserIds, String writerName, String content, Boolean isBlindWriter, String webLink) {
+      List<Long> mentionedUserIds,
+      String writerName,
+      String content,
+      Boolean isBlindWriter,
+      String webLink) {
     String displayName = Boolean.TRUE.equals(isBlindWriter) ? WRITER_ANONYMOUS : writerName;
     return new CommunityPushNotification(
         mentionedUserIds,
@@ -45,7 +53,8 @@ public final class CommunityPushNotificationFactory {
         webLink);
   }
 
-  private static String formatContent(String format, String writerName, String content, Boolean isBlindWriter) {
+  private static String formatContent(
+      String format, String writerName, String content, Boolean isBlindWriter) {
     String displayName = Boolean.TRUE.equals(isBlindWriter) ? WRITER_ANONYMOUS : writerName;
     return format.formatted(displayName, abbreviate(MentionCleaner.removeMentionIds(content)));
   }

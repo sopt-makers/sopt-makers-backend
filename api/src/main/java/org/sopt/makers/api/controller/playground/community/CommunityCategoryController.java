@@ -24,6 +24,7 @@ public class CommunityCategoryController implements CommunityCategoryApi {
   public ResponseEntity<BaseResponse<?>> getAllCategories() {
     return ResponseFactory.success(
         GET_ALL_CATEGORIES,
-        CommunityCategoryResponse.listFrom(categoryQueryService.findAllActiveCategoriesWithParent()));
+        CommunityCategoryResponse.listFrom(
+            categoryQueryService.findAllActiveCategoriesWithParent()));
   }
 }

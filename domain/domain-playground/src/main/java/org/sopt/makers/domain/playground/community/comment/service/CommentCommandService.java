@@ -79,10 +79,16 @@ public class CommentCommandService {
 
     Comment created =
         commentRepositoryPort.save(
-            Comment.create(postId, writerId, command.parentCommentId(), command.content(), command.isBlindWriter()));
+            Comment.create(
+                postId,
+                writerId,
+                command.parentCommentId(),
+                command.content(),
+                command.isBlindWriter()));
 
     if (Boolean.TRUE.equals(command.isBlindWriter())) {
-      AnonymousProfile profile = anonymousProfileService.getOrCreateAnonymousProfile(writerId, postId);
+      AnonymousProfile profile =
+          anonymousProfileService.getOrCreateAnonymousProfile(writerId, postId);
       created = commentRepositoryPort.save(created.withAnonymousProfileId(profile.id()));
     }
 
@@ -116,7 +122,8 @@ public class CommentCommandService {
 
     CommunityMemberSummary reporter = communityMemberAssembler.getMemberSummary(reporterId);
     if (reporter != null) {
-      communityNotificationPublisher.publishCommentReport(comment.postId(), reporter.name(), comment.content());
+      communityNotificationPublisher.publishCommentReport(
+          comment.postId(), reporter.name(), comment.content());
     }
 
     reportCommentRepositoryPort.save(ReportComment.create(commentId, reporterId));
@@ -164,11 +171,15 @@ public class CommentCommandService {
   }
 
   private Comment getCommentOrThrow(Long commentId) {
-    return commentRepositoryPort.findById(commentId).orElseThrow(() -> new CommunityException(NOT_FOUND_COMMENT));
+    return commentRepositoryPort
+        .findById(commentId)
+        .orElseThrow(() -> new CommunityException(NOT_FOUND_COMMENT));
   }
 
   private Post getPostOrThrow(Long postId) {
-    return postRepositoryPort.findById(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_COMMUNITY_POST));
+    return postRepositoryPort
+        .findById(postId)
+        .orElseThrow(() -> new CommunityException(NOT_FOUND_COMMUNITY_POST));
   }
 
   private CommunityMemberSummary getWriterOrThrow(Long writerId) {
@@ -197,7 +208,11 @@ public class CommentCommandService {
 
   /** 댓글 작성자를 제외한 게시글 작성자/부모 댓글 작성자/멘션 대상에게 푸시 알림을 발행한다. */
   private void publishCommentNotifications(
-      Long writerId, String writerName, Post post, Comment parentComment, CreateCommentCommand command) {
+      Long writerId,
+      String writerName,
+      Post post,
+      Comment parentComment,
+      CreateCommentCommand command) {
     Long postAuthorId = post.writerId();
 
     if (!Objects.equals(postAuthorId, writerId)) {
@@ -207,17 +222,28 @@ public class CommentCommandService {
 
     if (parentComment != null) {
       Long parentCommentAuthorId = parentComment.writerId();
-      if (!Objects.equals(parentCommentAuthorId, writerId) && !Objects.equals(parentCommentAuthorId, postAuthorId)) {
+      if (!Objects.equals(parentCommentAuthorId, writerId)
+          && !Objects.equals(parentCommentAuthorId, postAuthorId)) {
         communityNotificationPublisher.publishReplyCreated(
-            parentCommentAuthorId, writerName, command.content(), command.isBlindWriter(), command.webLink());
+            parentCommentAuthorId,
+            writerName,
+            command.content(),
+            command.isBlindWriter(),
+            command.webLink());
       }
     }
 
     if (command.mentionUserIds() != null && command.mentionUserIds().length > 0) {
       List<Long> mentionedUserIds =
-          Arrays.stream(command.mentionUserIds()).filter(id -> !Objects.equals(id, writerId)).toList();
+          Arrays.stream(command.mentionUserIds())
+              .filter(id -> !Objects.equals(id, writerId))
+              .toList();
       communityNotificationPublisher.publishMention(
-          mentionedUserIds, writerName, command.content(), command.isBlindWriter(), command.webLink());
+          mentionedUserIds,
+          writerName,
+          command.content(),
+          command.isBlindWriter(),
+          command.webLink());
     }
   }
 
@@ -251,7 +277,8 @@ public class CommentCommandService {
     anonymousNicknameRetriever.validateAnonymousNicknames(nicknames);
 
     List<String> foundNicknames =
-        anonymousProfileRetriever.findNicknamesByPostIdAndNicknamesIn(postId, Arrays.asList(nicknames));
+        anonymousProfileRetriever.findNicknamesByPostIdAndNicknamesIn(
+            postId, Arrays.asList(nicknames));
     Set<String> foundNicknameSet = Set.copyOf(foundNicknames);
 
     for (String nickname : nicknames) {

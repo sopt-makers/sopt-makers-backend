@@ -4,5 +4,6 @@ public interface SopticleScraperPort {
 
   ScrapedSopticleArticle scrap(String url);
 
-  record ScrapedSopticleArticle(String thumbnailUrl, String title, String description, String articleUrl) {}
+  record ScrapedSopticleArticle(
+      String thumbnailUrl, String title, String description, String articleUrl) {}
 }

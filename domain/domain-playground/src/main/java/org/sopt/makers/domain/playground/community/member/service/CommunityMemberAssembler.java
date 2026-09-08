@@ -77,8 +77,7 @@ public class CommunityMemberAssembler {
 
     return activities.stream()
         .max(
-            Comparator.comparingInt(this::normalizedGeneration)
-                .thenComparing(ActivityInfo::isSopt))
+            Comparator.comparingInt(this::normalizedGeneration).thenComparing(ActivityInfo::isSopt))
         .orElse(null);
   }
 

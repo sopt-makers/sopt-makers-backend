@@ -18,7 +18,12 @@ public record MemberCrewResponse(List<MemberCrewVo> meetings, PaginationMeta met
       LocalDateTime mendDate) {}
 
   public record PaginationMeta(
-      Integer page, Integer take, Integer itemCount, Integer pageCount, Boolean hasPreviousPage, Boolean hasNextPage) {}
+      Integer page,
+      Integer take,
+      Integer itemCount,
+      Integer pageCount,
+      Boolean hasPreviousPage,
+      Boolean hasNextPage) {}
 
   public static MemberCrewResponse from(CrewMeetingPage page) {
     List<MemberCrewVo> meetings = page.meetings().stream().map(MemberCrewResponse::toVo).toList();

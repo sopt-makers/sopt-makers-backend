@@ -19,14 +19,17 @@ public class WordChainGameStatsRepositoryAdapter implements WordChainGameStatsPo
   private final WordChainGameWinnerJpaRepository wordChainGameWinnerJpaRepository;
 
   @Override
-  public List<String> findWordsByMemberIdAndCreatedAtBetween(Long memberId, LocalDateTime start, LocalDateTime end) {
+  public List<String> findWordsByMemberIdAndCreatedAtBetween(
+      Long memberId, LocalDateTime start, LocalDateTime end) {
     return wordJpaRepository.findAllByMemberIdAndCreatedAtBetween(memberId, start, end).stream()
         .map(WordEntity::getWord)
         .toList();
   }
 
   @Override
-  public long countWinnersByUserIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end) {
-    return wordChainGameWinnerJpaRepository.countByUserIdAndRoomCreatedAtBetween(userId, start, end);
+  public long countWinnersByUserIdAndCreatedAtBetween(
+      Long userId, LocalDateTime start, LocalDateTime end) {
+    return wordChainGameWinnerJpaRepository.countByUserIdAndRoomCreatedAtBetween(
+        userId, start, end);
   }
 }

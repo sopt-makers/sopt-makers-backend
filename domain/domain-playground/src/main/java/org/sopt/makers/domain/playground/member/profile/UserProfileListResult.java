@@ -2,7 +2,8 @@ package org.sopt.makers.domain.playground.member.profile;
 
 import java.util.List;
 
-public record UserProfileListResult(List<UserProfileListItem> members, boolean hasNext, int totalCount) {
+public record UserProfileListResult(
+    List<UserProfileListItem> members, boolean hasNext, int totalCount) {
 
   public static UserProfileListResult empty() {
     return new UserProfileListResult(List.of(), false, 0);

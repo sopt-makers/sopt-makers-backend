@@ -43,7 +43,8 @@ public class VoteCommandService {
   public record CreateVoteCommand(boolean isMultiple, List<String> voteOptions) {}
 
   @Transactional
-  public void createVote(Long postId, CommunityCategoryGroup categoryGroup, CreateVoteCommand command) {
+  public void createVote(
+      Long postId, CommunityCategoryGroup categoryGroup, CreateVoteCommand command) {
     if (command == null) {
       return;
     }
@@ -56,7 +57,10 @@ public class VoteCommandService {
   public VoteResult selectVote(Long userId, Long postId, List<Long> selectedOptionIds) {
     validateVoterExists(userId);
 
-    Vote vote = voteRepositoryPort.findByPostId(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_VOTE));
+    Vote vote =
+        voteRepositoryPort
+            .findByPostId(postId)
+            .orElseThrow(() -> new CommunityException(NOT_FOUND_VOTE));
 
     if (voteSelectionRepositoryPort.existsByVoteOptionIdsAndUserId(selectedOptionIds, userId)) {
       throw new CommunityException(ALREADY_VOTED);
@@ -70,7 +74,9 @@ public class VoteCommandService {
       voteOptionRepositoryPort.increaseVoteCount(option.id());
     }
 
-    return voteQueryService.getVoteByPostId(postId, userId).orElseThrow(() -> new CommunityException(NOT_FOUND_VOTE));
+    return voteQueryService
+        .getVoteByPostId(postId, userId)
+        .orElseThrow(() -> new CommunityException(NOT_FOUND_VOTE));
   }
 
   /** 게시글 삭제 시 호출되는 투표 연계 삭제 처리. */
@@ -104,7 +110,9 @@ public class VoteCommandService {
     }
 
     for (String option : options) {
-      if (option == null || option.trim().isEmpty() || option.length() > MAX_OPTION_CONTENT_LENGTH) {
+      if (option == null
+          || option.trim().isEmpty()
+          || option.length() > MAX_OPTION_CONTENT_LENGTH) {
         throw new CommunityException(INVALID_VOTE_OPTION_CONTENT);
       }
     }

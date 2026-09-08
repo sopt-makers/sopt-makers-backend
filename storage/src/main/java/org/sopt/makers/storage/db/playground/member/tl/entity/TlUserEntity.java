@@ -62,7 +62,8 @@ public class TlUserEntity {
   }
 
   public TlUser toDomain() {
-    return new TlUser(id, memberUserId, tlGeneration, serviceType, selfIntroduction, competitionData);
+    return new TlUser(
+        id, memberUserId, tlGeneration, serviceType, selfIntroduction, competitionData);
   }
 
   public static TlUserEntity fromDomain(TlUser tlUser) {

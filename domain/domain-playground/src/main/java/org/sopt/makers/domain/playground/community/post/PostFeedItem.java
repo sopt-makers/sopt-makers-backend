@@ -11,9 +11,7 @@ import org.sopt.makers.domain.playground.community.comment.CommentThread;
 import org.sopt.makers.domain.playground.community.member.CommunityMemberSummary;
 import org.sopt.makers.domain.playground.community.vote.VoteResult;
 
-/**
- * 게시글 목록/피드에서 한 건을 표현하는 read model. 모임(MEETING) 게시글은 댓글이 크루 도메인 소관이라 comments가 항상 빈 목록이다.
- */
+/** 게시글 목록/피드에서 한 건을 표현하는 read model. 모임(MEETING) 게시글은 댓글이 크루 도메인 소관이라 comments가 항상 빈 목록이다. */
 public record PostFeedItem(
     CommunityPostSourceType sourceType,
     Long id,

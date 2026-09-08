@@ -35,15 +35,20 @@ class UserAskCommandServiceTest {
   private static final Long ANSWER_ID = 20L;
 
   private final UserAskRepositoryPort userAskRepositoryPort = mock(UserAskRepositoryPort.class);
-  private final UserAnswerRepositoryPort userAnswerRepositoryPort = mock(UserAnswerRepositoryPort.class);
-  private final AskReactionRepositoryPort askReactionRepositoryPort = mock(AskReactionRepositoryPort.class);
+  private final UserAnswerRepositoryPort userAnswerRepositoryPort =
+      mock(UserAnswerRepositoryPort.class);
+  private final AskReactionRepositoryPort askReactionRepositoryPort =
+      mock(AskReactionRepositoryPort.class);
   private final AnswerReactionRepositoryPort answerReactionRepositoryPort =
       mock(AnswerReactionRepositoryPort.class);
-  private final AskReportRepositoryPort askReportRepositoryPort = mock(AskReportRepositoryPort.class);
-  private final AnonymousNicknameRetriever anonymousNicknameRetriever = mock(AnonymousNicknameRetriever.class);
+  private final AskReportRepositoryPort askReportRepositoryPort =
+      mock(AskReportRepositoryPort.class);
+  private final AnonymousNicknameRetriever anonymousNicknameRetriever =
+      mock(AnonymousNicknameRetriever.class);
   private final AnonymousProfileImageRetriever anonymousProfileImageRetriever =
       mock(AnonymousProfileImageRetriever.class);
-  private final UserAskNotificationPort userAskNotificationPort = mock(UserAskNotificationPort.class);
+  private final UserAskNotificationPort userAskNotificationPort =
+      mock(UserAskNotificationPort.class);
 
   private UserAskCommandService service;
 

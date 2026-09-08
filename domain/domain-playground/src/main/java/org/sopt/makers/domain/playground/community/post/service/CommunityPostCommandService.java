@@ -90,7 +90,8 @@ public class CommunityPostCommandService {
     Post created = postRepositoryPort.save(buildPostForCreate(writerId, category, command));
 
     if (Boolean.TRUE.equals(command.isBlindWriter())) {
-      AnonymousProfile profile = anonymousProfileService.getOrCreateAnonymousProfile(writerId, created.id());
+      AnonymousProfile profile =
+          anonymousProfileService.getOrCreateAnonymousProfile(writerId, created.id());
       created = postRepositoryPort.save(created.withAnonymousProfileId(profile.id()));
     }
 
@@ -186,7 +187,9 @@ public class CommunityPostCommandService {
   }
 
   private Post getPostOrThrow(Long postId) {
-    return postRepositoryPort.findById(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_COMMUNITY_POST));
+    return postRepositoryPort
+        .findById(postId)
+        .orElseThrow(() -> new CommunityException(NOT_FOUND_COMMUNITY_POST));
   }
 
   private Post buildPostForCreate(Long writerId, Category category, CreatePostCommand command) {
@@ -218,13 +221,23 @@ public class CommunityPostCommandService {
   private Post buildPostForUpdate(Post post, Category category, UpdatePostCommand command) {
     if (!communityCategoryPolicy.isSopticleCategoryCode(category.code())) {
       return post.update(
-          category.id(), command.title(), command.content(), command.images(), command.isBlindWriter(), command.link());
+          category.id(),
+          command.title(),
+          command.content(),
+          command.images(),
+          command.isBlindWriter(),
+          command.link());
     }
 
     ScrapedSopticleArticle scraped = sopticleScraperPort.scrap(command.link());
 
     return post.update(
-        category.id(), scraped.title(), scraped.description(), List.of(scraped.thumbnailUrl()), false, scraped.articleUrl());
+        category.id(),
+        scraped.title(),
+        scraped.description(),
+        List.of(scraped.thumbnailUrl()),
+        false,
+        scraped.articleUrl());
   }
 
   private void validateWriterExists(Long userId) {
@@ -243,14 +256,20 @@ public class CommunityPostCommandService {
 
   /** 게시글 작성자를 제외한 멘션 대상에게 푸시 알림을 발행한다. */
   private void publishMentionNotifications(
-      Long writerId, String writerName, String content, Boolean isBlindWriter, Long[] mentionUserIds, String webLink) {
+      Long writerId,
+      String writerName,
+      String content,
+      Boolean isBlindWriter,
+      Long[] mentionUserIds,
+      String webLink) {
     if (mentionUserIds == null || mentionUserIds.length == 0) {
       return;
     }
 
     List<Long> mentionedUserIds =
         Arrays.stream(mentionUserIds).filter(id -> !Objects.equals(id, writerId)).toList();
-    communityNotificationPublisher.publishMention(mentionedUserIds, writerName, content, isBlindWriter, webLink);
+    communityNotificationPublisher.publishMention(
+        mentionedUserIds, writerName, content, isBlindWriter, webLink);
   }
 
   private void validateOwner(Post post, Long userId) {

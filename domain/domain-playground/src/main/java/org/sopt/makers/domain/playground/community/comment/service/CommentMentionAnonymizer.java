@@ -31,7 +31,8 @@ public class CommentMentionAnonymizer {
 
     for (Comment reply : replies) {
       String updatedContent =
-          anonymizeMentionInContent(reply.content(), deletedComment.writerId(), deletedAnonymousProfile);
+          anonymizeMentionInContent(
+              reply.content(), deletedComment.writerId(), deletedAnonymousProfile);
 
       if (!updatedContent.equals(reply.content())) {
         commentRepositoryPort.save(reply.withContent(updatedContent));

@@ -41,7 +41,9 @@ public class CommunityReportSlackSenderAdapter implements CommunitySlackNotifica
 
     try {
       ChatPostMessageResponse response =
-          Slack.getInstance().methods(properties.botToken()).chatPostMessage(request -> request.channel(channelId).text(message));
+          Slack.getInstance()
+              .methods(properties.botToken())
+              .chatPostMessage(request -> request.channel(channelId).text(message));
       if (!response.isOk()) {
         throw new IllegalStateException("Slack API 응답 실패: " + response.getError());
       }

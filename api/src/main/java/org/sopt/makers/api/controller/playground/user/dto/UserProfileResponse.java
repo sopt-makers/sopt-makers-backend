@@ -46,7 +46,12 @@ public record UserProfileResponse(
   public record MemberSoptActivityResponse(Long id, Integer generation, String part, String team) {}
 
   public record MemberCareerResponse(
-      Long id, String companyName, String title, String startDate, String endDate, Boolean isCurrent) {}
+      Long id,
+      String companyName,
+      String title,
+      String startDate,
+      String endDate,
+      Boolean isCurrent) {}
 
   public record MemberQuestionPreviewResponse(Long questionId, String content) {}
 
@@ -69,14 +74,21 @@ public record UserProfileResponse(
             .toList();
 
     List<MemberLinkResponse> links =
-        user.profile().links().stream().map(l -> new MemberLinkResponse(l.id(), l.title(), l.url())).toList();
+        user.profile().links().stream()
+            .map(l -> new MemberLinkResponse(l.id(), l.title(), l.url()))
+            .toList();
 
     List<MemberCareerResponse> careers =
         user.profile().careers().stream()
             .map(
                 c ->
                     new MemberCareerResponse(
-                        c.id(), c.companyName(), c.title(), c.startDate(), c.endDate(), c.isCurrent()))
+                        c.id(),
+                        c.companyName(),
+                        c.title(),
+                        c.startDate(),
+                        c.endDate(),
+                        c.isCurrent()))
             .toList();
 
     UserFavorResponse userFavor =

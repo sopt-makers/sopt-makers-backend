@@ -52,6 +52,8 @@ public class UserLinkRepositoryAdapter implements UserLinkRepositoryPort {
 
   @Override
   public List<UserLink> findAllByUserId(final Long userId) {
-    return userLinkJpaRepository.findAllByUserId(userId).stream().map(UserLinkEntity::toDomain).toList();
+    return userLinkJpaRepository.findAllByUserId(userId).stream()
+        .map(UserLinkEntity::toDomain)
+        .toList();
   }
 }

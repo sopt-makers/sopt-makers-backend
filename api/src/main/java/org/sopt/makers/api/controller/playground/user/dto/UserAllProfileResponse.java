@@ -19,10 +19,13 @@ public record UserAllProfileResponse(
   }
 
   private static UserProfileResponse toMemberProfileResponse(UserProfileListItem item) {
-    return UserProfileResponse.from(item.user(), item.isCoffeeChatActivate(), toPreview(item.questionPreview()));
+    return UserProfileResponse.from(
+        item.user(), item.isCoffeeChatActivate(), toPreview(item.questionPreview()));
   }
 
   private static MemberQuestionPreviewResponse toPreview(AskPreview preview) {
-    return preview == null ? null : new MemberQuestionPreviewResponse(preview.questionId(), preview.content());
+    return preview == null
+        ? null
+        : new MemberQuestionPreviewResponse(preview.questionId(), preview.content());
   }
 }

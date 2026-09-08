@@ -12,7 +12,8 @@ public record PlaygroundTypeStats(
     double crew) {
 
   public PlaygroundType getTopStats() {
-    List<Double> values = Arrays.asList(community, member, project, wordChainGame, coffeeChat, crew);
+    List<Double> values =
+        Arrays.asList(community, member, project, wordChainGame, coffeeChat, crew);
     double max = values.stream().max(Double::compareTo).orElse(0.0);
 
     if (max == community) {

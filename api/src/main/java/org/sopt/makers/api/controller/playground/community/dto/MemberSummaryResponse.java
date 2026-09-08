@@ -5,6 +5,8 @@ import org.sopt.makers.domain.playground.community.post.PopularPost.PopularPostM
 public record MemberSummaryResponse(Long id, String name, String profileImage) {
 
   public static MemberSummaryResponse from(PopularPostMember member) {
-    return member == null ? null : new MemberSummaryResponse(member.id(), member.name(), member.profileImage());
+    return member == null
+        ? null
+        : new MemberSummaryResponse(member.id(), member.name(), member.profileImage());
   }
 }

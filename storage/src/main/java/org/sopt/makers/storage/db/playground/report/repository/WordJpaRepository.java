@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WordJpaRepository extends JpaRepository<WordEntity, Long> {
 
-  List<WordEntity> findAllByMemberIdAndCreatedAtBetween(Long memberId, LocalDateTime start, LocalDateTime end);
+  List<WordEntity> findAllByMemberIdAndCreatedAtBetween(
+      Long memberId, LocalDateTime start, LocalDateTime end);
 }

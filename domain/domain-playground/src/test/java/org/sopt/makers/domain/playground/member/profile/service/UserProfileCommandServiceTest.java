@@ -29,11 +29,14 @@ class UserProfileCommandServiceTest {
   private static final Long USER_ID = 1L;
   private static final Long LINK_ID = 100L;
 
-  private final PlaygroundProfileUserPort playgroundProfileUserPort = mock(PlaygroundProfileUserPort.class);
-  private final UserProfileRankingCachePort rankingCachePort = mock(UserProfileRankingCachePort.class);
+  private final PlaygroundProfileUserPort playgroundProfileUserPort =
+      mock(PlaygroundProfileUserPort.class);
+  private final UserProfileRankingCachePort rankingCachePort =
+      mock(UserProfileRankingCachePort.class);
   private final UserProfileCardCachePort cardCachePort = mock(UserProfileCardCachePort.class);
   private final UserActivityCheckPort userActivityCheckPort = mock(UserActivityCheckPort.class);
-  private final UserProfileNotifierPort userProfileNotifierPort = mock(UserProfileNotifierPort.class);
+  private final UserProfileNotifierPort userProfileNotifierPort =
+      mock(UserProfileNotifierPort.class);
 
   private final UserProfileCommandService service =
       new UserProfileCommandService(
@@ -72,7 +75,8 @@ class UserProfileCommandServiceTest {
         .thenReturn(Optional.of(UserLink.of(LINK_ID, USER_ID, "title", "url")));
 
     service.deleteLink(USER_ID, LINK_ID);
-    for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
+    for (TransactionSynchronization synchronization :
+        TransactionSynchronizationManager.getSynchronizations()) {
       synchronization.afterCommit();
     }
 
@@ -128,7 +132,8 @@ class UserProfileCommandServiceTest {
     verify(rankingCachePort, never()).evictTopRanking();
     verify(cardCachePort, never()).evict(USER_ID);
 
-    for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
+    for (TransactionSynchronization synchronization :
+        TransactionSynchronizationManager.getSynchronizations()) {
       synchronization.afterCommit();
     }
 

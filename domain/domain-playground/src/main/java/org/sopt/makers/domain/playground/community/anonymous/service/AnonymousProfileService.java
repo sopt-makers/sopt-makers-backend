@@ -21,9 +21,7 @@ public class AnonymousProfileService {
   private final AnonymousProfileImageRetriever anonymousProfileImageRetriever;
   private final AnonymousNicknameRetriever anonymousNicknameRetriever;
 
-  /**
-   * userId + postId 조합으로 익명 프로필 조회 또는 생성. 같은 사용자가 같은 게시글에서는 항상 같은 익명 프로필을 사용한다.
-   */
+  /** userId + postId 조합으로 익명 프로필 조회 또는 생성. 같은 사용자가 같은 게시글에서는 항상 같은 익명 프로필을 사용한다. */
   @Transactional
   public AnonymousProfile getOrCreateAnonymousProfile(Long userId, Long postId) {
     return anonymousProfileRetriever
@@ -33,7 +31,8 @@ public class AnonymousProfileService {
 
   private AnonymousProfile createAnonymousProfile(Long userId, Long postId) {
     // 해당 게시글에서 이미 사용된 닉네임 제외
-    List<AnonymousProfile> existingProfilesInPost = anonymousProfileRetriever.findAllByPostId(postId);
+    List<AnonymousProfile> existingProfilesInPost =
+        anonymousProfileRetriever.findAllByPostId(postId);
     List<AnonymousNickname> excludeNicknamesInPost =
         existingProfilesInPost.stream().map(AnonymousProfile::nickname).toList();
 
@@ -45,9 +44,12 @@ public class AnonymousProfileService {
 
     // 중복 없이 합치기
     List<AnonymousNickname> excludeNicknames =
-        Stream.concat(excludeNicknamesInPost.stream(), recentNicknames.stream()).distinct().toList();
+        Stream.concat(excludeNicknamesInPost.stream(), recentNicknames.stream())
+            .distinct()
+            .toList();
 
-    AnonymousNickname nickname = anonymousNicknameRetriever.findRandomAnonymousNickname(excludeNicknames);
+    AnonymousNickname nickname =
+        anonymousNicknameRetriever.findRandomAnonymousNickname(excludeNicknames);
     AnonymousProfileImage profileImage = anonymousProfileImageRetriever.getAnonymousProfileImage();
 
     return anonymousProfileModifier.createAnonymousProfile(userId, postId, nickname, profileImage);

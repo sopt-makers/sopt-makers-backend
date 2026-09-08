@@ -35,13 +35,15 @@ public class CommentQueryService {
   private final AnonymousProfileRetriever anonymousProfileRetriever;
   private final UserBlockRepositoryPort userBlockRepositoryPort;
 
-  public List<CommentThread> getCommentThreadsByPostId(Long viewerId, Long postId, Boolean isBlockOn) {
+  public List<CommentThread> getCommentThreadsByPostId(
+      Long viewerId, Long postId, Boolean isBlockOn) {
     if (!postRepositoryPort.existsById(postId)) {
       throw new CommunityException(NOT_FOUND_COMMUNITY_POST);
     }
 
     Set<Long> blockedWriterIds = resolveBlockedWriterIds(viewerId, isBlockOn);
-    List<Comment> comments = excludeBlockedWriters(commentRepositoryPort.findAllByPostId(postId), blockedWriterIds);
+    List<Comment> comments =
+        excludeBlockedWriters(commentRepositoryPort.findAllByPostId(postId), blockedWriterIds);
 
     return toCommentThreads(comments, viewerId);
   }
@@ -52,12 +54,15 @@ public class CommentQueryService {
       return Map.of();
     }
 
-    List<Comment> comments = excludeBlockedWriters(commentRepositoryPort.findAllByPostIds(postIds), blockedWriterIds);
+    List<Comment> comments =
+        excludeBlockedWriters(commentRepositoryPort.findAllByPostIds(postIds), blockedWriterIds);
     List<CommentThread> threads = toCommentThreads(comments, viewerId);
     Map<Long, List<CommentThread>> grouped =
         threads.stream().collect(Collectors.groupingBy(thread -> thread.comment().postId()));
 
-    return postIds.stream().collect(Collectors.toMap(postId -> postId, postId -> grouped.getOrDefault(postId, List.of())));
+    return postIds.stream()
+        .collect(
+            Collectors.toMap(postId -> postId, postId -> grouped.getOrDefault(postId, List.of())));
   }
 
   private Set<Long> resolveBlockedWriterIds(Long viewerId, Boolean isBlockOn) {
@@ -71,7 +76,9 @@ public class CommentQueryService {
     if (blockedWriterIds == null || blockedWriterIds.isEmpty()) {
       return comments;
     }
-    return comments.stream().filter(comment -> !blockedWriterIds.contains(comment.writerId())).toList();
+    return comments.stream()
+        .filter(comment -> !blockedWriterIds.contains(comment.writerId()))
+        .toList();
   }
 
   public Map<Long, Integer> countNonDeletedCommentsByPostIds(List<Long> postIds) {
@@ -89,16 +96,26 @@ public class CommentQueryService {
 
     List<Long> writerIds = comments.stream().map(Comment::writerId).distinct().toList();
     List<Long> anonymousProfileIds =
-        comments.stream().map(Comment::anonymousProfileId).filter(Objects::nonNull).distinct().toList();
+        comments.stream()
+            .map(Comment::anonymousProfileId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     List<Long> commentIds = comments.stream().map(Comment::id).toList();
 
-    Map<Long, CommunityMemberSummary> memberMap = communityMemberAssembler.getMemberSummaryMap(writerIds);
-    Map<Long, AnonymousProfile> anonymousProfileMap = anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
+    Map<Long, CommunityMemberSummary> memberMap =
+        communityMemberAssembler.getMemberSummaryMap(writerIds);
+    Map<Long, AnonymousProfile> anonymousProfileMap =
+        anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
     Map<Long, Boolean> likedMap = getLikedMap(viewerId, commentIds);
-    Map<Long, Integer> likeCountMap = toIntMap(commentLikeRepositoryPort.countLikesByCommentIds(commentIds));
+    Map<Long, Integer> likeCountMap =
+        toIntMap(commentLikeRepositoryPort.countLikesByCommentIds(commentIds));
 
     return comments.stream()
-        .map(comment -> toCommentThread(comment, viewerId, memberMap, anonymousProfileMap, likedMap, likeCountMap))
+        .map(
+            comment ->
+                toCommentThread(
+                    comment, viewerId, memberMap, anonymousProfileMap, likedMap, likeCountMap))
         .toList();
   }
 
@@ -112,7 +129,9 @@ public class CommentQueryService {
     boolean isBlind = Boolean.TRUE.equals(comment.isBlindWriter());
     CommunityMemberSummary member = isBlind ? null : memberMap.get(comment.writerId());
     AnonymousProfile anonymousProfile =
-        isBlind && comment.anonymousProfileId() != null ? anonymousProfileMap.get(comment.anonymousProfileId()) : null;
+        isBlind && comment.anonymousProfileId() != null
+            ? anonymousProfileMap.get(comment.anonymousProfileId())
+            : null;
     boolean isMine = Objects.equals(comment.writerId(), viewerId);
 
     return new CommentThread(
@@ -129,10 +148,12 @@ public class CommentQueryService {
       return Map.of();
     }
 
-    List<Long> likedCommentIds = commentLikeRepositoryPort.findLikedCommentIdsByUserIdAndCommentIds(viewerId, commentIds);
+    List<Long> likedCommentIds =
+        commentLikeRepositoryPort.findLikedCommentIdsByUserIdAndCommentIds(viewerId, commentIds);
     Set<Long> likedCommentIdSet = Set.copyOf(likedCommentIds);
 
-    return commentIds.stream().collect(Collectors.toMap(commentId -> commentId, likedCommentIdSet::contains));
+    return commentIds.stream()
+        .collect(Collectors.toMap(commentId -> commentId, likedCommentIdSet::contains));
   }
 
   private Map<Long, Integer> toIntMap(Map<Long, Long> counts) {

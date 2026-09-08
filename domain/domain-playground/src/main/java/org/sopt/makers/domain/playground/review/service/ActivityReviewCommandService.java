@@ -33,7 +33,8 @@ public class ActivityReviewCommandService {
   }
 
   private void validateCurrentGeneration(Long userId) {
-    if (activityReviewUserPort.getLastGeneration(userId) != currentGenerationProvider.getCurrentGeneration()) {
+    if (activityReviewUserPort.getLastGeneration(userId)
+        != currentGenerationProvider.getCurrentGeneration()) {
       throw new ActivityReviewException(ActivityReviewFailure.NOT_CURRENT_GENERATION);
     }
   }

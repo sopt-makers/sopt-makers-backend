@@ -44,7 +44,8 @@ public class UserBlockEntity extends BaseEntity {
   }
 
   public UserBlock toDomain() {
-    return new UserBlock(id, blockerUserId, blockedUserId, isBlocked, getCreatedAt(), getUpdatedAt());
+    return new UserBlock(
+        id, blockerUserId, blockedUserId, isBlocked, getCreatedAt(), getUpdatedAt());
   }
 
   public static UserBlockEntity fromDomain(UserBlock userBlock) {

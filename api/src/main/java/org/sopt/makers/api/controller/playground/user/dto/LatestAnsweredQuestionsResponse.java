@@ -6,7 +6,8 @@ import org.sopt.makers.domain.playground.member.ask.LatestAnsweredAskCard;
 public record LatestAnsweredQuestionsResponse(List<LatestQuestionCardResponse> questions) {
 
   public static LatestAnsweredQuestionsResponse from(List<LatestAnsweredAskCard> cards) {
-    return new LatestAnsweredQuestionsResponse(cards.stream().map(LatestQuestionCardResponse::from).toList());
+    return new LatestAnsweredQuestionsResponse(
+        cards.stream().map(LatestQuestionCardResponse::from).toList());
   }
 
   public record LatestQuestionCardResponse(

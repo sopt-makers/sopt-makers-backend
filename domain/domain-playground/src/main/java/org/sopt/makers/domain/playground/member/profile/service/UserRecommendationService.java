@@ -16,9 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.member.profile.AppJamObMemberIds;
-import org.sopt.makers.domain.playground.member.profile.UserRecommendation;
 import org.sopt.makers.domain.playground.member.profile.RecommendationType;
 import org.sopt.makers.domain.playground.member.profile.SameGenerationAndPartUser;
+import org.sopt.makers.domain.playground.member.profile.UserRecommendation;
 import org.sopt.makers.domain.playground.member.profile.WorkPreferenceRecommendationResult;
 import org.sopt.makers.domain.playground.member.profile.WorkPreferenceRecommendationResult.WorkPreferenceRecommendedMember;
 import org.sopt.makers.domain.playground.member.profile.port.PlaygroundCrewRelationPort;
@@ -78,7 +78,9 @@ public class UserRecommendationService {
     List<Activity> activities = user.activities().activities();
 
     Optional<Activity> latestSopt =
-        activities.stream().filter(Activity::isSopt).max(Comparator.comparingInt(Activity::generation));
+        activities.stream()
+            .filter(Activity::isSopt)
+            .max(Comparator.comparingInt(Activity::generation));
     Optional<Activity> latestMakers =
         activities.stream()
             .filter(activity -> !activity.isSopt())
@@ -170,7 +172,8 @@ public class UserRecommendationService {
       List<Integer> generations, String university, String mbti) {
     Set<Long> generationUserIds = new HashSet<>();
     for (int generation : generations) {
-      generationUserIds.addAll(recommendationUserPort.findUserIdsByActivity(generation, null, true));
+      generationUserIds.addAll(
+          recommendationUserPort.findUserIdsByActivity(generation, null, true));
     }
 
     boolean hasUniversity = university != null && !university.isBlank();
@@ -187,7 +190,8 @@ public class UserRecommendationService {
   private Set<Long> resolveProfileFilterUserIds(
       String university, String mbti, boolean hasUniversity, boolean hasMbti) {
     if (hasUniversity && hasMbti) {
-      Set<Long> universityIds = new HashSet<>(recommendationUserPort.findUserIdsByUniversity(university));
+      Set<Long> universityIds =
+          new HashSet<>(recommendationUserPort.findUserIdsByUniversity(university));
       return recommendationUserPort.findUserIdsByMbti(mbti).stream()
           .filter(universityIds::contains)
           .collect(Collectors.toSet());
@@ -223,7 +227,9 @@ public class UserRecommendationService {
 
     List<UserRecommendation> recommendations = new ArrayList<>();
     int criteriaPointer = 0;
-    for (int slot = 0; slot < RECOMMENDATION_SET_SIZE && criteriaPointer < criteria.size(); slot++) {
+    for (int slot = 0;
+        slot < RECOMMENDATION_SET_SIZE && criteriaPointer < criteria.size();
+        slot++) {
       boolean isFound = false;
       while (criteriaPointer < criteria.size() && !isFound) {
         RecommendationType type = criteria.get(criteriaPointer++);
@@ -248,13 +254,15 @@ public class UserRecommendationService {
     return recommendations;
   }
 
-  private Optional<UserRecommendation> findSamePartCandidate(Set<Part> myParts, Set<Long> excludeIds) {
+  private Optional<UserRecommendation> findSamePartCandidate(
+      Set<Part> myParts, Set<Long> excludeIds) {
     if (myParts.isEmpty()) {
       return Optional.empty();
     }
     Set<Long> candidateIds = new LinkedHashSet<>();
     myParts.forEach(
-        part -> candidateIds.addAll(recommendationUserPort.findUserIdsByActivity(null, part, true)));
+        part ->
+            candidateIds.addAll(recommendationUserPort.findUserIdsByActivity(null, part, true)));
     candidateIds.removeAll(excludeIds);
     return pickAndBuildFromIds(new ArrayList<>(candidateIds), RecommendationType.SAME_PART);
   }
@@ -360,8 +368,10 @@ public class UserRecommendationService {
     return Optional.of(toRecommendation(shuffled.get(0), type));
   }
 
-  private UserRecommendation toRecommendation(RecommendationUserInfo info, RecommendationType type) {
-    Activity latest = info.activities().stream().max(Comparator.comparingInt(Activity::generation)).orElse(null);
+  private UserRecommendation toRecommendation(
+      RecommendationUserInfo info, RecommendationType type) {
+    Activity latest =
+        info.activities().stream().max(Comparator.comparingInt(Activity::generation)).orElse(null);
     Activity latestSopt =
         info.activities().stream()
             .filter(Activity::isSopt)
@@ -376,7 +386,8 @@ public class UserRecommendationService {
       part = latestSopt != null && latestSopt.part() != null ? latestSopt.part().getName() : null;
     }
 
-    return new UserRecommendation(info.id(), info.name(), info.profileImage(), generation, part, type);
+    return new UserRecommendation(
+        info.id(), info.name(), info.profileImage(), generation, part, type);
   }
 
   private List<SameGenerationAndPartUser> findSameGenerationAndPartSoptCandidates(
@@ -390,13 +401,16 @@ public class UserRecommendationService {
             .stream()
             .filter(id -> !id.equals(excludeId))
             .toList();
-    return pickTopSameGenerationAndPartMembers(candidates, latestSopt.generation(), latestSopt.part().getName());
+    return pickTopSameGenerationAndPartMembers(
+        candidates, latestSopt.generation(), latestSopt.part().getName());
   }
 
   private List<SameGenerationAndPartUser> findSameGenerationAndPartMakersCandidates(
       Long excludeId, Activity latestMakers) {
     List<Long> candidates =
-        recommendationUserPort.findUserIdsByActivity(latestMakers.generation(), null, false).stream()
+        recommendationUserPort
+            .findUserIdsByActivity(latestMakers.generation(), null, false)
+            .stream()
             .filter(id -> !id.equals(excludeId))
             .toList();
     return pickTopSameGenerationAndPartMembers(candidates, latestMakers.generation(), "메이커스");
@@ -418,7 +432,10 @@ public class UserRecommendationService {
     return picked.stream()
         .map(infoById::get)
         .filter(Objects::nonNull)
-        .map(info -> new SameGenerationAndPartUser(info.id(), info.name(), info.profileImage(), generation, part))
+        .map(
+            info ->
+                new SameGenerationAndPartUser(
+                    info.id(), info.name(), info.profileImage(), generation, part))
         .toList();
   }
 

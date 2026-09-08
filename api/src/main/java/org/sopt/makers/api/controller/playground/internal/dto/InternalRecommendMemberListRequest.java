@@ -14,7 +14,8 @@ public record InternalRecommendMemberListRequest(
         List<Integer> generations,
     @Schema(
             description = "추천 조건 필터",
-            example = "[{\"key\": \"UNIVERSITY\", \"value\": \"하버드\"}, {\"key\": \"MBTI\", \"value\": \"ENTJ\"}]")
+            example =
+                "[{\"key\": \"UNIVERSITY\", \"value\": \"하버드\"}, {\"key\": \"MBTI\", \"value\": \"ENTJ\"}]")
         List<SearchContentResponse> filters) {
 
   public record SearchContentResponse(

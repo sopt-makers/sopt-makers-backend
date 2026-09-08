@@ -29,7 +29,9 @@ public class VoteRepositoryAdapter implements VoteRepositoryPort {
 
     List<VoteOptionEntity> savedOptions =
         voteOptionJpaRepository.saveAll(
-            vote.options().stream().map(option -> VoteOptionEntity.of(savedVote.getId(), option)).toList());
+            vote.options().stream()
+                .map(option -> VoteOptionEntity.of(savedVote.getId(), option))
+                .toList());
 
     return savedVote.toDomain(savedOptions.stream().map(VoteOptionEntity::toDomain).toList());
   }

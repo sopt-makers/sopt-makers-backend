@@ -60,7 +60,9 @@ public class PlaygroundUserQuestionController implements PlaygroundUserQuestionA
       @PathVariable Long receiverId,
       @RequestBody @Valid QuestionSaveRequest request) {
     Long questionId =
-        userAskCommandService.createAsk(userId, receiverId, request.content(), request.isAnonymous()).id();
+        userAskCommandService
+            .createAsk(userId, receiverId, request.content(), request.isAnonymous())
+            .id();
     return ResponseFactory.success(CREATE_QUESTION, Map.of("questionId", questionId));
   }
 
@@ -145,14 +147,16 @@ public class PlaygroundUserQuestionController implements PlaygroundUserQuestionA
       @RequestParam(value = "page", required = false) Integer page,
       @RequestParam(value = "size", required = false) Integer size) {
     return ResponseFactory.success(
-        GET_QUESTIONS, QuestionsResponse.from(userAskQueryService.getAsks(userId, memberId, tab, page, size)));
+        GET_QUESTIONS,
+        QuestionsResponse.from(userAskQueryService.getAsks(userId, memberId, tab, page, size)));
   }
 
   @Override
   @GetMapping("/me/questions/unanswered-count")
   public ResponseEntity<BaseResponse<?>> getUnansweredCount(@CurrentUserId Long userId) {
     return ResponseFactory.success(
-        GET_UNANSWERED_COUNT, UnansweredCountResponse.from(userAskQueryService.getUnansweredCount(userId)));
+        GET_UNANSWERED_COUNT,
+        UnansweredCountResponse.from(userAskQueryService.getUnansweredCount(userId)));
   }
 
   @Override

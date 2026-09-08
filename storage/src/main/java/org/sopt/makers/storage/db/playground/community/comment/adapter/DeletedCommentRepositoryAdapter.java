@@ -25,7 +25,8 @@ public class DeletedCommentRepositoryAdapter implements DeletedCommentRepository
   @Transactional
   @Override
   public List<DeletedComment> saveAll(List<DeletedComment> deletedComments) {
-    return deletedCommentJpaRepository.saveAll(deletedComments.stream().map(DeletedCommentEntity::from).toList())
+    return deletedCommentJpaRepository
+        .saveAll(deletedComments.stream().map(DeletedCommentEntity::from).toList())
         .stream()
         .map(DeletedCommentEntity::toDomain)
         .toList();

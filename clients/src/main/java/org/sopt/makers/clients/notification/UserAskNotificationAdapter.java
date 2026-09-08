@@ -19,7 +19,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserAskNotificationAdapter implements UserAskNotificationPort {
 
-  private static final String ASK_PROFILE_LINK_FORMAT = "https://playground.sopt.org/members/%d?tab=ask";
+  private static final String ASK_PROFILE_LINK_FORMAT =
+      "https://playground.sopt.org/members/%d?tab=ask";
   private static final String QUESTION_NOTIFICATION_TITLE = "💬나의 에스크에 질문이 달렸어요.";
   private static final String QUESTION_CONTENT_FORMAT = "[이런 내용이 궁금해요] : \"%s\"";
   private static final String ANSWER_NOTIFICATION_TITLE = "💬나의 에스크에 답변이 달렸어요.";
@@ -47,7 +48,8 @@ public class UserAskNotificationAdapter implements UserAskNotificationPort {
   }
 
   @Override
-  public void sendAnswerNotification(Long askId, Long askerId, Long answerWriterId, String answerContent) {
+  public void sendAnswerNotification(
+      Long askId, Long askerId, Long answerWriterId, String answerContent) {
     try {
       String answerWriterName = playgroundAskUserPort.getName(answerWriterId);
       alarmInstantSenderPort.send(buildAnswerAlarm(askerId, answerWriterName, answerContent));

@@ -48,7 +48,9 @@ public class CommentRepositoryAdapter implements CommentRepositoryPort {
 
   @Override
   public List<Comment> findAllByPostId(Long postId) {
-    return commentJpaRepository.findAllByPostIdOrderByIdAsc(postId).stream().map(CommentEntity::toDomain).toList();
+    return commentJpaRepository.findAllByPostIdOrderByIdAsc(postId).stream()
+        .map(CommentEntity::toDomain)
+        .toList();
   }
 
   @Override
@@ -60,20 +62,24 @@ public class CommentRepositoryAdapter implements CommentRepositoryPort {
 
   @Override
   public List<Comment> findAllByParentCommentId(Long parentCommentId) {
-    return commentJpaRepository.findAllByParentCommentId(parentCommentId).stream().map(CommentEntity::toDomain).toList();
+    return commentJpaRepository.findAllByParentCommentId(parentCommentId).stream()
+        .map(CommentEntity::toDomain)
+        .toList();
   }
 
   @Override
   public Map<Long, Long> countNonDeletedByPostIds(List<Long> postIds) {
     Map<Long, Long> result = new LinkedHashMap<>();
-    for (CommentCountProjection projection : commentJpaRepository.countNonDeletedByPostIds(postIds)) {
+    for (CommentCountProjection projection :
+        commentJpaRepository.countNonDeletedByPostIds(postIds)) {
       result.put(projection.getPostId(), projection.getCommentCount());
     }
     return result;
   }
 
   @Override
-  public int countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end) {
+  public int countAllByWriterIdAndCreatedAtBetween(
+      Long writerId, LocalDateTime start, LocalDateTime end) {
     return commentJpaRepository.countAllByWriterIdAndCreatedAtBetween(writerId, start, end);
   }
 

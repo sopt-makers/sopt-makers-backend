@@ -31,7 +31,9 @@ public record InternalMemberProfileResponse(
         .map(
             activity ->
                 new CardinalInfoResponse(
-                    activity.generation() + "," + (activity.part() == null ? "" : activity.part().getName())))
+                    activity.generation()
+                        + ","
+                        + (activity.part() == null ? "" : activity.part().getName())))
         .toList();
   }
 }

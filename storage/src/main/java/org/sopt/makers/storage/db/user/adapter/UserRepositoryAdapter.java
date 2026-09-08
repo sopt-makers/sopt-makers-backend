@@ -91,7 +91,8 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   }
 
   @Override
-  public List<Long> findUserIdsWithProfileByActivity(Integer generation, Part part, boolean isSopt) {
+  public List<Long> findUserIdsWithProfileByActivity(
+      Integer generation, Part part, boolean isSopt) {
     return userQuerydslRepository.findUserIdsWithProfileByActivity(generation, part, isSopt);
   }
 

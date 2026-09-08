@@ -5,9 +5,11 @@ import org.sopt.makers.domain.playground.member.profile.SameGenerationAndPartUse
 
 public record SameGenerationAndPartRecommendResponse(List<Member> members) {
 
-  public record Member(Long id, String name, String profileImage, Integer generation, String part) {}
+  public record Member(
+      Long id, String name, String profileImage, Integer generation, String part) {}
 
-  public static SameGenerationAndPartRecommendResponse from(List<SameGenerationAndPartUser> members) {
+  public static SameGenerationAndPartRecommendResponse from(
+      List<SameGenerationAndPartUser> members) {
     List<Member> responseMembers =
         members.stream()
             .map(m -> new Member(m.id(), m.name(), m.profileImage(), m.generation(), m.part()))

@@ -8,6 +8,7 @@ public record AnonymousProfileResponse(String nickname, String profileImgUrl) {
     if (profile == null) {
       return null;
     }
-    return new AnonymousProfileResponse(profile.nickname().nickname(), profile.profileImage().imageUrl());
+    return new AnonymousProfileResponse(
+        profile.nickname().nickname(), profile.profileImage().imageUrl());
   }
 }

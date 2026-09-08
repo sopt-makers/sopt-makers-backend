@@ -27,7 +27,8 @@ public class ReportController implements ReportApi {
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getReportStats(
       @RequestParam(required = false, defaultValue = "SOPT") SoptReportCategory category) {
-    return ResponseFactory.success(GET_REPORT_STATS, soptReportStatsQueryService.getSoptReportStats(category));
+    return ResponseFactory.success(
+        GET_REPORT_STATS, soptReportStatsQueryService.getSoptReportStats(category));
   }
 
   @Override

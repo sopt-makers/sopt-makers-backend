@@ -46,7 +46,9 @@ public class PostLikeRepositoryAdapter implements PostLikeRepositoryPort {
 
   @Override
   public Optional<PostLike> findByUserIdAndPostId(Long userId, Long postId) {
-    return postLikeJpaRepository.findByUserIdAndPostId(userId, postId).map(PostLikeEntity::toDomain);
+    return postLikeJpaRepository
+        .findByUserIdAndPostId(userId, postId)
+        .map(PostLikeEntity::toDomain);
   }
 
   @Override
@@ -55,7 +57,8 @@ public class PostLikeRepositoryAdapter implements PostLikeRepositoryPort {
   }
 
   @Override
-  public int countAllByUserIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end) {
+  public int countAllByUserIdAndCreatedAtBetween(
+      Long userId, LocalDateTime start, LocalDateTime end) {
     return postLikeJpaRepository.countAllByUserIdAndCreatedAtBetween(userId, start, end);
   }
 

@@ -9,7 +9,8 @@ import org.sopt.makers.domain.playground.community.post.service.CommunityPostCom
 import org.sopt.makers.domain.playground.community.vote.service.VoteCommandService;
 
 public record PostSaveRequest(
-    @Schema(required = true) @NotNull(message = "카테고리 코드는 필수 입력값입니다.") CommunityCategoryCode categoryCode,
+    @Schema(required = true) @NotNull(message = "카테고리 코드는 필수 입력값입니다.")
+        CommunityCategoryCode categoryCode,
     String title,
     @Schema(required = true) @NotBlank(message = "게시글 본문은 공백일 수 없습니다.") String content,
     @Schema(required = true) @NotNull(message = "익명글 여부 필드는 필수 입력값입니다.") Boolean isBlindWriter,
@@ -22,10 +23,20 @@ public record PostSaveRequest(
     Long[] mentionUserIds = mention == null ? null : mention.userIds();
     String mentionWebLink = mention == null ? null : mention.webLink();
     return new CreatePostCommand(
-        categoryCode, title, content, isBlindWriter, images, link, toVoteCommand(), mentionUserIds, mentionWebLink);
+        categoryCode,
+        title,
+        content,
+        isBlindWriter,
+        images,
+        link,
+        toVoteCommand(),
+        mentionUserIds,
+        mentionWebLink);
   }
 
   private VoteCommandService.CreateVoteCommand toVoteCommand() {
-    return vote == null ? null : new VoteCommandService.CreateVoteCommand(vote.isMultiple(), vote.voteOptions());
+    return vote == null
+        ? null
+        : new VoteCommandService.CreateVoteCommand(vote.isMultiple(), vote.voteOptions());
   }
 }

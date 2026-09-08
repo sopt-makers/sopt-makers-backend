@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface ReportCommentJpaRepository extends JpaRepository<ReportCommentEntity, Long> {
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
-  @Query("DELETE FROM ReportCommentEntity reportComment WHERE reportComment.commentId IN :commentIds")
+  @Query(
+      "DELETE FROM ReportCommentEntity reportComment WHERE reportComment.commentId IN :commentIds")
   void deleteAllByCommentIdIn(@Param("commentIds") List<Long> commentIds);
 }

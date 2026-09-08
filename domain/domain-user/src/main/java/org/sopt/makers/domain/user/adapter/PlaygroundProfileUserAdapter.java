@@ -22,8 +22,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
- * Playground 프로필 화면 전용 어댑터. {@link org.sopt.makers.domain.user.facade.UserFacade}는 전화번호 변경 시
- * 인증 검증을 강제하지만, 레거시 Playground `/api/v1/members/profile`은 이를 요구하지 않았으므로 여기서는
+ * Playground 프로필 화면 전용 어댑터. {@link org.sopt.makers.domain.user.facade.UserFacade}는 전화번호 변경 시 인증 검증을
+ * 강제하지만, 레거시 Playground `/api/v1/members/profile`은 이를 요구하지 않았으므로 여기서는
  * UserQueryService/UserCommandService를 직접 사용해 검증을 우회한다(Golden Rule 보존).
  */
 @Component

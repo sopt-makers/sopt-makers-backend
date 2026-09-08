@@ -22,7 +22,8 @@ public interface PostJpaRepository extends JpaRepository<PostEntity, Long>, Post
 
   List<PostEntity> findAllByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
-  Integer countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end);
+  Integer countAllByWriterIdAndCreatedAtBetween(
+      Long writerId, LocalDateTime start, LocalDateTime end);
 
   @Modifying
   @Query("UPDATE PostEntity post SET post.hits = post.hits + 1 WHERE post.id = :postId")
@@ -48,7 +49,8 @@ public interface PostJpaRepository extends JpaRepository<PostEntity, Long>, Post
         AND post.category.categoryGroup = :categoryGroup
       """)
   long countByWriterIdAndCategoryGroup(
-      @Param("writerId") Long writerId, @Param("categoryGroup") CommunityCategoryGroup categoryGroup);
+      @Param("writerId") Long writerId,
+      @Param("categoryGroup") CommunityCategoryGroup categoryGroup);
 
   default long countSopticleByWriterId(Long writerId) {
     return countByWriterIdAndCategoryGroup(writerId, CommunityCategoryGroup.SOPTICLE);

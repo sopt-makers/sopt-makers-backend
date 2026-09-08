@@ -50,13 +50,15 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
   @Override
   public List<UserAsk> findAnsweredByReceiverUserId(Long receiverUserId, int page, int size) {
     return toDomainList(
-        userAskJpaRepository.findAnsweredByReceiverUserId(receiverUserId, PageRequest.of(page, size)));
+        userAskJpaRepository.findAnsweredByReceiverUserId(
+            receiverUserId, PageRequest.of(page, size)));
   }
 
   @Override
   public List<UserAsk> findUnansweredByReceiverUserId(Long receiverUserId, int page, int size) {
     return toDomainList(
-        userAskJpaRepository.findUnansweredByReceiverUserId(receiverUserId, PageRequest.of(page, size)));
+        userAskJpaRepository.findUnansweredByReceiverUserId(
+            receiverUserId, PageRequest.of(page, size)));
   }
 
   @Override
@@ -112,7 +114,8 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
   }
 
   @Override
-  public List<UserAsk> findLatestRecentByReceiverUserIds(List<Long> receiverUserIds, LocalDateTime since) {
+  public List<UserAsk> findLatestRecentByReceiverUserIds(
+      List<Long> receiverUserIds, LocalDateTime since) {
     if (receiverUserIds == null || receiverUserIds.isEmpty()) {
       return List.of();
     }

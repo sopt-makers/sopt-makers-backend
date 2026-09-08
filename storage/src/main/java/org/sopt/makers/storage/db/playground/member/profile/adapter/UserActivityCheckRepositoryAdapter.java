@@ -29,6 +29,8 @@ public class UserActivityCheckRepositoryAdapter implements UserActivityCheckPort
         .findByUserId(userId)
         .ifPresentOrElse(
             entity -> entity.updateEditActivitiesAble(isCheck),
-            () -> userActivityCheckJpaRepository.save(UserActivityCheckEntity.create(userId, isCheck)));
+            () ->
+                userActivityCheckJpaRepository.save(
+                    UserActivityCheckEntity.create(userId, isCheck)));
   }
 }

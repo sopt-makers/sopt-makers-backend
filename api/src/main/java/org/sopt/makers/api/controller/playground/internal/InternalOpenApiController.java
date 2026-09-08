@@ -40,15 +40,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * 레거시 sopt-playground-backend의 InternalOpenApiController를 대체하는 레거시 호환성용 Internal API이며,
- * 향후 타 팀 상황에 따라 직접 도메인 Port를 주입받아 쓰거나 이 엔드포인트를 계속 호출할 수 있다.
+ * 레거시 sopt-playground-backend의 InternalOpenApiController를 대체하는 레거시 호환성용 Internal API이며, 향후 타 팀 상황에
+ * 따라 직접 도메인 Port를 주입받아 쓰거나 이 엔드포인트를 계속 호출할 수 있다.
  *
- * <p>기본 유저 프로필 생성/삭제(POST /members, DELETE /members/{memberId})는 과거 Platform/Playground가
- * 분리된 서비스였을 때 Playground 쪽에 shadow 프로필 행을 만들기 위한 API였다. 병합된 이 백엔드에서는 유저가
- * 단일 users 테이블에 이미 완전한 상태로 존재하므로(가입 시점에 name/phone 등이 모두 채워짐, id는
- * IDENTITY 채번) 더 이상 "빈 프로필 행"을 만들거나 지울 수 없다. 따라서 두 엔드포인트는 호출자 호환을 위해
- * URL/HTTP Status/응답 문구는 그대로 유지하되, 실제로는 존재 여부만 확인하고 DB를 변경하지 않는
- * no-op으로 동작한다.
+ * <p>기본 유저 프로필 생성/삭제(POST /members, DELETE /members/{memberId})는 과거 Platform/Playground가 분리된 서비스였을
+ * 때 Playground 쪽에 shadow 프로필 행을 만들기 위한 API였다. 병합된 이 백엔드에서는 유저가 단일 users 테이블에 이미 완전한 상태로 존재하므로(가입
+ * 시점에 name/phone 등이 모두 채워짐, id는 IDENTITY 채번) 더 이상 "빈 프로필 행"을 만들거나 지울 수 없다. 따라서 두 엔드포인트는 호출자 호환을 위해
+ * URL/HTTP Status/응답 문구는 그대로 유지하되, 실제로는 존재 여부만 확인하고 DB를 변경하지 않는 no-op으로 동작한다.
  */
 @Slf4j
 @RestController
@@ -67,13 +65,15 @@ public class InternalOpenApiController implements InternalOpenApiApi {
   @Override
   @GetMapping("/projects/{id}")
   public ResponseEntity<ProjectDetailResponse> getProject(@PathVariable Long id) {
-    ProjectDetailResponse response = ProjectDetailResponse.from(projectService.getProjectDetail(id));
+    ProjectDetailResponse response =
+        ProjectDetailResponse.from(projectService.getProjectDetail(id));
     return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @Override
   @GetMapping("/members/{memberId}/project")
-  public ResponseEntity<InternalMemberProjectResponse> getMemberProject(@PathVariable Long memberId) {
+  public ResponseEntity<InternalMemberProjectResponse> getMemberProject(
+      @PathVariable Long memberId) {
     int count = projectService.getProjectCountByMemberId(memberId);
     return ResponseEntity.status(HttpStatus.OK).body(new InternalMemberProjectResponse(count));
   }
@@ -101,7 +101,8 @@ public class InternalOpenApiController implements InternalOpenApiApi {
 
   @Override
   @GetMapping("/members/profile/me")
-  public ResponseEntity<InternalMemberProfileResponse> getUserProfile(@RequestParam String memberId) {
+  public ResponseEntity<InternalMemberProfileResponse> getUserProfile(
+      @RequestParam String memberId) {
     User user = userProfileQueryService.getMemberProfileForInternalApi(Long.valueOf(memberId));
     return ResponseEntity.status(HttpStatus.OK).body(InternalMemberProfileResponse.from(user));
   }
@@ -138,7 +139,8 @@ public class InternalOpenApiController implements InternalOpenApiApi {
   @Override
   @PostMapping("/members")
   public ResponseEntity<String> createUserProfile(
-      @RequestBody CreateDefaultUserProfileRequest request, @RequestHeader("apiKey") String apiKey) {
+      @RequestBody CreateDefaultUserProfileRequest request,
+      @RequestHeader("apiKey") String apiKey) {
     validateApiKey(apiKey);
 
     Long userId = request.userId();
@@ -169,10 +171,9 @@ public class InternalOpenApiController implements InternalOpenApiApi {
   }
 
   /**
-   * 이 컨트롤러 내부에서만 적용되는 로컬 핸들러. {@code GlobalExceptionHandler}(BaseResponse 공통 규격)를 거치지
-   * 않고 이 클래스 안에서 던진 {@link ResponseStatusException}(apiKey 검증 실패 401, 중복 생성 409, 존재하지 않는
-   * 유저 삭제 404 등)만 격리해서 처리한다 — {@code Exception.class} catch-all에 가로채져 500으로 뭉개지는 것을
-   * 막되, 다른 도메인의 전역 에러 규격에는 영향을 주지 않는다.
+   * 이 컨트롤러 내부에서만 적용되는 로컬 핸들러. {@code GlobalExceptionHandler}(BaseResponse 공통 규격)를 거치지 않고 이 클래스 안에서
+   * 던진 {@link ResponseStatusException}(apiKey 검증 실패 401, 중복 생성 409, 존재하지 않는 유저 삭제 404 등)만 격리해서 처리한다
+   * — {@code Exception.class} catch-all에 가로채져 500으로 뭉개지는 것을 막되, 다른 도메인의 전역 에러 규격에는 영향을 주지 않는다.
    */
   @ExceptionHandler(ResponseStatusException.class)
   public ResponseEntity<String> handleResponseStatusException(final ResponseStatusException e) {

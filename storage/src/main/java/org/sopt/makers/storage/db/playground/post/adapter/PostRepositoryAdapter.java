@@ -19,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Crew 모임 게시판(무무) 전용 저장소. Community 자유게시판(domain-playground/community/post의 PostEntity,
  * "community_post" 테이블)과는 물리적으로 분리된 "meeting_post" 테이블을 사용한다 — 레거시 Playground 원본
- * 컬럼(anonymous_profile_id, sopticle_url, is_question 등) 유실 및 Community API 계약 파기를 막기 위한
- * 확정 구조다. TODO: 추후 Crew-Playground 스키마 통합 시 단일 테이블 병합 검토 예정.
+ * 컬럼(anonymous_profile_id, sopticle_url, is_question 등) 유실 및 Community API 계약 파기를 막기 위한 확정 구조다.
+ * TODO: 추후 Crew-Playground 스키마 통합 시 단일 테이블 병합 검토 예정.
  */
 @Repository("meetingPostRepositoryAdapter")
 @RequiredArgsConstructor

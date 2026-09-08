@@ -42,7 +42,11 @@ public class VoteOptionEntity extends BaseEntity {
   }
 
   public static VoteOptionEntity of(Long voteId, VoteOption option) {
-    return VoteOptionEntity.builder().voteId(voteId).content(option.content()).voteCount(option.voteCount()).build();
+    return VoteOptionEntity.builder()
+        .voteId(voteId)
+        .content(option.content())
+        .voteCount(option.voteCount())
+        .build();
   }
 
   public VoteOption toDomain() {

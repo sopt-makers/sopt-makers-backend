@@ -31,7 +31,8 @@ class UserSortingServiceTest {
     User olderGeneration = user(1L, "가", 38, false, 0);
     User newerGeneration = user(2L, "나", 39, false, 0);
 
-    List<User> sorted = sort(List.of(olderGeneration, newerGeneration), service.createComparator(null, null));
+    List<User> sorted =
+        sort(List.of(olderGeneration, newerGeneration), service.createComparator(null, null));
 
     assertThat(sorted).extracting(User::id).containsExactly(2L, 1L);
   }
@@ -106,8 +107,10 @@ class UserSortingServiceTest {
     return copy;
   }
 
-  private User user(long id, String name, int generation, boolean hasProfileImage, int careerCount) {
-    Profile baseProfile = Profile.of(name, null, "010-0000-0000", null, hasProfileImage ? "image-url" : null);
+  private User user(
+      long id, String name, int generation, boolean hasProfileImage, int careerCount) {
+    Profile baseProfile =
+        Profile.of(name, null, "010-0000-0000", null, hasProfileImage ? "image-url" : null);
     Profile profile =
         baseProfile.update(
             null,
@@ -131,7 +134,8 @@ class UserSortingServiceTest {
             List.of(),
             careers(id, careerCount));
 
-    ActivityList activities = ActivityList.of(List.of(Activity.of(generation, Team.MAKERS, null, true)));
+    ActivityList activities =
+        ActivityList.of(List.of(Activity.of(generation, Team.MAKERS, null, true)));
     return new User(id, profile, null, activities, false);
   }
 

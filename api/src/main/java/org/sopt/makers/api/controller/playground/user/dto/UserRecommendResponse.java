@@ -1,13 +1,18 @@
 package org.sopt.makers.api.controller.playground.user.dto;
 
 import java.util.List;
-import org.sopt.makers.domain.playground.member.profile.UserRecommendation;
 import org.sopt.makers.domain.playground.member.profile.RecommendationType;
+import org.sopt.makers.domain.playground.member.profile.UserRecommendation;
 
 public record UserRecommendResponse(List<RecommendedMember> members) {
 
   public record RecommendedMember(
-      Long id, String name, String profileImage, Integer generation, String part, RecommendationType recommendType) {}
+      Long id,
+      String name,
+      String profileImage,
+      Integer generation,
+      String part,
+      RecommendationType recommendType) {}
 
   public static UserRecommendResponse from(List<UserRecommendation> recommendations) {
     List<RecommendedMember> members =

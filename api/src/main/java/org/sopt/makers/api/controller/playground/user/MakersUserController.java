@@ -24,7 +24,9 @@ public class MakersUserController implements MakersUserApi {
   @GetMapping("/makers/profile")
   public ResponseEntity<BaseResponse<?>> getMakersProfiles() {
     List<MakersUserProfileResponse> responses =
-        userProfileQueryService.getMakersProfiles().stream().map(MakersUserProfileResponse::from).toList();
+        userProfileQueryService.getMakersProfiles().stream()
+            .map(MakersUserProfileResponse::from)
+            .toList();
     return ResponseFactory.success(GET_MAKERS_PROFILES, responses);
   }
 }

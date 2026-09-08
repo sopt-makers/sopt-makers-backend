@@ -18,7 +18,9 @@ public class VoteOptionRepositoryAdapter implements VoteOptionRepositoryPort {
 
   @Override
   public List<VoteOption> findAllByIds(List<Long> optionIds) {
-    return voteOptionJpaRepository.findAllById(optionIds).stream().map(VoteOptionEntity::toDomain).toList();
+    return voteOptionJpaRepository.findAllById(optionIds).stream()
+        .map(VoteOptionEntity::toDomain)
+        .toList();
   }
 
   @Transactional

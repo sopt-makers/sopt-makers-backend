@@ -2,7 +2,8 @@ package org.sopt.makers.domain.playground.report.port;
 
 public interface AmplitudeEventStatsPort {
 
-  int countAllByUserIdAndEventTypeAndEventTimeContains(String userId, String eventType, String eventTimeContains);
+  int countAllByUserIdAndEventTypeAndEventTimeContains(
+      String userId, String eventType, String eventTimeContains);
 
   int countAllByUserIdAndEventTypeAndEventTimeBetween(
       String userId, String eventType, String startEventTime, String endEventTime);

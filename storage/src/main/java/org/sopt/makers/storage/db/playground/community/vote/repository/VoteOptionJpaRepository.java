@@ -14,7 +14,8 @@ public interface VoteOptionJpaRepository extends JpaRepository<VoteOptionEntity,
   List<VoteOptionEntity> findAllByVoteIdIn(List<Long> voteIds);
 
   @Modifying
-  @Query("UPDATE VoteOptionEntity option SET option.voteCount = option.voteCount + 1 WHERE option.id = :optionId")
+  @Query(
+      "UPDATE VoteOptionEntity option SET option.voteCount = option.voteCount + 1 WHERE option.id = :optionId")
   void increaseVoteCountDirect(@Param("optionId") Long optionId);
 
   @Modifying

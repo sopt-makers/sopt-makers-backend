@@ -27,8 +27,7 @@ public class ActivityReviewRepositoryAdapter implements ActivityReviewRepository
 
   @Override
   public ActivityReviewPage findAllByGeneration(int generation, int page, int size) {
-    PageRequest pageRequest =
-        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
     Page<ActivityReviewEntity> result =
         activityReviewJpaRepository.findAllByGeneration(generation, pageRequest);
     List<ActivityReview> reviews =

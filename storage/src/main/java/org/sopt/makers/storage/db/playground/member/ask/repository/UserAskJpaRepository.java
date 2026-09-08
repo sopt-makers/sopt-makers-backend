@@ -16,7 +16,8 @@ public interface UserAskJpaRepository extends JpaRepository<UserAskEntity, Long>
   List<Long> findDistinctAnonymousNicknameIdsByReceiverUserId(
       @Param("receiverUserId") Long receiverUserId);
 
-  @Query("SELECT q FROM UserAskEntity q WHERE q.receiverUserId = :receiverUserId ORDER BY q.createdAt DESC, q.id DESC")
+  @Query(
+      "SELECT q FROM UserAskEntity q WHERE q.receiverUserId = :receiverUserId ORDER BY q.createdAt DESC, q.id DESC")
   List<UserAskEntity> findAllByReceiverUserId(
       @Param("receiverUserId") Long receiverUserId, Pageable pageable);
 
@@ -59,7 +60,8 @@ public interface UserAskJpaRepository extends JpaRepository<UserAskEntity, Long>
       "SELECT q.id FROM UserAskEntity q WHERE q.receiverUserId = :receiverUserId "
           + "AND EXISTS (SELECT 1 FROM UserAnswerEntity a WHERE a.questionId = q.id) "
           + "ORDER BY q.createdAt DESC, q.id DESC")
-  List<Long> findAllAnsweredIdsByReceiverUserIdOrderByLatest(@Param("receiverUserId") Long receiverUserId);
+  List<Long> findAllAnsweredIdsByReceiverUserIdOrderByLatest(
+      @Param("receiverUserId") Long receiverUserId);
 
   @Query(
       "SELECT COUNT(q) FROM UserAskEntity q, UserAnswerEntity a "

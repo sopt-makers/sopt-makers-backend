@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
 import org.sopt.makers.domain.playground.member.profile.AppJamObMemberIds;
@@ -24,7 +25,6 @@ import org.sopt.makers.domain.user.UserCareer;
 import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +61,8 @@ public class UserProfileQueryService {
     boolean hasWorkPreference = user.profile().workPreference() != null;
     boolean enableWorkPreferenceEvent =
         (summary.generation() != null
-                && Objects.equals(summary.generation(), currentGenerationProvider.getCurrentGeneration()))
+                && Objects.equals(
+                    summary.generation(), currentGenerationProvider.getCurrentGeneration()))
             || AppJamObMemberIds.IDS.contains(userId);
 
     return new UserInfo(summary, hasCoffeeChat, hasWorkPreference, enableWorkPreferenceEvent);
@@ -128,8 +129,8 @@ public class UserProfileQueryService {
 
   /**
    * 레거시 InternalOpenApiController(GET /internal/api/v1/members/profile)의
-   * MemberService#getMemberProfileListById를 대체한다. hasProfile 필터는 이 코드베이스의 다른 프로필
-   * 조회(toSummary 참고)와 동일하게 isFirstLogin의 역으로 판단한다.
+   * MemberService#getMemberProfileListById를 대체한다. hasProfile 필터는 이 코드베이스의 다른 프로필 조회(toSummary 참고)와
+   * 동일하게 isFirstLogin의 역으로 판단한다.
    */
   public List<User> getMemberProfileListForInternalApi(List<Long> userIds) {
     return playgroundProfileUserPort.findAllWithActivitiesByIds(userIds).stream()
@@ -138,8 +139,8 @@ public class UserProfileQueryService {
   }
 
   /**
-   * 레거시 InternalOpenApiController(POST /internal/api/v1/members,
-   * DELETE /internal/api/v1/members/[memberId])의 존재 검증 전용 메서드.
+   * 레거시 InternalOpenApiController(POST /internal/api/v1/members, DELETE
+   * /internal/api/v1/members/[memberId])의 존재 검증 전용 메서드.
    */
   public boolean existsMember(Long userId) {
     return playgroundProfileUserPort.findUser(userId).isPresent();
@@ -155,7 +156,11 @@ public class UserProfileQueryService {
     boolean editActivitiesAble = userActivityCheckPort.isEditActivitiesAble(user.id());
 
     return new UserSummary(
-        user.id(), user.profile().name(), generation, user.profile().profileImage(), hasProfile,
+        user.id(),
+        user.profile().name(),
+        generation,
+        user.profile().profileImage(),
+        hasProfile,
         editActivitiesAble);
   }
 

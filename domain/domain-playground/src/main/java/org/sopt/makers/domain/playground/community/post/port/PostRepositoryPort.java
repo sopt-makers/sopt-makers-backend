@@ -22,15 +22,18 @@ public interface PostRepositoryPort {
 
   List<Post> findAllByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
-  Integer countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end);
+  Integer countAllByWriterIdAndCreatedAtBetween(
+      Long writerId, LocalDateTime start, LocalDateTime end);
 
   void increaseHits(Long postId);
 
   List<Post> findTop5ByCategoryCodesOrderByCreatedAtDesc(List<CommunityCategoryCode> categoryCodes);
 
-  List<Post> findTop3ByCategoryGroupsOrderByCreatedAtDesc(List<CommunityCategoryGroup> categoryGroups);
+  List<Post> findTop3ByCategoryGroupsOrderByCreatedAtDesc(
+      List<CommunityCategoryGroup> categoryGroups);
 
-  Optional<Post> findFirstByCategoryCodesOrderByCreatedAtDesc(List<CommunityCategoryCode> categoryCodes);
+  Optional<Post> findFirstByCategoryCodesOrderByCreatedAtDesc(
+      List<CommunityCategoryCode> categoryCodes);
 
   long countSopticleByWriterId(Long writerId);
 

@@ -13,8 +13,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * 커뮤니티 Push/Slack 알림 사이드 이펙트를 처리한다. 게시글/댓글 저장 트랜잭션이 커밋된 이후 별도 스레드에서 비동기로 발송하며, 발송 실패가 핵심
- * 비즈니스 트랜잭션에 영향을 주지 않도록 예외를 여기서 격리한다.
+ * 커뮤니티 Push/Slack 알림 사이드 이펙트를 처리한다. 게시글/댓글 저장 트랜잭션이 커밋된 이후 별도 스레드에서 비동기로 발송하며, 발송 실패가 핵심 비즈니스 트랜잭션에
+ * 영향을 주지 않도록 예외를 여기서 격리한다.
  */
 @Slf4j
 @Component

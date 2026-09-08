@@ -133,7 +133,8 @@ public class UserQuerydslRepositoryImpl implements UserQuerydslRepository {
   }
 
   @Override
-  public List<Long> findUserIdsWithProfileByActivity(Integer generation, Part part, boolean isSopt) {
+  public List<Long> findUserIdsWithProfileByActivity(
+      Integer generation, Part part, boolean isSopt) {
     BooleanBuilder predicate = new BooleanBuilder();
     predicate.and(user.isFirstLogin.isFalse());
     predicate.and(activity.isSopt.eq(isSopt));

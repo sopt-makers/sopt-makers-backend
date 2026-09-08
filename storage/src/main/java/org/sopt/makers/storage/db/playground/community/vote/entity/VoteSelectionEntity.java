@@ -21,7 +21,9 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Table(
     name = "vote_selection",
     uniqueConstraints = {
-      @UniqueConstraint(name = "uk_vote_selection_user_option", columnNames = {"user_id", "vote_option_id"})
+      @UniqueConstraint(
+          name = "uk_vote_selection_user_option",
+          columnNames = {"user_id", "vote_option_id"})
     })
 public class VoteSelectionEntity extends BaseEntity {
 

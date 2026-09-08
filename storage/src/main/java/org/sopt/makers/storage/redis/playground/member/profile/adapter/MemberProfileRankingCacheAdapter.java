@@ -38,7 +38,8 @@ public class MemberProfileRankingCacheAdapter implements UserProfileRankingCache
     try {
       memberProfileRankingRedisTemplate
           .opsForValue()
-          .set(KEY, new CachedMemberProfileRanking(ranking.topUserIds(), ranking.totalCount()), TTL);
+          .set(
+              KEY, new CachedMemberProfileRanking(ranking.topUserIds(), ranking.totalCount()), TTL);
     } catch (Exception exception) {
       log.warn("멤버 프로필 랭킹 캐시 저장 실패", exception);
     }

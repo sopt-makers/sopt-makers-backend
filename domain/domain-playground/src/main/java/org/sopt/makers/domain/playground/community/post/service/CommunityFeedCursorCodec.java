@@ -11,8 +11,8 @@ import org.sopt.makers.domain.playground.community.post.CommunityFeedCursor;
 import org.springframework.stereotype.Component;
 
 /**
- * 피드 무한스크롤 cursor를 opaque 문자열로 인코딩/디코딩한다. cursor의 내부 포맷은 공개 계약이 아니며, 클라이언트는 응답의 nextCursor
- * 값을 그대로 되돌려주기만 하면 된다.
+ * 피드 무한스크롤 cursor를 opaque 문자열로 인코딩/디코딩한다. cursor의 내부 포맷은 공개 계약이 아니며, 클라이언트는 응답의 nextCursor 값을 그대로
+ * 되돌려주기만 하면 된다.
  */
 @Component
 public class CommunityFeedCursorCodec {
@@ -34,7 +34,8 @@ public class CommunityFeedCursorCodec {
       }
 
       LocalDateTime snapshotTime = LocalDateTime.parse(parts[0]);
-      LocalDateTime communityCreatedAt = EMPTY_TOKEN.equals(parts[1]) ? null : LocalDateTime.parse(parts[1]);
+      LocalDateTime communityCreatedAt =
+          EMPTY_TOKEN.equals(parts[1]) ? null : LocalDateTime.parse(parts[1]);
       Long communityPostId = EMPTY_TOKEN.equals(parts[2]) ? null : Long.valueOf(parts[2]);
       Integer meetingConsumedCount = Integer.valueOf(parts[3]);
 
@@ -63,6 +64,8 @@ public class CommunityFeedCursorCodec {
             communityPostId,
             String.valueOf(cursor.safeMeetingConsumedCount()));
 
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+    return Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
   }
 }

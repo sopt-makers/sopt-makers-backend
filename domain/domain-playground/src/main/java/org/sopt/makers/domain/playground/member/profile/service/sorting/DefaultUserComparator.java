@@ -10,7 +10,8 @@ public class DefaultUserComparator implements UserSortingComparator {
   @Override
   public int compare(User a, User b, ProfileWeightStrategy weightStrategy) {
     int generationCompare =
-        Integer.compare(ProfileSortingSupport.lastGeneration(b), ProfileSortingSupport.lastGeneration(a));
+        Integer.compare(
+            ProfileSortingSupport.lastGeneration(b), ProfileSortingSupport.lastGeneration(a));
     if (generationCompare != 0) {
       return generationCompare;
     }

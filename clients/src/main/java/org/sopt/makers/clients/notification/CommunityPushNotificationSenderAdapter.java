@@ -29,7 +29,8 @@ public class CommunityPushNotificationSenderAdapter implements CommunityPushNoti
   private Map<String, Object> buildBody(CommunityPushNotification notification) {
     Map<String, Object> body = new HashMap<>();
     body.put(
-        "userIds", notification.recipientIds().stream().map(String::valueOf).collect(Collectors.toList()));
+        "userIds",
+        notification.recipientIds().stream().map(String::valueOf).collect(Collectors.toList()));
     body.put("title", notification.title());
     body.put("content", notification.content());
     body.put("category", CATEGORY);

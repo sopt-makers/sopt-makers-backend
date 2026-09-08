@@ -36,7 +36,8 @@ public class UserProfileSlackNotifierAdapter implements UserProfileNotifierPort 
           Slack.getInstance()
               .methods(properties.botToken())
               .chatPostMessage(
-                  request -> request.channel(channelId).text(buildMessage(userId, name, idealType)));
+                  request ->
+                      request.channel(channelId).text(buildMessage(userId, name, idealType)));
       if (!response.isOk()) {
         log.error("신규 프로필 슬랙 메시지 전송 실패: {}", response.getError());
       }

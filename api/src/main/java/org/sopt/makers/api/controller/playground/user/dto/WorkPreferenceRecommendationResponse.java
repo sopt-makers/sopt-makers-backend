@@ -17,7 +17,8 @@ public record WorkPreferenceRecommendationResponse(
       UserProfileResponse.MemberSoptActivityResponse activity,
       WorkPreferenceResponse.WorkPreferenceData workPreference) {}
 
-  public static WorkPreferenceRecommendationResponse from(WorkPreferenceRecommendationResult result) {
+  public static WorkPreferenceRecommendationResponse from(
+      WorkPreferenceRecommendationResult result) {
     List<RecommendedMember> members =
         result.recommendations().stream()
             .map(WorkPreferenceRecommendationResponse::toRecommendedMember)
@@ -41,15 +42,24 @@ public record WorkPreferenceRecommendationResponse(
         workPreference == null
             ? null
             : new WorkPreferenceResponse.WorkPreferenceData(
-                workPreference.ideationStyle() == null ? null : workPreference.ideationStyle().getValue(),
+                workPreference.ideationStyle() == null
+                    ? null
+                    : workPreference.ideationStyle().getValue(),
                 workPreference.workTime() == null ? null : workPreference.workTime().getValue(),
                 workPreference.communicationStyle() == null
                     ? null
                     : workPreference.communicationStyle().getValue(),
                 workPreference.workPlace() == null ? null : workPreference.workPlace().getValue(),
-                workPreference.feedbackStyle() == null ? null : workPreference.feedbackStyle().getValue());
+                workPreference.feedbackStyle() == null
+                    ? null
+                    : workPreference.feedbackStyle().getValue());
 
     return new RecommendedMember(
-        member.id(), member.name(), member.profileImage(), member.university(), activityResponse, workPreferenceData);
+        member.id(),
+        member.name(),
+        member.profileImage(),
+        member.university(),
+        activityResponse,
+        workPreferenceData);
   }
 }

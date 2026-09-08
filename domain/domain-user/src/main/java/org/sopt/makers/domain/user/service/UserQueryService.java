@@ -107,7 +107,8 @@ public class UserQueryService {
     return userRepositoryPort.findUserIdsByRecommendCondition(generations, mbti, university);
   }
 
-  public List<Long> findUserIdsWithProfileByActivity(Integer generation, Part part, boolean isSopt) {
+  public List<Long> findUserIdsWithProfileByActivity(
+      Integer generation, Part part, boolean isSopt) {
     return userRepositoryPort.findUserIdsWithProfileByActivity(generation, part, isSopt);
   }
 

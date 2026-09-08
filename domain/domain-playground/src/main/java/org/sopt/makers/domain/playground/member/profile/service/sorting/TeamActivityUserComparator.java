@@ -31,7 +31,8 @@ public class TeamActivityUserComparator implements UserSortingComparator {
 
     if (latestTeamGenerationA == null && latestTeamGenerationB == null) {
       int generationCompare =
-          Integer.compare(ProfileSortingSupport.lastGeneration(b), ProfileSortingSupport.lastGeneration(a));
+          Integer.compare(
+              ProfileSortingSupport.lastGeneration(b), ProfileSortingSupport.lastGeneration(a));
       if (generationCompare != 0) {
         return generationCompare;
       }

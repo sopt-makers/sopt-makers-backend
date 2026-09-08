@@ -6,7 +6,8 @@ import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFai
 import org.sopt.makers.domain.user.WorkPreference;
 
 @Schema(description = "Work preference response")
-public record WorkPreferenceResponse(@Schema(description = "작업 성향 정보") WorkPreferenceData workPreference) {
+public record WorkPreferenceResponse(
+    @Schema(description = "작업 성향 정보") WorkPreferenceData workPreference) {
 
   @Schema(description = "작업 성향 데이터")
   public record WorkPreferenceData(
@@ -22,12 +23,16 @@ public record WorkPreferenceResponse(@Schema(description = "작업 성향 정보
     }
     return new WorkPreferenceResponse(
         new WorkPreferenceData(
-            workPreference.ideationStyle() == null ? null : workPreference.ideationStyle().getValue(),
+            workPreference.ideationStyle() == null
+                ? null
+                : workPreference.ideationStyle().getValue(),
             workPreference.workTime() == null ? null : workPreference.workTime().getValue(),
             workPreference.communicationStyle() == null
                 ? null
                 : workPreference.communicationStyle().getValue(),
             workPreference.workPlace() == null ? null : workPreference.workPlace().getValue(),
-            workPreference.feedbackStyle() == null ? null : workPreference.feedbackStyle().getValue()));
+            workPreference.feedbackStyle() == null
+                ? null
+                : workPreference.feedbackStyle().getValue()));
   }
 }

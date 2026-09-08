@@ -26,7 +26,8 @@ public class UserSortingService {
   }
 
   /** orderBy가 있을 때: 필터별 정렬 정책보다 우선 적용한다. */
-  public Comparator<User> createComparatorByOrderCondition(ProfileOrderBy orderBy, Integer employed) {
+  public Comparator<User> createComparatorByOrderCondition(
+      ProfileOrderBy orderBy, Integer employed) {
     if (orderBy == null) {
       throw new IllegalArgumentException("ProfileOrderBy는 null일 수 없습니다.");
     }

@@ -31,7 +31,8 @@ public interface PlaygroundUserQuestionApi {
   @Operation(
       summary = "질문 삭제 API",
       description = "질문 삭제 규칙:\n- 답변 전: 질문 작성자만 삭제 가능\n- 항상: 질문 받은 사람은 삭제 가능")
-  ResponseEntity<BaseResponse<?>> deleteQuestion(@Parameter(hidden = true) Long userId, Long questionId);
+  ResponseEntity<BaseResponse<?>> deleteQuestion(
+      @Parameter(hidden = true) Long userId, Long questionId);
 
   @Operation(summary = "답변 작성 API", description = "질문을 받은 사람만 답변을 작성할 수 있습니다.")
   ResponseEntity<BaseResponse<?>> createAnswer(
@@ -42,7 +43,8 @@ public interface PlaygroundUserQuestionApi {
       @Parameter(hidden = true) Long userId, Long answerId, @Valid AnswerUpdateRequest request);
 
   @Operation(summary = "답변 삭제 API", description = "답변 작성자만 삭제 가능합니다.")
-  ResponseEntity<BaseResponse<?>> deleteAnswer(@Parameter(hidden = true) Long userId, Long answerId);
+  ResponseEntity<BaseResponse<?>> deleteAnswer(
+      @Parameter(hidden = true) Long userId, Long answerId);
 
   @Operation(
       summary = "나도 궁금해요 토글 API",
@@ -74,7 +76,9 @@ public interface PlaygroundUserQuestionApi {
       @Parameter(description = "페이지 번호") Integer page,
       @Parameter(description = "페이지 크기") Integer size);
 
-  @Operation(summary = "답변 대기 중인 질문 개수 조회 API", description = "현재 로그인한 사용자에게 달린 답변 대기 중인 질문의 개수를 조회합니다.")
+  @Operation(
+      summary = "답변 대기 중인 질문 개수 조회 API",
+      description = "현재 로그인한 사용자에게 달린 답변 대기 중인 질문의 개수를 조회합니다.")
   ResponseEntity<BaseResponse<?>> getUnansweredCount(@Parameter(hidden = true) Long userId);
 
   @Operation(
@@ -85,7 +89,8 @@ public interface PlaygroundUserQuestionApi {
 
   @Operation(
       summary = "특정 사용자의 question 탭에서 특정 질문 위치 조회 API",
-      description = "특정 사용자의 question 탭에서 questionId에 해당하는 질문이 어느 탭(answered/unanswered)의 몇 페이지 몇 번째에 있는지 조회합니다.")
+      description =
+          "특정 사용자의 question 탭에서 questionId에 해당하는 질문이 어느 탭(answered/unanswered)의 몇 페이지 몇 번째에 있는지 조회합니다.")
   ResponseEntity<BaseResponse<?>> getQuestionLocation(Long memberId, Long questionId);
 
   @Operation(

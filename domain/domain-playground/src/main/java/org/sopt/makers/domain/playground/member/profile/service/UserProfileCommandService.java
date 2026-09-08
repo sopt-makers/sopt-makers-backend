@@ -65,8 +65,8 @@ public class UserProfileCommandService {
       String feedbackStyle) {}
 
   /**
-   * updateProfile/completeFirstLogin이 서로 다른 트랜잭션으로 분리 커밋되어 완료 처리가 실패해도 앞선 프로필
-   * 갱신이 롤백되지 않던 원자성 문제를 막기 위해 메서드 전체를 하나의 트랜잭션으로 묶는다.
+   * updateProfile/completeFirstLogin이 서로 다른 트랜잭션으로 분리 커밋되어 완료 처리가 실패해도 앞선 프로필 갱신이 롤백되지 않던 원자성 문제를
+   * 막기 위해 메서드 전체를 하나의 트랜잭션으로 묶는다.
    */
   @Transactional
   public User saveProfile(
@@ -238,10 +238,11 @@ public class UserProfileCommandService {
   }
 
   /**
-   * 레거시 team 문자열 왕복 변환(isExecutivePosition/convertTeamToOriginalValue)은 새 모델에서 Activity.role()이
-   * 별도 필드로 분리되며 불필요해졌다. MEMBER가 아닌 활동(임원진 등)은 팀 변경 대상에서 제외한다.
+   * 레거시 team 문자열 왕복 변환(isExecutivePosition/convertTeamToOriginalValue)은 새 모델에서 Activity.role()이 별도
+   * 필드로 분리되며 불필요해졌다. MEMBER가 아닌 활동(임원진 등)은 팀 변경 대상에서 제외한다.
    */
-  private List<ActivityUpdateCommand> buildActivityUpdates(User current, List<ActivityInput> activities) {
+  private List<ActivityUpdateCommand> buildActivityUpdates(
+      User current, List<ActivityInput> activities) {
     if (activities == null || activities.isEmpty()) {
       return List.of();
     }
@@ -324,7 +325,13 @@ public class UserProfileCommandService {
         .map(
             c ->
                 UserCareer.of(
-                    null, userId, c.companyName(), c.title(), c.startDate(), c.endDate(), c.isCurrent()))
+                    null,
+                    userId,
+                    c.companyName(),
+                    c.title(),
+                    c.startDate(),
+                    c.endDate(),
+                    c.isCurrent()))
         .toList();
   }
 }

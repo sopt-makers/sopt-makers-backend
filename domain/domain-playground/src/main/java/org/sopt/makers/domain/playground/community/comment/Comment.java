@@ -18,7 +18,17 @@ public record Comment(
   public static Comment create(
       Long postId, Long writerId, Long parentCommentId, String content, Boolean isBlindWriter) {
     return new Comment(
-        null, content, postId, writerId, parentCommentId, isBlindWriter, false, false, null, null, null);
+        null,
+        content,
+        postId,
+        writerId,
+        parentCommentId,
+        isBlindWriter,
+        false,
+        false,
+        null,
+        null,
+        null);
   }
 
   public Comment withAnonymousProfileId(Long anonymousProfileId) {

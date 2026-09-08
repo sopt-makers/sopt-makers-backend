@@ -71,7 +71,8 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
   }
 
   @Override
-  public Integer countAllByWriterIdAndCreatedAtBetween(Long writerId, LocalDateTime start, LocalDateTime end) {
+  public Integer countAllByWriterIdAndCreatedAtBetween(
+      Long writerId, LocalDateTime start, LocalDateTime end) {
     return postJpaRepository.countAllByWriterIdAndCreatedAtBetween(writerId, start, end);
   }
 
@@ -82,22 +83,28 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
   }
 
   @Override
-  public List<Post> findTop5ByCategoryCodesOrderByCreatedAtDesc(List<CommunityCategoryCode> categoryCodes) {
+  public List<Post> findTop5ByCategoryCodesOrderByCreatedAtDesc(
+      List<CommunityCategoryCode> categoryCodes) {
     return postJpaRepository.findTop5ByCategory_CodeInOrderByCreatedAtDesc(categoryCodes).stream()
         .map(PostEntity::toDomain)
         .toList();
   }
 
   @Override
-  public List<Post> findTop3ByCategoryGroupsOrderByCreatedAtDesc(List<CommunityCategoryGroup> categoryGroups) {
-    return postJpaRepository.findTop3ByCategory_CategoryGroupInOrderByCreatedAtDesc(categoryGroups).stream()
+  public List<Post> findTop3ByCategoryGroupsOrderByCreatedAtDesc(
+      List<CommunityCategoryGroup> categoryGroups) {
+    return postJpaRepository
+        .findTop3ByCategory_CategoryGroupInOrderByCreatedAtDesc(categoryGroups)
+        .stream()
         .map(PostEntity::toDomain)
         .toList();
   }
 
   @Override
-  public Optional<Post> findFirstByCategoryCodesOrderByCreatedAtDesc(List<CommunityCategoryCode> categoryCodes) {
-    return postJpaRepository.findFirstByCategory_CodeInOrderByCreatedAtDesc(categoryCodes)
+  public Optional<Post> findFirstByCategoryCodesOrderByCreatedAtDesc(
+      List<CommunityCategoryCode> categoryCodes) {
+    return postJpaRepository
+        .findFirstByCategory_CodeInOrderByCreatedAtDesc(categoryCodes)
         .map(PostEntity::toDomain);
   }
 

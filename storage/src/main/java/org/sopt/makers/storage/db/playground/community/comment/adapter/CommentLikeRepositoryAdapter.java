@@ -39,7 +39,9 @@ public class CommentLikeRepositoryAdapter implements CommentLikeRepositoryPort {
 
   @Override
   public Optional<CommentLike> findByUserIdAndCommentId(Long userId, Long commentId) {
-    return commentLikeJpaRepository.findByUserIdAndCommentId(userId, commentId).map(CommentLikeEntity::toDomain);
+    return commentLikeJpaRepository
+        .findByUserIdAndCommentId(userId, commentId)
+        .map(CommentLikeEntity::toDomain);
   }
 
   @Override
@@ -55,7 +57,8 @@ public class CommentLikeRepositoryAdapter implements CommentLikeRepositoryPort {
   @Override
   public Map<Long, Long> countLikesByCommentIds(List<Long> commentIds) {
     Map<Long, Long> result = new LinkedHashMap<>();
-    for (CommentLikeCountProjection projection : commentLikeJpaRepository.countLikesByCommentIds(commentIds)) {
+    for (CommentLikeCountProjection projection :
+        commentLikeJpaRepository.countLikesByCommentIds(commentIds)) {
       result.put(projection.getCommentId(), projection.getLikeCount());
     }
     return result;

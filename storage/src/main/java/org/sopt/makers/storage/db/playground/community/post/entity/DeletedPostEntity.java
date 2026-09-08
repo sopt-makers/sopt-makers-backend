@@ -101,6 +101,16 @@ public class DeletedPostEntity {
 
   public DeletedPost toDomain() {
     return new DeletedPost(
-        id, writerId, categoryId, title, content, hits, images, isQuestion, isBlindWriter, isReported, deletedAt);
+        id,
+        writerId,
+        categoryId,
+        title,
+        content,
+        hits,
+        images,
+        isQuestion,
+        isBlindWriter,
+        isReported,
+        deletedAt);
   }
 }

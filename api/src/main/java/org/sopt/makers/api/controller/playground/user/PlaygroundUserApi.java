@@ -31,13 +31,15 @@ public interface PlaygroundUserApi {
 
   @Operation(
       summary = "유저 프로필 생성 API",
-      description = "주량 : Double 0 -> 못마셔요 / 0.5 -> 0.5병 / 1.0 -> 1병 / 1.5 -> 1.5병 / 2.0 -> 2병 / 2.5 -> 2.5병 / 3.0 -> 3병 이상")
+      description =
+          "주량 : Double 0 -> 못마셔요 / 0.5 -> 0.5병 / 1.0 -> 1병 / 1.5 -> 1.5병 / 2.0 -> 2병 / 2.5 -> 2.5병 / 3.0 -> 3병 이상")
   ResponseEntity<BaseResponse<?>> createProfile(
       @Parameter(hidden = true) Long userId, @Valid UserProfileSaveRequest request);
 
   @Operation(
       summary = "멤버 프로필 수정 API",
-      description = "주량 : Double 0 -> 못마셔요 / 0.5 -> 0.5병 / 1.0 -> 1병 / 1.5 -> 1.5병 / 2.0 -> 2병 / 2.5 -> 2.5병 / 3.0 -> 3병 이상")
+      description =
+          "주량 : Double 0 -> 못마셔요 / 0.5 -> 0.5병 / 1.0 -> 1병 / 1.5 -> 1.5병 / 2.0 -> 2병 / 2.5 -> 2.5병 / 3.0 -> 3병 이상")
   ResponseEntity<BaseResponse<?>> updateProfile(
       @Parameter(hidden = true) Long userId, @Valid UserProfileUpdateRequest request);
 
@@ -69,20 +71,22 @@ public interface PlaygroundUserApi {
       String mbti,
       String team);
 
-  @Operation(summary = "본인 활동 기수 확인 여부 API", description = "해당 API를 호출하면 유저의 editActivitiesAble이 false로 바뀝니다")
+  @Operation(
+      summary = "본인 활동 기수 확인 여부 API",
+      description = "해당 API를 호출하면 유저의 editActivitiesAble이 false로 바뀝니다")
   ResponseEntity<BaseResponse<?>> checkActivity(
       @Parameter(hidden = true) Long userId, @Valid CheckActivityRequest request);
 
   @Operation(summary = "멤버 프로필 링크 삭제 API")
-  ResponseEntity<BaseResponse<?>> deleteProfileLink(Long linkId, @Parameter(hidden = true) Long userId);
+  ResponseEntity<BaseResponse<?>> deleteProfileLink(
+      Long linkId, @Parameter(hidden = true) Long userId);
 
-  @Operation(
-      summary = "앱잼 TL 멤버 조회 API",
-      description = "최신 기수의 앱잼 TL로 참여한 멤버들을 이름 가나다순으로 조회합니다.")
+  @Operation(summary = "앱잼 TL 멤버 조회 API", description = "최신 기수의 앱잼 TL로 참여한 멤버들을 이름 가나다순으로 조회합니다.")
   ResponseEntity<BaseResponse<?>> getTlMembers(@Parameter(hidden = true) Long userId);
 
   @Operation(summary = "작업 성향 유사 멤버 추천 API")
-  ResponseEntity<BaseResponse<?>> getWorkPreferenceRecommendations(@Parameter(hidden = true) Long userId);
+  ResponseEntity<BaseResponse<?>> getWorkPreferenceRecommendations(
+      @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "나와 유사한 멤버 추천 API")
   ResponseEntity<BaseResponse<?>> getRecommendationsForMe(@Parameter(hidden = true) Long userId);
@@ -116,7 +120,8 @@ public interface PlaygroundUserApi {
       @Valid UserBlockRequest request, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "유저 차단 여부 조회하기 API")
-  ResponseEntity<BaseResponse<?>> getBlockStatus(Long memberId, @Parameter(hidden = true) Long userId);
+  ResponseEntity<BaseResponse<?>> getBlockStatus(
+      Long memberId, @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "유저 신고하기 API")
   ResponseEntity<BaseResponse<?>> reportMember(

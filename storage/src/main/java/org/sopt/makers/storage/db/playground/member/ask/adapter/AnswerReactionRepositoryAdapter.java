@@ -25,7 +25,9 @@ public class AnswerReactionRepositoryAdapter implements AnswerReactionRepository
   @Transactional
   @Override
   public AnswerReaction save(AnswerReaction answerReaction) {
-    return answerReactionJpaRepository.save(AnswerReactionEntity.fromDomain(answerReaction)).toDomain();
+    return answerReactionJpaRepository
+        .save(AnswerReactionEntity.fromDomain(answerReaction))
+        .toDomain();
   }
 
   @Override
@@ -46,7 +48,8 @@ public class AnswerReactionRepositoryAdapter implements AnswerReactionRepository
   }
 
   @Override
-  public Optional<AnswerReaction> findByAnswerIdAndReactorUserId(Long answerId, Long reactorUserId) {
+  public Optional<AnswerReaction> findByAnswerIdAndReactorUserId(
+      Long answerId, Long reactorUserId) {
     return answerReactionJpaRepository
         .findByAnswerIdAndReactorUserId(answerId, reactorUserId)
         .map(AnswerReactionEntity::toDomain);
@@ -66,6 +69,7 @@ public class AnswerReactionRepositoryAdapter implements AnswerReactionRepository
     if (answerIds.isEmpty()) {
       return Set.of();
     }
-    return new HashSet<>(answerReactionJpaRepository.findReactedAnswerIds(answerIds, reactorUserId));
+    return new HashSet<>(
+        answerReactionJpaRepository.findReactedAnswerIds(answerIds, reactorUserId));
   }
 }

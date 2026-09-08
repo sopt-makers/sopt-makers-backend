@@ -21,7 +21,9 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Table(
     name = "community_comment_like",
     uniqueConstraints = {
-      @UniqueConstraint(name = "uk_comment_like_user_comment", columnNames = {"user_id", "comment_id"})
+      @UniqueConstraint(
+          name = "uk_comment_like_user_comment",
+          columnNames = {"user_id", "comment_id"})
     })
 public class CommentLikeEntity extends BaseEntity {
 
@@ -43,7 +45,10 @@ public class CommentLikeEntity extends BaseEntity {
   }
 
   public static CommentLikeEntity from(CommentLike commentLike) {
-    return CommentLikeEntity.builder().userId(commentLike.userId()).commentId(commentLike.commentId()).build();
+    return CommentLikeEntity.builder()
+        .userId(commentLike.userId())
+        .commentId(commentLike.commentId())
+        .build();
   }
 
   public CommentLike toDomain() {

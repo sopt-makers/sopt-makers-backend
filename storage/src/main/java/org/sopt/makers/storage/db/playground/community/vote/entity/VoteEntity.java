@@ -40,7 +40,10 @@ public class VoteEntity extends BaseEntity {
   }
 
   public static VoteEntity from(Vote vote) {
-    return VoteEntity.builder().postId(vote.postId()).isMultipleOptions(vote.isMultipleOptions()).build();
+    return VoteEntity.builder()
+        .postId(vote.postId())
+        .isMultipleOptions(vote.isMultipleOptions())
+        .build();
   }
 
   public Vote toDomain(List<VoteOption> options) {

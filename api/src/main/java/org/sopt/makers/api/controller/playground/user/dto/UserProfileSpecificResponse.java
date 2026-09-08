@@ -58,7 +58,11 @@ public record UserProfileSpecificResponse(
       Boolean isRiceTteokLover) {}
 
   public record WorkPreferenceResponse(
-      String ideationStyle, String workTime, String communicationStyle, String workPlace, String feedbackStyle) {}
+      String ideationStyle,
+      String workTime,
+      String communicationStyle,
+      String workPlace,
+      String feedbackStyle) {}
 
   public record MemberProjectResponse(
       Long id,
@@ -76,9 +80,15 @@ public record UserProfileSpecificResponse(
       Integer generation, String part, String team, List<MemberProjectVo> projects) {}
 
   public record MemberCareerResponse(
-      Long id, String companyName, String title, String startDate, String endDate, Boolean isCurrent) {}
+      Long id,
+      String companyName,
+      String title,
+      String startDate,
+      String endDate,
+      Boolean isCurrent) {}
 
-  public record ActivityVo(Long id, Integer generation, String team, String part, boolean isProject) {}
+  public record ActivityVo(
+      Long id, Integer generation, String team, String part, boolean isProject) {}
 
   public record MemberProjectVo(Long id, Integer generation, String name, String category) {}
 
@@ -96,8 +106,10 @@ public record UserProfileSpecificResponse(
           activity.generation(), activity.part() == null ? "" : activity.part().getName());
     }
 
-    List<MemberActivityResponse> activities = buildActivities(sortedActivities, projects, cardinalInfoMap);
-    List<SoptMemberActivityResponse> soptActivities = buildSoptActivities(sortedActivities, projects);
+    List<MemberActivityResponse> activities =
+        buildActivities(sortedActivities, projects, cardinalInfoMap);
+    List<SoptMemberActivityResponse> soptActivities =
+        buildSoptActivities(sortedActivities, projects);
     List<MemberProjectResponse> flatProjects = buildFlatProjects(projects);
     List<MemberCareerResponse> careers = buildCareers(user);
 
@@ -136,7 +148,9 @@ public record UserProfileSpecificResponse(
   }
 
   private static List<MemberActivityResponse> buildActivities(
-      List<Activity> sortedActivities, List<Project> projects, Map<Integer, String> cardinalInfoMap) {
+      List<Activity> sortedActivities,
+      List<Project> projects,
+      Map<Integer, String> cardinalInfoMap) {
     Stream<ActivityVo> activityVos =
         sortedActivities.stream()
             .map(
@@ -161,7 +175,8 @@ public record UserProfileSpecificResponse(
                         true));
 
     Map<Integer, List<ActivityVo>> genActivityMap =
-        Stream.concat(activityVos, projectVos).collect(Collectors.groupingBy(ActivityVo::generation));
+        Stream.concat(activityVos, projectVos)
+            .collect(Collectors.groupingBy(ActivityVo::generation));
 
     Map<String, List<ActivityVo>> result = new LinkedHashMap<>();
     sortedActivities.stream()
@@ -187,7 +202,10 @@ public record UserProfileSpecificResponse(
             activity -> {
               List<MemberProjectVo> activityProjects =
                   projects.stream()
-                      .filter(p -> p.generation() != null && p.generation().equals(activity.generation()))
+                      .filter(
+                          p ->
+                              p.generation() != null
+                                  && p.generation().equals(activity.generation()))
                       .map(p -> new MemberProjectVo(p.id(), p.generation(), p.name(), p.category()))
                       .toList();
               return new SoptMemberActivityResponse(
@@ -223,7 +241,12 @@ public record UserProfileSpecificResponse(
                 .map(
                     c ->
                         new MemberCareerResponse(
-                            c.id(), c.companyName(), c.title(), c.startDate(), c.endDate(), c.isCurrent()))
+                            c.id(),
+                            c.companyName(),
+                            c.title(),
+                            c.startDate(),
+                            c.endDate(),
+                            c.isCurrent()))
                 .toList());
 
     careers.sort(
@@ -250,7 +273,9 @@ public record UserProfileSpecificResponse(
   }
 
   private static List<MemberLinkResponse> toLinks(User user) {
-    return user.profile().links().stream().map(l -> new MemberLinkResponse(l.id(), l.title(), l.url())).toList();
+    return user.profile().links().stream()
+        .map(l -> new MemberLinkResponse(l.id(), l.title(), l.url()))
+        .toList();
   }
 
   private static UserFavorResponse toUserFavorResponse(User user) {
@@ -273,7 +298,9 @@ public record UserProfileSpecificResponse(
     return new WorkPreferenceResponse(
         workPreference.ideationStyle() == null ? null : workPreference.ideationStyle().getValue(),
         workPreference.workTime() == null ? null : workPreference.workTime().getValue(),
-        workPreference.communicationStyle() == null ? null : workPreference.communicationStyle().getValue(),
+        workPreference.communicationStyle() == null
+            ? null
+            : workPreference.communicationStyle().getValue(),
         workPreference.workPlace() == null ? null : workPreference.workPlace().getValue(),
         workPreference.feedbackStyle() == null ? null : workPreference.feedbackStyle().getValue());
   }

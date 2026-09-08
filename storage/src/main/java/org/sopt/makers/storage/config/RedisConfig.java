@@ -19,14 +19,20 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tools.jackson.databind.ObjectMapper;
 
-/** {@code @EnableCaching}과 {@code CacheManager}를 이 클래스에 격리한다({@code @Cacheable} 등 애노테이션 기반 캐싱을 쓰는 곳만 영향을 받도록 SoptMakersApplication 전역에 두지 않음). */
+/**
+ * {@code @EnableCaching}과 {@code CacheManager}를 이 클래스에 격리한다({@code @Cacheable} 등 애노테이션 기반 캐싱을 쓰는 곳만
+ * 영향을 받도록 SoptMakersApplication 전역에 두지 않음).
+ */
 @EnableCaching
 @Configuration
 public class RedisConfig {
 
   private static final Duration DEFAULT_CACHE_TTL = Duration.ofMinutes(10);
 
-  /** {@code @Cacheable}/{@code @CacheEvict} 등이 사용할 기본 CacheManager. null 값은 캐싱하지 않는다(방어적으로 매 호출마다 재조회). */
+  /**
+   * {@code @Cacheable}/{@code @CacheEvict} 등이 사용할 기본 CacheManager. null 값은 캐싱하지 않는다(방어적으로 매 호출마다
+   * 재조회).
+   */
   @Bean
   public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
     RedisCacheConfiguration defaultConfig =

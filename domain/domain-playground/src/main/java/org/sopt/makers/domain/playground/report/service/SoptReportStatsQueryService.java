@@ -39,8 +39,10 @@ public class SoptReportStatsQueryService {
   private static final String TYPE_COMMON_SOPT_REPORT_STATS = "commonSoptReportStats";
   private static final String TYPE_MY_SOPT_REPORT_STATS = "mySoptReportStats";
   private static final Integer REPORT_FILTER_YEAR = 2024;
-  private static final LocalDateTime START_DATE_OF_YEAR = LocalDateTime.of(REPORT_FILTER_YEAR, 1, 1, 0, 0);
-  private static final LocalDateTime END_DATE_OF_YEAR = LocalDateTime.of(REPORT_FILTER_YEAR, 12, 31, 23, 59);
+  private static final LocalDateTime START_DATE_OF_YEAR =
+      LocalDateTime.of(REPORT_FILTER_YEAR, 1, 1, 0, 0);
+  private static final LocalDateTime END_DATE_OF_YEAR =
+      LocalDateTime.of(REPORT_FILTER_YEAR, 12, 31, 23, 59);
   private static final Integer CREW_TOP_FASTEST_JOINED_GROUP_LIMIT = 3;
   private static final int MAX_WORD_LIST_SIZE = 6;
   private static final String COFFEE_CHAT_QUERY_START_DATE = "2024-11-03";
@@ -59,7 +61,8 @@ public class SoptReportStatsQueryService {
     return soptReportStatsRepositoryPort.findByCategory(category.name()).stream()
         .collect(
             Collectors.toMap(
-                SoptReportStats::templateKey, stats -> Objects.requireNonNull(serialize(stats.data()))));
+                SoptReportStats::templateKey,
+                stats -> Objects.requireNonNull(serialize(stats.data()))));
   }
 
   @Cacheable(cacheNames = TYPE_MY_SOPT_REPORT_STATS, key = "#memberId")
@@ -69,10 +72,12 @@ public class SoptReportStatsQueryService {
             memberId.toString(), TOTAL_VISIT_COUNT.getProperty(), REPORT_FILTER_YEAR.toString());
 
     int likeCount =
-        postLikeRepositoryPort.countAllByUserIdAndCreatedAtBetween(memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
+        postLikeRepositoryPort.countAllByUserIdAndCreatedAtBetween(
+            memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
 
     List<String> memberWords =
-        wordChainGameStatsPort.findWordsByMemberIdAndCreatedAtBetween(memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
+        wordChainGameStatsPort.findWordsByMemberIdAndCreatedAtBetween(
+            memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
     List<String> wordList = getShuffledWordList(memberWords);
     int playCount = memberWords.size();
     int winCount =
@@ -82,7 +87,9 @@ public class SoptReportStatsQueryService {
 
     long viewCount =
         amplitudeEventStatsPort.countAllByUserIdAndEventTypeAndEventTimeContains(
-            memberId.toString(), MEMBER_PROFILE_CARD_VIEW_COUNT.getProperty(), REPORT_FILTER_YEAR.toString());
+            memberId.toString(),
+            MEMBER_PROFILE_CARD_VIEW_COUNT.getProperty(),
+            REPORT_FILTER_YEAR.toString());
 
     List<String> topFastestJoinedGroupList =
         crewReportClientPort.getFastestAppliedGroupTitles(
@@ -102,7 +109,9 @@ public class SoptReportStatsQueryService {
   private List<String> getShuffledWordList(List<String> memberWords) {
     List<String> wordList = new ArrayList<>(memberWords);
     Collections.shuffle(wordList);
-    return wordList.size() > MAX_WORD_LIST_SIZE ? wordList.subList(0, MAX_WORD_LIST_SIZE) : wordList;
+    return wordList.size() > MAX_WORD_LIST_SIZE
+        ? wordList.subList(0, MAX_WORD_LIST_SIZE)
+        : wordList;
   }
 
   private PlaygroundType determinePlaygroundType(
@@ -112,9 +121,11 @@ public class SoptReportStatsQueryService {
     }
 
     int postCount =
-        postRepositoryPort.countAllByWriterIdAndCreatedAtBetween(memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
+        postRepositoryPort.countAllByWriterIdAndCreatedAtBetween(
+            memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
     int commentCount =
-        commentRepositoryPort.countAllByWriterIdAndCreatedAtBetween(memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
+        commentRepositoryPort.countAllByWriterIdAndCreatedAtBetween(
+            memberId, START_DATE_OF_YEAR, END_DATE_OF_YEAR);
 
     long memberVisitCount =
         amplitudeEventStatsPort.countByUserIdAndEventTypeAndPagePathAndEventTimeContains(
@@ -144,7 +155,10 @@ public class SoptReportStatsQueryService {
             COFFEE_CHAT_QUERY_END_DATE);
     long totalVisitCountForCoffeeChat =
         amplitudeEventStatsPort.countAllByUserIdAndEventTypeAndEventTimeBetween(
-            memberId.toString(), TOTAL_VISIT_COUNT.getProperty(), COFFEE_CHAT_QUERY_START_DATE, COFFEE_CHAT_QUERY_END_DATE);
+            memberId.toString(),
+            TOTAL_VISIT_COUNT.getProperty(),
+            COFFEE_CHAT_QUERY_START_DATE,
+            COFFEE_CHAT_QUERY_END_DATE);
 
     double coffeeChatStats;
     if (totalVisitCountForCoffeeChat == 0) {

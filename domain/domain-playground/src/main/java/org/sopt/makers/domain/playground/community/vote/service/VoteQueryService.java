@@ -35,7 +35,10 @@ public class VoteQueryService {
     }
 
     return voteRepositoryPort.findAllByPostIds(postIds).stream()
-        .collect(Collectors.toMap(Vote::postId, vote -> vote.options().stream().mapToInt(VoteOption::voteCount).sum()));
+        .collect(
+            Collectors.toMap(
+                Vote::postId,
+                vote -> vote.options().stream().mapToInt(VoteOption::voteCount).sum()));
   }
 
   /** postIds에 걸린 투표를 배치 조회해 postId -> VoteResult 맵으로 반환한다(N+1 없이 조회). */
@@ -56,32 +59,41 @@ public class VoteQueryService {
     Set<Long> selectedOptionIds =
         viewerId == null
             ? Set.of()
-            : voteSelectionRepositoryPort.findSelectedOptionIdsByVoteOptionIdsAndUserId(allOptionIds, viewerId);
-    Map<Long, Integer> participantCountMap = voteSelectionRepositoryPort.countDistinctUsersGroupedByVoteIds(voteIds);
+            : voteSelectionRepositoryPort.findSelectedOptionIdsByVoteOptionIdsAndUserId(
+                allOptionIds, viewerId);
+    Map<Long, Integer> participantCountMap =
+        voteSelectionRepositoryPort.countDistinctUsersGroupedByVoteIds(voteIds);
 
     return votes.stream()
         .collect(
             Collectors.toMap(
                 Vote::postId,
-                vote -> toVoteResult(vote, selectedOptionIds, participantCountMap.getOrDefault(vote.id(), 0))));
+                vote ->
+                    toVoteResult(
+                        vote, selectedOptionIds, participantCountMap.getOrDefault(vote.id(), 0))));
   }
 
   private VoteResult toVoteResult(Vote vote, Long viewerId) {
-    List<VoteOption> sortedOptions = vote.options().stream().sorted(Comparator.comparing(VoteOption::id)).toList();
+    List<VoteOption> sortedOptions =
+        vote.options().stream().sorted(Comparator.comparing(VoteOption::id)).toList();
     List<Long> optionIds = sortedOptions.stream().map(VoteOption::id).toList();
 
     Set<Long> selectedOptionIds =
         viewerId == null
             ? Set.of()
-            : voteSelectionRepositoryPort.findSelectedOptionIdsByVoteOptionIdsAndUserId(optionIds, viewerId);
-    int totalParticipants = voteSelectionRepositoryPort.countDistinctUsersByVoteOptionIds(optionIds);
+            : voteSelectionRepositoryPort.findSelectedOptionIdsByVoteOptionIdsAndUserId(
+                optionIds, viewerId);
+    int totalParticipants =
+        voteSelectionRepositoryPort.countDistinctUsersByVoteOptionIds(optionIds);
 
     return toVoteResult(vote, selectedOptionIds, totalParticipants);
   }
 
   private VoteResult toVoteResult(Vote vote, Set<Long> selectedOptionIds, int totalParticipants) {
-    List<VoteOption> sortedOptions = vote.options().stream().sorted(Comparator.comparing(VoteOption::id)).toList();
-    boolean hasVoted = sortedOptions.stream().anyMatch(option -> selectedOptionIds.contains(option.id()));
+    List<VoteOption> sortedOptions =
+        vote.options().stream().sorted(Comparator.comparing(VoteOption::id)).toList();
+    boolean hasVoted =
+        sortedOptions.stream().anyMatch(option -> selectedOptionIds.contains(option.id()));
     int totalVoteCount = sortedOptions.stream().mapToInt(VoteOption::voteCount).sum();
 
     List<VoteOptionResult> optionResults =
@@ -96,7 +108,8 @@ public class VoteQueryService {
                         selectedOptionIds.contains(option.id())))
             .toList();
 
-    return new VoteResult(vote.id(), vote.isMultipleOptions(), hasVoted, totalParticipants, optionResults);
+    return new VoteResult(
+        vote.id(), vote.isMultipleOptions(), hasVoted, totalParticipants, optionResults);
   }
 
   private int calculateVotePercent(int voteCount, int totalCount) {

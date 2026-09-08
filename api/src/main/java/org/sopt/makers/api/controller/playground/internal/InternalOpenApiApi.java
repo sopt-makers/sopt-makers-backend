@@ -19,14 +19,13 @@ import org.sopt.makers.api.controller.playground.project.dto.ProjectDetailRespon
 import org.springframework.http.ResponseEntity;
 
 /**
- * 레거시 sopt-playground-backend의 InternalOpenApiController(/internal/api/v1)를 100% 호환 유지하기 위해
- * 제공되는 Internal API이다.
+ * 레거시 sopt-playground-backend의 InternalOpenApiController(/internal/api/v1)를 100% 호환 유지하기 위해 제공되는
+ * Internal API이다.
  *
- * <p>앱팀/플랫폼팀 등 타 팀이 아직 이 엔드포인트를 호출하고 있어 URL/HTTP Method/응답 스펙을 변경 없이 그대로
- * 유지한다. 다만 내부 구현은 헥사고날 아키텍처(Controller → Domain Service → Port/Adapter)로 재구성되어
- * 있으므로, 새로 이 데이터가 필요한 타 팀/타 기능은 가능하면 이 엔드포인트를 호출하는 대신 해당 도메인이
- * 노출하는 Port(예: {@code PlaygroundProfileUserPort}, {@code PlaygroundRecommendationUserPort})를 직접
- * 주입받아 사용하는 것을 권장한다.
+ * <p>앱팀/플랫폼팀 등 타 팀이 아직 이 엔드포인트를 호출하고 있어 URL/HTTP Method/응답 스펙을 변경 없이 그대로 유지한다. 다만 내부 구현은 헥사고날
+ * 아키텍처(Controller → Domain Service → Port/Adapter)로 재구성되어 있으므로, 새로 이 데이터가 필요한 타 팀/타 기능은 가능하면 이
+ * 엔드포인트를 호출하는 대신 해당 도메인이 노출하는 Port(예: {@code PlaygroundProfileUserPort}, {@code
+ * PlaygroundRecommendationUserPort})를 직접 주입받아 사용하는 것을 권장한다.
  */
 @Tag(name = "내부 서비스 오픈 API")
 public interface InternalOpenApiApi {
@@ -38,9 +37,7 @@ public interface InternalOpenApiApi {
   ResponseEntity<InternalMemberProjectResponse> getMemberProject(
       @Parameter(description = "조회할 멤버 ID", example = "1") Long memberId);
 
-  @Operation(
-      summary = "커뮤니티 최신글 5개 조회 - 앱팀",
-      description = "최상위 카테고리별(자유, 홍보, 솝티클)로 최신글 1개씩 조회")
+  @Operation(summary = "커뮤니티 최신글 5개 조회 - 앱팀", description = "최상위 카테고리별(자유, 홍보, 솝티클)로 최신글 1개씩 조회")
   ResponseEntity<List<InternalLatestPostResponse>> getLatestPostsForApp();
 
   @Operation(summary = "커뮤니티 인기글 3 조회 - 앱팀")
@@ -70,7 +67,9 @@ public interface InternalOpenApiApi {
       @io.swagger.v3.oas.annotations.parameters.RequestBody(
               description = "플그 기본 유저 프로필 생성 요청",
               required = true,
-              content = @Content(schema = @Schema(implementation = CreateDefaultUserProfileRequest.class)))
+              content =
+                  @Content(
+                      schema = @Schema(implementation = CreateDefaultUserProfileRequest.class)))
           CreateDefaultUserProfileRequest request,
       String apiKey);
 

@@ -76,8 +76,8 @@ public class CommunityCategoryPolicy {
           CommunityPostListFilter.ETC);
 
   /**
-   * Non-breaking Phase 1 진입점. 신규 단일 코드(categoryCode)가 있으면 이를 우선 사용하고, 없으면 기존
-   * category+filter 조합으로 폴백한다.
+   * Non-breaking Phase 1 진입점. 신규 단일 코드(categoryCode)가 있으면 이를 우선 사용하고, 없으면 기존 category+filter 조합으로
+   * 폴백한다.
    */
   public List<CommunityCategoryCode> resolveCategoryCodes(
       CommunityCategoryCode categoryCode,
@@ -141,8 +141,8 @@ public class CommunityCategoryPolicy {
   }
 
   /**
-   * JPA Category 엔티티 대신 categoryGroup/code 값만으로 미리보기 태그를 판단한다. (domain 모듈은 storage의 JPA
-   * Entity에 의존할 수 없다.)
+   * JPA Category 엔티티 대신 categoryGroup/code 값만으로 미리보기 태그를 판단한다. (domain 모듈은 storage의 JPA Entity에 의존할
+   * 수 없다.)
    */
   public CommunityPostTag resolvePreviewTag(
       CommunityCategoryGroup categoryGroup, CommunityCategoryCode code) {

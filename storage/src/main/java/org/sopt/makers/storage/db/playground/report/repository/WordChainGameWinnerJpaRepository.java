@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface WordChainGameWinnerJpaRepository extends JpaRepository<WordChainGameWinnerEntity, Long> {
+public interface WordChainGameWinnerJpaRepository
+    extends JpaRepository<WordChainGameWinnerEntity, Long> {
 
   @Query(
       """
@@ -17,5 +18,7 @@ public interface WordChainGameWinnerJpaRepository extends JpaRepository<WordChai
         AND room.createdAt BETWEEN :start AND :end
       """)
   long countByUserIdAndRoomCreatedAtBetween(
-      @Param("userId") Long userId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+      @Param("userId") Long userId,
+      @Param("start") LocalDateTime start,
+      @Param("end") LocalDateTime end);
 }

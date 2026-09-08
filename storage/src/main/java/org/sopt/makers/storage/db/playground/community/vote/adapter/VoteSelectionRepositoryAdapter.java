@@ -46,8 +46,11 @@ public class VoteSelectionRepositoryAdapter implements VoteSelectionRepositoryPo
   }
 
   @Override
-  public Set<Long> findSelectedOptionIdsByVoteOptionIdsAndUserId(List<Long> voteOptionIds, Long userId) {
-    return Set.copyOf(voteSelectionJpaRepository.findSelectedOptionIdsByVoteOptionIdsAndUserId(voteOptionIds, userId));
+  public Set<Long> findSelectedOptionIdsByVoteOptionIdsAndUserId(
+      List<Long> voteOptionIds, Long userId) {
+    return Set.copyOf(
+        voteSelectionJpaRepository.findSelectedOptionIdsByVoteOptionIdsAndUserId(
+            voteOptionIds, userId));
   }
 
   @Transactional

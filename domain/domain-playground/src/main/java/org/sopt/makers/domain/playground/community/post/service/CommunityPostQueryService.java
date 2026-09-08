@@ -36,12 +36,12 @@ import org.sopt.makers.domain.playground.community.member.port.CommunityMemberPo
 import org.sopt.makers.domain.playground.community.member.service.CommunityMemberAssembler;
 import org.sopt.makers.domain.playground.community.post.CommunityDbCursor;
 import org.sopt.makers.domain.playground.community.post.CommunityFeedCursor;
+import org.sopt.makers.domain.playground.community.post.PopularPost;
+import org.sopt.makers.domain.playground.community.post.PopularPost.PopularPostMember;
 import org.sopt.makers.domain.playground.community.post.Post;
 import org.sopt.makers.domain.playground.community.post.PostDetail;
 import org.sopt.makers.domain.playground.community.post.PostFeedItem;
 import org.sopt.makers.domain.playground.community.post.PostFeedResult;
-import org.sopt.makers.domain.playground.community.post.PopularPost;
-import org.sopt.makers.domain.playground.community.post.PopularPost.PopularPostMember;
 import org.sopt.makers.domain.playground.community.post.RecentPost;
 import org.sopt.makers.domain.playground.community.post.SopticlePost;
 import org.sopt.makers.domain.playground.community.post.crew.CrewMeetingPost;
@@ -94,12 +94,17 @@ public class CommunityPostQueryService {
       Integer meetingConsumedCount,
       PostFeedItem item) {}
 
-  private record MeetingCandidate(LocalDateTime createdAt, Integer nextConsumedCount, PostFeedItem item) {}
+  private record MeetingCandidate(
+      LocalDateTime createdAt, Integer nextConsumedCount, PostFeedItem item) {}
 
   private record MeetingFetchResult(List<MeetingCandidate> candidates, boolean hasMore) {}
 
   private record PopularCandidate(
-      CommunityPostSourceType sourceType, int score, LocalDateTime createdAt, Long id, PopularPost post) {}
+      CommunityPostSourceType sourceType,
+      int score,
+      LocalDateTime createdAt,
+      Long id,
+      PopularPost post) {}
 
   private record RecentCandidate(
       CommunityPostSourceType sourceType, LocalDateTime createdAt, Long id, RecentPost post) {}
@@ -137,7 +142,8 @@ public class CommunityPostQueryService {
     Set<Long> blockedWriterIds = resolveBlockedWriterIds(userId, isBlockedOn);
 
     if (isFreeRequest) {
-      return getFreePostsWithMeetingPosts(userId, normalizedLimit, decodedCursor, categoryCodes, blockedWriterIds);
+      return getFreePostsWithMeetingPosts(
+          userId, normalizedLimit, decodedCursor, categoryCodes, blockedWriterIds);
     }
 
     return getCommunityOnlyPosts(
@@ -182,7 +188,8 @@ public class CommunityPostQueryService {
     String nextCursor =
         hasNext && nextDbCursor != null
             ? communityFeedCursorCodec.encode(
-                new CommunityFeedCursor(cursor.snapshotTime(), nextDbCursor, cursor.safeMeetingConsumedCount()))
+                new CommunityFeedCursor(
+                    cursor.snapshotTime(), nextDbCursor, cursor.safeMeetingConsumedCount()))
             : null;
 
     return new PostFeedResult(effectiveCategory, hasNext, nextCursor, items);
@@ -207,7 +214,8 @@ public class CommunityPostQueryService {
         toPostFeedItems(communityPosts, userId, freeCategoryCodes, blockedWriterIds);
 
     MeetingFetchResult meetingFetchResult =
-        fetchMeetingItems(userId, cursor.snapshotTime(), cursor.safeMeetingConsumedCount(), limit + 1);
+        fetchMeetingItems(
+            userId, cursor.snapshotTime(), cursor.safeMeetingConsumedCount(), limit + 1);
 
     List<FeedCandidate> candidates = new ArrayList<>();
 
@@ -215,7 +223,11 @@ public class CommunityPostQueryService {
       Post post = communityPosts.get(index);
       candidates.add(
           new FeedCandidate(
-              CommunityPostSourceType.COMMUNITY, post.createdAt(), post.id(), null, communityItems.get(index)));
+              CommunityPostSourceType.COMMUNITY,
+              post.createdAt(),
+              post.id(),
+              null,
+              communityItems.get(index)));
     }
 
     for (MeetingCandidate meetingCandidate : meetingFetchResult.candidates()) {
@@ -271,7 +283,8 @@ public class CommunityPostQueryService {
     String nextCursor =
         hasNext
             ? communityFeedCursorCodec.encode(
-                new CommunityFeedCursor(cursor.snapshotTime(), nextDbCursor, nextMeetingConsumedCount))
+                new CommunityFeedCursor(
+                    cursor.snapshotTime(), nextDbCursor, nextMeetingConsumedCount))
             : null;
 
     return new PostFeedResult(CommunityPostListCategory.FREE, hasNext, nextCursor, items);
@@ -279,7 +292,8 @@ public class CommunityPostQueryService {
 
   private MeetingFetchResult fetchMeetingItems(
       Long userId, LocalDateTime snapshotTime, int alreadyConsumedCount, int requiredCount) {
-    CrewMeetingFeedPage page = crewMeetingPostPort.getFeed(userId, snapshotTime, alreadyConsumedCount + requiredCount);
+    CrewMeetingFeedPage page =
+        crewMeetingPostPort.getFeed(userId, snapshotTime, alreadyConsumedCount + requiredCount);
 
     List<CrewMeetingPost> posts = page.safePosts();
     int fromIndex = Math.min(alreadyConsumedCount, posts.size());
@@ -289,7 +303,8 @@ public class CommunityPostQueryService {
 
     for (int index = fromIndex; index < toIndex; index++) {
       CrewMeetingPost post = posts.get(index);
-      candidates.add(new MeetingCandidate(post.createdAt(), index + 1, toMeetingPostFeedItem(post, userId)));
+      candidates.add(
+          new MeetingCandidate(post.createdAt(), index + 1, toMeetingPostFeedItem(post, userId)));
     }
 
     boolean hasMore = page.hasMorePage() || posts.size() > toIndex;
@@ -333,7 +348,10 @@ public class CommunityPostQueryService {
   }
 
   private List<PostFeedItem> toPostFeedItems(
-      List<Post> posts, Long viewerId, List<CommunityCategoryCode> categoryCodes, Set<Long> blockedWriterIds) {
+      List<Post> posts,
+      Long viewerId,
+      List<CommunityCategoryCode> categoryCodes,
+      Set<Long> blockedWriterIds) {
     if (posts.isEmpty()) {
       return List.of();
     }
@@ -343,13 +361,16 @@ public class CommunityPostQueryService {
     List<Long> anonymousProfileIds =
         posts.stream().map(Post::anonymousProfileId).filter(Objects::nonNull).distinct().toList();
 
-    Map<Long, CommunityMemberSummary> memberMap = communityMemberAssembler.getMemberSummaryMap(writerIds);
+    Map<Long, CommunityMemberSummary> memberMap =
+        communityMemberAssembler.getMemberSummaryMap(writerIds);
     Map<Long, Category> categoryMap =
         categoryQueryService.findActiveCategoriesByCodes(categoryCodes).stream()
             .collect(Collectors.toMap(Category::id, category -> category));
-    Map<Long, AnonymousProfile> anonymousProfileMap = anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
+    Map<Long, AnonymousProfile> anonymousProfileMap =
+        anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
     Map<Long, Boolean> likedMap = getLikedMap(viewerId, postIds);
-    Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
+    Map<Long, Integer> likeCountMap =
+        toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, List<CommentThread>> commentMap =
         commentQueryService.getCommentThreadsByPostIds(viewerId, postIds, blockedWriterIds);
     Map<Long, VoteResult> voteMap = voteQueryService.getVoteResultsByPostIds(postIds, viewerId);
@@ -386,9 +407,15 @@ public class CommunityPostQueryService {
     boolean isMine = Objects.equals(post.writerId(), viewerId);
     Category category = categoryMap.get(post.categoryId());
     AnonymousProfile anonymousProfile =
-        isBlind && post.anonymousProfileId() != null ? anonymousProfileMap.get(post.anonymousProfileId()) : null;
+        isBlind && post.anonymousProfileId() != null
+            ? anonymousProfileMap.get(post.anonymousProfileId())
+            : null;
     List<CommentThread> comments = commentMap.getOrDefault(post.id(), List.of());
-    int commentCount = (int) comments.stream().filter(thread -> !Boolean.TRUE.equals(thread.comment().isDeleted())).count();
+    int commentCount =
+        (int)
+            comments.stream()
+                .filter(thread -> !Boolean.TRUE.equals(thread.comment().isDeleted()))
+                .count();
 
     return new PostFeedItem(
         CommunityPostSourceType.COMMUNITY,
@@ -422,7 +449,9 @@ public class CommunityPostQueryService {
 
   public PostDetail getPostDetail(Long viewerId, Long postId, Boolean isBlockedOn) {
     Post post =
-        postRepositoryPort.findByIdWithCategory(postId).orElseThrow(() -> new CommunityException(NOT_FOUND_POST));
+        postRepositoryPort
+            .findByIdWithCategory(postId)
+            .orElseThrow(() -> new CommunityException(NOT_FOUND_POST));
 
     if (Boolean.TRUE.equals(isBlockedOn)
         && viewerId != null
@@ -438,7 +467,8 @@ public class CommunityPostQueryService {
             : null;
 
     boolean isBlind = Boolean.TRUE.equals(post.isBlindWriter());
-    CommunityMemberSummary member = isBlind ? null : communityMemberAssembler.getMemberSummary(post.writerId());
+    CommunityMemberSummary member =
+        isBlind ? null : communityMemberAssembler.getMemberSummary(post.writerId());
     boolean isMine = Objects.equals(post.writerId(), viewerId);
     boolean isLiked = postLikeRepositoryPort.existsByUserIdAndPostId(viewerId, postId);
     int likes = postLikeRepositoryPort.countAllByPostId(postId);
@@ -446,7 +476,8 @@ public class CommunityPostQueryService {
         isBlind ? anonymousProfileRetriever.findById(post.anonymousProfileId()).orElse(null) : null;
     VoteResult vote = voteQueryService.getVoteByPostId(postId, viewerId).orElse(null);
 
-    return new PostDetail(post, category, parentCategory, member, isMine, isLiked, likes, anonymousProfile, vote);
+    return new PostDetail(
+        post, category, parentCategory, member, isMine, isLiked, likes, anonymousProfile, vote);
   }
 
   // ==========================================
@@ -467,11 +498,15 @@ public class CommunityPostQueryService {
         posts.stream().map(Post::anonymousProfileId).filter(Objects::nonNull).distinct().toList();
     List<Long> categoryIds = posts.stream().map(Post::categoryId).distinct().toList();
 
-    Map<Long, CommunityMemberSummary> memberMap = communityMemberAssembler.getMemberSummaryMap(writerIds);
-    Map<Long, AnonymousProfile> anonymousProfileMap = anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
-    Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
+    Map<Long, CommunityMemberSummary> memberMap =
+        communityMemberAssembler.getMemberSummaryMap(writerIds);
+    Map<Long, AnonymousProfile> anonymousProfileMap =
+        anonymousProfileRetriever.findAllByIdsAsMap(anonymousProfileIds);
+    Map<Long, Integer> likeCountMap =
+        toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, Category> categoryMap = categoryQueryService.findAllByIdsAsMap(categoryIds);
-    Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
+    Map<Long, Integer> commentCountMap =
+        commentQueryService.countNonDeletedCommentsByPostIds(postIds);
 
     List<PopularCandidate> candidates = new ArrayList<>();
 
@@ -480,7 +515,9 @@ public class CommunityPostQueryService {
       boolean isBlind = Boolean.TRUE.equals(post.isBlindWriter());
 
       AnonymousProfile anonymousProfile =
-          post.anonymousProfileId() == null ? null : anonymousProfileMap.get(post.anonymousProfileId());
+          post.anonymousProfileId() == null
+              ? null
+              : anonymousProfileMap.get(post.anonymousProfileId());
       CommunityMemberSummary member = memberMap.get(post.writerId());
 
       if (isBlind && anonymousProfile == null) {
@@ -497,12 +534,15 @@ public class CommunityPostQueryService {
       Category category = categoryMap.get(post.categoryId());
       CommunityPostTag tag =
           communityCategoryPolicy.resolvePreviewTag(
-              category == null ? null : category.categoryGroup(), category == null ? null : category.code());
+              category == null ? null : category.categoryGroup(),
+              category == null ? null : category.code());
 
       PopularPostMember popularPostMember =
           isBlind
               ? new PopularPostMember(
-                  anonymousProfile.id(), anonymousProfile.nickname().nickname(), anonymousProfile.profileImage().imageUrl())
+                  anonymousProfile.id(),
+                  anonymousProfile.nickname().nickname(),
+                  anonymousProfile.profileImage().imageUrl())
               : new PopularPostMember(member.id(), member.name(), member.profileImage());
 
       PopularPost popularPost =
@@ -517,14 +557,16 @@ public class CommunityPostQueryService {
               tag);
 
       candidates.add(
-          new PopularCandidate(CommunityPostSourceType.COMMUNITY, score, post.createdAt(), post.id(), popularPost));
+          new PopularCandidate(
+              CommunityPostSourceType.COMMUNITY, score, post.createdAt(), post.id(), popularPost));
     }
 
     List<CrewMeetingPost> meetingPosts = getMeetingPostsForPopular(userId, since, snapshotTime);
 
     for (CrewMeetingPost meetingPost : meetingPosts) {
       int score =
-          calculatePopularScore(meetingPost.viewCount(), meetingPost.commentCount(), meetingPost.likeCount());
+          calculatePopularScore(
+              meetingPost.viewCount(), meetingPost.commentCount(), meetingPost.likeCount());
 
       PopularPost popularPost =
           new PopularPost(
@@ -532,7 +574,9 @@ public class CommunityPostQueryService {
               meetingPost.id(),
               meetingPost.title(),
               new PopularPostMember(
-                  meetingPost.writerOrgId(), meetingPost.writerName(), meetingPost.writerProfileImage()),
+                  meetingPost.writerOrgId(),
+                  meetingPost.writerName(),
+                  meetingPost.writerProfileImage()),
               meetingPost.viewCount(),
               meetingPost.likeCount(),
               meetingPost.commentCount(),
@@ -540,7 +584,11 @@ public class CommunityPostQueryService {
 
       candidates.add(
           new PopularCandidate(
-              CommunityPostSourceType.MEETING, score, meetingPost.createdAt(), meetingPost.id(), popularPost));
+              CommunityPostSourceType.MEETING,
+              score,
+              meetingPost.createdAt(),
+              meetingPost.id(),
+              popularPost));
     }
 
     return candidates.stream()
@@ -559,13 +607,15 @@ public class CommunityPostQueryService {
     return viewCount + commentCount * POPULAR_COMMENT_WEIGHT + likeCount * POPULAR_LIKE_WEIGHT;
   }
 
-  private List<CrewMeetingPost> getMeetingPostsForPopular(Long userId, LocalDateTime since, LocalDateTime snapshotTime) {
+  private List<CrewMeetingPost> getMeetingPostsForPopular(
+      Long userId, LocalDateTime since, LocalDateTime snapshotTime) {
     if (userId == null) {
       return List.of();
     }
 
     CrewMeetingFeedPage page =
-        crewMeetingPostPort.getPopularPreview(userId, snapshotTime, since, POPULAR_MEETING_MAX_PAGE);
+        crewMeetingPostPort.getPopularPreview(
+            userId, snapshotTime, since, POPULAR_MEETING_MAX_PAGE);
 
     return page.safePosts().stream()
         .filter(post -> !post.createdAt().isAfter(snapshotTime))
@@ -579,12 +629,15 @@ public class CommunityPostQueryService {
 
   public List<SopticlePost> getRecentSopticlePosts() {
     List<CommunityCategoryCode> sopticleCodes =
-        communityCategoryPolicy.resolveCategoryCodes(CommunityPostListCategory.SOPTICLE, CommunityPostListFilter.ALL);
+        communityCategoryPolicy.resolveCategoryCodes(
+            CommunityPostListCategory.SOPTICLE, CommunityPostListFilter.ALL);
 
-    List<Post> posts = postRepositoryPort.findTop5ByCategoryCodesOrderByCreatedAtDesc(sopticleCodes);
+    List<Post> posts =
+        postRepositoryPort.findTop5ByCategoryCodesOrderByCreatedAtDesc(sopticleCodes);
 
     List<Long> writerIds = posts.stream().map(Post::writerId).distinct().toList();
-    Map<Long, CommunityMemberSummary> memberMap = communityMemberAssembler.getMemberSummaryMap(writerIds);
+    Map<Long, CommunityMemberSummary> memberMap =
+        communityMemberAssembler.getMemberSummaryMap(writerIds);
 
     return posts.stream()
         .map(
@@ -612,9 +665,11 @@ public class CommunityPostQueryService {
     List<Long> postIds = posts.stream().map(Post::id).toList();
     List<Long> categoryIds = posts.stream().map(Post::categoryId).distinct().toList();
 
-    Map<Long, Integer> likeCountMap = toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
+    Map<Long, Integer> likeCountMap =
+        toIntCountMap(postLikeRepositoryPort.countLikesByPostIds(postIds));
     Map<Long, Category> categoryMap = categoryQueryService.findAllByIdsAsMap(categoryIds);
-    Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
+    Map<Long, Integer> commentCountMap =
+        commentQueryService.countNonDeletedCommentsByPostIds(postIds);
     Map<Long, Integer> totalVoteCountMap = voteQueryService.getTotalVoteCountMapByPostIds(postIds);
 
     List<RecentCandidate> candidates = new ArrayList<>();
@@ -623,7 +678,8 @@ public class CommunityPostQueryService {
       Category category = categoryMap.get(post.categoryId());
       CommunityPostTag tag =
           communityCategoryPolicy.resolvePreviewTag(
-              category == null ? null : category.categoryGroup(), category == null ? null : category.code());
+              category == null ? null : category.categoryGroup(),
+              category == null ? null : category.code());
 
       RecentPost recentPost =
           new RecentPost(
@@ -637,7 +693,9 @@ public class CommunityPostQueryService {
               tag,
               totalVoteCountMap.get(post.id()));
 
-      candidates.add(new RecentCandidate(CommunityPostSourceType.COMMUNITY, post.createdAt(), post.id(), recentPost));
+      candidates.add(
+          new RecentCandidate(
+              CommunityPostSourceType.COMMUNITY, post.createdAt(), post.id(), recentPost));
     }
 
     List<CrewMeetingPost> meetingPosts = getMeetingPostsForPreview(memberId, HOME_PREVIEW_LIMIT);
@@ -656,7 +714,11 @@ public class CommunityPostQueryService {
               null);
 
       candidates.add(
-          new RecentCandidate(CommunityPostSourceType.MEETING, meetingPost.createdAt(), meetingPost.id(), recentPost));
+          new RecentCandidate(
+              CommunityPostSourceType.MEETING,
+              meetingPost.createdAt(),
+              meetingPost.id(),
+              recentPost));
     }
 
     return candidates.stream()
@@ -705,7 +767,8 @@ public class CommunityPostQueryService {
 
   private Post findTodayHotPost(List<Post> posts) {
     List<Long> postIds = posts.stream().map(Post::id).toList();
-    Map<Long, Integer> commentCountMap = commentQueryService.countNonDeletedCommentsByPostIds(postIds);
+    Map<Long, Integer> commentCountMap =
+        commentQueryService.countNonDeletedCommentsByPostIds(postIds);
 
     return posts.stream()
         .map(post -> toPostWithPoints(post, commentCountMap))
@@ -731,7 +794,8 @@ public class CommunityPostQueryService {
       return Map.of();
     }
 
-    List<Long> likedPostIds = postLikeRepositoryPort.findLikedPostIdsByUserIdAndPostIds(viewerId, postIds);
+    List<Long> likedPostIds =
+        postLikeRepositoryPort.findLikedPostIdsByUserIdAndPostIds(viewerId, postIds);
     Set<Long> likedPostIdSet = Set.copyOf(likedPostIds);
 
     return postIds.stream().collect(Collectors.toMap(postId -> postId, likedPostIdSet::contains));
@@ -755,7 +819,10 @@ public class CommunityPostQueryService {
   // ==========================================
 
   private static final List<CommunityCategoryCode> INTERNAL_LATEST_TOP_CODES =
-      List.of(CommunityCategoryCode.FREE, CommunityCategoryCode.PROMOTION, CommunityCategoryCode.SOPTICLE);
+      List.of(
+          CommunityCategoryCode.FREE,
+          CommunityCategoryCode.PROMOTION,
+          CommunityCategoryCode.SOPTICLE);
 
   public record InternalPostSummary(
       Long id,
@@ -783,14 +850,14 @@ public class CommunityPostQueryService {
 
   /**
    * 레거시 InternalOpenApiController(GET /internal/api/v1/community/posts/latest)의
-   * CommunityPostService#getInternalLatestPosts를 대체한다. 최상위 카테고리(자유/홍보/솝티클)별 최신글을 1건씩
-   * 조회한다.
+   * CommunityPostService#getInternalLatestPosts를 대체한다. 최상위 카테고리(자유/홍보/솝티클)별 최신글을 1건씩 조회한다.
    */
   public List<InternalPostSummary> getInternalLatestPosts() {
     List<Post> latestPosts = new ArrayList<>();
     for (CommunityCategoryCode topCode : INTERNAL_LATEST_TOP_CODES) {
       postRepositoryPort
-          .findFirstByCategoryCodesOrderByCreatedAtDesc(communityCategoryPolicy.resolveCategoryCodes(topCode))
+          .findFirstByCategoryCodesOrderByCreatedAtDesc(
+              communityCategoryPolicy.resolveCategoryCodes(topCode))
           .ifPresent(latestPosts::add);
     }
 
@@ -807,7 +874,9 @@ public class CommunityPostQueryService {
 
       boolean isBlind = Boolean.TRUE.equals(post.isBlindWriter());
       AnonymousProfile anonymousProfile =
-          post.anonymousProfileId() == null ? null : anonymousProfileMap.get(post.anonymousProfileId());
+          post.anonymousProfileId() == null
+              ? null
+              : anonymousProfileMap.get(post.anonymousProfileId());
       if (isBlind && anonymousProfile == null) {
         continue;
       }
@@ -836,7 +905,9 @@ public class CommunityPostQueryService {
     for (Post post : posts) {
       boolean isBlind = Boolean.TRUE.equals(post.isBlindWriter());
       AnonymousProfile anonymousProfile =
-          post.anonymousProfileId() == null ? null : anonymousProfileMap.get(post.anonymousProfileId());
+          post.anonymousProfileId() == null
+              ? null
+              : anonymousProfileMap.get(post.anonymousProfileId());
       CommunityMemberPort.MemberInfo memberInfo = memberInfoMap.get(post.writerId());
 
       if (isBlind && anonymousProfile == null) {
@@ -846,7 +917,9 @@ public class CommunityPostQueryService {
         continue;
       }
 
-      results.add(toInternalPopularPostSummary(post, memberInfo, anonymousProfile, categoryContextMap, rank++));
+      results.add(
+          toInternalPopularPostSummary(
+              post, memberInfo, anonymousProfile, categoryContextMap, rank++));
     }
     return results;
   }
@@ -868,11 +941,16 @@ public class CommunityPostQueryService {
 
   /** post의 카테고리와, 그 부모 카테고리(있는 경우)를 함께 담은 조회용 맵을 만든다. */
   private Map<Long, Category> resolveCategoryContextMap(List<Post> posts) {
-    List<Long> categoryIds = posts.stream().map(Post::categoryId).filter(Objects::nonNull).distinct().toList();
+    List<Long> categoryIds =
+        posts.stream().map(Post::categoryId).filter(Objects::nonNull).distinct().toList();
     Map<Long, Category> categoryMap = categoryQueryService.findAllByIdsAsMap(categoryIds);
 
     List<Long> parentIds =
-        categoryMap.values().stream().map(Category::parentId).filter(Objects::nonNull).distinct().toList();
+        categoryMap.values().stream()
+            .map(Category::parentId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
     if (parentIds.isEmpty()) {
       return categoryMap;
     }
@@ -958,7 +1036,8 @@ public class CommunityPostQueryService {
           post.createdAt());
     }
 
-    CommunityMemberPort.ActivityInfo latestActivity = pickLatestActivityInfo(memberInfo.activities());
+    CommunityMemberPort.ActivityInfo latestActivity =
+        pickLatestActivityInfo(memberInfo.activities());
     return new InternalPostSummary(
         post.id(),
         memberInfo.id(),
@@ -996,7 +1075,8 @@ public class CommunityPostQueryService {
           webLink);
     }
 
-    CommunityMemberPort.ActivityInfo latestActivity = pickLatestActivityInfo(memberInfo.activities());
+    CommunityMemberPort.ActivityInfo latestActivity =
+        pickLatestActivityInfo(memberInfo.activities());
     return new InternalPopularPostSummary(
         post.id(),
         memberInfo.id(),
@@ -1016,13 +1096,13 @@ public class CommunityPostQueryService {
       case PROMOTION, PROMOTION_EVENT, PROMOTION_PROJECT, PROMOTION_RECRUIT, PROMOTION_ETC ->
           CommunityPostListCategory.PROMOTION;
       case SOPTICLE,
-          SOPTICLE_PLAN,
-          SOPTICLE_DESIGN,
-          SOPTICLE_SERVER,
-          SOPTICLE_WEB,
-          SOPTICLE_IOS,
-          SOPTICLE_ANDROID,
-          SOPTICLE_ETC ->
+              SOPTICLE_PLAN,
+              SOPTICLE_DESIGN,
+              SOPTICLE_SERVER,
+              SOPTICLE_WEB,
+              SOPTICLE_IOS,
+              SOPTICLE_ANDROID,
+              SOPTICLE_ETC ->
           CommunityPostListCategory.SOPTICLE;
     };
   }

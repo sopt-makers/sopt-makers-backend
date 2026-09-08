@@ -4,7 +4,11 @@ import java.util.List;
 import org.sopt.makers.domain.playground.community.vote.VoteResult;
 
 public record VoteResponse(
-    Long id, boolean isMultiple, boolean hasVoted, int totalParticipants, List<VoteOptionResponse> options) {
+    Long id,
+    boolean isMultiple,
+    boolean hasVoted,
+    int totalParticipants,
+    List<VoteOptionResponse> options) {
 
   public static VoteResponse from(VoteResult result) {
     return new VoteResponse(

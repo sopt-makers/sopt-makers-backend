@@ -7,11 +7,14 @@ import org.sopt.makers.domain.playground.member.ask.AskAnswerDetail;
 public record AnswerResponse(
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "답변 ID") Long answerId,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "답변 내용") String content,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "도움돼요 반응 수") Long reactionCount,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 사용자가 도움돼요를 눌렀는지 여부") Boolean isReacted,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "도움돼요 반응 수")
+        Long reactionCount,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 사용자가 도움돼요를 눌렀는지 여부")
+        Boolean isReacted,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "답변자 고유 ID") Long userId,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "답변자의 이름") String name,
-    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "답변자 프로필 이미지") String profileImage,
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "답변자 프로필 이미지")
+        String profileImage,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "생성일시") String createdAt) {
 
   public static AnswerResponse from(AskAnswerDetail detail) {

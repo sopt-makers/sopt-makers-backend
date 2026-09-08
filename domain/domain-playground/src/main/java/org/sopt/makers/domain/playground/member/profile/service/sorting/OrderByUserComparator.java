@@ -34,11 +34,14 @@ public class OrderByUserComparator implements UserSortingComparator {
     };
   }
 
-  private int compareByGeneration(User a, User b, ProfileWeightStrategy weightStrategy, boolean descending) {
+  private int compareByGeneration(
+      User a, User b, ProfileWeightStrategy weightStrategy, boolean descending) {
     int generationA = ProfileSortingSupport.lastGeneration(a);
     int generationB = ProfileSortingSupport.lastGeneration(b);
     int generationCompare =
-        descending ? Integer.compare(generationB, generationA) : Integer.compare(generationA, generationB);
+        descending
+            ? Integer.compare(generationB, generationA)
+            : Integer.compare(generationA, generationB);
     if (generationCompare != 0) {
       return generationCompare;
     }

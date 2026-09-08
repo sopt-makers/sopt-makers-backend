@@ -5,9 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface AmplitudeEventRawDataJpaRepository extends JpaRepository<AmplitudeEventRawDataEntity, String> {
+public interface AmplitudeEventRawDataJpaRepository
+    extends JpaRepository<AmplitudeEventRawDataEntity, String> {
 
-  int countAllByUserIdAndEventTypeAndEventTimeContains(String userId, String eventType, String eventTime);
+  int countAllByUserIdAndEventTypeAndEventTimeContains(
+      String userId, String eventType, String eventTime);
 
   int countAllByUserIdAndEventTypeAndEventTimeBetween(
       String userId, String eventType, String startEventTime, String endEventTime);

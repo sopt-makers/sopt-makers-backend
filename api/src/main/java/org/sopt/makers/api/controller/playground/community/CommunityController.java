@@ -69,9 +69,12 @@ public class CommunityController implements CommunityApi {
   public ResponseEntity<BaseResponse<?>> getOnePost(
       @CurrentUserId Long userId,
       @PathVariable("postId") Long postId,
-      @RequestParam(value = "isBlockOn", required = false, defaultValue = "true") Boolean isBlockOn) {
+      @RequestParam(value = "isBlockOn", required = false, defaultValue = "true")
+          Boolean isBlockOn) {
     return ResponseFactory.success(
-        GET_POST, PostDetailResponse.from(communityPostQueryService.getPostDetail(userId, postId, isBlockOn)));
+        GET_POST,
+        PostDetailResponse.from(
+            communityPostQueryService.getPostDetail(userId, postId, isBlockOn)));
   }
 
   @Override
@@ -87,7 +90,8 @@ public class CommunityController implements CommunityApi {
     return ResponseFactory.success(
         GET_POSTS,
         PostAllResponse.from(
-            communityPostQueryService.getPosts(userId, categoryCode, category, filter, isBlockOn, limit, cursor)));
+            communityPostQueryService.getPosts(
+                userId, categoryCode, category, filter, isBlockOn, limit, cursor)));
   }
 
   @Override
@@ -105,7 +109,9 @@ public class CommunityController implements CommunityApi {
   @GetMapping("/posts/sopticle")
   public ResponseEntity<BaseResponse<?>> getRecentSopticlePosts() {
     List<SopticlePostResponse> responses =
-        communityPostQueryService.getRecentSopticlePosts().stream().map(SopticlePostResponse::from).toList();
+        communityPostQueryService.getRecentSopticlePosts().stream()
+            .map(SopticlePostResponse::from)
+            .toList();
     return ResponseFactory.success(GET_RECENT_SOPTICLE_POSTS, responses);
   }
 
@@ -113,7 +119,9 @@ public class CommunityController implements CommunityApi {
   @GetMapping("/posts/all/recent")
   public ResponseEntity<BaseResponse<?>> getRecentPosts(@CurrentUserId Long userId) {
     List<RecentPostResponse> responses =
-        communityPostQueryService.getRecentPosts(userId).stream().map(RecentPostResponse::from).toList();
+        communityPostQueryService.getRecentPosts(userId).stream()
+            .map(RecentPostResponse::from)
+            .toList();
     return ResponseFactory.success(GET_RECENT_POSTS, responses);
   }
 
@@ -191,7 +199,9 @@ public class CommunityController implements CommunityApi {
       @PathVariable("postId") Long postId,
       @RequestBody VoteSelectionRequest request) {
     return ResponseFactory.success(
-        SELECT_VOTE, VoteResponse.from(voteCommandService.selectVote(userId, postId, request.selectedOptions())));
+        SELECT_VOTE,
+        VoteResponse.from(
+            voteCommandService.selectVote(userId, postId, request.selectedOptions())));
   }
 
   @Override

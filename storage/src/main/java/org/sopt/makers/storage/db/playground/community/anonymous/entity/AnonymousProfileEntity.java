@@ -51,7 +51,10 @@ public class AnonymousProfileEntity extends BaseEntity {
 
   @Builder(access = PROTECTED)
   private AnonymousProfileEntity(
-      Long userId, Long postId, AnonymousNicknameEntity nickname, AnonymousProfileImageEntity profileImage) {
+      Long userId,
+      Long postId,
+      AnonymousNicknameEntity nickname,
+      AnonymousProfileImageEntity profileImage) {
     this.userId = userId;
     this.postId = postId;
     this.nickname = nickname;
@@ -59,7 +62,10 @@ public class AnonymousProfileEntity extends BaseEntity {
   }
 
   public static AnonymousProfileEntity of(
-      Long userId, Long postId, AnonymousNicknameEntity nickname, AnonymousProfileImageEntity profileImage) {
+      Long userId,
+      Long postId,
+      AnonymousNicknameEntity nickname,
+      AnonymousProfileImageEntity profileImage) {
     return AnonymousProfileEntity.builder()
         .userId(userId)
         .postId(postId)
@@ -70,6 +76,12 @@ public class AnonymousProfileEntity extends BaseEntity {
 
   public AnonymousProfile toDomain() {
     return new AnonymousProfile(
-        id, userId, postId, nickname.toDomain(), profileImage.toDomain(), getCreatedAt(), getUpdatedAt());
+        id,
+        userId,
+        postId,
+        nickname.toDomain(),
+        profileImage.toDomain(),
+        getCreatedAt(),
+        getUpdatedAt());
   }
 }
