@@ -1,19 +1,19 @@
 package org.sopt.makers.api.controller.playground.user;
 
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.CREATE_ANSWER;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.CREATE_QUESTION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.DELETE_ANSWER;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.DELETE_QUESTION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.GET_LATEST_ANSWERED_QUESTIONS;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.GET_MY_LATEST_ANSWERED_QUESTION_LOCATION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.GET_QUESTIONS;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.GET_QUESTION_LOCATION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.GET_UNANSWERED_COUNT;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.REPORT_QUESTION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.TOGGLE_ANSWER_REACTION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.TOGGLE_QUESTION_REACTION;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.UPDATE_ANSWER;
-import static org.sopt.makers.api.controller.playground.user.PlaygroundUserQuestionSuccessCode.UPDATE_QUESTION;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.CREATE_ANSWER;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.CREATE_ASK;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.DELETE_ANSWER;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.DELETE_ASK;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.GET_ASKS;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.GET_ASK_LOCATION;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.GET_LATEST_ANSWERED_ASKS;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.GET_MY_LATEST_ANSWERED_ASK_LOCATION;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.GET_UNANSWERED_COUNT;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.REPORT_ASK;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.TOGGLE_ANSWER_REACTION;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.TOGGLE_ASK_REACTION;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.UPDATE_ANSWER;
+import static org.sopt.makers.api.controller.playground.user.PlaygroundUserAskSuccessCode.UPDATE_ASK;
 
 import jakarta.validation.Valid;
 import java.util.Map;
@@ -22,16 +22,16 @@ import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.playground.user.dto.AnswerSaveRequest;
 import org.sopt.makers.api.controller.playground.user.dto.AnswerUpdateRequest;
-import org.sopt.makers.api.controller.playground.user.dto.LatestAnsweredQuestionsResponse;
-import org.sopt.makers.api.controller.playground.user.dto.MyLatestAnsweredQuestionLocationResponse;
-import org.sopt.makers.api.controller.playground.user.dto.QuestionLocationResponse;
-import org.sopt.makers.api.controller.playground.user.dto.QuestionReportRequest;
-import org.sopt.makers.api.controller.playground.user.dto.QuestionSaveRequest;
-import org.sopt.makers.api.controller.playground.user.dto.QuestionUpdateRequest;
-import org.sopt.makers.api.controller.playground.user.dto.QuestionsResponse;
+import org.sopt.makers.api.controller.playground.user.dto.AskLocationResponse;
+import org.sopt.makers.api.controller.playground.user.dto.AskReportRequest;
+import org.sopt.makers.api.controller.playground.user.dto.AskSaveRequest;
+import org.sopt.makers.api.controller.playground.user.dto.AskUpdateRequest;
+import org.sopt.makers.api.controller.playground.user.dto.AsksResponse;
+import org.sopt.makers.api.controller.playground.user.dto.LatestAnsweredAsksResponse;
+import org.sopt.makers.api.controller.playground.user.dto.MyLatestAnsweredAskLocationResponse;
 import org.sopt.makers.api.controller.playground.user.dto.UnansweredCountResponse;
 import org.sopt.makers.core.response.BaseResponse;
-import org.sopt.makers.domain.playground.member.ask.QuestionTab;
+import org.sopt.makers.domain.playground.member.ask.AskTab;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskCommandService;
 import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
 import org.springframework.http.ResponseEntity;
@@ -48,40 +48,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/members")
-public class PlaygroundUserQuestionController implements PlaygroundUserQuestionApi {
+public class PlaygroundUserAskController implements PlaygroundUserAskApi {
 
   private final UserAskCommandService userAskCommandService;
   private final UserAskQueryService userAskQueryService;
 
   @Override
   @PostMapping("/questions/{receiverId}")
-  public ResponseEntity<BaseResponse<?>> createQuestion(
+  public ResponseEntity<BaseResponse<?>> createAsk(
       @CurrentUserId Long userId,
       @PathVariable Long receiverId,
-      @RequestBody @Valid QuestionSaveRequest request) {
-    Long questionId =
+      @RequestBody @Valid AskSaveRequest request) {
+    Long askId =
         userAskCommandService
             .createAsk(userId, receiverId, request.content(), request.isAnonymous())
             .id();
-    return ResponseFactory.success(CREATE_QUESTION, Map.of("questionId", questionId));
+    return ResponseFactory.success(CREATE_ASK, Map.of("questionId", askId));
   }
 
   @Override
   @PutMapping("/questions/{questionId}")
-  public ResponseEntity<BaseResponse<?>> updateQuestion(
+  public ResponseEntity<BaseResponse<?>> updateAsk(
       @CurrentUserId Long userId,
       @PathVariable Long questionId,
-      @RequestBody @Valid QuestionUpdateRequest request) {
+      @RequestBody @Valid AskUpdateRequest request) {
     userAskCommandService.updateAsk(userId, questionId, request.content(), request.isAnonymous());
-    return ResponseFactory.success(UPDATE_QUESTION, Map.of("success", true));
+    return ResponseFactory.success(UPDATE_ASK, Map.of("success", true));
   }
 
   @Override
   @DeleteMapping("/questions/{questionId}")
-  public ResponseEntity<BaseResponse<?>> deleteQuestion(
+  public ResponseEntity<BaseResponse<?>> deleteAsk(
       @CurrentUserId Long userId, @PathVariable Long questionId) {
     userAskCommandService.deleteAsk(userId, questionId);
-    return ResponseFactory.success(DELETE_QUESTION, Map.of("success", true));
+    return ResponseFactory.success(DELETE_ASK, Map.of("success", true));
   }
 
   @Override
@@ -114,10 +114,10 @@ public class PlaygroundUserQuestionController implements PlaygroundUserQuestionA
 
   @Override
   @PostMapping("/questions/{questionId}/reactions")
-  public ResponseEntity<BaseResponse<?>> toggleQuestionReaction(
+  public ResponseEntity<BaseResponse<?>> toggleAskReaction(
       @CurrentUserId Long userId, @PathVariable Long questionId) {
     userAskCommandService.toggleAskReaction(userId, questionId);
-    return ResponseFactory.success(TOGGLE_QUESTION_REACTION, Map.of("success", true));
+    return ResponseFactory.success(TOGGLE_ASK_REACTION, Map.of("success", true));
   }
 
   @Override
@@ -130,25 +130,25 @@ public class PlaygroundUserQuestionController implements PlaygroundUserQuestionA
 
   @Override
   @PostMapping("/questions/{questionId}/report")
-  public ResponseEntity<BaseResponse<?>> reportQuestion(
+  public ResponseEntity<BaseResponse<?>> reportAsk(
       @CurrentUserId Long userId,
       @PathVariable Long questionId,
-      @RequestBody QuestionReportRequest request) {
+      @RequestBody AskReportRequest request) {
     userAskCommandService.reportAsk(userId, questionId, request.reason());
-    return ResponseFactory.success(REPORT_QUESTION, Map.of("success", true));
+    return ResponseFactory.success(REPORT_ASK, Map.of("success", true));
   }
 
   @Override
   @GetMapping("/{memberId}/questions")
-  public ResponseEntity<BaseResponse<?>> getQuestions(
+  public ResponseEntity<BaseResponse<?>> getAsks(
       @CurrentUserId Long userId,
       @PathVariable Long memberId,
-      @RequestParam(value = "tab", required = false) QuestionTab tab,
+      @RequestParam(value = "tab", required = false) AskTab tab,
       @RequestParam(value = "page", required = false) Integer page,
       @RequestParam(value = "size", required = false) Integer size) {
     return ResponseFactory.success(
-        GET_QUESTIONS,
-        QuestionsResponse.from(userAskQueryService.getAsks(userId, memberId, tab, page, size)));
+        GET_ASKS,
+        AsksResponse.from(userAskQueryService.getAsks(userId, memberId, tab, page, size)));
   }
 
   @Override
@@ -161,28 +161,28 @@ public class PlaygroundUserQuestionController implements PlaygroundUserQuestionA
 
   @Override
   @GetMapping("/{memberId}/questions/my-latest-answered")
-  public ResponseEntity<BaseResponse<?>> getMyLatestAnsweredQuestionLocation(
+  public ResponseEntity<BaseResponse<?>> getMyLatestAnsweredAskLocation(
       @CurrentUserId Long userId, @PathVariable Long memberId) {
     return ResponseFactory.success(
-        GET_MY_LATEST_ANSWERED_QUESTION_LOCATION,
-        MyLatestAnsweredQuestionLocationResponse.from(
+        GET_MY_LATEST_ANSWERED_ASK_LOCATION,
+        MyLatestAnsweredAskLocationResponse.from(
             userAskQueryService.getMyLatestAnsweredAskLocation(userId, memberId)));
   }
 
   @Override
   @GetMapping("/{memberId}/questions/{questionId}/location")
-  public ResponseEntity<BaseResponse<?>> getQuestionLocation(
+  public ResponseEntity<BaseResponse<?>> getAskLocation(
       @PathVariable Long memberId, @PathVariable Long questionId) {
     return ResponseFactory.success(
-        GET_QUESTION_LOCATION,
-        QuestionLocationResponse.from(userAskQueryService.getAskLocation(memberId, questionId)));
+        GET_ASK_LOCATION,
+        AskLocationResponse.from(userAskQueryService.getAskLocation(memberId, questionId)));
   }
 
   @Override
   @GetMapping("/questions/latest")
-  public ResponseEntity<BaseResponse<?>> getLatestAnsweredQuestions() {
+  public ResponseEntity<BaseResponse<?>> getLatestAnsweredAsks() {
     return ResponseFactory.success(
-        GET_LATEST_ANSWERED_QUESTIONS,
-        LatestAnsweredQuestionsResponse.from(userAskQueryService.getLatestAnsweredAsks()));
+        GET_LATEST_ANSWERED_ASKS,
+        LatestAnsweredAsksResponse.from(userAskQueryService.getLatestAnsweredAsks()));
   }
 }

@@ -26,14 +26,14 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
   }
 
   @Override
-  public Optional<UserAsk> findById(Long questionId) {
-    return userAskJpaRepository.findById(questionId).map(UserAskEntity::toDomain);
+  public Optional<UserAsk> findById(Long askId) {
+    return userAskJpaRepository.findById(askId).map(UserAskEntity::toDomain);
   }
 
   @Transactional
   @Override
-  public void deleteById(Long questionId) {
-    userAskJpaRepository.deleteById(questionId);
+  public void deleteById(Long askId) {
+    userAskJpaRepository.deleteById(askId);
   }
 
   @Override
@@ -91,16 +91,16 @@ public class UserAskRepositoryAdapter implements UserAskRepositoryPort {
 
   @Override
   public long countAnsweredBeforeTargetInLatestOrder(
-      Long receiverUserId, LocalDateTime answerCreatedAt, Long questionId) {
+      Long receiverUserId, LocalDateTime answerCreatedAt, Long askId) {
     return userAskJpaRepository.countAnsweredBeforeTargetInLatestOrder(
-        receiverUserId, answerCreatedAt, questionId);
+        receiverUserId, answerCreatedAt, askId);
   }
 
   @Override
   public long countUnansweredBeforeTargetInLatestOrder(
-      Long receiverUserId, LocalDateTime askCreatedAt, Long questionId) {
+      Long receiverUserId, LocalDateTime askCreatedAt, Long askId) {
     return userAskJpaRepository.countUnansweredBeforeTargetInLatestOrder(
-        receiverUserId, askCreatedAt, questionId);
+        receiverUserId, askCreatedAt, askId);
   }
 
   @Override

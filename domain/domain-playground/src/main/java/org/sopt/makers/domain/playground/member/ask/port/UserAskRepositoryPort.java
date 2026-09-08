@@ -9,9 +9,9 @@ public interface UserAskRepositoryPort {
 
   UserAsk save(UserAsk userAsk);
 
-  Optional<UserAsk> findById(Long questionId);
+  Optional<UserAsk> findById(Long askId);
 
-  void deleteById(Long questionId);
+  void deleteById(Long askId);
 
   List<Long> findDistinctAnonymousNicknameIdsByReceiverUserId(Long receiverUserId);
 
@@ -33,10 +33,10 @@ public interface UserAskRepositoryPort {
   List<Long> findAllAnsweredIdsByReceiverUserIdOrderByLatest(Long receiverUserId);
 
   long countAnsweredBeforeTargetInLatestOrder(
-      Long receiverUserId, LocalDateTime answerCreatedAt, Long questionId);
+      Long receiverUserId, LocalDateTime answerCreatedAt, Long askId);
 
   long countUnansweredBeforeTargetInLatestOrder(
-      Long receiverUserId, LocalDateTime askCreatedAt, Long questionId);
+      Long receiverUserId, LocalDateTime askCreatedAt, Long askId);
 
   List<UserAsk> findLatestAnswered(int limit);
 

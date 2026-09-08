@@ -14,11 +14,11 @@ public interface AskReactionRepositoryPort {
 
   void deleteById(Long reactionId);
 
-  void deleteAllByQuestionId(Long questionId);
+  void deleteAllByAskId(Long askId);
 
-  Optional<AskReaction> findByQuestionIdAndReactorUserId(Long questionId, Long reactorUserId);
+  Optional<AskReaction> findByAskIdAndReactorUserId(Long askId, Long reactorUserId);
 
-  Map<Long, Long> countGroupedByQuestionIds(List<Long> questionIds);
+  Map<Long, Long> countGroupedByAskIds(List<Long> askIds);
 
-  Set<Long> findReactedQuestionIdsByUser(List<Long> questionIds, Long reactorUserId);
+  Set<Long> findReactedAskIdsByUser(List<Long> askIds, Long reactorUserId);
 }

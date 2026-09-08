@@ -12,11 +12,11 @@ public interface UserAnswerRepositoryPort {
 
   void deleteById(Long answerId);
 
-  void deleteByQuestionId(Long questionId);
+  void deleteByAskId(Long askId);
 
-  boolean existsByQuestionId(Long questionId);
+  boolean existsByAskId(Long askId);
 
-  Optional<UserAnswer> findByQuestionId(Long questionId);
+  Optional<UserAnswer> findByAskId(Long askId);
 
-  List<UserAnswer> findAllByQuestionIds(List<Long> questionIds);
+  List<UserAnswer> findAllByAskIds(List<Long> askIds);
 }

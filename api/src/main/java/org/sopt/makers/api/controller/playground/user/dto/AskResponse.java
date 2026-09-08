@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.format.DateTimeFormatter;
 import org.sopt.makers.domain.playground.member.ask.AskDetail;
 
-public record QuestionResponse(
+public record AskResponse(
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "질문 ID") Long questionId,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "질문 내용") String content,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "질문자 ID") Long askerId,
@@ -27,8 +27,8 @@ public record QuestionResponse(
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "본인이 받은 질문인지 여부")
         Boolean isReceived) {
 
-  public static QuestionResponse from(AskDetail detail) {
-    return new QuestionResponse(
+  public static AskResponse from(AskDetail detail) {
+    return new AskResponse(
         detail.questionId(),
         detail.content(),
         detail.askerUserId(),

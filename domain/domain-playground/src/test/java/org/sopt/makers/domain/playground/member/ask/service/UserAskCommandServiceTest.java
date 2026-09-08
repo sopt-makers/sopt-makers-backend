@@ -71,7 +71,7 @@ class UserAskCommandServiceTest {
   @DisplayName("asker는 답변이 달리기 전까지 질문을 수정할 수 있다")
   void askerCanUpdateUnansweredAsk() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(false);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(false);
 
     UserAsk updated = service.updateAsk(ASKER_ID, ASK_ID, "수정된 질문", false);
 
@@ -82,7 +82,7 @@ class UserAskCommandServiceTest {
   @DisplayName("asker라도 답변이 달린 질문은 수정할 수 없다")
   void askerCannotUpdateAnsweredAsk() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(true);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(true);
 
     assertThatThrownBy(() -> service.updateAsk(ASKER_ID, ASK_ID, "수정된 질문", false))
         .isInstanceOf(UserAskException.class)
@@ -105,7 +105,7 @@ class UserAskCommandServiceTest {
   @DisplayName("asker는 답변이 없는 질문을 삭제할 수 있다")
   void askerCanDeleteUnansweredAsk() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(false);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(false);
 
     service.deleteAsk(ASKER_ID, ASK_ID);
 
@@ -116,7 +116,7 @@ class UserAskCommandServiceTest {
   @DisplayName("asker는 답변이 달린 질문을 삭제할 수 없다")
   void askerCannotDeleteAnsweredAsk() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(true);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(true);
 
     assertThatThrownBy(() -> service.deleteAsk(ASKER_ID, ASK_ID))
         .isInstanceOf(UserAskException.class)
@@ -129,7 +129,7 @@ class UserAskCommandServiceTest {
   @DisplayName("receiver는 답변이 달린 질문도 항상 삭제할 수 있다")
   void receiverCanAlwaysDeleteAskRegardlessOfAnswerState() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(true);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(true);
 
     service.deleteAsk(RECEIVER_ID, ASK_ID);
 
@@ -151,7 +151,7 @@ class UserAskCommandServiceTest {
   @DisplayName("receiver만 답변을 작성할 수 있다")
   void onlyReceiverCanCreateAnswer() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(false);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(false);
     when(userAnswerRepositoryPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     UserAnswer answer = service.createAnswer(RECEIVER_ID, ASK_ID, "답변");
@@ -174,7 +174,7 @@ class UserAskCommandServiceTest {
   @DisplayName("이미 답변이 작성된 질문에는 다시 답변할 수 없다")
   void cannotCreateAnswerForAlreadyAnsweredAsk() {
     when(userAskRepositoryPort.findById(ASK_ID)).thenReturn(Optional.of(unansweredAsk()));
-    when(userAnswerRepositoryPort.existsByQuestionId(ASK_ID)).thenReturn(true);
+    when(userAnswerRepositoryPort.existsByAskId(ASK_ID)).thenReturn(true);
 
     assertThatThrownBy(() -> service.createAnswer(RECEIVER_ID, ASK_ID, "답변"))
         .isInstanceOf(UserAskException.class)

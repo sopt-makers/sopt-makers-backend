@@ -41,33 +41,31 @@ public class AskReactionRepositoryAdapter implements AskReactionRepositoryPort {
 
   @Transactional
   @Override
-  public void deleteAllByQuestionId(Long questionId) {
-    askReactionJpaRepository.deleteAllByQuestionId(questionId);
+  public void deleteAllByAskId(Long askId) {
+    askReactionJpaRepository.deleteAllByAskId(askId);
   }
 
   @Override
-  public Optional<AskReaction> findByQuestionIdAndReactorUserId(
-      Long questionId, Long reactorUserId) {
+  public Optional<AskReaction> findByAskIdAndReactorUserId(Long askId, Long reactorUserId) {
     return askReactionJpaRepository
-        .findByQuestionIdAndReactorUserId(questionId, reactorUserId)
+        .findByQuestionIdAndReactorUserId(askId, reactorUserId)
         .map(AskReactionEntity::toDomain);
   }
 
   @Override
-  public Map<Long, Long> countGroupedByQuestionIds(List<Long> questionIds) {
-    if (questionIds.isEmpty()) {
+  public Map<Long, Long> countGroupedByAskIds(List<Long> askIds) {
+    if (askIds.isEmpty()) {
       return Map.of();
     }
-    return askReactionJpaRepository.countGroupedByQuestionIds(questionIds).stream()
+    return askReactionJpaRepository.countGroupedByAskIds(askIds).stream()
         .collect(Collectors.toMap(AskReactionCountRow::questionId, AskReactionCountRow::count));
   }
 
   @Override
-  public Set<Long> findReactedQuestionIdsByUser(List<Long> questionIds, Long reactorUserId) {
-    if (questionIds.isEmpty()) {
+  public Set<Long> findReactedAskIdsByUser(List<Long> askIds, Long reactorUserId) {
+    if (askIds.isEmpty()) {
       return Set.of();
     }
-    return new HashSet<>(
-        askReactionJpaRepository.findReactedQuestionIds(questionIds, reactorUserId));
+    return new HashSet<>(askReactionJpaRepository.findReactedAskIds(askIds, reactorUserId));
   }
 }

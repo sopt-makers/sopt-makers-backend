@@ -29,7 +29,7 @@ public record UserProfileResponse(
     @Schema(required = true) List<MemberSoptActivityResponse> activities,
     List<MemberLinkResponse> links,
     List<MemberCareerResponse> careers,
-    @JsonInclude(JsonInclude.Include.NON_NULL) MemberQuestionPreviewResponse questionPreview,
+    @JsonInclude(JsonInclude.Include.NON_NULL) MemberAskPreviewResponse questionPreview,
     Boolean allowOfficial,
     Boolean isCoffeeChatActivate) {
 
@@ -53,14 +53,14 @@ public record UserProfileResponse(
       String endDate,
       Boolean isCurrent) {}
 
-  public record MemberQuestionPreviewResponse(Long questionId, String content) {}
+  public record MemberAskPreviewResponse(Long questionId, String content) {}
 
   public static UserProfileResponse from(User user, boolean isCoffeeChatActivate) {
     return from(user, isCoffeeChatActivate, null);
   }
 
   public static UserProfileResponse from(
-      User user, boolean isCoffeeChatActivate, MemberQuestionPreviewResponse questionPreview) {
+      User user, boolean isCoffeeChatActivate, MemberAskPreviewResponse questionPreview) {
     List<MemberSoptActivityResponse> activities =
         user.activities().activities().stream()
             .sorted(Comparator.comparingInt(Activity::generation).thenComparing(a -> !a.isSopt()))

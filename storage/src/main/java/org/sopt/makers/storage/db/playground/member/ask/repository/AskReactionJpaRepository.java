@@ -11,20 +11,20 @@ import org.springframework.data.repository.query.Param;
 
 public interface AskReactionJpaRepository extends JpaRepository<AskReactionEntity, Long> {
 
-  Optional<AskReactionEntity> findByQuestionIdAndReactorUserId(Long questionId, Long reactorUserId);
+  Optional<AskReactionEntity> findByQuestionIdAndReactorUserId(Long askId, Long reactorUserId);
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
-  @Query("DELETE FROM AskReactionEntity r WHERE r.questionId = :questionId")
-  void deleteAllByQuestionId(@Param("questionId") Long questionId);
+  @Query("DELETE FROM AskReactionEntity r WHERE r.questionId = :askId")
+  void deleteAllByAskId(@Param("askId") Long askId);
 
   @Query(
       "SELECT new org.sopt.makers.storage.db.playground.member.ask.projection.AskReactionCountRow(r.questionId, COUNT(r)) "
-          + "FROM AskReactionEntity r WHERE r.questionId IN :questionIds GROUP BY r.questionId")
-  List<AskReactionCountRow> countGroupedByQuestionIds(@Param("questionIds") List<Long> questionIds);
+          + "FROM AskReactionEntity r WHERE r.questionId IN :askIds GROUP BY r.questionId")
+  List<AskReactionCountRow> countGroupedByAskIds(@Param("askIds") List<Long> askIds);
 
   @Query(
       "SELECT r.questionId FROM AskReactionEntity r "
-          + "WHERE r.questionId IN :questionIds AND r.reactorUserId = :reactorUserId")
-  List<Long> findReactedQuestionIds(
-      @Param("questionIds") List<Long> questionIds, @Param("reactorUserId") Long reactorUserId);
+          + "WHERE r.questionId IN :askIds AND r.reactorUserId = :reactorUserId")
+  List<Long> findReactedAskIds(
+      @Param("askIds") List<Long> askIds, @Param("reactorUserId") Long reactorUserId);
 }

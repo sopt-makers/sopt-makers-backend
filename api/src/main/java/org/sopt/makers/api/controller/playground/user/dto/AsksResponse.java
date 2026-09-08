@@ -4,9 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import org.sopt.makers.domain.playground.member.ask.AskPage;
 
-public record QuestionsResponse(
+public record AsksResponse(
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "질문 목록")
-        List<QuestionResponse> questions,
+        List<AskResponse> questions,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 페이지 번호 (0부터 시작)")
         Integer currentPage,
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "페이지 크기") Integer pageSize,
@@ -19,9 +19,9 @@ public record QuestionsResponse(
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "이전 페이지 존재 여부")
         Boolean hasPrevious) {
 
-  public static QuestionsResponse from(AskPage page) {
-    List<QuestionResponse> questions = page.asks().stream().map(QuestionResponse::from).toList();
-    return new QuestionsResponse(
+  public static AsksResponse from(AskPage page) {
+    List<AskResponse> questions = page.asks().stream().map(AskResponse::from).toList();
+    return new AsksResponse(
         questions,
         page.currentPage(),
         page.pageSize(),

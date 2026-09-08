@@ -42,7 +42,7 @@ public class UserAskCommandService {
   public UserAsk createAsk(Long askerId, Long receiverId, String content, Boolean isAnonymous) {
     // if (askerId.equals(receiverId)) { throw new BadRequestException("자기 자신에게 질문할 수 없습니다."); }
     // 레거시부터 자기 자신에게 질문 생성을 막는 검증이 의도적으로 비활성화(주석 처리)되어 있었고, 그 상태를 그대로 유지한다.
-    // (단, getMyLatestAnsweredQuestionLocation류 위치 조회에서는 self-check가 여전히 차단 동작한다.)
+    // (단, getMyLatestAnsweredAskLocation류 위치 조회에서는 self-check가 여전히 차단 동작한다.)
     Long anonymousNicknameId = null;
     Long anonymousProfileImageId = null;
 
@@ -66,7 +66,7 @@ public class UserAskCommandService {
                 null,
                 null));
 
-    userAskNotificationPort.sendQuestionNotification(created.id(), receiverId, content);
+    userAskNotificationPort.sendAskNotification(created.id(), receiverId, content);
 
     return created;
   }
@@ -114,16 +114,16 @@ public class UserAskCommandService {
     if (!isAsker && !isReceiver) {
       throw new UserAskException(UserAskFailure.UNAUTHORIZED_ASK_DELETE);
     }
-    if (isAsker && userAnswerRepositoryPort.existsByQuestionId(askId)) {
+    if (isAsker && userAnswerRepositoryPort.existsByAskId(askId)) {
       throw new UserAskException(UserAskFailure.ANSWERED_ASK_DELETE_NOT_ALLOWED);
     }
 
     userAnswerRepositoryPort
-        .findByQuestionId(askId)
+        .findByAskId(askId)
         .ifPresent(answer -> answerReactionRepositoryPort.deleteAllByAnswerId(answer.id()));
-    userAnswerRepositoryPort.deleteByQuestionId(askId);
-    askReactionRepositoryPort.deleteAllByQuestionId(askId);
-    askReportRepositoryPort.deleteAllByQuestionId(askId);
+    userAnswerRepositoryPort.deleteByAskId(askId);
+    askReactionRepositoryPort.deleteAllByAskId(askId);
+    askReportRepositoryPort.deleteAllByAskId(askId);
     userAskRepositoryPort.deleteById(askId);
   }
 
@@ -133,7 +133,7 @@ public class UserAskCommandService {
     if (!Objects.equals(ask.receiverUserId(), userId)) {
       throw new UserAskException(UserAskFailure.UNAUTHORIZED_ANSWER_CREATE);
     }
-    if (userAnswerRepositoryPort.existsByQuestionId(askId)) {
+    if (userAnswerRepositoryPort.existsByAskId(askId)) {
       throw new UserAskException(UserAskFailure.ALREADY_ANSWERED_ASK);
     }
 
@@ -171,7 +171,7 @@ public class UserAskCommandService {
     getAskOrThrow(askId);
 
     askReactionRepositoryPort
-        .findByQuestionIdAndReactorUserId(askId, userId)
+        .findByAskIdAndReactorUserId(askId, userId)
         .ifPresentOrElse(
             reaction -> askReactionRepositoryPort.deleteById(reaction.id()),
             () -> askReactionRepositoryPort.save(new AskReaction(null, askId, userId, null, null)));
@@ -194,7 +194,7 @@ public class UserAskCommandService {
   public void reportAsk(Long reporterId, Long askId, String reason) {
     UserAsk ask = getAskOrThrow(askId);
 
-    if (askReportRepositoryPort.existsByQuestionIdAndReporterUserId(askId, reporterId)) {
+    if (askReportRepositoryPort.existsByAskIdAndReporterUserId(askId, reporterId)) {
       throw new UserAskException(UserAskFailure.ALREADY_REPORTED_ASK);
     }
 
@@ -240,7 +240,7 @@ public class UserAskCommandService {
   }
 
   private void validateNotAnswered(Long askId, UserAskFailure failure) {
-    if (userAnswerRepositoryPort.existsByQuestionId(askId)) {
+    if (userAnswerRepositoryPort.existsByAskId(askId)) {
       throw new UserAskException(failure);
     }
   }

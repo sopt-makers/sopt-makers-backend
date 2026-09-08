@@ -35,12 +35,12 @@ public class AskReportRepositoryAdapter implements AskReportRepositoryPort {
 
   @Transactional
   @Override
-  public void deleteAllByQuestionId(Long questionId) {
-    askReportJpaRepository.deleteAllByQuestionId(questionId);
+  public void deleteAllByAskId(Long askId) {
+    askReportJpaRepository.deleteAllByAskId(askId);
   }
 
   @Override
-  public boolean existsByQuestionIdAndReporterUserId(Long questionId, Long reporterUserId) {
-    return askReportJpaRepository.existsByQuestionIdAndReporterUserId(questionId, reporterUserId);
+  public boolean existsByAskIdAndReporterUserId(Long askId, Long reporterUserId) {
+    return askReportJpaRepository.existsByQuestionIdAndReporterUserId(askId, reporterUserId);
   }
 }

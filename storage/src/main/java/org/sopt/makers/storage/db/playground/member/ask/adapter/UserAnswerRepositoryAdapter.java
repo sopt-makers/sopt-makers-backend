@@ -36,26 +36,26 @@ public class UserAnswerRepositoryAdapter implements UserAnswerRepositoryPort {
 
   @Transactional
   @Override
-  public void deleteByQuestionId(Long questionId) {
-    userAnswerJpaRepository.deleteByQuestionId(questionId);
+  public void deleteByAskId(Long askId) {
+    userAnswerJpaRepository.deleteByAskId(askId);
   }
 
   @Override
-  public boolean existsByQuestionId(Long questionId) {
-    return userAnswerJpaRepository.existsByQuestionId(questionId);
+  public boolean existsByAskId(Long askId) {
+    return userAnswerJpaRepository.existsByQuestionId(askId);
   }
 
   @Override
-  public Optional<UserAnswer> findByQuestionId(Long questionId) {
-    return userAnswerJpaRepository.findByQuestionId(questionId).map(UserAnswerEntity::toDomain);
+  public Optional<UserAnswer> findByAskId(Long askId) {
+    return userAnswerJpaRepository.findByQuestionId(askId).map(UserAnswerEntity::toDomain);
   }
 
   @Override
-  public List<UserAnswer> findAllByQuestionIds(List<Long> questionIds) {
-    if (questionIds.isEmpty()) {
+  public List<UserAnswer> findAllByAskIds(List<Long> askIds) {
+    if (askIds.isEmpty()) {
       return List.of();
     }
-    return userAnswerJpaRepository.findAllByQuestionIdIn(questionIds).stream()
+    return userAnswerJpaRepository.findAllByQuestionIdIn(askIds).stream()
         .map(UserAnswerEntity::toDomain)
         .toList();
   }

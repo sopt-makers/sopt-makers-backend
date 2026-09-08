@@ -5,11 +5,10 @@ import java.util.List;
 import org.sopt.makers.domain.playground.member.ask.AskTargetUser;
 
 @Schema(description = "질문 대상 멤버 응답 DTO")
-public record AskUserResponse(
-    @Schema(description = "질문 대상 멤버 목록") List<QuestionTargetMember> members) {
+public record AskUserResponse(@Schema(description = "질문 대상 멤버 목록") List<AskTargetMember> members) {
 
   @Schema(description = "질문 대상 멤버 정보")
-  public record QuestionTargetMember(
+  public record AskTargetMember(
       @Schema(description = "멤버 ID") Long id,
       @Schema(description = "멤버 이름") String name,
       @Schema(description = "프로필 이미지 URL") String profileImage,
@@ -23,11 +22,11 @@ public record AskUserResponse(
   public record AskMemberCareerResponse(String companyName, String title) {}
 
   public static AskUserResponse from(List<AskTargetUser> targets) {
-    List<QuestionTargetMember> members =
+    List<AskTargetMember> members =
         targets.stream()
             .map(
                 target ->
-                    new QuestionTargetMember(
+                    new AskTargetMember(
                         target.user().id(),
                         target.user().profile().name(),
                         target.user().profile().profileImage(),

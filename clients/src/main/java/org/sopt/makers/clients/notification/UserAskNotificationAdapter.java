@@ -21,8 +21,8 @@ public class UserAskNotificationAdapter implements UserAskNotificationPort {
 
   private static final String ASK_PROFILE_LINK_FORMAT =
       "https://playground.sopt.org/members/%d?tab=ask";
-  private static final String QUESTION_NOTIFICATION_TITLE = "💬나의 에스크에 질문이 달렸어요.";
-  private static final String QUESTION_CONTENT_FORMAT = "[이런 내용이 궁금해요] : \"%s\"";
+  private static final String ASK_NOTIFICATION_TITLE = "💬나의 에스크에 질문이 달렸어요.";
+  private static final String ASK_CONTENT_FORMAT = "[이런 내용이 궁금해요] : \"%s\"";
   private static final String ANSWER_NOTIFICATION_TITLE = "💬나의 에스크에 답변이 달렸어요.";
   private static final String ANSWER_CONTENT_FORMAT = "[%s의 댓글] : \"%s\"";
   private static final int CONTENT_MAX_LENGTH = 100;
@@ -33,14 +33,14 @@ public class UserAskNotificationAdapter implements UserAskNotificationPort {
   private final CurrentGenerationProvider currentGenerationProvider;
 
   @Override
-  public void sendQuestionNotification(Long askId, Long receiverId, String questionContent) {
+  public void sendAskNotification(Long askId, Long receiverId, String content) {
     try {
       int lastGeneration = playgroundAskUserPort.getLastSoptGeneration(receiverId);
       if (lastGeneration == currentGenerationProvider.getCurrentGeneration()) {
-        alarmInstantSenderPort.send(buildQuestionAlarm(receiverId, questionContent));
+        alarmInstantSenderPort.send(buildAskAlarm(receiverId, content));
       } else {
         String phoneNumber = playgroundAskUserPort.getPhoneNumber(receiverId);
-        smsSenderPort.send(phoneNumber, buildQuestionSmsMessage(receiverId, questionContent));
+        smsSenderPort.send(phoneNumber, buildAskSmsMessage(receiverId, content));
       }
     } catch (Exception e) {
       log.error("질문 알림 발송 실패: askId={}, receiverId={}", askId, receiverId, e);
@@ -58,16 +58,16 @@ public class UserAskNotificationAdapter implements UserAskNotificationPort {
     }
   }
 
-  private Alarm buildQuestionAlarm(Long receiverId, String questionContent) {
+  private Alarm buildAskAlarm(Long receiverId, String content) {
     AlarmTarget target =
         AlarmTarget.partialForCsv(
             currentGenerationProvider.getCurrentGeneration(), List.of(String.valueOf(receiverId)));
-    AlarmContent content =
+    AlarmContent alarmContent =
         AlarmContent.withoutLink(
-            QUESTION_NOTIFICATION_TITLE,
-            String.format(QUESTION_CONTENT_FORMAT, abbreviate(questionContent)),
+            ASK_NOTIFICATION_TITLE,
+            String.format(ASK_CONTENT_FORMAT, abbreviate(content)),
             AlarmCategory.NEWS);
-    return Alarm.instant(target, content);
+    return Alarm.instant(target, alarmContent);
   }
 
   private Alarm buildAnswerAlarm(Long askerId, String answerWriterName, String answerContent) {
@@ -82,10 +82,10 @@ public class UserAskNotificationAdapter implements UserAskNotificationPort {
     return Alarm.instant(target, content);
   }
 
-  private String buildQuestionSmsMessage(Long receiverId, String questionContent) {
+  private String buildAskSmsMessage(Long receiverId, String content) {
     return "[SOPT makers] 내 에스크에 질문이 달렸어요!\n\n"
         + "- [이런 내용이 궁금해요] "
-        + questionContent
+        + content
         + "\n"
         + "- [답변하러 가기] "
         + String.format(ASK_PROFILE_LINK_FORMAT, receiverId);

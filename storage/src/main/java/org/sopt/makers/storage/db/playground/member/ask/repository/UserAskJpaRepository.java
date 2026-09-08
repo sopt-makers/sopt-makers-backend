@@ -66,20 +66,20 @@ public interface UserAskJpaRepository extends JpaRepository<UserAskEntity, Long>
   @Query(
       "SELECT COUNT(q) FROM UserAskEntity q, UserAnswerEntity a "
           + "WHERE q.receiverUserId = :receiverUserId AND a.questionId = q.id "
-          + "AND (a.createdAt > :answerCreatedAt OR (a.createdAt = :answerCreatedAt AND q.id > :questionId))")
+          + "AND (a.createdAt > :answerCreatedAt OR (a.createdAt = :answerCreatedAt AND q.id > :askId))")
   long countAnsweredBeforeTargetInLatestOrder(
       @Param("receiverUserId") Long receiverUserId,
       @Param("answerCreatedAt") LocalDateTime answerCreatedAt,
-      @Param("questionId") Long questionId);
+      @Param("askId") Long askId);
 
   @Query(
       "SELECT COUNT(q) FROM UserAskEntity q WHERE q.receiverUserId = :receiverUserId "
           + "AND NOT EXISTS (SELECT 1 FROM UserAnswerEntity a WHERE a.questionId = q.id) "
-          + "AND (q.createdAt > :askCreatedAt OR (q.createdAt = :askCreatedAt AND q.id > :questionId))")
+          + "AND (q.createdAt > :askCreatedAt OR (q.createdAt = :askCreatedAt AND q.id > :askId))")
   long countUnansweredBeforeTargetInLatestOrder(
       @Param("receiverUserId") Long receiverUserId,
       @Param("askCreatedAt") LocalDateTime askCreatedAt,
-      @Param("questionId") Long questionId);
+      @Param("askId") Long askId);
 
   @Query(
       "SELECT q FROM UserAskEntity q, UserAnswerEntity a "

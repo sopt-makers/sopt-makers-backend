@@ -24,10 +24,10 @@ import org.sopt.makers.domain.playground.member.ask.AskDetail;
 import org.sopt.makers.domain.playground.member.ask.AskLocation;
 import org.sopt.makers.domain.playground.member.ask.AskPage;
 import org.sopt.makers.domain.playground.member.ask.AskPreview;
+import org.sopt.makers.domain.playground.member.ask.AskTab;
 import org.sopt.makers.domain.playground.member.ask.AskTargetUser;
 import org.sopt.makers.domain.playground.member.ask.LatestAnsweredAskCard;
 import org.sopt.makers.domain.playground.member.ask.MyLatestAnsweredAskLocation;
-import org.sopt.makers.domain.playground.member.ask.QuestionTab;
 import org.sopt.makers.domain.playground.member.ask.UserAnswer;
 import org.sopt.makers.domain.playground.member.ask.UserAsk;
 import org.sopt.makers.domain.playground.member.ask.exception.UserAskException;
@@ -58,7 +58,7 @@ public class UserAskQueryService {
   private static final int LATEST_CARD_COUNT = 5;
   private static final int LATEST_FETCH_SIZE = 50;
   private static final int RECENT_ASK_DAYS = 7;
-  private static final int QUESTION_PREVIEW_DAYS = 7;
+  private static final int ASK_PREVIEW_DAYS = 7;
 
   private static final DateTimeFormatter CAREER_DATE_FORMATTER =
       DateTimeFormatter.ofPattern("yyyy-MM");
@@ -73,7 +73,7 @@ public class UserAskQueryService {
   private final AskUserDirectoryPort askMemberDirectoryPort;
 
   public AskPage getAsks(
-      Long currentUserId, Long receiverUserId, QuestionTab tab, Integer page, Integer size) {
+      Long currentUserId, Long receiverUserId, AskTab tab, Integer page, Integer size) {
     int pageNumber = page != null ? page : 0;
     int pageSize = normalizePageSize(size);
 
@@ -84,7 +84,7 @@ public class UserAskQueryService {
     if (tab == null) {
       asks = userAskRepositoryPort.findAllByReceiverUserId(receiverUserId, pageNumber, pageSize);
       totalElements = userAskRepositoryPort.countAllByReceiverUserId(receiverUserId);
-    } else if (tab == QuestionTab.ANSWERED) {
+    } else if (tab == AskTab.ANSWERED) {
       asks =
           userAskRepositoryPort.findAnsweredByReceiverUserId(receiverUserId, pageNumber, pageSize);
       totalElements = userAskRepositoryPort.countAnsweredByReceiverUserId(receiverUserId);
@@ -197,24 +197,24 @@ public class UserAskQueryService {
     if (receiverUserIds == null || receiverUserIds.isEmpty()) {
       return Map.of();
     }
-    LocalDateTime since = LocalDateTime.now().minusDays(QUESTION_PREVIEW_DAYS);
+    LocalDateTime since = LocalDateTime.now().minusDays(ASK_PREVIEW_DAYS);
     return userAskRepositoryPort.findLatestRecentByReceiverUserIds(receiverUserIds, since).stream()
         .collect(
             Collectors.toMap(
                 UserAsk::receiverUserId, ask -> new AskPreview(ask.id(), ask.content())));
   }
 
-  public AskLocation getAskLocation(Long receiverUserId, Long questionId) {
+  public AskLocation getAskLocation(Long receiverUserId, Long askId) {
     UserAsk ask =
         userAskRepositoryPort
-            .findById(questionId)
+            .findById(askId)
             .orElseThrow(() -> new UserAskException(UserAskFailure.NOT_FOUND_ASK));
 
     if (!Objects.equals(ask.receiverUserId(), receiverUserId)) {
       throw new UserAskException(UserAskFailure.ASK_NOT_BELONG_TO_MEMBER);
     }
 
-    UserAnswer answer = userAnswerRepositoryPort.findByQuestionId(questionId).orElse(null);
+    UserAnswer answer = userAnswerRepositoryPort.findByAskId(askId).orElse(null);
     return calculateLocation(ask, answer);
   }
 
@@ -256,9 +256,9 @@ public class UserAskQueryService {
 
     List<UserAsk> selectedAsks = selectLatestAsksForCards(recentAsks);
 
-    List<Long> questionIds = selectedAsks.stream().map(UserAsk::id).toList();
-    Map<Long, UserAnswer> answersByQuestionId =
-        userAnswerRepositoryPort.findAllByQuestionIds(questionIds).stream()
+    List<Long> askIds = selectedAsks.stream().map(UserAsk::id).toList();
+    Map<Long, UserAnswer> answersByAskId =
+        userAnswerRepositoryPort.findAllByAskIds(askIds).stream()
             .collect(Collectors.toMap(UserAnswer::questionId, Function.identity()));
 
     List<Long> receiverIds = selectedAsks.stream().map(UserAsk::receiverUserId).distinct().toList();
@@ -269,7 +269,7 @@ public class UserAskQueryService {
         .map(
             ask -> {
               User receiverInfo = receiverInfoMap.get(ask.receiverUserId());
-              AskLocation location = calculateLocation(ask, answersByQuestionId.get(ask.id()));
+              AskLocation location = calculateLocation(ask, answersByAskId.get(ask.id()));
               return new LatestAnsweredAskCard(
                   ask.receiverUserId(),
                   receiverInfo != null ? receiverInfo.profile().name() : null,
@@ -286,17 +286,16 @@ public class UserAskQueryService {
       return List.of();
     }
 
-    List<Long> questionIds = asks.stream().map(UserAsk::id).toList();
+    List<Long> askIds = asks.stream().map(UserAsk::id).toList();
 
-    Map<Long, UserAnswer> answersByQuestionId =
-        userAnswerRepositoryPort.findAllByQuestionIds(questionIds).stream()
+    Map<Long, UserAnswer> answersByAskId =
+        userAnswerRepositoryPort.findAllByAskIds(askIds).stream()
             .collect(Collectors.toMap(UserAnswer::questionId, Function.identity()));
-    List<Long> answerIds = answersByQuestionId.values().stream().map(UserAnswer::id).toList();
+    List<Long> answerIds = answersByAskId.values().stream().map(UserAnswer::id).toList();
 
-    Map<Long, Long> askReactionCounts =
-        askReactionRepositoryPort.countGroupedByQuestionIds(questionIds);
-    Set<Long> reactedQuestionIds =
-        askReactionRepositoryPort.findReactedQuestionIdsByUser(questionIds, currentUserId);
+    Map<Long, Long> askReactionCounts = askReactionRepositoryPort.countGroupedByAskIds(askIds);
+    Set<Long> reactedAskIds =
+        askReactionRepositoryPort.findReactedAskIdsByUser(askIds, currentUserId);
     Map<Long, Long> answerReactionCounts =
         answerReactionRepositoryPort.countGroupedByAnswerIds(answerIds);
     Set<Long> reactedAnswerIds =
@@ -339,9 +338,9 @@ public class UserAskQueryService {
                 toAskDetail(
                     ask,
                     currentUserId,
-                    answersByQuestionId.get(ask.id()),
+                    answersByAskId.get(ask.id()),
                     askReactionCounts,
-                    reactedQuestionIds,
+                    reactedAskIds,
                     answerReactionCounts,
                     reactedAnswerIds,
                     userInfoMap,
@@ -355,7 +354,7 @@ public class UserAskQueryService {
       Long currentUserId,
       UserAnswer answer,
       Map<Long, Long> askReactionCounts,
-      Set<Long> reactedQuestionIds,
+      Set<Long> reactedAskIds,
       Map<Long, Long> answerReactionCounts,
       Set<Long> reactedAnswerIds,
       Map<Long, User> userInfoMap,
@@ -385,7 +384,7 @@ public class UserAskQueryService {
     }
 
     long reactionCount = askReactionCounts.getOrDefault(ask.id(), 0L);
-    boolean isReacted = reactedQuestionIds.contains(ask.id());
+    boolean isReacted = reactedAskIds.contains(ask.id());
 
     AskAnswerDetail answerDetail = null;
     if (answer != null) {
@@ -429,16 +428,16 @@ public class UserAskQueryService {
   }
 
   private AskLocation calculateLocation(UserAsk ask, UserAnswer answer) {
-    QuestionTab tab;
+    AskTab tab;
     long precedingCount;
 
     if (answer != null) {
-      tab = QuestionTab.ANSWERED;
+      tab = AskTab.ANSWERED;
       precedingCount =
           userAskRepositoryPort.countAnsweredBeforeTargetInLatestOrder(
               ask.receiverUserId(), answer.createdAt(), ask.id());
     } else {
-      tab = QuestionTab.UNANSWERED;
+      tab = AskTab.UNANSWERED;
       precedingCount =
           userAskRepositoryPort.countUnansweredBeforeTargetInLatestOrder(
               ask.receiverUserId(), ask.createdAt(), ask.id());

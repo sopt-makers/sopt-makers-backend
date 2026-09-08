@@ -2,7 +2,7 @@ package org.sopt.makers.api.controller.playground.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import org.sopt.makers.api.controller.playground.user.dto.UserProfileResponse.MemberQuestionPreviewResponse;
+import org.sopt.makers.api.controller.playground.user.dto.UserProfileResponse.MemberAskPreviewResponse;
 import org.sopt.makers.domain.playground.member.ask.AskPreview;
 import org.sopt.makers.domain.playground.member.profile.UserProfileListItem;
 import org.sopt.makers.domain.playground.member.profile.UserProfileListResult;
@@ -23,9 +23,9 @@ public record UserAllProfileResponse(
         item.user(), item.isCoffeeChatActivate(), toPreview(item.questionPreview()));
   }
 
-  private static MemberQuestionPreviewResponse toPreview(AskPreview preview) {
+  private static MemberAskPreviewResponse toPreview(AskPreview preview) {
     return preview == null
         ? null
-        : new MemberQuestionPreviewResponse(preview.questionId(), preview.content());
+        : new MemberAskPreviewResponse(preview.questionId(), preview.content());
   }
 }

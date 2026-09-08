@@ -10,13 +10,13 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserAnswerJpaRepository extends JpaRepository<UserAnswerEntity, Long> {
 
-  boolean existsByQuestionId(Long questionId);
+  boolean existsByQuestionId(Long askId);
 
-  Optional<UserAnswerEntity> findByQuestionId(Long questionId);
+  Optional<UserAnswerEntity> findByQuestionId(Long askId);
 
-  List<UserAnswerEntity> findAllByQuestionIdIn(List<Long> questionIds);
+  List<UserAnswerEntity> findAllByQuestionIdIn(List<Long> askIds);
 
   @Modifying(clearAutomatically = true, flushAutomatically = true)
-  @Query("DELETE FROM UserAnswerEntity a WHERE a.questionId = :questionId")
-  void deleteByQuestionId(@Param("questionId") Long questionId);
+  @Query("DELETE FROM UserAnswerEntity a WHERE a.questionId = :askId")
+  void deleteByAskId(@Param("askId") Long askId);
 }
