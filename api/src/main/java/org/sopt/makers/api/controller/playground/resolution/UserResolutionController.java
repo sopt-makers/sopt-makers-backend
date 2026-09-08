@@ -1,6 +1,7 @@
 package org.sopt.makers.api.controller.playground.resolution;
 
 import static org.sopt.makers.api.controller.playground.resolution.UserResolutionSuccessCode.CREATE_RESOLUTION;
+import static org.sopt.makers.api.controller.playground.resolution.UserResolutionSuccessCode.DELETE_RESOLUTION;
 import static org.sopt.makers.api.controller.playground.resolution.UserResolutionSuccessCode.GET_LUCKY_PICK_RESULT;
 import static org.sopt.makers.api.controller.playground.resolution.UserResolutionSuccessCode.GET_RESOLUTION;
 import static org.sopt.makers.api.controller.playground.resolution.UserResolutionSuccessCode.VALIDATE_RESOLUTION;
@@ -57,9 +58,9 @@ public class UserResolutionController implements UserResolutionApi {
 
   @Override
   @DeleteMapping
-  public ResponseEntity<Void> deleteResolution(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<?>> deleteResolution(@CurrentUserId Long userId) {
     userResolutionService.deleteResolution(userId);
-    return ResponseEntity.noContent().build();
+    return ResponseFactory.success(DELETE_RESOLUTION);
   }
 
   @Override
