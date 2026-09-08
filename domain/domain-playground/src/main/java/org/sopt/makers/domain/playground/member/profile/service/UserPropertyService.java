@@ -73,10 +73,9 @@ public class UserPropertyService {
         (long) uploadReviewCount);
   }
 
+  // NOTE: 레거시는 is_coffee_chat_activate=true인 row만 확인하여 비활성화 유저도 NONE으로 응답하던 버그가 있었음.
+  // 클라이언트(Web/App)가 NONE/ON 2가지 상태만 처리하도록 구현되어 있을 위험이 있어 레거시 응답 스펙을 의도적으로 유지함. (추후 클라이언트 대응 후 OFF 복원 필요)
   private CoffeeChatStatus resolveCoffeeChatStatus(Long userId) {
-    if (!coffeeChatActivationPort.existsCoffeeChat(userId)) {
-      return CoffeeChatStatus.NONE;
-    }
-    return coffeeChatActivationPort.isCoffeeChatActive(userId) ? CoffeeChatStatus.ON : CoffeeChatStatus.OFF;
+    return coffeeChatActivationPort.isCoffeeChatActive(userId) ? CoffeeChatStatus.ON : CoffeeChatStatus.NONE;
   }
 }
