@@ -18,7 +18,7 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "community_comment")
+@Table(name = "meeting_post_comment")
 public class PostCommentEntity extends BaseEntity {
 
   @Id

@@ -20,16 +20,16 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(
-    name = "community_comment_like",
+    name = "meeting_post_comment_like",
     uniqueConstraints =
         @UniqueConstraint(
-            name = "uk_community_comment_like_comment_user",
+            name = "uk_meeting_post_comment_like_comment_user",
             columnNames = {"comment_id", "user_id"}))
 public class PostCommentLikeEntity extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "community_comment_like_id")
+  @Column(name = "meeting_post_comment_like_id")
   private Long id;
 
   @Column(name = "comment_id", nullable = false)

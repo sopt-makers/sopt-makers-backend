@@ -35,3 +35,9 @@ external:
     bot-token: ${SLACK_BOT_TOKEN:}
     app-token: ${SLACK_APP_TOKEN:}
     socket-mode-enabled: ${SLACK_SOCKET_MODE_ENABLED:false}
+    community-report-channel-id: ${SLACK_COMMUNITY_REPORT_CHANNEL_ID:}
+    member-report-channel-id: ${SLACK_MEMBER_REPORT_CHANNEL_ID:}
+    community-not-makers-channel-id: ${SLACK_COMMUNITY_NOT_MAKERS_CHANNEL_ID:}
+    new-profile-channel-id: ${SLACK_NEW_PROFILE_CHANNEL_ID:}
+  crew:
+    url: ${CREW_INTERNAL_URL:}

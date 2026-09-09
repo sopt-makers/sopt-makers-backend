@@ -1,6 +1,7 @@
 package org.sopt.makers.clients.config;
 
 import org.sopt.makers.clients.alarm.AlarmProperty;
+import org.sopt.makers.clients.crew.CrewMeetingClientProperty;
 import org.sopt.makers.clients.eventbridge.EventBridgeProperty;
 import org.sopt.makers.clients.playground.PlaygroundProperty;
 import org.sopt.makers.clients.s3.S3Property;
@@ -19,7 +20,8 @@ import org.springframework.web.client.RestTemplate;
   AlarmProperty.class,
   EventBridgeProperty.class,
   PlaygroundProperty.class,
-  SlackProperties.class
+  SlackProperties.class,
+  CrewMeetingClientProperty.class
 })
 public class ClientsConfig {
 

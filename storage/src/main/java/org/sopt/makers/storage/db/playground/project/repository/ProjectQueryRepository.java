@@ -96,6 +96,21 @@ public class ProjectQueryRepository {
         .toList();
   }
 
+  public List<Project> findProjectsByUserId(Long userId) {
+    QProjectEntity project = QProjectEntity.projectEntity;
+    QProjectMemberEntity projectMember = QProjectMemberEntity.projectMemberEntity;
+
+    return queryFactory
+        .selectFrom(project)
+        .innerJoin(projectMember)
+        .on(projectMember.projectId.eq(project.id))
+        .where(projectMember.isTeamMember.isTrue(), projectMember.userId.eq(userId))
+        .fetch()
+        .stream()
+        .map(ProjectEntity::toDomain)
+        .toList();
+  }
+
   public List<Project> findRandomProjects(int limit) {
     QProjectEntity project = QProjectEntity.projectEntity;
 
