@@ -14,7 +14,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 /**
  * 앱 채널 컨트롤러 계약 테스트용 MockMvc 팩토리. 인증 필터 없이 @CurrentUserId를 고정 값으로 주입하고, 통합 레포 표준
- * GlobalExceptionHandler(BaseResponse)를 배선한다. fortune 외 도메인(poke 등)도 이 팩토리를 재사용한다.
+ * GlobalExceptionHandler(BaseResponse)를 배선한다. poke 등 다른 앱 도메인도 이 팩토리를 재사용한다.
  */
 public final class AppChannelMockMvc {
 

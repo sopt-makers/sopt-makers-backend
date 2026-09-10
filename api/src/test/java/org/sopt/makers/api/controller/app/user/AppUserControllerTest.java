@@ -109,7 +109,7 @@ class AppUserControllerTest {
   @Test
   void 나의_솝트로그_응답_모양() throws Exception {
     given(mySoptLogFacade.getMySoptLog(USER_ID))
-        .willReturn(MySoptLog.ofInactiveNonAppjam(false, false, "오늘 내 운세는?", 2, 3, 0, 12));
+        .willReturn(MySoptLog.ofInactiveNonAppjam(false, 2, 3, 0, 12));
 
     mockMvc
         .perform(get("/api/v2/user/my-sopt-log"))
@@ -123,7 +123,6 @@ class AppUserControllerTest {
                       "message": "나의 솝트로그 조회에 성공했습니다.",
                       "data": {
                         "isAppjamMode": false, "isActive": false, "isAppjamParticipant": false,
-                        "isFortuneChecked": false, "todayFortuneText": "오늘 내 운세는?",
                         "totalPokeCount": 2, "newFriendsPokeCount": 3, "bestFriendsPokeCount": 0, "soulmatesPokeCount": 12
                       }
                     }
