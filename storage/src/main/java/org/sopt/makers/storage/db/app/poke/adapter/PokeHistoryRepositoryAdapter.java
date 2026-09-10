@@ -4,10 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.poke.PokeHistory;
+import org.sopt.makers.domain.app.poke.exception.PokeException;
+import org.sopt.makers.domain.app.poke.exception.PokeFailure;
 import org.sopt.makers.domain.app.poke.port.PokeHistoryRepositoryPort;
 import org.sopt.makers.storage.db.app.poke.entity.PokeHistoryEntity;
 import org.sopt.makers.storage.db.app.poke.querydsl.PokeHistoryQuerydslRepository;
 import org.sopt.makers.storage.db.app.poke.repository.PokeHistoryJpaRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -29,7 +32,11 @@ public class PokeHistoryRepositoryAdapter implements PokeHistoryRepositoryPort {
   @Override
   @Transactional
   public PokeHistory save(PokeHistory pokeHistory) {
-    return pokeHistoryJpaRepository.save(PokeHistoryEntity.from(pokeHistory)).toDomain();
+    try {
+      return pokeHistoryJpaRepository.saveAndFlush(PokeHistoryEntity.from(pokeHistory)).toDomain();
+    } catch (DataIntegrityViolationException e) {
+      throw new PokeException(PokeFailure.DUPLICATE_POKE);
+    }
   }
 
   @Override
