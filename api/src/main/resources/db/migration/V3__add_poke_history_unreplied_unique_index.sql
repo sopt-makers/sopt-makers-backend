@@ -3,3 +3,8 @@
 CREATE UNIQUE INDEX uk_poke_history_poker_poked_unreplied
     ON poke_history (poker_id, poked_id)
     WHERE is_reply = false;
+
+-- 솝마디(운세) 기능이 제거되어 더 이상 사용하지 않는 테이블을 정리한다.
+DROP TABLE IF EXISTS user_fortune;
+DROP TABLE IF EXISTS fortune_word;
+DROP TABLE IF EXISTS fortune_card;
