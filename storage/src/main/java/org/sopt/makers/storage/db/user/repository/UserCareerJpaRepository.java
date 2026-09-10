@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.user.repository;
 
+import java.util.List;
 import org.sopt.makers.storage.db.user.entity.UserCareerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,4 +12,12 @@ public interface UserCareerJpaRepository extends JpaRepository<UserCareerEntity,
   @Modifying
   @Query("delete from UserCareerEntity c where c.userId = :userId")
   void deleteAllByUserId(@Param("userId") Long userId);
+
+  @Query(
+      "select c from UserCareerEntity c where c.userId in :userIds "
+          + "order by c.userId asc, c.startDate desc, c.id desc")
+  List<UserCareerEntity> findAllByUserIdInOrderByUserIdAscStartDateDescIdDesc(
+      @Param("userIds") List<Long> userIds);
+
+  List<UserCareerEntity> findAllByUserIdOrderByStartDateDescIdDesc(Long userId);
 }

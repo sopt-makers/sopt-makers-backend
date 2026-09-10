@@ -21,6 +21,10 @@ auth:
 official:
   apikey: ${OFFICIAL_API_KEY:}
 
+internal:
+  platform:
+    api-key: ${INTERNAL_PLATFORM_API_KEY:}
+
 crew:
   apikey: ${CREW_API_KEY:}
   slack:

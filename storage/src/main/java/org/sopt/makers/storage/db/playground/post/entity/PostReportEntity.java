@@ -20,10 +20,10 @@ import org.sopt.makers.storage.db.common.BaseEntity;
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(
-    name = "report_post",
+    name = "meeting_post_report",
     uniqueConstraints =
         @UniqueConstraint(
-            name = "uk_report_post_post_reporter",
+            name = "uk_meeting_post_report_post_reporter",
             columnNames = {"post_id", "reporter_id"}))
 public class PostReportEntity extends BaseEntity {
 

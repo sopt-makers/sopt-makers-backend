@@ -21,6 +21,7 @@ import org.sopt.makers.domain.user.Profile;
 import org.sopt.makers.domain.user.SocialAccount;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserCareer;
+import org.sopt.makers.domain.user.WorkPreference;
 import org.sopt.makers.domain.user.command.ActivityUpdateCommand;
 import org.sopt.makers.domain.user.exception.UserException;
 import org.sopt.makers.domain.user.port.UserActivityHistoryRepositoryPort;
@@ -90,6 +91,11 @@ public class UserCommandService {
     User user =
         userRepositoryPort.findById(userId).orElseThrow(() -> new UserException(NOT_FOUND_USER));
     userRepositoryPort.save(user.completeFirstLogin());
+  }
+
+  public void upsertWorkPreference(Long userId, WorkPreference workPreference) {
+    userWorkPreferenceRepositoryPort.upsert(userId, workPreference);
+    userCacheRepositoryPort.evict(userId);
   }
 
   public Activity addActivity(Long userId, Activity activity) {
