@@ -25,14 +25,13 @@ class AppServiceServiceTest {
   }
 
   @Test
-  @DisplayName("OTHERS, FLOATING_BUTTON, REVIEW_FORM, FORTUNE 은 전체 목록에서 빠진다")
+  @DisplayName("OTHERS, FLOATING_BUTTON, REVIEW_FORM, 미등록 서비스는 전체 목록에서 빠진다")
   void hidesInternalServices() {
     addService("POKE", 1);
     addService("SOPTAMP", 2);
     addService("OTHERS", 3);
     addService("FLOATING_BUTTON", 4);
     addService("REVIEW_FORM", 5);
-    addService("FORTUNE", 6);
     addService("UNKNOWN_SERVICE", 7);
 
     assertThat(appServiceService.getAllAppService())

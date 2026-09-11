@@ -2,25 +2,12 @@ package org.sopt.makers.domain.app.home.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.app.fortune.FortuneWord;
-import org.sopt.makers.domain.app.fortune.UserFortune;
-import org.sopt.makers.domain.app.fortune.port.FortuneWordRepositoryPort;
-import org.sopt.makers.domain.app.fortune.port.UserFortuneRepositoryPort;
-import org.sopt.makers.domain.app.fortune.service.FortuneService;
-import org.sopt.makers.domain.app.fortune.service.FortuneWordIdGenerator;
 import org.sopt.makers.domain.app.home.MySoptLog;
 import org.sopt.makers.domain.app.home.fake.FakeAppHomeUserPort;
 import org.sopt.makers.domain.app.poke.fake.InMemoryFriendRepository;
@@ -53,13 +40,11 @@ import org.sopt.makers.domain.user.User;
 class MySoptLogFacadeTest {
 
   private static final long CURRENT_GENERATION = 38L;
-  private static final LocalDate TODAY = LocalDate.of(2026, 9, 3);
   private static final Long ACTIVE_USER = 1L;
   private static final Long INACTIVE_USER = 2L;
 
   private FakeAppHomeUserPort userPort;
   private InMemoryAppjamUserStore appjamStore;
-  private InMemoryUserFortuneRepositoryPort userFortunePort;
   private InMemoryPokeHistoryRepository pokeHistoryRepository;
   private InMemoryFriendRepository friendRepository;
   private InMemoryStampStore stampStore;
@@ -70,7 +55,6 @@ class MySoptLogFacadeTest {
   void setUp() {
     userPort = new FakeAppHomeUserPort();
     appjamStore = new InMemoryAppjamUserStore();
-    userFortunePort = new InMemoryUserFortuneRepositoryPort();
     pokeHistoryRepository = new InMemoryPokeHistoryRepository();
     friendRepository = new InMemoryFriendRepository();
     stampStore = new InMemoryStampStore();
@@ -79,20 +63,11 @@ class MySoptLogFacadeTest {
     userPort.add(userWith(ACTIVE_USER, List.of(activity(38, Part.SERVER))));
     userPort.add(userWith(INACTIVE_USER, List.of(activity(33, Part.DESIGN))));
 
-    InMemoryFortuneWordRepositoryPort wordPort = new InMemoryFortuneWordRepositoryPort();
-    wordPort.add(new FortuneWord(100L, "오늘은 코드가 잘 풀리는 날", 10L));
-    Clock clock = Clock.fixed(Instant.parse("2026-09-03T03:00:00Z"), ZoneOffset.UTC);
     SoptampMode mode = new SoptampMode(false);
     facade =
         new MySoptLogFacade(
             userPort,
             new AppjamUserService(appjamStore),
-            new FortuneService(
-                (userId, date) -> Optional.empty(),
-                wordPort,
-                userFortunePort,
-                new FortuneWordIdGenerator(wordPort),
-                clock),
             new PokeService(pokeHistoryRepository, event -> {}),
             new FriendService(friendRepository, new AnonymousNameGenerator()),
             new StampService(stampStore, new NoopStampFileStorage()),
@@ -103,14 +78,12 @@ class MySoptLogFacadeTest {
                 new InMemorySoptampUserStore(CURRENT_GENERATION),
                 new InMemoryProfileSource()),
             mode,
-            clock,
             CURRENT_GENERATION);
   }
 
   @Test
   @DisplayName("활동 회원은 솝탬프 집계와 콕찌르기 집계를 전부 채워 준다")
   void activeUserGetsFullLog() {
-    userFortunePort.save(UserFortune.create(ACTIVE_USER, 100L, TODAY));
     pokeHistoryRepository.seed(ACTIVE_USER, 5L, false);
     pokeHistoryRepository.seed(ACTIVE_USER, 6L, false);
     friendRepository.seed(ACTIVE_USER, 5L, 3);
@@ -125,8 +98,6 @@ class MySoptLogFacadeTest {
 
     assertThat(log.isActive()).isTrue();
     assertThat(log.isAppjamParticipant()).isFalse();
-    assertThat(log.isFortuneChecked()).isTrue();
-    assertThat(log.todayFortuneText()).isEqualTo("오늘은 코드가 잘 풀리는 날");
     assertThat(log.soptampCount()).isEqualTo(2);
     assertThat(log.viewCount()).isEqualTo(10);
     assertThat(log.myClapCount()).isEqualTo(5);
@@ -138,14 +109,12 @@ class MySoptLogFacadeTest {
   }
 
   @Test
-  @DisplayName("비활동 회원이 앱잼에 참여하지 않으면 솝탬프 집계는 null 이고 운세 기본 문구를 준다")
+  @DisplayName("비활동 회원이 앱잼에 참여하지 않으면 솝탬프 집계는 null 이다")
   void inactiveNonAppjamUserGetsNulls() {
     MySoptLog log = facade.getMySoptLog(INACTIVE_USER);
 
     assertThat(log.isActive()).isFalse();
     assertThat(log.isAppjamParticipant()).isFalse();
-    assertThat(log.isFortuneChecked()).isFalse();
-    assertThat(log.todayFortuneText()).isEqualTo("오늘 내 운세는?");
     assertThat(log.soptampCount()).isNull();
     assertThat(log.viewCount()).isNull();
     assertThat(log.myClapCount()).isNull();
@@ -176,40 +145,5 @@ class MySoptLogFacadeTest {
 
   private static Activity activity(int generation, Part part) {
     return Activity.of((long) generation, generation, null, part, Role.MEMBER, true, null);
-  }
-
-  private static final class InMemoryUserFortuneRepositoryPort
-      implements UserFortuneRepositoryPort {
-    private final Map<Long, UserFortune> store = new HashMap<>();
-
-    @Override
-    public Optional<UserFortune> findByUserId(Long userId) {
-      return Optional.ofNullable(store.get(userId));
-    }
-
-    @Override
-    public UserFortune save(UserFortune userFortune) {
-      store.put(userFortune.userId(), userFortune);
-      return userFortune;
-    }
-  }
-
-  private static final class InMemoryFortuneWordRepositoryPort
-      implements FortuneWordRepositoryPort {
-    private final Map<Long, FortuneWord> store = new HashMap<>();
-
-    void add(FortuneWord word) {
-      store.put(word.id(), word);
-    }
-
-    @Override
-    public Optional<FortuneWord> findById(Long id) {
-      return Optional.ofNullable(store.get(id));
-    }
-
-    @Override
-    public List<Long> findAllIds() {
-      return new ArrayList<>(store.keySet());
-    }
   }
 }

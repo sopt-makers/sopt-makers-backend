@@ -19,11 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppServiceService {
 
   private static final Set<AppServiceName> HIDDEN_APP_SERVICES =
-      Set.of(
-          AppServiceName.OTHERS,
-          AppServiceName.FLOATING_BUTTON,
-          AppServiceName.REVIEW_FORM,
-          AppServiceName.FORTUNE);
+      Set.of(AppServiceName.OTHERS, AppServiceName.FLOATING_BUTTON, AppServiceName.REVIEW_FORM);
   private static final Set<AppServiceName> HOME_APP_SERVICES = Set.of(AppServiceName.SOPT_LETTER);
   private static final Set<AppServiceName> TAB_APP_SERVICES =
       Set.of(AppServiceName.POKE, AppServiceName.SOPTAMP);
