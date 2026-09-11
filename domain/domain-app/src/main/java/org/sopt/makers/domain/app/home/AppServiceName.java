@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 public enum AppServiceName {
   POKE("콕찌르기", "POKE", "pokeBadgeManager"),
   SOPTAMP("솝탬프", "SOPTAMP", "soptampBadgeManager"),
-  FORTUNE("솝마디", "FORTUNE", "fortuneBadgeManager"),
   SOPT_LETTER("솝레터", "SOPT_LETTER", "defaultBadgeManager"),
   OTHERS("", "OTHERS", "defaultBadgeManager"),
   FLOATING_BUTTON("FAB", "FLOATING_BUTTON", "floatingButtonBadgeManager"),

@@ -13,10 +13,6 @@ public record MySoptLogResponse(
         boolean isActive,
     @Schema(description = "앱잼에 참여 중인지 여부", example = "false") @JsonProperty("isAppjamParticipant")
         boolean isAppjamParticipant,
-    @Schema(description = "오늘 운세를 확인했는지 여부", example = "true") @JsonProperty("isFortuneChecked")
-        boolean isFortuneChecked,
-    @Schema(description = "오늘의 솝마디. 오늘 운세를 안 봤으면 안내 문구가 대신 들어간다", example = "오늘 내 운세는?")
-        String todayFortuneText,
     @Schema(description = "작성한 솝탬프 개수. 값이 없으면 응답에서 빠진다", example = "5") Integer soptampCount,
     @Schema(description = "내 솝탬프가 조회된 횟수. 값이 없으면 응답에서 빠진다", example = "120") Integer viewCount,
     @Schema(description = "내 솝탬프가 받은 박수 횟수. 값이 없으면 응답에서 빠진다", example = "30") Integer myClapCount,
@@ -31,8 +27,6 @@ public record MySoptLogResponse(
         mySoptLog.isAppjamMode(),
         mySoptLog.isActive(),
         mySoptLog.isAppjamParticipant(),
-        mySoptLog.isFortuneChecked(),
-        mySoptLog.todayFortuneText(),
         mySoptLog.soptampCount(),
         mySoptLog.viewCount(),
         mySoptLog.myClapCount(),

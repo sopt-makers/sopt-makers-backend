@@ -4,8 +4,6 @@ public record MySoptLog(
     boolean isAppjamMode,
     boolean isActive,
     boolean isAppjamParticipant,
-    boolean isFortuneChecked,
-    String todayFortuneText,
     Integer soptampCount,
     Integer viewCount,
     Integer myClapCount,
@@ -18,8 +16,6 @@ public record MySoptLog(
   public static MySoptLog ofActive(
       boolean isAppjamMode,
       boolean isAppjamParticipant,
-      boolean isFortuneChecked,
-      String todayFortuneText,
       int soptampCount,
       int viewCount,
       int myClapCount,
@@ -32,8 +28,6 @@ public record MySoptLog(
         isAppjamMode,
         true,
         isAppjamParticipant,
-        isFortuneChecked,
-        todayFortuneText,
         soptampCount,
         viewCount,
         myClapCount,
@@ -46,8 +40,6 @@ public record MySoptLog(
 
   public static MySoptLog ofInactiveAppjamParticipant(
       boolean isAppjamMode,
-      boolean isFortuneChecked,
-      String todayFortuneText,
       int soptampCount,
       int viewCount,
       int myClapCount,
@@ -60,8 +52,6 @@ public record MySoptLog(
         isAppjamMode,
         false,
         true,
-        isFortuneChecked,
-        todayFortuneText,
         soptampCount,
         viewCount,
         myClapCount,
@@ -74,8 +64,6 @@ public record MySoptLog(
 
   public static MySoptLog ofInactiveNonAppjam(
       boolean isAppjamMode,
-      boolean isFortuneChecked,
-      String todayFortuneText,
       int totalPokeCount,
       int newFriendsPokeCount,
       int bestFriendsPokeCount,
@@ -84,8 +72,6 @@ public record MySoptLog(
         isAppjamMode,
         false,
         false,
-        isFortuneChecked,
-        todayFortuneText,
         null,
         null,
         null,
