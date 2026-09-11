@@ -54,8 +54,9 @@ public class SoptLetterController implements SoptLetterApi {
 
   @Override
   @GetMapping("/onboarding")
-  public ResponseEntity<BaseResponse<?>> getOnboardingProfile(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<OnboardingProfileResponse>> getOnboardingProfile(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_ONBOARDING_PROFILE,
         OnboardingProfileResponse.of(
             soptLetterFacade.getOrCreateProfile(userId),
@@ -64,8 +65,9 @@ public class SoptLetterController implements SoptLetterApi {
 
   @Override
   @PostMapping("/onboarding/complete")
-  public ResponseEntity<BaseResponse<?>> completeOnboarding(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<OnboardingProfileResponse>> completeOnboarding(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         COMPLETE_ONBOARDING,
         OnboardingProfileResponse.of(
             soptLetterFacade.completeOnboarding(userId),
@@ -74,81 +76,83 @@ public class SoptLetterController implements SoptLetterApi {
 
   @Override
   @GetMapping("/report-form")
-  public ResponseEntity<BaseResponse<?>> getReportForm() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<ReportFormResponse>> getReportForm() {
+    return ResponseFactory.typedSuccess(
         GET_REPORT_FORM, ReportFormResponse.of(soptLetterFacade.getReportFormUrl()));
   }
 
   @Override
   @GetMapping("/cta")
-  public ResponseEntity<BaseResponse<?>> getCta() {
-    return ResponseFactory.success(GET_CTA, CtaResponse.of(soptLetterFacade.findActiveCta()));
+  public ResponseEntity<BaseResponse<CtaResponse>> getCta() {
+    return ResponseFactory.typedSuccess(GET_CTA, CtaResponse.of(soptLetterFacade.findActiveCta()));
   }
 
   @Override
   @GetMapping("/topics")
-  public ResponseEntity<BaseResponse<?>> getTopics(@RequestParam(required = false) String type) {
-    return ResponseFactory.success(GET_TOPICS, TopicsResponse.of(soptLetterFacade.getTopics(type)));
+  public ResponseEntity<BaseResponse<TopicsResponse>> getTopics(
+      @RequestParam(required = false) String type) {
+    return ResponseFactory.typedSuccess(
+        GET_TOPICS, TopicsResponse.of(soptLetterFacade.getTopics(type)));
   }
 
   @Override
   @GetMapping("/topics/{topicId}")
-  public ResponseEntity<BaseResponse<?>> getTopic(@PathVariable Long topicId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<TopicDetailResponse>> getTopic(@PathVariable Long topicId) {
+    return ResponseFactory.typedSuccess(
         GET_TOPIC,
         TopicDetailResponse.of(soptLetterFacade.getTopic(topicId), soptLetterFacade.now()));
   }
 
   @Override
   @GetMapping("/topics/default/messages")
-  public ResponseEntity<BaseResponse<?>> getDefaultTopicMessages(
+  public ResponseEntity<BaseResponse<TopicMessagesResponse>> getDefaultTopicMessages(
       @CurrentUserId Long userId,
       @RequestParam(required = false) Long cursor,
       @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_TOPIC_MESSAGES,
         TopicMessagesResponse.of(soptLetterFacade.getDefaultTopicMessages(userId, cursor, size)));
   }
 
   @Override
   @GetMapping("/topics/{topicId}/messages")
-  public ResponseEntity<BaseResponse<?>> getTopicMessages(
+  public ResponseEntity<BaseResponse<TopicMessagesResponse>> getTopicMessages(
       @CurrentUserId Long userId,
       @PathVariable Long topicId,
       @RequestParam(required = false) Long cursor,
       @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_TOPIC_MESSAGES,
         TopicMessagesResponse.of(soptLetterFacade.getTopicMessages(userId, topicId, cursor, size)));
   }
 
   @Override
   @GetMapping("/topics/{topicId}/messages/{messageId}")
-  public ResponseEntity<BaseResponse<?>> getMessage(
+  public ResponseEntity<BaseResponse<MessageResponse>> getMessage(
       @CurrentUserId Long userId, @PathVariable Long topicId, @PathVariable Long messageId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_MESSAGE, MessageResponse.of(soptLetterFacade.getMessage(userId, topicId, messageId)));
   }
 
   @Override
   @PostMapping("/topics/{topicId}/messages")
-  public ResponseEntity<BaseResponse<?>> writeMessage(
+  public ResponseEntity<BaseResponse<MessageResponse>> writeMessage(
       @CurrentUserId Long userId,
       @PathVariable Long topicId,
       @Valid @RequestBody WriteMessageRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         WRITE_MESSAGE,
         MessageResponse.of(soptLetterFacade.createMessage(userId, topicId, request.content())));
   }
 
   @Override
   @PatchMapping("/topics/{topicId}/messages/{messageId}")
-  public ResponseEntity<BaseResponse<?>> updateMessage(
+  public ResponseEntity<BaseResponse<MessageResponse>> updateMessage(
       @CurrentUserId Long userId,
       @PathVariable Long topicId,
       @PathVariable Long messageId,
       @Valid @RequestBody WriteMessageRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         UPDATE_MESSAGE,
         MessageResponse.of(
             soptLetterFacade.updateMessage(userId, topicId, messageId, request.content())));
@@ -156,25 +160,25 @@ public class SoptLetterController implements SoptLetterApi {
 
   @Override
   @DeleteMapping("/topics/{topicId}/messages/{messageId}")
-  public ResponseEntity<BaseResponse<?>> deleteMessage(
+  public ResponseEntity<BaseResponse<Void>> deleteMessage(
       @CurrentUserId Long userId, @PathVariable Long topicId, @PathVariable Long messageId) {
     soptLetterFacade.deleteMessage(userId, topicId, messageId);
-    return ResponseFactory.success(DELETE_MESSAGE);
+    return ResponseFactory.typedSuccess(DELETE_MESSAGE);
   }
 
   @Override
   @PostMapping("/topics/{topicId}/messages/{messageId}/likes")
-  public ResponseEntity<BaseResponse<?>> addLike(
+  public ResponseEntity<BaseResponse<Void>> addLike(
       @CurrentUserId Long userId, @PathVariable Long topicId, @PathVariable Long messageId) {
     soptLetterFacade.addLike(userId, topicId, messageId);
-    return ResponseFactory.success(ADD_LIKE);
+    return ResponseFactory.typedSuccess(ADD_LIKE);
   }
 
   @Override
   @DeleteMapping("/topics/{topicId}/messages/{messageId}/likes")
-  public ResponseEntity<BaseResponse<?>> removeLike(
+  public ResponseEntity<BaseResponse<Void>> removeLike(
       @CurrentUserId Long userId, @PathVariable Long topicId, @PathVariable Long messageId) {
     soptLetterFacade.removeLike(userId, topicId, messageId);
-    return ResponseFactory.success(REMOVE_LIKE);
+    return ResponseFactory.typedSuccess(REMOVE_LIKE);
   }
 }

@@ -35,22 +35,22 @@ public class AppNotificationController implements AppNotificationApi {
 
   @Override
   @GetMapping("/all")
-  public ResponseEntity<BaseResponse<?>> getNotifications(
+  public ResponseEntity<BaseResponse<List<NotificationSimpleResponse>>> getNotifications(
       @CurrentUserId Long userId,
       @RequestParam(required = false) NotificationCategory category,
       @Min(0) @RequestParam(defaultValue = "0") int page,
       @Min(1) @Max(100) @RequestParam(defaultValue = "10") int size) {
     List<Notification> notifications =
         appNotificationService.getNotifications(userId, category, page, size);
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_NOTIFICATIONS, notifications.stream().map(NotificationSimpleResponse::of).toList());
   }
 
   @Override
   @GetMapping("/detail/{notificationId}")
-  public ResponseEntity<BaseResponse<?>> getNotificationDetail(
+  public ResponseEntity<BaseResponse<NotificationDetailResponse>> getNotificationDetail(
       @CurrentUserId Long userId, @PathVariable String notificationId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_NOTIFICATION_DETAIL,
         NotificationDetailResponse.of(
             appNotificationService.getNotification(userId, notificationId)));
@@ -58,9 +58,9 @@ public class AppNotificationController implements AppNotificationApi {
 
   @Override
   @PatchMapping({"/read/{notificationId}", "/read"})
-  public ResponseEntity<BaseResponse<?>> updateNotificationRead(
+  public ResponseEntity<BaseResponse<Void>> updateNotificationRead(
       @CurrentUserId Long userId, @PathVariable(required = false) String notificationId) {
     appNotificationService.markAsRead(userId, notificationId);
-    return ResponseFactory.success(UPDATE_NOTIFICATION_READ);
+    return ResponseFactory.typedSuccess(UPDATE_NOTIFICATION_READ);
   }
 }

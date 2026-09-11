@@ -22,16 +22,16 @@ public class SoptampStorageController implements SoptampStorageApi {
 
   @Override
   @GetMapping("/stamp")
-  public ResponseEntity<BaseResponse<?>> getStampPreSignedUrl() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<PresignedUrlResponse>> getStampPreSignedUrl() {
+    return ResponseFactory.typedSuccess(
         GET_STAMP_PRESIGNED_URL,
         PresignedUrlResponse.of(soptampFacade.generateStampImagePresignedUrl()));
   }
 
   @Override
   @GetMapping("/mission")
-  public ResponseEntity<BaseResponse<?>> getMissionPreSignedUrl() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<PresignedUrlResponse>> getMissionPreSignedUrl() {
+    return ResponseFactory.typedSuccess(
         GET_MISSION_PRESIGNED_URL,
         PresignedUrlResponse.of(soptampFacade.generateMissionImagePresignedUrl()));
   }

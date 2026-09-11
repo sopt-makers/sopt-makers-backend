@@ -37,9 +37,9 @@ public class StampController implements StampApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<BaseResponse<?>> getStamp(
+  public ResponseEntity<BaseResponse<StampResponse.StampView>> getStamp(
       @CurrentUserId Long userId, @Valid @ModelAttribute StampRequest.FindStampRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_STAMP,
         StampResponse.StampView.of(
             soptampFacade.getStamp(userId, request.missionId(), request.nickname())));
@@ -47,9 +47,9 @@ public class StampController implements StampApi {
 
   @Override
   @PostMapping
-  public ResponseEntity<BaseResponse<?>> registerStamp(
+  public ResponseEntity<BaseResponse<StampResponse.StampMain>> registerStamp(
       @CurrentUserId Long userId, @Valid @RequestBody StampRequest.RegisterStampRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         REGISTER_STAMP,
         StampResponse.StampMain.of(
             soptampFacade.registerStamp(
@@ -62,9 +62,9 @@ public class StampController implements StampApi {
 
   @Override
   @PutMapping
-  public ResponseEntity<BaseResponse<?>> editStamp(
+  public ResponseEntity<BaseResponse<StampResponse.StampId>> editStamp(
       @CurrentUserId Long userId, @Valid @RequestBody StampRequest.EditStampRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         EDIT_STAMP,
         StampResponse.StampId.of(
             soptampFacade.editStamp(
@@ -77,23 +77,23 @@ public class StampController implements StampApi {
 
   @Override
   @DeleteMapping("/{stampId}")
-  public ResponseEntity<BaseResponse<?>> deleteStamp(
+  public ResponseEntity<BaseResponse<Void>> deleteStamp(
       @CurrentUserId Long userId, @PathVariable Long stampId) {
     soptampFacade.deleteStamp(userId, stampId);
-    return ResponseFactory.success(DELETE_STAMP);
+    return ResponseFactory.typedSuccess(DELETE_STAMP);
   }
 
   @Override
   @DeleteMapping("/all")
-  public ResponseEntity<BaseResponse<?>> deleteAllStamps(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<Void>> deleteAllStamps(@CurrentUserId Long userId) {
     soptampFacade.deleteAllStamps(userId);
-    return ResponseFactory.success(DELETE_ALL_STAMPS);
+    return ResponseFactory.typedSuccess(DELETE_ALL_STAMPS);
   }
 
   @Override
   @GetMapping("/report")
-  public ResponseEntity<BaseResponse<?>> getReportUrl() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<StampResponse.SoptampReportResponse>> getReportUrl() {
+    return ResponseFactory.typedSuccess(
         GET_REPORT_URL, StampResponse.SoptampReportResponse.of(soptampFacade.getReportUrl()));
   }
 }

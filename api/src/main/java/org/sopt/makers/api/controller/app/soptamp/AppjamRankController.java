@@ -27,9 +27,9 @@ public class AppjamRankController implements AppjamRankApi {
 
   @Override
   @GetMapping("/recent")
-  public ResponseEntity<BaseResponse<?>> getRecentTeamRanks(
-      @Min(1) @RequestParam(name = "size", defaultValue = "3") int size) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<AppjamRankResponse.AppjamtampRankListResponse>>
+      getRecentTeamRanks(@Min(1) @RequestParam(name = "size", defaultValue = "3") int size) {
+    return ResponseFactory.typedSuccess(
         GET_RECENT_TEAM_RANKS,
         AppjamRankResponse.AppjamtampRankListResponse.of(
             appjamRankFacade.findRecentTeamRanks(size)));
@@ -37,10 +37,11 @@ public class AppjamRankController implements AppjamRankApi {
 
   @Override
   @GetMapping("/today")
-  public ResponseEntity<BaseResponse<?>> getTodayTeamRanks(
-      @Min(1) @RequestParam(name = "size", defaultValue = "11") int size,
-      @RequestParam(name = "sort", defaultValue = "NAME") AppjamTeamSortType sort) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<AppjamRankResponse.AppjamTodayRankListResponse>>
+      getTodayTeamRanks(
+          @Min(1) @RequestParam(name = "size", defaultValue = "11") int size,
+          @RequestParam(name = "sort", defaultValue = "NAME") AppjamTeamSortType sort) {
+    return ResponseFactory.typedSuccess(
         GET_TODAY_TEAM_RANKS,
         AppjamRankResponse.AppjamTodayRankListResponse.of(
             appjamRankFacade.findTodayTeamRanks(size, sort)));

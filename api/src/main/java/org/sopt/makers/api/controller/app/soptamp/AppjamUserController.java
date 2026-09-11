@@ -23,8 +23,9 @@ public class AppjamUserController implements AppjamUserApi {
   @Deprecated
   @Override
   @GetMapping("/appjam-info")
-  public ResponseEntity<BaseResponse<?>> getTeamInfo(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<AppjamUserResponse.AppjamStatusResponse>> getTeamInfo(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_APPJAM_INFO,
         AppjamUserResponse.AppjamStatusResponse.of(appjamtampFacade.getAppjamStatus(userId)));
   }

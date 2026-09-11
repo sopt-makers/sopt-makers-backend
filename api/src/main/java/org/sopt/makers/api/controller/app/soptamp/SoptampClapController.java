@@ -35,24 +35,24 @@ public class SoptampClapController implements SoptampClapApi {
 
   @Override
   @PostMapping("/{stampId}/clap")
-  public ResponseEntity<BaseResponse<?>> addClap(
+  public ResponseEntity<BaseResponse<AddClapResponse>> addClap(
       @CurrentUserId Long userId,
       @PathVariable Long stampId,
       @Valid @RequestBody AddClapRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         ADD_CLAP,
         AddClapResponse.of(stampId, soptampFacade.addClap(userId, stampId, request.clapCount())));
   }
 
   @Override
   @GetMapping("/{stampId}/clappers")
-  public ResponseEntity<BaseResponse<?>> getClappers(
+  public ResponseEntity<BaseResponse<ClapUserListResponse>> getClappers(
       @CurrentUserId Long userId,
       @PathVariable Long stampId,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "25") int size) {
     PageRequest pageable = PageRequest.of(Math.max(page, 0), size < 1 ? DEFAULT_PAGE_SIZE : size);
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_CLAPPERS,
         ClapUserListResponse.of(clapService.getClapsOfMyStamp(userId, stampId, pageable)));
   }

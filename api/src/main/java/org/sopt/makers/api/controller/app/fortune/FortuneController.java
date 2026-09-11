@@ -29,18 +29,19 @@ public class FortuneController implements FortuneApi {
 
   @Override
   @GetMapping("/word")
-  public ResponseEntity<BaseResponse<?>> getTodayFortuneWord(
+  public ResponseEntity<BaseResponse<FortuneResponse>> getTodayFortuneWord(
       @CurrentUserId Long userId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate todayDate) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_TODAY_FORTUNE_WORD,
         FortuneResponse.of(fortuneFacade.getTodayFortuneWord(userId, todayDate)));
   }
 
   @Override
   @GetMapping("/card/today")
-  public ResponseEntity<BaseResponse<?>> getTodayFortuneCard(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<FortuneCardResponse>> getTodayFortuneCard(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_TODAY_FORTUNE_CARD, FortuneCardResponse.of(fortuneService.getTodayFortuneCard(userId)));
   }
 }

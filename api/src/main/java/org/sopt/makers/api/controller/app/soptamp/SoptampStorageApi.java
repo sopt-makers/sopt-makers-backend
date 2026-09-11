@@ -1,7 +1,9 @@
 package org.sopt.makers.api.controller.app.soptamp;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sopt.makers.api.controller.app.soptamp.dto.PresignedUrlResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -9,8 +11,10 @@ import org.springframework.http.ResponseEntity;
 public interface SoptampStorageApi {
 
   @Operation(summary = "스탬프 pre-signed url 조회")
-  ResponseEntity<BaseResponse<?>> getStampPreSignedUrl();
+  @ApiResponse(responseCode = "200", description = "스탬프 pre-signed url 조회에 성공했습니다.")
+  ResponseEntity<BaseResponse<PresignedUrlResponse>> getStampPreSignedUrl();
 
   @Operation(summary = "미션 pre-signed url 조회")
-  ResponseEntity<BaseResponse<?>> getMissionPreSignedUrl();
+  @ApiResponse(responseCode = "200", description = "미션 pre-signed url 조회에 성공했습니다.")
+  ResponseEntity<BaseResponse<PresignedUrlResponse>> getMissionPreSignedUrl();
 }

@@ -23,7 +23,7 @@ public class AppConfigController implements AppConfigApi {
 
   @Override
   @GetMapping("/availability")
-  public ResponseEntity<BaseResponse<?>> getAvailability() {
-    return ResponseFactory.success(GET_AVAILABILITY, AvailabilityResponse.of(available));
+  public ResponseEntity<BaseResponse<AvailabilityResponse>> getAvailability() {
+    return ResponseFactory.typedSuccess(GET_AVAILABILITY, AvailabilityResponse.of(available));
   }
 }
