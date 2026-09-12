@@ -29,17 +29,17 @@ public class PushTokenController implements PushTokenApi {
 
   @Override
   @PostMapping
-  public ResponseEntity<BaseResponse<?>> registerPushToken(
+  public ResponseEntity<BaseResponse<Void>> registerPushToken(
       @CurrentUserId Long userId, @Valid @RequestBody RegisterPushTokenRequest request) {
     pushTokenService.register(userId, request.pushToken(), request.toPlatform());
-    return ResponseFactory.success(REGISTER_PUSH_TOKEN);
+    return ResponseFactory.typedSuccess(REGISTER_PUSH_TOKEN);
   }
 
   @Override
   @DeleteMapping
-  public ResponseEntity<BaseResponse<?>> deletePushToken(
+  public ResponseEntity<BaseResponse<Void>> deletePushToken(
       @CurrentUserId Long userId, @Valid @RequestBody DeletePushTokenRequest request) {
     pushTokenService.delete(userId, request.pushToken());
-    return ResponseFactory.success(DELETE_PUSH_TOKEN);
+    return ResponseFactory.typedSuccess(DELETE_PUSH_TOKEN);
   }
 }

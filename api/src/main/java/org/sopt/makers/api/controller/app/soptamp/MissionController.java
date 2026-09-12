@@ -6,6 +6,7 @@ import static org.sopt.makers.api.controller.app.soptamp.MissionSuccessCode.GET_
 import static org.sopt.makers.api.controller.app.soptamp.MissionSuccessCode.REGISTER_MISSION;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
@@ -31,8 +32,9 @@ public class MissionController implements MissionApi {
 
   @Override
   @GetMapping("/all")
-  public ResponseEntity<BaseResponse<?>> getAllMissions(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<List<MissionResponse.Completeness>>> getAllMissions(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_ALL_MISSIONS,
         soptampFacade.getAllMissionsWithCompleteness(userId).stream()
             .map(MissionResponse.Completeness::of)
@@ -41,9 +43,9 @@ public class MissionController implements MissionApi {
 
   @Override
   @PostMapping("")
-  public ResponseEntity<BaseResponse<?>> registerMission(
+  public ResponseEntity<BaseResponse<MissionResponse.MissionId>> registerMission(
       @Valid @RequestBody MissionRequest.RegisterMissionRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         REGISTER_MISSION,
         MissionResponse.MissionId.of(
             soptampFacade.registerMission(request.title(), request.level(), request.image())));
@@ -51,8 +53,9 @@ public class MissionController implements MissionApi {
 
   @Override
   @GetMapping("/complete")
-  public ResponseEntity<BaseResponse<?>> getCompletedMissions(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<List<MissionResponse.MissionMain>>> getCompletedMissions(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_COMPLETED_MISSIONS,
         soptampFacade.getCompletedMissions(userId).stream()
             .map(MissionResponse.MissionMain::of)
@@ -61,8 +64,9 @@ public class MissionController implements MissionApi {
 
   @Override
   @GetMapping("/incomplete")
-  public ResponseEntity<BaseResponse<?>> getIncompleteMissions(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<List<MissionResponse.MissionMain>>> getIncompleteMissions(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_INCOMPLETE_MISSIONS,
         soptampFacade.getIncompleteMissions(userId).stream()
             .map(MissionResponse.MissionMain::of)

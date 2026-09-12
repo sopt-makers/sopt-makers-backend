@@ -28,23 +28,24 @@ public class AppUserController implements AppUserApi {
 
   @Override
   @GetMapping("/main")
-  public ResponseEntity<BaseResponse<?>> getMainViewInfo(
+  public ResponseEntity<BaseResponse<MainViewResponse>> getMainViewInfo(
       @CurrentUserId(required = false) Long userId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_MAIN_VIEW, MainViewResponse.of(homeFacade.getMainViewInfo(userId)));
   }
 
   @Override
   @GetMapping("/generation")
-  public ResponseEntity<BaseResponse<?>> getGenerationInfo(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<GenerationResponse>> getGenerationInfo(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_GENERATION, GenerationResponse.of(homeFacade.getUserActiveInfo(userId)));
   }
 
   @Override
   @GetMapping("/my-sopt-log")
-  public ResponseEntity<BaseResponse<?>> getMySoptLog(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<MySoptLogResponse>> getMySoptLog(@CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_MY_SOPT_LOG, MySoptLogResponse.of(mySoptLogFacade.getMySoptLog(userId)));
   }
 }

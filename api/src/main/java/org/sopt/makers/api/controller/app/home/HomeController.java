@@ -8,6 +8,7 @@ import static org.sopt.makers.api.controller.app.home.HomeSuccessCode.GET_RECENT
 import static org.sopt.makers.api.controller.app.home.HomeSuccessCode.GET_REVIEW_FORM;
 import static org.sopt.makers.api.controller.app.home.HomeSuccessCode.GET_TAB_APP_SERVICES;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
@@ -34,25 +35,26 @@ public class HomeController implements HomeApi {
 
   @Override
   @GetMapping("/description")
-  public ResponseEntity<BaseResponse<?>> getHomeMainDescription(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<HomeDescriptionResponse>> getHomeMainDescription(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_HOME_DESCRIPTION,
         HomeDescriptionResponse.of(homeFacade.getHomeMainDescription(userId)));
   }
 
   @Override
   @GetMapping("/app-service")
-  public ResponseEntity<BaseResponse<?>> getHomeAppService(
+  public ResponseEntity<BaseResponse<HomeAppServiceResponse>> getHomeAppService(
       @CurrentUserId(required = false) Long userId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_HOME_APP_SERVICES, HomeAppServiceResponse.of(homeFacade.getHomeAppServices(userId)));
   }
 
   @Override
   @GetMapping("/tab-app-service")
-  public ResponseEntity<BaseResponse<?>> getTabAppService(
+  public ResponseEntity<BaseResponse<List<AppServiceEntryStatusResponse>>> getTabAppService(
       @CurrentUserId(required = false) Long userId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_TAB_APP_SERVICES,
         homeFacade.checkTabAppServiceEntryStatus(userId).stream()
             .map(AppServiceEntryStatusResponse::of)
@@ -61,32 +63,32 @@ public class HomeController implements HomeApi {
 
   @Override
   @GetMapping("/posts/latest")
-  public ResponseEntity<BaseResponse<?>> getRecentPosts() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<PlaygroundRecentPostsResponse>> getRecentPosts() {
+    return ResponseFactory.typedSuccess(
         GET_RECENT_POSTS, PlaygroundRecentPostsResponse.of(homeFacade.getPlaygroundRecentPosts()));
   }
 
   @Override
   @GetMapping("/posts/popular")
-  public ResponseEntity<BaseResponse<?>> getPopularPosts() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<PlaygroundPopularPostsResponse>> getPopularPosts() {
+    return ResponseFactory.typedSuccess(
         GET_POPULAR_POSTS,
         PlaygroundPopularPostsResponse.of(homeFacade.getPlaygroundPopularPosts()));
   }
 
   @Override
   @GetMapping("/floating-button")
-  public ResponseEntity<BaseResponse<?>> getFloatingButtonInfo(
+  public ResponseEntity<BaseResponse<FloatingButtonResponse>> getFloatingButtonInfo(
       @CurrentUserId(required = false) Long userId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_FLOATING_BUTTON, FloatingButtonResponse.of(homeFacade.getFloatingButtonInfo(userId)));
   }
 
   @Override
   @GetMapping("/review-form")
-  public ResponseEntity<BaseResponse<?>> getReviewForm(
+  public ResponseEntity<BaseResponse<ReviewFormResponse>> getReviewForm(
       @CurrentUserId(required = false) Long userId) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_REVIEW_FORM, ReviewFormResponse.of(homeFacade.getReviewFormInfo(userId)));
   }
 }

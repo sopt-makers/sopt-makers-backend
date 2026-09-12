@@ -2,9 +2,12 @@ package org.sopt.makers.api.controller.app.soptamp;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.sopt.makers.api.controller.app.soptamp.dto.MissionRequest;
+import org.sopt.makers.api.controller.app.soptamp.dto.MissionResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -12,15 +15,22 @@ import org.springframework.http.ResponseEntity;
 public interface MissionApi {
 
   @Operation(summary = "전체 미션 조회", description = "완료 여부를 함께 준다.")
-  ResponseEntity<BaseResponse<?>> getAllMissions(@Parameter(hidden = true) Long userId);
+  @ApiResponse(responseCode = "200", description = "전체 미션 조회에 성공했습니다.")
+  ResponseEntity<BaseResponse<List<MissionResponse.Completeness>>> getAllMissions(
+      @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "[SERVER 편의 메서드] 미션 생성")
-  ResponseEntity<BaseResponse<?>> registerMission(
+  @ApiResponse(responseCode = "200", description = "미션 생성에 성공했습니다.")
+  ResponseEntity<BaseResponse<MissionResponse.MissionId>> registerMission(
       @Valid MissionRequest.RegisterMissionRequest request);
 
   @Operation(summary = "완료한 미션 조회")
-  ResponseEntity<BaseResponse<?>> getCompletedMissions(@Parameter(hidden = true) Long userId);
+  @ApiResponse(responseCode = "200", description = "완료한 미션 조회에 성공했습니다.")
+  ResponseEntity<BaseResponse<List<MissionResponse.MissionMain>>> getCompletedMissions(
+      @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "미완료 미션 조회")
-  ResponseEntity<BaseResponse<?>> getIncompleteMissions(@Parameter(hidden = true) Long userId);
+  @ApiResponse(responseCode = "200", description = "미완료 미션 조회에 성공했습니다.")
+  ResponseEntity<BaseResponse<List<MissionResponse.MissionMain>>> getIncompleteMissions(
+      @Parameter(hidden = true) Long userId);
 }

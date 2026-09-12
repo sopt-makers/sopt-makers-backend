@@ -28,16 +28,17 @@ public class SoptampUserController implements SoptampUserApi {
 
   @Override
   @GetMapping("/soptamp")
-  public ResponseEntity<BaseResponse<?>> getSoptampUser(@CurrentUserId Long userId) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<SoptampUserResponse>> getSoptampUser(
+      @CurrentUserId Long userId) {
+    return ResponseFactory.typedSuccess(
         GET_SOPTAMP_USER, SoptampUserResponse.of(soptampUserService.getSoptampUser(userId)));
   }
 
   @Override
   @PatchMapping("/profile-message")
-  public ResponseEntity<BaseResponse<?>> editProfileMessage(
+  public ResponseEntity<BaseResponse<ProfileMessageResponse>> editProfileMessage(
       @CurrentUserId Long userId, @Valid @RequestBody EditProfileMessageRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         EDIT_PROFILE_MESSAGE,
         ProfileMessageResponse.of(
             soptampUserService.editProfileMessage(userId, request.profileMessage())));

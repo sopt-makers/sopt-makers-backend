@@ -33,11 +33,11 @@ public class AppjamtampController implements AppjamtampApi {
 
   @Override
   @GetMapping("/mission")
-  public ResponseEntity<BaseResponse<?>> getMissions(
+  public ResponseEntity<BaseResponse<AppjamtampResponse.AppjamMissionResponses>> getMissions(
       @CurrentUserId Long userId,
       @RequestParam(name = "teamNumber", required = false) TeamNumber teamNumber,
       @RequestParam(name = "isCompleted", required = false) Boolean isCompleted) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_APPJAM_MISSIONS,
         AppjamtampResponse.AppjamMissionResponses.of(
             appjamtampFacade.getTeamMissions(userId, teamNumber, isCompleted)));
@@ -45,10 +45,10 @@ public class AppjamtampController implements AppjamtampApi {
 
   @Override
   @GetMapping("/stamp")
-  public ResponseEntity<BaseResponse<?>> getStamp(
+  public ResponseEntity<BaseResponse<AppjamtampResponse.AppjamtampView>> getStamp(
       @CurrentUserId Long userId,
       @Valid @ModelAttribute AppjamtampRequest.FindStampRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_APPJAM_STAMP,
         AppjamtampResponse.AppjamtampView.of(
             appjamtampFacade.getAppjamtamps(userId, request.missionId(), request.nickname())));
@@ -56,10 +56,10 @@ public class AppjamtampController implements AppjamtampApi {
 
   @Override
   @PostMapping("/stamp")
-  public ResponseEntity<BaseResponse<?>> registerStamp(
+  public ResponseEntity<BaseResponse<AppjamtampResponse.StampMain>> registerStamp(
       @CurrentUserId Long userId,
       @Valid @RequestBody AppjamtampRequest.RegisterStampRequest request) {
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         REGISTER_APPJAM_STAMP,
         AppjamtampResponse.StampMain.of(
             appjamtampFacade.uploadStamp(

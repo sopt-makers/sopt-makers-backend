@@ -5,6 +5,7 @@ import static org.sopt.makers.api.controller.app.soptamp.SoptampSuccessCode.GET_
 import static org.sopt.makers.api.controller.app.soptamp.SoptampSuccessCode.GET_PART_RANKS;
 import static org.sopt.makers.api.controller.app.soptamp.SoptampSuccessCode.GET_RANK_DETAIL;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.app.soptamp.dto.PartRankResponse;
@@ -31,31 +32,33 @@ public class SoptampRankController implements SoptampRankApi {
 
   @Override
   @GetMapping("/current")
-  public ResponseEntity<BaseResponse<?>> findCurrentRanks() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<List<UserRankResponse>>> findCurrentRanks() {
+    return ResponseFactory.typedSuccess(
         GET_CURRENT_RANKS,
         rankService.findCurrentRanks().stream().map(UserRankResponse::of).toList());
   }
 
   @Override
   @GetMapping("/current/part/{part}")
-  public ResponseEntity<BaseResponse<?>> findCurrentRanksByPart(@PathVariable Part part) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<List<UserRankResponse>>> findCurrentRanksByPart(
+      @PathVariable Part part) {
+    return ResponseFactory.typedSuccess(
         GET_CURRENT_RANKS_BY_PART,
         rankService.findCurrentRanksByPart(part).stream().map(UserRankResponse::of).toList());
   }
 
   @Override
   @GetMapping("/part")
-  public ResponseEntity<BaseResponse<?>> findPartRanks() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<List<PartRankResponse>>> findPartRanks() {
+    return ResponseFactory.typedSuccess(
         GET_PART_RANKS, rankService.findAllPartRanks().stream().map(PartRankResponse::of).toList());
   }
 
   @Override
   @GetMapping("/detail")
-  public ResponseEntity<BaseResponse<?>> findUserMissionsByNickname(@RequestParam String nickname) {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<RankDetailResponse>> findUserMissionsByNickname(
+      @RequestParam String nickname) {
+    return ResponseFactory.typedSuccess(
         GET_RANK_DETAIL, RankDetailResponse.of(soptampFacade.findUserMissionsByNickname(nickname)));
   }
 }

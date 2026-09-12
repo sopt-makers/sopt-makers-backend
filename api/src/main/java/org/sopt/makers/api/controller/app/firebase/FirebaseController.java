@@ -16,7 +16,7 @@ public class FirebaseController implements FirebaseApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<BaseResponse<?>> getFirebaseInfo() {
-    return ResponseFactory.success(GET_FIREBASE_INFO, FirebaseResponse.current());
+  public ResponseEntity<BaseResponse<FirebaseResponse>> getFirebaseInfo() {
+    return ResponseFactory.typedSuccess(GET_FIREBASE_INFO, FirebaseResponse.current());
   }
 }

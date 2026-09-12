@@ -1,7 +1,9 @@
 package org.sopt.makers.api.controller.app.config;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.sopt.makers.api.controller.app.config.dto.AvailabilityResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -9,5 +11,6 @@ import org.springframework.http.ResponseEntity;
 public interface AppConfigApi {
 
   @Operation(summary = "앱 메인 뷰 분기 처리")
-  ResponseEntity<BaseResponse<?>> getAvailability();
+  @ApiResponse(responseCode = "200", description = "앱 이용 가능 여부 조회에 성공했습니다.")
+  ResponseEntity<BaseResponse<AvailabilityResponse>> getAvailability();
 }

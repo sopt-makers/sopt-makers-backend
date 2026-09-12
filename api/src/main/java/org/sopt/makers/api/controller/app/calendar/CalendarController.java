@@ -25,10 +25,10 @@ public class CalendarController implements CalendarApi {
 
   @Override
   @GetMapping("/all")
-  public ResponseEntity<BaseResponse<?>> getAllCalendar() {
+  public ResponseEntity<BaseResponse<List<CalendarResponse>>> getAllCalendar() {
     List<Calendar> calendars = calendarService.getAllCurrentGenerationCalendar();
     Long recentId = calendarService.getRecentCalendar(calendars).map(Calendar::id).orElse(null);
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         GET_ALL_CALENDAR,
         calendars.stream()
             .map(calendar -> CalendarResponse.of(calendar, calendar.id().equals(recentId)))
@@ -37,8 +37,8 @@ public class CalendarController implements CalendarApi {
 
   @Override
   @GetMapping("/recent")
-  public ResponseEntity<BaseResponse<?>> getRecentCalendar() {
-    return ResponseFactory.success(
+  public ResponseEntity<BaseResponse<RecentCalendarResponse>> getRecentCalendar() {
+    return ResponseFactory.typedSuccess(
         GET_RECENT_CALENDAR, RecentCalendarResponse.of(calendarService.getRecentCalendarOrLast()));
   }
 }

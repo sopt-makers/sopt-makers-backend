@@ -29,6 +29,20 @@ public final class ResponseFactory {
         .body(BaseResponse.ofSuccess(code, data));
   }
 
+  // TODO(#99): 앱 클라이언트 작업을 위해 스웨거에 응답 타입 명시 필요. 타 팀 응답 형태를 바꾸기 애매해서 별도로 선언함
+  // 추후 타 팀도 타입 형태를 쓰면 이 메서드를 success로 이름 바꿔 승격하고 기존 success는 삭제
+  // 조건에 따라 다른 DTO를 주는 곳은 BaseResponse<?> 대신 BaseResponse<Object>로 선언하고 <Object>를 명시해 호출하도록 함
+  public static <T> ResponseEntity<BaseResponse<T>> typedSuccess(
+      final SuccessCode code, final T data) {
+    return ResponseEntity.status(HttpStatus.valueOf(code.getStatusCode()))
+        .body(BaseResponse.ofSuccess(code, data));
+  }
+
+  public static ResponseEntity<BaseResponse<Void>> typedSuccess(final SuccessCode code) {
+    return ResponseEntity.status(HttpStatus.valueOf(code.getStatusCode()))
+        .body(BaseResponse.ofSuccess(code, null));
+  }
+
   public static <T> ResponseEntity<BaseResponse<?>> failure(final FailureCode code, final T data) {
     return ResponseEntity.status(HttpStatus.valueOf(code.getStatusCode()))
         .body(BaseResponse.ofFailure(code, data));

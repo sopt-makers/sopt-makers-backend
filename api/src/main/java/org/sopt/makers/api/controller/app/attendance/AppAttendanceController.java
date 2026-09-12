@@ -24,9 +24,9 @@ public class AppAttendanceController implements AppAttendanceApi {
 
   @Override
   @PostMapping("/attend")
-  public ResponseEntity<BaseResponse<?>> attend(
+  public ResponseEntity<BaseResponse<Void>> attend(
       @CurrentUserId Long userId, @RequestBody @Valid AttendRequest request) {
     attendanceService.attend(userId, request.subLectureId(), request.code());
-    return ResponseFactory.success(SUCCESS_ATTEND);
+    return ResponseFactory.typedSuccess(SUCCESS_ATTEND);
   }
 }
