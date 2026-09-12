@@ -79,7 +79,7 @@ public interface PokeApi {
     @ApiResponse(responseCode = "200", description = "친구 목록 조회에 성공했습니다."),
     @ApiResponse(responseCode = "404", description = "해당 친구관계는 존재하지 않습니다.", content = @Content)
   })
-  ResponseEntity<BaseResponse<?>> getFriendsForEachRelation(
+  ResponseEntity<BaseResponse<Object>> getFriendsForEachRelation(
       @Parameter(hidden = true) Long userId,
       @Parameter(
               description =

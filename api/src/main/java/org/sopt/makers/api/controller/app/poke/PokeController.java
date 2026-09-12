@@ -110,16 +110,17 @@ public class PokeController implements PokeApi {
 
   @Override
   @GetMapping("/friend/list")
-  public ResponseEntity<BaseResponse<?>> getFriendsForEachRelation(
+  public ResponseEntity<BaseResponse<Object>> getFriendsForEachRelation(
       @CurrentUserId Long userId,
       @RequestParam(value = "type", required = false) String type,
       @PageableDefault(size = 25) Pageable pageable) {
-    // type 유무로 반환 DTO가 갈려 하나로 못 묶음. 여기만 BaseResponse<?>를 유지함
+    // type 유무로 반환 DTO가 갈려 하나로 못 묶음. Object로 두고 스웨거 설명에 두 형태를 적어둠
     if (Objects.isNull(type)) {
-      return ResponseFactory.success(GET_FRIEND_LIST, getAllRelationFriendList(userId));
+      return ResponseFactory.<Object>typedSuccess(
+          GET_FRIEND_LIST, getAllRelationFriendList(userId));
     }
     Friendship targetFriendship = Friendship.getFriendshipByValue(type);
-    return ResponseFactory.success(
+    return ResponseFactory.<Object>typedSuccess(
         GET_FRIEND_LIST,
         EachRelationFriendList.of(
             pokeFacade.getAllFriendByFriendship(userId, targetFriendship, pageable)));
