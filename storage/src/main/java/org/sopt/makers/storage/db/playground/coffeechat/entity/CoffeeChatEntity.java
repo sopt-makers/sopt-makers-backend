@@ -1,12 +1,24 @@
 package org.sopt.makers.storage.db.playground.coffeechat.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.makers.domain.playground.coffeechat.CoffeeChat;
+import org.sopt.makers.domain.playground.coffeechat.enums.Career;
+import org.sopt.makers.domain.playground.coffeechat.enums.CoffeeChatSection;
+import org.sopt.makers.domain.playground.coffeechat.enums.CoffeeChatTopicType;
+import org.sopt.makers.domain.playground.coffeechat.enums.MeetingType;
+import org.sopt.makers.storage.db.common.BaseEntity;
+import org.sopt.makers.storage.db.playground.coffeechat.converter.CoffeeChatSectionListConverter;
+import org.sopt.makers.storage.db.playground.coffeechat.converter.CoffeeChatTopicTypeListConverter;
 
 /**
  * CoffeeChat 도메인 마이그레이션 이전까지 사용하는 최소 매핑. {@code coffee_chat} 테이블의 활성화 여부만 조회한다. 나머지 컬럼(career,
@@ -16,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "coffee_chat")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CoffeeChatEntity {
+public class CoffeeChatEntity extends BaseEntity {
 
   @Id private Long id;
 
