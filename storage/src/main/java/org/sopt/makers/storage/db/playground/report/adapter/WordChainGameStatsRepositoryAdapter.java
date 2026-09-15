@@ -5,8 +5,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.playground.report.port.WordChainGameStatsPort;
 import org.sopt.makers.storage.db.playground.report.entity.WordEntity;
-import org.sopt.makers.storage.db.playground.report.repository.WordChainGameWinnerJpaRepository;
-import org.sopt.makers.storage.db.playground.report.repository.WordJpaRepository;
+import org.sopt.makers.storage.db.playground.report.repository.ReportWordChainGameWinnerJpaRepository;
+import org.sopt.makers.storage.db.playground.report.repository.ReportWordJpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class WordChainGameStatsRepositoryAdapter implements WordChainGameStatsPort {
 
-  private final WordJpaRepository wordJpaRepository;
-  private final WordChainGameWinnerJpaRepository wordChainGameWinnerJpaRepository;
+  private final ReportWordJpaRepository wordJpaRepository;
+  private final ReportWordChainGameWinnerJpaRepository wordChainGameWinnerJpaRepository;
 
   @Override
   public List<String> findWordsByMemberIdAndCreatedAtBetween(
