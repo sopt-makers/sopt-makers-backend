@@ -74,7 +74,7 @@ public record MeetingDetailResponse(
       List<String> meetingKeywordTypes) {
     return new MeetingDetailResponse(
         meeting.id(),
-        meeting.userId(),
+        meetingCreator.userId(),
         meeting.meetingDemandId(),
         meeting.title(),
         meeting.subTitle(),

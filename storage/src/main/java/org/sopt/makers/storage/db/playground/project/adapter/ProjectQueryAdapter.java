@@ -51,4 +51,9 @@ public class ProjectQueryAdapter implements ProjectQueryPort {
   public List<Project> findAllProjects() {
     return projectQueryRepository.findAllProjects();
   }
+
+  @Override
+  public List<Project> findProjectsByUserId(Long userId) {
+    return projectQueryRepository.findProjectsByUserId(userId);
+  }
 }

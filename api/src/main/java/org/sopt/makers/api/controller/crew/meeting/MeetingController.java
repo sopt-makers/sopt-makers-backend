@@ -4,9 +4,12 @@ import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.APP
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.CANCEL_APPLY_MEETING;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.CREATE_MEETING;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.DELETE_MEETING;
+import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.GET_JOINED_MEETINGS;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.GET_MEETING;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.GET_MEETINGS;
+import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.GET_MEETING_APPLICANTS;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.GET_MEETING_MEMBERS;
+import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.GET_MEETING_PARTICIPANTS;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.UPDATE_APPLY_STATUS;
 import static org.sopt.makers.api.controller.crew.meeting.MeetingSuccessCode.UPDATE_MEETING;
 
@@ -19,9 +22,12 @@ import org.sopt.makers.api.controller.crew.meeting.dto.ApplyMeetingResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.CreateMeetingResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.GetMeetingsRequest;
+import org.sopt.makers.api.controller.crew.meeting.dto.JoinedMeetingPageResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingApplicantListResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingApplyResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingDetailResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingPartMembersResponse;
+import org.sopt.makers.api.controller.crew.meeting.dto.MeetingParticipantListResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.MeetingSummaryPageResponse;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateApplyStatusRequest;
 import org.sopt.makers.api.controller.crew.meeting.dto.UpdateMeetingRequest;
@@ -127,7 +133,8 @@ public class MeetingController implements MeetingApi {
     return ResponseFactory.success(
         GET_MEETINGS,
         MeetingSummaryPageResponse.from(
-            meetingFacade.findAllMeetings(request.pageNoOrDefault(), request.limitOrDefault())));
+            meetingFacade.searchMeetings(
+                request.toCommand(), request.pageNoOrDefault(), request.limitOrDefault())));
   }
 
   @Override
@@ -139,6 +146,35 @@ public class MeetingController implements MeetingApi {
         MeetingSummaryPageResponse.from(
             meetingFacade.findMeetingsByCreator(
                 userId, request.pageNoOrDefault(), request.limitOrDefault())));
+  }
+
+  @Override
+  @GetMapping("/me/joined")
+  public ResponseEntity<BaseResponse<?>> getJoinedMeetings(
+      @Valid @ModelAttribute GetMeetingsRequest request, @CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_JOINED_MEETINGS,
+        JoinedMeetingPageResponse.from(
+            meetingFacade.findJoinedMeetings(
+                userId, request.pageNoOrDefault(), request.limitOrDefault())));
+  }
+
+  @Override
+  @GetMapping("/{meetingId}/applicants")
+  public ResponseEntity<BaseResponse<?>> getMeetingApplicants(
+      @PathVariable Long meetingId, @CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_MEETING_APPLICANTS,
+        MeetingApplicantListResponse.from(meetingService.getApplicants(meetingId, userId)));
+  }
+
+  @Override
+  @GetMapping("/{meetingId}/participants")
+  public ResponseEntity<BaseResponse<?>> getMeetingParticipants(
+      @PathVariable Long meetingId, @CurrentUserId Long userId) {
+    return ResponseFactory.success(
+        GET_MEETING_PARTICIPANTS,
+        MeetingParticipantListResponse.from(meetingService.getParticipants(meetingId, userId)));
   }
 
   @Override

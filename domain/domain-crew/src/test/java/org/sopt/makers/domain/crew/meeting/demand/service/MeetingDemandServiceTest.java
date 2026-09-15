@@ -28,6 +28,7 @@ import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitHistoryR
 import org.sopt.makers.domain.crew.meeting.demand.port.MeetingDemandWaitRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.port.MeetingUserPort;
+import org.sopt.makers.domain.crew.meeting.port.MemberRepositoryPort;
 import org.sopt.makers.domain.crew.meeting.tag.MeetingKeywordType;
 
 class MeetingDemandServiceTest {
@@ -47,6 +48,7 @@ class MeetingDemandServiceTest {
   private final MeetingDemandReportRepositoryPort reportRepository =
       mock(MeetingDemandReportRepositoryPort.class);
   private final MeetingRepositoryPort meetingRepository = mock(MeetingRepositoryPort.class);
+  private final MemberRepositoryPort memberRepository = mock(MemberRepositoryPort.class);
   private final MeetingUserPort userPort = mock(MeetingUserPort.class);
   private final MeetingDemandNotificationPublisher notificationPublisher =
       mock(MeetingDemandNotificationPublisher.class);
@@ -61,6 +63,7 @@ class MeetingDemandServiceTest {
           profileRepository,
           reportRepository,
           meetingRepository,
+          memberRepository,
           userPort,
           notificationPublisher);
 

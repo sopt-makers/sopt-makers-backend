@@ -1,0 +1,49 @@
+package org.sopt.makers.api.controller.crew;
+
+import org.jspecify.annotations.Nullable;
+import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
+import org.sopt.makers.api.common.resolver.CurrentUserId;
+import org.springframework.core.MethodParameter;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+/** Crew 채널 컨트롤러 계약 테스트용 MockMvc 팩토리. */
+public final class CrewChannelMockMvc {
+
+  private CrewChannelMockMvc() {}
+
+  public static MockMvc of(Object controller, Long fixedUserId) {
+    return MockMvcBuilders.standaloneSetup(controller)
+        .setCustomArgumentResolvers(
+            fixedCurrentUserId(fixedUserId), new PageableHandlerMethodArgumentResolver())
+        .setControllerAdvice(new GlobalExceptionHandler())
+        .build();
+  }
+
+  public static MockMvc ofAnonymous(Object controller) {
+    return of(controller, null);
+  }
+
+  private static HandlerMethodArgumentResolver fixedCurrentUserId(@Nullable Long userId) {
+    return new HandlerMethodArgumentResolver() {
+      @Override
+      public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.hasParameterAnnotation(CurrentUserId.class);
+      }
+
+      @Override
+      public @Nullable Object resolveArgument(
+          MethodParameter parameter,
+          @Nullable ModelAndViewContainer mavContainer,
+          NativeWebRequest webRequest,
+          @Nullable WebDataBinderFactory binderFactory) {
+        return userId;
+      }
+    };
+  }
+}

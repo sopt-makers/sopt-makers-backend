@@ -29,10 +29,10 @@ public class AppScheduleController implements AppScheduleApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<BaseResponse<?>> getSchedules(
+  public ResponseEntity<BaseResponse<ScheduleListResponse>> getSchedules(
       @RequestParam @DateTimeFormat(iso = DATE_TIME) LocalDateTime start,
       @RequestParam @DateTimeFormat(iso = DATE_TIME) LocalDateTime end) {
     Map<LocalDate, List<AppSchedule>> response = appScheduleService.getSchedules(start, end);
-    return ResponseFactory.success(SUCCESS_GET_SCHEDULES, ScheduleListResponse.from(response));
+    return ResponseFactory.typedSuccess(SUCCESS_GET_SCHEDULES, ScheduleListResponse.from(response));
   }
 }

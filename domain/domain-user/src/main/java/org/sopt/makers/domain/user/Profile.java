@@ -116,6 +116,33 @@ public record Profile(
         careers != null ? careers : List.of());
   }
 
+  /** links/careers만 새 값으로 교체한 Profile을 반환한다. 벌크 조회 결과를 붙일 때 사용 — phone 검증을 거치지 않는다. */
+  public Profile withLinksAndCareers(List<UserLink> links, List<UserCareer> careers) {
+    return new Profile(
+        name,
+        email,
+        phone,
+        birthday,
+        profileImage,
+        address,
+        university,
+        major,
+        introduction,
+        mbti,
+        mbtiDescription,
+        sojuCapacity,
+        interest,
+        userFavor,
+        idealType,
+        selfIntroduction,
+        skill,
+        allowOfficial,
+        isPhoneBlind,
+        workPreference,
+        links != null ? links : List.of(),
+        careers != null ? careers : List.of());
+  }
+
   private static void validate(String name, String phone) {
     if (name == null || name.isBlank()) {
       throw new UserException(INVALID_PROFILE_NAME);

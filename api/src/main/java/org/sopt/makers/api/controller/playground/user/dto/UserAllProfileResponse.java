@@ -1,0 +1,31 @@
+package org.sopt.makers.api.controller.playground.user.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import org.sopt.makers.api.controller.playground.user.dto.UserProfileResponse.MemberAskPreviewResponse;
+import org.sopt.makers.domain.playground.member.ask.AskPreview;
+import org.sopt.makers.domain.playground.member.profile.UserProfileListItem;
+import org.sopt.makers.domain.playground.member.profile.UserProfileListResult;
+
+public record UserAllProfileResponse(
+    @Schema(required = true) List<UserProfileResponse> members,
+    @Schema(required = true) Boolean hasNext,
+    @Schema(required = true) Integer totalMembersCount) {
+
+  public static UserAllProfileResponse from(UserProfileListResult result) {
+    List<UserProfileResponse> members =
+        result.members().stream().map(UserAllProfileResponse::toMemberProfileResponse).toList();
+    return new UserAllProfileResponse(members, result.hasNext(), result.totalCount());
+  }
+
+  private static UserProfileResponse toMemberProfileResponse(UserProfileListItem item) {
+    return UserProfileResponse.from(
+        item.user(), item.isCoffeeChatActivate(), toPreview(item.questionPreview()));
+  }
+
+  private static MemberAskPreviewResponse toPreview(AskPreview preview) {
+    return preview == null
+        ? null
+        : new MemberAskPreviewResponse(preview.questionId(), preview.content());
+  }
+}

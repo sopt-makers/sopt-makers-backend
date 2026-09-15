@@ -1,0 +1,172 @@
+package org.sopt.makers.domain.playground.member.profile.service;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.playground.member.ask.port.CurrentGenerationProvider;
+import org.sopt.makers.domain.playground.member.ask.service.UserAskQueryService;
+import org.sopt.makers.domain.playground.member.profile.AppJamObMemberIds;
+import org.sopt.makers.domain.playground.member.profile.MakersMemberIds;
+import org.sopt.makers.domain.playground.member.profile.MakersUserProfile;
+import org.sopt.makers.domain.playground.member.profile.UserInfo;
+import org.sopt.makers.domain.playground.member.profile.UserProfileDetail;
+import org.sopt.makers.domain.playground.member.profile.UserSummary;
+import org.sopt.makers.domain.playground.member.profile.exception.UserProfileException;
+import org.sopt.makers.domain.playground.member.profile.exception.UserProfileFailure;
+import org.sopt.makers.domain.playground.member.profile.port.CoffeeChatActivationPort;
+import org.sopt.makers.domain.playground.member.profile.port.PlaygroundProjectRelationPort;
+import org.sopt.makers.domain.playground.member.profile.port.UserActivityCheckPort;
+import org.sopt.makers.domain.playground.project.Project;
+import org.sopt.makers.domain.user.Activity;
+import org.sopt.makers.domain.user.User;
+import org.sopt.makers.domain.user.UserCareer;
+import org.sopt.makers.domain.user.port.PlaygroundProfileUserPort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class UserProfileQueryService {
+
+  private static final int SEARCH_LIMIT = 30;
+
+  private final PlaygroundProfileUserPort playgroundProfileUserPort;
+  private final PlaygroundProjectRelationPort projectRelationPort;
+  private final CoffeeChatActivationPort coffeeChatActivationPort;
+  private final UserAskQueryService userAskQueryService;
+  private final CurrentGenerationProvider currentGenerationProvider;
+  private final UserActivityCheckPort userActivityCheckPort;
+
+  public UserSummary getMemberSummary(Long id) {
+    User user = playgroundProfileUserPort.getUserWithActivities(id);
+    return toSummary(user);
+  }
+
+  public User getMemberUser(Long userId) {
+    return playgroundProfileUserPort.getUser(userId);
+  }
+
+  public boolean isCoffeeChatActive(Long userId) {
+    return coffeeChatActivationPort.isCoffeeChatActive(userId);
+  }
+
+  public UserInfo getMyInfo(Long userId) {
+    User user = playgroundProfileUserPort.getUserWithActivities(userId);
+    UserSummary summary = toSummary(user);
+
+    boolean hasCoffeeChat = coffeeChatActivationPort.isCoffeeChatActive(userId);
+    boolean hasWorkPreference = user.profile().workPreference() != null;
+    boolean enableWorkPreferenceEvent =
+        (summary.generation() != null
+                && Objects.equals(
+                    summary.generation(), currentGenerationProvider.getCurrentGeneration()))
+            || AppJamObMemberIds.IDS.contains(userId);
+
+    return new UserInfo(summary, hasCoffeeChat, hasWorkPreference, enableWorkPreferenceEvent);
+  }
+
+  public List<UserSummary> searchByName(String name) {
+    return playgroundProfileUserPort.searchUsersByName(name, SEARCH_LIMIT).stream()
+        .map(this::toSummary)
+        .toList();
+  }
+
+  /** `MakersUserProfile.careers`는 벌크 조회로 채운다(links는 응답 DTO에 없어 조회하지 않는다). */
+  public List<MakersUserProfile> getMakersProfiles() {
+    List<User> users = playgroundProfileUserPort.findAllWithActivitiesByIds(MakersMemberIds.IDS);
+    Map<Long, List<UserCareer>> careersByUserId =
+        playgroundProfileUserPort.findAllCareersByUserIds(MakersMemberIds.IDS);
+    return users.stream()
+        .filter(user -> !user.isFirstLogin())
+        .map(
+            user ->
+                new MakersUserProfile(
+                    user.id(),
+                    user.profile().name(),
+                    user.profile().profileImage(),
+                    sortActivities(user.activities().activities()),
+                    careersByUserId.getOrDefault(user.id(), List.of())))
+        .toList();
+  }
+
+  /** links/careers는 단건 조회로 채운다(GET /profile/{id}, GET /profile/me 응답에 필요). */
+  public UserProfileDetail getProfileDetail(Long profileId, Long viewerId) {
+    User user = playgroundProfileUserPort.getUserWithActivities(profileId);
+    if (user.isFirstLogin()) {
+      throw new UserProfileException(UserProfileFailure.NOT_FOUND_PROFILE);
+    }
+    if (user.activities().activities().isEmpty()) {
+      throw new UserProfileException(UserProfileFailure.NOT_FOUND_LEGACY_GENERATION_MEMBER);
+    }
+    user = enrichWithLinksAndCareers(user);
+
+    boolean isMine = Objects.equals(profileId, viewerId);
+    List<Project> projects = projectRelationPort.findProjectsByUserId(profileId);
+    boolean isCoffeeChatActivate = coffeeChatActivationPort.isCoffeeChatActive(profileId);
+    boolean hasRecentQuestion = userAskQueryService.hasRecentAsk(profileId);
+
+    return new UserProfileDetail(user, isMine, isCoffeeChatActivate, hasRecentQuestion, projects);
+  }
+
+  private User enrichWithLinksAndCareers(User user) {
+    return user.updateProfile(
+        user.profile()
+            .withLinksAndCareers(
+                playgroundProfileUserPort.findLinksByUserId(user.id()),
+                playgroundProfileUserPort.findCareersByUserId(user.id())));
+  }
+
+  /**
+   * 레거시 InternalOpenApiController(GET /internal/api/v1/members/profile/me)의
+   * MemberService#getMemberById를 대체한다. 앱팀이 사용하는 단일 프로필 조회 전용 메서드.
+   */
+  public User getMemberProfileForInternalApi(Long userId) {
+    return playgroundProfileUserPort.getUserWithActivities(userId);
+  }
+
+  /**
+   * 레거시 InternalOpenApiController(GET /internal/api/v1/members/profile)의
+   * MemberService#getMemberProfileListById를 대체한다. hasProfile 필터는 이 코드베이스의 다른 프로필 조회(toSummary 참고)와
+   * 동일하게 isFirstLogin의 역으로 판단한다.
+   */
+  public List<User> getMemberProfileListForInternalApi(List<Long> userIds) {
+    return playgroundProfileUserPort.findAllWithActivitiesByIds(userIds).stream()
+        .filter(user -> !user.isFirstLogin())
+        .toList();
+  }
+
+  /**
+   * 레거시 InternalOpenApiController(POST /internal/api/v1/members, DELETE
+   * /internal/api/v1/members/[memberId])의 존재 검증 전용 메서드.
+   */
+  public boolean existsMember(Long userId) {
+    return playgroundProfileUserPort.findUser(userId).isPresent();
+  }
+
+  private UserSummary toSummary(User user) {
+    List<Activity> activities = user.activities().activities();
+    Integer generation =
+        activities.isEmpty()
+            ? null
+            : activities.stream().map(Activity::generation).max(Integer::compareTo).orElse(null);
+    boolean hasProfile = !user.isFirstLogin();
+    boolean editActivitiesAble = userActivityCheckPort.isEditActivitiesAble(user.id());
+
+    return new UserSummary(
+        user.id(),
+        user.profile().name(),
+        generation,
+        user.profile().profileImage(),
+        hasProfile,
+        editActivitiesAble);
+  }
+
+  private List<Activity> sortActivities(List<Activity> activities) {
+    return activities.stream()
+        .sorted(Comparator.comparingInt(Activity::generation).thenComparing(a -> !a.isSopt()))
+        .toList();
+  }
+}

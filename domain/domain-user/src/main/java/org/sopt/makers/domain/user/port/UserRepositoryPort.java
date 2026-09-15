@@ -1,8 +1,11 @@
 package org.sopt.makers.domain.user.port;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.sopt.makers.core.type.OAuthPlatform;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserSearchCondition;
 import org.sopt.makers.domain.user.UserSortType;
@@ -23,6 +26,24 @@ public interface UserRepositoryPort {
 
   List<Long> findAllUserIds();
 
+  /**
+   * 프로필이 있는(isFirstLogin=false) 유저 중 mbti/재직여부 DB 필터를 만족하는 id 목록을 반환한다. mbti, employed가 각각 null이면
+   * 해당 조건은 적용하지 않는다.
+   */
+  List<Long> findAllUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed);
+
+  /** 프로필이 있는 유저 중 generation/part 조건(둘 다 nullable)의 활동을 가진 유저 id 목록. */
+  List<Long> findUserIdsWithProfileByActivity(Integer generation, Part part, boolean isSopt);
+
+  /** 프로필이 있는 유저 중 mbti가 일치하는 유저 id 목록. */
+  List<Long> findUserIdsWithProfileByMbti(String mbti);
+
+  /** 프로필이 있는 유저 중 university가 일치하는 유저 id 목록. */
+  List<Long> findUserIdsWithProfileByUniversity(String university);
+
+  /** 프로필이 있는 유저 중 작업 성향이 설정된 유저 id 목록. */
+  List<Long> findUserIdsWithProfileAndWorkPreference();
+
   boolean existsByPhone(String phone);
 
   int countByGenerationAndIsSopt(int generation, boolean isSopt);
@@ -31,4 +52,9 @@ public interface UserRepositoryPort {
 
   Page<User> findPageByCondition(
       UserSearchCondition condition, Pageable pageable, UserSortType sortType);
+
+  List<Long> filterExistingIds(Collection<Long> userIds);
+
+  Set<Long> findUserIdsByRecommendCondition(
+      Set<Integer> generations, String mbti, String university);
 }

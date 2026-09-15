@@ -1,5 +1,8 @@
 package org.sopt.makers.storage.db.user.adapter;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.user.WorkPreference;
 import org.sopt.makers.domain.user.port.UserWorkPreferenceRepositoryPort;
@@ -30,5 +33,18 @@ public class UserWorkPreferenceRepositoryAdapter implements UserWorkPreferenceRe
               userWorkPreferenceJpaRepository.save(
                   UserWorkPreferenceEntity.from(userRef, workPreference));
             });
+  }
+
+  @Override
+  public Map<Long, WorkPreference> findAllByUserIds(List<Long> userIds) {
+    if (userIds == null || userIds.isEmpty()) {
+      return Map.of();
+    }
+    return userWorkPreferenceJpaRepository.findAllByUser_IdIn(userIds).stream()
+        .collect(
+            Collectors.toMap(
+                entity -> entity.getUser().getId(),
+                UserWorkPreferenceEntity::toDomain,
+                (a, b) -> a));
   }
 }

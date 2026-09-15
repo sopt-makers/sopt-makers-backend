@@ -25,17 +25,18 @@ public class AppMemberController implements AppMemberApi {
 
   @Override
   @GetMapping("/attendances")
-  public ResponseEntity<BaseResponse<?>> getMemberTotalAttendance(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<AttendanceTotalResponse>> getMemberTotalAttendance(
+      @CurrentUserId Long userId) {
     AppMemberAttendanceSummary response = appMemberService.getMemberTotalAttendance(userId);
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         SUCCESS_GET_TOTAL_ATTENDANCE, AttendanceTotalResponse.from(response));
   }
 
   @Override
   @GetMapping("/score")
-  public ResponseEntity<BaseResponse<?>> getScore(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<MemberScoreResponse>> getScore(@CurrentUserId Long userId) {
     float response = appMemberService.getMemberScore(userId);
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         SUCCESS_GET_ATTENDANCE_SCORE, MemberScoreResponse.from(response));
   }
 }

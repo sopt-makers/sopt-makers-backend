@@ -2,6 +2,7 @@ package org.sopt.makers.storage.db.playground.coffeechat.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Collection;
 import org.sopt.makers.domain.playground.coffeechat.enums.Career;
 import org.sopt.makers.storage.db.playground.coffeechat.entity.CoffeeChatEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,4 +26,8 @@ public interface CoffeeChatJpaRepository extends JpaRepository<CoffeeChatEntity,
           "SELECT * FROM coffee_chat WHERE is_coffee_chat_activate = true ORDER BY RAND() LIMIT :limit",
       nativeQuery = true)
   List<CoffeeChatEntity> findRandomActive(@Param("limit") int limit);
+
+  boolean existsByMemberId(Long memberId);
+
+  List<CoffeeChatEntity> findAllByMemberIdInAndIsCoffeeChatActivateTrue(Collection<Long> memberIds);
 }

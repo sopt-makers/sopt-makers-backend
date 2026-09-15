@@ -300,6 +300,17 @@ CREATE TABLE user_register_infos
     PRIMARY KEY (id)
 );
 
+CREATE TABLE activity_review
+(
+    id         BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id    BIGINT    NOT NULL,
+    content    TEXT      NOT NULL,
+    generation INT       NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+);
+
 -- ============================================================
 -- FK 참조 테이블
 -- ============================================================
@@ -412,4 +423,531 @@ CREATE TABLE user_work_preferences
     updated_at          TIMESTAMP   NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT fk_user_work_preferences_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE category
+(
+    category_id    BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    code           VARCHAR(20) NOT NULL,
+    category_group VARCHAR(20) NOT NULL,
+    name           VARCHAR(255),
+    content        VARCHAR(500),
+    has_all        BOOLEAN,
+    has_blind      BOOLEAN,
+    has_question   BOOLEAN,
+    is_active      BOOLEAN     NOT NULL DEFAULT TRUE,
+    parent         BIGINT,
+    display_order  INT,
+    PRIMARY KEY (category_id),
+    CONSTRAINT uk_category_code UNIQUE (code),
+    CONSTRAINT fk_category_parent FOREIGN KEY (parent) REFERENCES category (category_id)
+);
+
+CREATE TABLE anonymous_nickname
+(
+    anonymous_nickname_id BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    nickname               VARCHAR(255) NOT NULL,
+    PRIMARY KEY (anonymous_nickname_id)
+);
+
+CREATE TABLE anonymous_profile_image
+(
+    anonymous_profile_image_id BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    image_url                   VARCHAR(255) NOT NULL,
+    PRIMARY KEY (anonymous_profile_image_id)
+);
+
+CREATE TABLE anonymous_profile
+(
+    anonymous_profile_id       BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id                    BIGINT    NOT NULL,
+    post_id                    BIGINT    NOT NULL,
+    anonymous_nickname_id      BIGINT    NOT NULL,
+    anonymous_profile_image_id BIGINT    NOT NULL,
+    created_at                 TIMESTAMP NOT NULL,
+    updated_at                 TIMESTAMP NOT NULL,
+    PRIMARY KEY (anonymous_profile_id),
+    CONSTRAINT uk_anonymous_profile_user_post UNIQUE (user_id, post_id),
+    CONSTRAINT fk_anonymous_profile_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_anonymous_profile_nickname FOREIGN KEY (anonymous_nickname_id) REFERENCES anonymous_nickname (anonymous_nickname_id),
+    CONSTRAINT fk_anonymous_profile_image FOREIGN KEY (anonymous_profile_image_id) REFERENCES anonymous_profile_image (anonymous_profile_image_id)
+);
+
+CREATE TABLE community_post
+(
+    id                    BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    writer_id             BIGINT       NOT NULL,
+    category_id           BIGINT       NOT NULL,
+    title                 VARCHAR(255),
+    content               TEXT         NOT NULL,
+    hits                  INT          NOT NULL DEFAULT 0,
+    images                TEXT[],
+    is_question           BOOLEAN      NOT NULL,
+    is_blind_writer       BOOLEAN      NOT NULL,
+    is_reported           BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_hot                BOOLEAN      NOT NULL DEFAULT FALSE,
+    sopticle_url          VARCHAR(500),
+    anonymous_profile_id  BIGINT,
+    created_at            TIMESTAMP    NOT NULL,
+    updated_at            TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_community_post_writer FOREIGN KEY (writer_id) REFERENCES users (id),
+    CONSTRAINT fk_community_post_category FOREIGN KEY (category_id) REFERENCES category (category_id),
+    CONSTRAINT fk_community_post_anonymous_profile FOREIGN KEY (anonymous_profile_id) REFERENCES anonymous_profile (anonymous_profile_id)
+);
+
+-- anonymous_profile 이관 시점에는 community_post가 없어 FK 없이 post_id 컬럼만 유지했다. 이제 community_post가 생성되었으므로 FK를 완성한다.
+ALTER TABLE anonymous_profile
+    ADD CONSTRAINT fk_anonymous_profile_post FOREIGN KEY (post_id) REFERENCES community_post (id);
+
+CREATE TABLE community_post_like
+(
+    community_post_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id                 BIGINT    NOT NULL,
+    post_id                 BIGINT    NOT NULL,
+    created_at               TIMESTAMP NOT NULL,
+    updated_at               TIMESTAMP NOT NULL,
+    PRIMARY KEY (community_post_like_id),
+    CONSTRAINT fk_community_post_like_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_community_post_like_post FOREIGN KEY (post_id) REFERENCES community_post (id)
+);
+
+CREATE TABLE deleted_community_post
+(
+    id               BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    writer_id        BIGINT,
+    category_id      BIGINT,
+    title            VARCHAR(255),
+    content          VARCHAR(10000),
+    hits             INT,
+    images           TEXT[],
+    is_question      BOOLEAN,
+    is_blind_writer  BOOLEAN,
+    is_reported      BOOLEAN,
+    deleted_at       TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_deleted_community_post_writer FOREIGN KEY (writer_id) REFERENCES users (id)
+);
+
+CREATE TABLE report_post
+(
+    id           BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id      BIGINT    NOT NULL,
+    reporter_id  BIGINT    NOT NULL,
+    created_at   TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_report_post_post FOREIGN KEY (post_id) REFERENCES community_post (id),
+    CONSTRAINT fk_report_post_reporter FOREIGN KEY (reporter_id) REFERENCES users (id)
+);
+
+CREATE TABLE community_comment
+(
+    id                   BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    content              TEXT      NOT NULL,
+    post_id              BIGINT    NOT NULL,
+    writer_id            BIGINT    NOT NULL,
+    parent_comment_id    BIGINT,
+    is_blind_writer      BOOLEAN   NOT NULL,
+    is_reported          BOOLEAN   NOT NULL DEFAULT FALSE,
+    is_deleted           BOOLEAN   NOT NULL DEFAULT FALSE,
+    anonymous_profile_id BIGINT,
+    created_at           TIMESTAMP NOT NULL,
+    updated_at           TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_community_comment_post FOREIGN KEY (post_id) REFERENCES community_post (id),
+    CONSTRAINT fk_community_comment_writer FOREIGN KEY (writer_id) REFERENCES users (id),
+    CONSTRAINT fk_community_comment_parent FOREIGN KEY (parent_comment_id) REFERENCES community_comment (id),
+    CONSTRAINT fk_community_comment_anonymous_profile FOREIGN KEY (anonymous_profile_id) REFERENCES anonymous_profile (anonymous_profile_id)
+);
+
+CREATE TABLE community_comment_like
+(
+    community_comment_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id                    BIGINT    NOT NULL,
+    comment_id                  BIGINT    NOT NULL,
+    created_at                  TIMESTAMP NOT NULL,
+    updated_at                  TIMESTAMP NOT NULL,
+    PRIMARY KEY (community_comment_like_id),
+    CONSTRAINT uk_comment_like_user_comment UNIQUE (user_id, comment_id),
+    CONSTRAINT fk_community_comment_like_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_community_comment_like_comment FOREIGN KEY (comment_id) REFERENCES community_comment (id)
+);
+
+CREATE TABLE deleted_community_comment
+(
+    id                BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    content           VARCHAR(10000),
+    post_id           BIGINT,
+    writer_id         BIGINT,
+    parent_comment_id BIGINT,
+    is_blind_writer   BOOLEAN,
+    is_reported       BOOLEAN,
+    deleted_at        TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_deleted_community_comment_writer FOREIGN KEY (writer_id) REFERENCES users (id)
+);
+
+CREATE TABLE report_comment
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    comment_id  BIGINT    NOT NULL,
+    reporter_id BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_report_comment_comment FOREIGN KEY (comment_id) REFERENCES community_comment (id),
+    CONSTRAINT fk_report_comment_reporter FOREIGN KEY (reporter_id) REFERENCES users (id)
+);
+
+-- created_at/updated_at는 레거시 vote/vote_option/vote_selection 원본 스키마에는 없던 컬럼이라
+-- 레거시 운영 데이터 이관 시 값이 없을 수 있으므로 NOT NULL을 걸지 않는다. 애플리케이션에서 신규 생성하는
+-- row는 BaseEntity(@CreatedDate/@LastModifiedDate)가 항상 값을 채운다.
+CREATE TABLE vote
+(
+    id                  BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id             BIGINT    NOT NULL,
+    is_multiple_options BOOLEAN   NOT NULL,
+    created_at          TIMESTAMP,
+    updated_at          TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_vote_post UNIQUE (post_id),
+    CONSTRAINT fk_vote_post FOREIGN KEY (post_id) REFERENCES community_post (id)
+);
+
+CREATE TABLE vote_option
+(
+    id         BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    vote_id    BIGINT      NOT NULL,
+    content    VARCHAR(40) NOT NULL,
+    vote_count INT         NOT NULL DEFAULT 0,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_vote_option_vote FOREIGN KEY (vote_id) REFERENCES vote (id)
+);
+
+CREATE TABLE vote_selection
+(
+    id             BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id        BIGINT    NOT NULL,
+    vote_option_id BIGINT    NOT NULL,
+    created_at     TIMESTAMP,
+    updated_at     TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_vote_selection_user_option UNIQUE (user_id, vote_option_id),
+    CONSTRAINT fk_vote_selection_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_vote_selection_option FOREIGN KEY (vote_option_id) REFERENCES vote_option (id)
+);
+
+-- 솝트 리포트: member/user 연관관계는 FK 없이 순수 BIGINT(userId)로 디커플링한다.
+CREATE TABLE sopt_report_stats
+(
+    id           BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    template_key VARCHAR(255) NOT NULL,
+    data         JSON         NOT NULL,
+    category     VARCHAR(50),
+    created_at   TIMESTAMP    NOT NULL,
+    updated_at   TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_sopt_report_stats_template_key UNIQUE (template_key)
+);
+
+-- Amplitude 분석 파이프라인이 적재하는 원시 이벤트 테이블. 컬럼명은 외부 적재 규격을 그대로 따른다.
+CREATE TABLE amplitude_event_raw_data
+(
+    "$insert_id"                             VARCHAR(255) NOT NULL,
+    user_id                                  VARCHAR(255),
+    event_type                               VARCHAR(255),
+    event_time                               VARCHAR(255),
+    "event_properties_[Amplitude] Page Path" VARCHAR(255),
+    PRIMARY KEY ("$insert_id")
+);
+
+CREATE TABLE word_chain_gameroom
+(
+    id              BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    start_word      VARCHAR(255),
+    created_at      TIMESTAMP NOT NULL,
+    created_user_id BIGINT,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE word
+(
+    id         BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id    BIGINT       NOT NULL,
+    word       VARCHAR(255) NOT NULL,
+    room_id    BIGINT       NOT NULL,
+    created_at TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE word_chain_game_winner
+(
+    id      BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id BIGINT NOT NULL,
+    score   INT,
+    room_id BIGINT NOT NULL,
+    PRIMARY KEY (id)
+);
+
+-- ============================================================
+-- Member(Ask/Relation/TL) 도메인 마이그레이션 (Step M-1)
+-- Playground 소유 테이블만 생성한다. domain-user 소유 테이블(users, member_career,
+-- member_links 등)은 이미 위에서 생성되었으므로 여기서 재생성하지 않는다.
+-- 내부 Java 모델명은 Ask 통일 규칙을 따르되(UserAsk 등), 물리 테이블/컬럼명은
+-- 레거시 운영 스키마를 그대로 보존한다.
+-- ============================================================
+
+CREATE TABLE member_question
+(
+    question_id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    receiver_id                BIGINT    NOT NULL,
+    asker_id                   BIGINT,
+    content                    TEXT      NOT NULL,
+    is_anonymous               BOOLEAN   NOT NULL,
+    anonymous_nickname_id      BIGINT,
+    anonymous_profile_image_id BIGINT,
+    is_reported                BOOLEAN   NOT NULL DEFAULT FALSE,
+    created_at                 TIMESTAMP NOT NULL,
+    updated_at                 TIMESTAMP NOT NULL,
+    PRIMARY KEY (question_id),
+    CONSTRAINT fk_member_question_receiver FOREIGN KEY (receiver_id) REFERENCES users (id),
+    CONSTRAINT fk_member_question_asker FOREIGN KEY (asker_id) REFERENCES users (id),
+    CONSTRAINT fk_member_question_anonymous_nickname FOREIGN KEY (anonymous_nickname_id) REFERENCES anonymous_nickname (anonymous_nickname_id),
+    CONSTRAINT fk_member_question_anonymous_profile_image FOREIGN KEY (anonymous_profile_image_id) REFERENCES anonymous_profile_image (anonymous_profile_image_id)
+);
+
+CREATE TABLE member_answer
+(
+    answer_id   BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    question_id BIGINT    NOT NULL,
+    content     TEXT      NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (answer_id),
+    CONSTRAINT uk_member_answer_question UNIQUE (question_id),
+    CONSTRAINT fk_member_answer_question FOREIGN KEY (question_id) REFERENCES member_question (question_id)
+);
+
+CREATE TABLE question_reaction
+(
+    reaction_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    question_id BIGINT    NOT NULL,
+    member_id   BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (reaction_id),
+    CONSTRAINT uk_question_reaction_question_member UNIQUE (question_id, member_id),
+    CONSTRAINT fk_question_reaction_question FOREIGN KEY (question_id) REFERENCES member_question (question_id),
+    CONSTRAINT fk_question_reaction_member FOREIGN KEY (member_id) REFERENCES users (id)
+);
+
+CREATE TABLE answer_reaction
+(
+    reaction_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    answer_id   BIGINT    NOT NULL,
+    member_id   BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (reaction_id),
+    CONSTRAINT uk_answer_reaction_answer_member UNIQUE (answer_id, member_id),
+    CONSTRAINT fk_answer_reaction_answer FOREIGN KEY (answer_id) REFERENCES member_answer (answer_id),
+    CONSTRAINT fk_answer_reaction_member FOREIGN KEY (member_id) REFERENCES users (id)
+);
+
+CREATE TABLE question_report
+(
+    report_id   BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    question_id BIGINT    NOT NULL,
+    reporter_id BIGINT    NOT NULL,
+    reason      VARCHAR(255),
+    created_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (report_id),
+    CONSTRAINT fk_question_report_question FOREIGN KEY (question_id) REFERENCES member_question (question_id),
+    CONSTRAINT fk_question_report_reporter FOREIGN KEY (reporter_id) REFERENCES users (id)
+);
+
+CREATE TABLE member_block
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    blocker_id        BIGINT    NOT NULL,
+    blocked_member_id BIGINT    NOT NULL,
+    is_blocked        BOOLEAN   NOT NULL DEFAULT TRUE,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_member_block_blocker FOREIGN KEY (blocker_id) REFERENCES users (id),
+    CONSTRAINT fk_member_block_blocked_member FOREIGN KEY (blocked_member_id) REFERENCES users (id)
+);
+
+CREATE TABLE member_report
+(
+    id                 BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    reporter_id        BIGINT    NOT NULL,
+    reported_member_id BIGINT    NOT NULL,
+    reason             TEXT,
+    created_at         TIMESTAMP NOT NULL,
+    updated_at         TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_member_report_reporter FOREIGN KEY (reporter_id) REFERENCES users (id),
+    CONSTRAINT fk_member_report_reported_member FOREIGN KEY (reported_member_id) REFERENCES users (id)
+);
+
+CREATE TABLE appjam_tl_members
+(
+    id                BIGINT        NOT NULL GENERATED ALWAYS AS IDENTITY,
+    member_id         BIGINT        NOT NULL,
+    tl_generation     INT           NOT NULL,
+    service_type      VARCHAR(50)   NOT NULL,
+    self_introduction VARCHAR(2048) NOT NULL,
+    competition_data  VARCHAR(2048) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_appjam_tl_members_member FOREIGN KEY (member_id) REFERENCES users (id)
+);
+
+CREATE TABLE coffee_chat
+(
+    id                     BIGINT        NOT NULL GENERATED ALWAYS AS IDENTITY,
+    is_coffee_chat_activate BOOLEAN      NOT NULL DEFAULT TRUE,
+    career                 VARCHAR(50)   NOT NULL,
+    introduction           VARCHAR(200),
+    section                VARCHAR(500)  NOT NULL,
+    coffee_chat_bio        VARCHAR(40)   NOT NULL,
+    coffee_chat_topic_type VARCHAR(500)  NOT NULL,
+    topic                  VARCHAR(1000) NOT NULL,
+    meeting_type           VARCHAR(50)   NOT NULL,
+    guideline              VARCHAR(1000),
+    member_id              BIGINT        NOT NULL,
+    created_at             TIMESTAMP     NOT NULL,
+    updated_at             TIMESTAMP     NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_coffee_chat_member UNIQUE (member_id),
+    CONSTRAINT fk_coffee_chat_member FOREIGN KEY (member_id) REFERENCES users (id)
+);
+
+CREATE TABLE coffee_chat_history
+(
+    id              BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    receiver_id     BIGINT    NOT NULL,
+    sender_id       BIGINT    NOT NULL,
+    request_content TEXT,
+    created_at      TIMESTAMP NOT NULL,
+    updated_at      TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_coffee_chat_history_receiver FOREIGN KEY (receiver_id) REFERENCES users (id),
+    CONSTRAINT fk_coffee_chat_history_sender FOREIGN KEY (sender_id) REFERENCES users (id)
+);
+
+CREATE TABLE user_activity_check
+(
+    id                   BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id              BIGINT    NOT NULL,
+    edit_activities_able BOOLEAN   NOT NULL DEFAULT TRUE,
+    created_at           TIMESTAMP NOT NULL,
+    updated_at           TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_user_activity_check_user UNIQUE (user_id),
+    CONSTRAINT fk_user_activity_check_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+-- ============================================================
+-- Crew 모임 게시판(무무) — domain-playground/post/*
+-- 레거시 Playground 커뮤니티(community_post 등)와 물리적으로 분리된 별도 테이블. 두 기능을 하나의 테이블로
+-- 병합하면 레거시 Playground 원본 컬럼(anonymous_profile_id, sopticle_url, is_question 등)이 유실되고
+-- 커뮤니티 71개 API 계약이 깨지므로, 저장 모델은 분리하고 필요 시 Port 계층에서만 통합 창구를 둔다.
+-- meeting_id는 domain-crew의 meeting 테이블을 참조해야 하지만, domain-crew 스키마 전체가 아직 어떤
+-- 마이그레이션 파일에도 존재하지 않아(meeting/apply/property 등) FK를 걸지 않는다.
+-- ============================================================
+
+CREATE TABLE meeting_post
+(
+    id              BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    writer_id       BIGINT,
+    category        VARCHAR(20)  NOT NULL,
+    content_type    VARCHAR(20)  NOT NULL,
+    meeting_id      BIGINT       NOT NULL,
+    title           VARCHAR(255),
+    content         TEXT         NOT NULL,
+    images          TEXT[],
+    hits            INT          NOT NULL DEFAULT 0,
+    comment_count   INT          NOT NULL DEFAULT 0,
+    like_count      INT          NOT NULL DEFAULT 0,
+    is_question     BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_blind_writer BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_reported     BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_hot          BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at      TIMESTAMP    NOT NULL,
+    updated_at      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_post_writer FOREIGN KEY (writer_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_post_comment
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id           BIGINT    NOT NULL,
+    writer_id         BIGINT,
+    content           TEXT      NOT NULL,
+    parent_comment_id BIGINT,
+    depth             INT       NOT NULL DEFAULT 0,
+    comment_order     INT       NOT NULL DEFAULT 0,
+    like_count        INT       NOT NULL DEFAULT 0,
+    is_deleted        BOOLEAN   NOT NULL DEFAULT FALSE,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_post_comment_post FOREIGN KEY (post_id) REFERENCES meeting_post (id),
+    CONSTRAINT fk_meeting_post_comment_writer FOREIGN KEY (writer_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_post_like
+(
+    meeting_post_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id              BIGINT    NOT NULL,
+    user_id              BIGINT    NOT NULL,
+    created_at            TIMESTAMP NOT NULL,
+    updated_at            TIMESTAMP NOT NULL,
+    PRIMARY KEY (meeting_post_like_id),
+    CONSTRAINT fk_meeting_post_like_post FOREIGN KEY (post_id) REFERENCES meeting_post (id),
+    CONSTRAINT fk_meeting_post_like_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT uk_meeting_post_like_post_user UNIQUE (post_id, user_id)
+);
+
+CREATE TABLE meeting_post_comment_like
+(
+    meeting_post_comment_like_id BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    comment_id                   BIGINT    NOT NULL,
+    user_id                      BIGINT    NOT NULL,
+    created_at                   TIMESTAMP NOT NULL,
+    updated_at                   TIMESTAMP NOT NULL,
+    PRIMARY KEY (meeting_post_comment_like_id),
+    CONSTRAINT fk_meeting_post_comment_like_comment FOREIGN KEY (comment_id) REFERENCES meeting_post_comment (id),
+    CONSTRAINT fk_meeting_post_comment_like_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT uk_meeting_post_comment_like_comment_user UNIQUE (comment_id, user_id)
+);
+
+CREATE TABLE meeting_post_report
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    post_id     BIGINT    NOT NULL,
+    reporter_id BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_post_report_post FOREIGN KEY (post_id) REFERENCES meeting_post (id),
+    CONSTRAINT fk_meeting_post_report_reporter FOREIGN KEY (reporter_id) REFERENCES users (id),
+    CONSTRAINT uk_meeting_post_report_post_reporter UNIQUE (post_id, reporter_id)
+);
+
+CREATE TABLE meeting_post_comment_report
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    comment_id  BIGINT    NOT NULL,
+    reporter_id BIGINT    NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_post_comment_report_comment FOREIGN KEY (comment_id) REFERENCES meeting_post_comment (id),
+    CONSTRAINT fk_meeting_post_comment_report_reporter FOREIGN KEY (reporter_id) REFERENCES users (id),
+    CONSTRAINT uk_meeting_post_comment_report_comment_reporter UNIQUE (comment_id, reporter_id)
 );

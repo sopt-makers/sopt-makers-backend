@@ -37,9 +37,6 @@ public class MeetingEntity extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "user_id", nullable = false)
-  private Long userId;
-
   @Column(name = "meeting_demand_id")
   private Long meetingDemandId;
 
@@ -107,7 +104,6 @@ public class MeetingEntity extends BaseEntity {
   @Builder(access = PRIVATE)
   private MeetingEntity(
       Long id,
-      Long userId,
       Long meetingDemandId,
       String title,
       String subTitle,
@@ -129,7 +125,6 @@ public class MeetingEntity extends BaseEntity {
       Integer targetActiveGeneration,
       List<MeetingJoinablePart> joinableParts) {
     this.id = id;
-    this.userId = userId;
     this.meetingDemandId = meetingDemandId;
     this.title = title;
     this.subTitle = subTitle;
@@ -155,7 +150,6 @@ public class MeetingEntity extends BaseEntity {
   public Meeting toDomain() {
     return new Meeting(
         id,
-        userId,
         meetingDemandId,
         title,
         subTitle,
@@ -183,7 +177,6 @@ public class MeetingEntity extends BaseEntity {
   public static MeetingEntity fromDomain(Meeting meeting) {
     return MeetingEntity.builder()
         .id(meeting.id())
-        .userId(meeting.userId())
         .meetingDemandId(meeting.meetingDemandId())
         .title(meeting.title())
         .subTitle(meeting.subTitle())

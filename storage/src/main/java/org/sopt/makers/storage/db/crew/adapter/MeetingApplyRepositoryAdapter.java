@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.crew.adapter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,16 @@ public class MeetingApplyRepositoryAdapter implements MeetingApplyRepositoryPort
       return List.of();
     }
     return meetingApplyJpaRepository.findAllByMeetingIdIn(meetingIds).stream()
+        .map(MeetingApplyEntity::toDomain)
+        .toList();
+  }
+
+  @Override
+  public List<MeetingApply> findAllByUserIdAndAppliedDateBetween(
+      Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+    return meetingApplyJpaRepository
+        .findAllByUserIdAndAppliedDateBetween(userId, startDate, endDate)
+        .stream()
         .map(MeetingApplyEntity::toDomain)
         .toList();
   }

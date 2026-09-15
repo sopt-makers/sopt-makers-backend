@@ -1,13 +1,16 @@
 package org.sopt.makers.storage.db.user.adapter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.OAuthPlatform;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.user.User;
 import org.sopt.makers.domain.user.UserSearchCondition;
 import org.sopt.makers.domain.user.UserSortType;
@@ -83,6 +86,32 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   }
 
   @Override
+  public List<Long> findAllUserIdsWithProfileByMbtiAndEmployed(String mbti, Boolean employed) {
+    return userQuerydslRepository.findUserIdsWithProfileByMbtiAndEmployed(mbti, employed);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileByActivity(
+      Integer generation, Part part, boolean isSopt) {
+    return userQuerydslRepository.findUserIdsWithProfileByActivity(generation, part, isSopt);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileByMbti(String mbti) {
+    return userQuerydslRepository.findUserIdsWithProfileByMbti(mbti);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileByUniversity(String university) {
+    return userQuerydslRepository.findUserIdsWithProfileByUniversity(university);
+  }
+
+  @Override
+  public List<Long> findUserIdsWithProfileAndWorkPreference() {
+    return userQuerydslRepository.findUserIdsWithProfileAndWorkPreference();
+  }
+
+  @Override
   public boolean existsByPhone(String phone) {
     return userJpaRepository.existsByPhone(phone);
   }
@@ -96,6 +125,17 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
   @Override
   public User save(User user) {
     return userJpaRepository.save(UserEntity.fromDomain(user)).toDomain();
+  }
+
+  @Override
+  public List<Long> filterExistingIds(Collection<Long> userIds) {
+    return userJpaRepository.findExistingIds(userIds);
+  }
+
+  @Override
+  public Set<Long> findUserIdsByRecommendCondition(
+      Set<Integer> generations, String mbti, String university) {
+    return userQuerydslRepository.findUserIdsByRecommendCondition(generations, mbti, university);
   }
 
   /** QueryDSL로 조건/정렬에 맞는 id 목록을 먼저 조회하고, id IN 절로 활동 이력을 포함한 유저를 한 번에 로드한다. */

@@ -27,6 +27,16 @@ public class ProjectMemberRepositoryAdapter implements ProjectMemberRepositoryPo
   }
 
   @Override
+  public List<ProjectMember> findAllByProjectIds(List<Long> projectIds) {
+    if (projectIds == null || projectIds.isEmpty()) {
+      return List.of();
+    }
+    return projectMemberJpaRepository.findAllByProjectIdIn(projectIds).stream()
+        .map(ProjectMemberEntity::toDomain)
+        .toList();
+  }
+
+  @Override
   public void deleteAllByProjectId(Long projectId) {
     projectMemberJpaRepository.deleteAllByProjectId(projectId);
   }

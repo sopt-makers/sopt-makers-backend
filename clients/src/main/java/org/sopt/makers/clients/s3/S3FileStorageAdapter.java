@@ -3,6 +3,8 @@ package org.sopt.makers.clients.s3;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -11,13 +13,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.clients.s3.exception.S3Exception;
 import org.sopt.makers.clients.s3.exception.S3Failure;
 import org.sopt.makers.domain.admin.banner.port.BannerFileStoragePort;
+import org.sopt.makers.domain.app.soptamp.port.SoptampImageDeletePort;
+import org.sopt.makers.domain.app.soptamp.stamp.port.StampFileStoragePort;
 import org.sopt.makers.domain.crew.advertisement.port.AdvertisementImageStoragePort;
 import org.sopt.makers.domain.official.admin.port.AdminFileStoragePort;
 import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -30,9 +38,14 @@ public class S3FileStorageAdapter
     implements NewsFileStoragePort,
         BannerFileStoragePort,
         AdminFileStoragePort,
+        StampFileStoragePort,
+        SoptampImageDeletePort,
         AdvertisementImageStoragePort {
 
   private static final long PRESIGNED_URL_EXPIRATION_MINUTES = 10;
+
+  private static final int DELETE_BATCH_SIZE = 1000;
+
   private static final Set<String> ALLOWED_CONTENT_TYPES =
       Set.of("image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp");
   private static final Map<String, String> CONTENT_TYPES_BY_EXTENSION =
@@ -135,7 +148,8 @@ public class S3FileStorageAdapter
   }
 
   @Override
-  public PresignedFile generatePresignedUrl(PresignedFileRequest request) {
+  public NewsFileStoragePort.PresignedFile generatePresignedUrl(
+      NewsFileStoragePort.PresignedFileRequest request) {
     validateContentType(request.contentType());
 
     String fileName = createFileName(request.fileName());
@@ -153,11 +167,78 @@ public class S3FileStorageAdapter
             .build();
 
     PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-    return new PresignedFile(
+    return new NewsFileStoragePort.PresignedFile(
         presignedRequest.url().toString(),
         getFileUrl(fileKey),
         PRESIGNED_URL_EXPIRATION_MINUTES * 60,
         fileKey);
+  }
+
+  @Override
+  public StampFileStoragePort.PresignedFile generatePresignedUrl(
+      StampFileStoragePort.PresignedFileRequest request) {
+    validateContentType(request.contentType());
+
+    String fileName = createFileName(request.fileName());
+    String fileKey = buildFileKey(request.directory(), fileName);
+    PutObjectRequest objectRequest =
+        PutObjectRequest.builder()
+            .bucket(property.bucket())
+            .key(fileKey)
+            .contentType(request.contentType())
+            .build();
+    PutObjectPresignRequest presignRequest =
+        PutObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTES))
+            .putObjectRequest(objectRequest)
+            .build();
+
+    PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+    return new StampFileStoragePort.PresignedFile(
+        presignedRequest.url().toString(),
+        getFileUrl(fileKey),
+        PRESIGNED_URL_EXPIRATION_MINUTES * 60,
+        fileKey);
+  }
+
+  @Override
+  public void deleteAll(Collection<String> fileUrls) {
+    fileUrls.forEach(this::delete);
+  }
+
+  @Override
+  public void deleteAll(List<String> fileUrls) {
+    if (fileUrls == null || fileUrls.isEmpty()) {
+      return;
+    }
+
+    for (int from = 0; from < fileUrls.size(); from += DELETE_BATCH_SIZE) {
+      int to = Math.min(from + DELETE_BATCH_SIZE, fileUrls.size());
+      List<String> batch = fileUrls.subList(from, to);
+      try {
+        deleteBatch(batch);
+      } catch (Exception e) {
+        log.error("S3 파일 일괄 삭제 실패 - {}건", batch.size(), e);
+      }
+    }
+  }
+
+  private void deleteBatch(List<String> fileUrls) {
+    List<ObjectIdentifier> objects =
+        fileUrls.stream()
+            .map(fileUrl -> ObjectIdentifier.builder().key(extractKey(fileUrl)).build())
+            .toList();
+    DeleteObjectsRequest request =
+        DeleteObjectsRequest.builder()
+            .bucket(property.bucket())
+            .delete(Delete.builder().objects(objects).build())
+            .build();
+
+    DeleteObjectsResponse response = s3Client.deleteObjects(request);
+    log.info("S3 파일 일괄 삭제 - {}건", response.deleted().size());
+    if (response.hasErrors() && !response.errors().isEmpty()) {
+      log.error("S3 파일 일부 삭제 실패 - errors={}", response.errors());
+    }
   }
 
   public String generatePresignedUrl(String fileName, String directory) {

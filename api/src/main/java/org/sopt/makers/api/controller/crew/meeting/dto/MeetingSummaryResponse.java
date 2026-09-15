@@ -28,7 +28,7 @@ public record MeetingSummaryResponse(
     Meeting meeting = summary.meeting();
     return new MeetingSummaryResponse(
         meeting.id(),
-        meeting.userId(),
+        summary.leader().userId(),
         meeting.title(),
         meeting.subTitle(),
         meeting.category().getValue(),

@@ -1,5 +1,6 @@
 package org.sopt.makers.storage.db.user.repository;
 
+import java.util.List;
 import org.sopt.makers.storage.db.user.entity.UserLinkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,4 +12,8 @@ public interface UserLinkJpaRepository extends JpaRepository<UserLinkEntity, Lon
   @Modifying
   @Query("delete from UserLinkEntity l where l.userId = :userId")
   void deleteAllByUserId(@Param("userId") Long userId);
+
+  List<UserLinkEntity> findAllByUserIdIn(List<Long> userIds);
+
+  List<UserLinkEntity> findAllByUserId(Long userId);
 }

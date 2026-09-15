@@ -97,7 +97,6 @@ class FlashFacadeTest {
   private Meeting meeting() {
     return new Meeting(
         1L,
-        10L,
         null,
         "러닝 번쩍",
         null,

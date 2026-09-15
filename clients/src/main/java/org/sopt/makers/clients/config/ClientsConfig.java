@@ -2,7 +2,9 @@ package org.sopt.makers.clients.config;
 
 import org.sopt.makers.clients.alarm.AlarmProperty;
 import org.sopt.makers.clients.dictionary.DictionaryProperty;
+import org.sopt.makers.clients.crew.CrewMeetingClientProperty;
 import org.sopt.makers.clients.eventbridge.EventBridgeProperty;
+import org.sopt.makers.clients.playground.PlaygroundProperty;
 import org.sopt.makers.clients.s3.S3Property;
 import org.sopt.makers.clients.slack.SlackProperties;
 import org.sopt.makers.clients.sms.GabiaSmsProperty;
@@ -20,7 +22,9 @@ import tools.jackson.databind.ObjectMapper;
   AlarmProperty.class,
   EventBridgeProperty.class,
   SlackProperties.class,
-  DictionaryProperty.class
+  DictionaryProperty.class,
+  PlaygroundProperty.class,
+  CrewMeetingClientProperty.class
 })
 public class ClientsConfig {
 

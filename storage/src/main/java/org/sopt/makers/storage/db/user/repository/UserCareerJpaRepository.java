@@ -16,4 +16,12 @@ public interface UserCareerJpaRepository extends JpaRepository<UserCareerEntity,
   List<UserCareerEntity> findAllByUserId(Long userId);
 
   List<UserCareerEntity> findAllByUserIdIn(List<Long> userIds);
+  
+  @Query(
+      "select c from UserCareerEntity c where c.userId in :userIds "
+          + "order by c.userId asc, c.startDate desc, c.id desc")
+  List<UserCareerEntity> findAllByUserIdInOrderByUserIdAscStartDateDescIdDesc(
+      @Param("userIds") List<Long> userIds);
+
+  List<UserCareerEntity> findAllByUserIdOrderByStartDateDescIdDesc(Long userId);
 }

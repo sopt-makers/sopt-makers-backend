@@ -3,7 +3,14 @@ package org.sopt.makers.clients.slack;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "external.slack")
-public record SlackProperties(String botToken, String appToken, boolean socketModeEnabled) {
+public record SlackProperties(
+    String botToken,
+    String appToken,
+    boolean socketModeEnabled,
+    String communityReportChannelId,
+    String memberReportChannelId,
+    String communityNotMakersChannelId,
+    String newProfileChannelId) {
 
   public void validateSocketModeConfiguration() {
     if (!socketModeEnabled) {

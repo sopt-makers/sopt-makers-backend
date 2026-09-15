@@ -27,16 +27,19 @@ public class AppLectureController implements AppLectureApi {
 
   @Override
   @GetMapping
-  public ResponseEntity<BaseResponse<?>> getTodayLecture(@CurrentUserId Long userId) {
+  public ResponseEntity<BaseResponse<TodayLectureResponse>> getTodayLecture(
+      @CurrentUserId Long userId) {
     AppLectureResult response = appLectureService.getTodayLecture(userId);
-    return ResponseFactory.success(SUCCESS_SINGLE_GET_LECTURE, TodayLectureResponse.from(response));
+    return ResponseFactory.typedSuccess(
+        SUCCESS_SINGLE_GET_LECTURE, TodayLectureResponse.from(response));
   }
 
   @Override
   @GetMapping("/round/{lectureId}")
-  public ResponseEntity<BaseResponse<?>> getRound(@PathVariable Long lectureId) {
+  public ResponseEntity<BaseResponse<LectureCurrentRoundResponse>> getRound(
+      @PathVariable Long lectureId) {
     AppSubLecture response = appLectureService.getCurrentLectureRound(lectureId);
-    return ResponseFactory.success(
+    return ResponseFactory.typedSuccess(
         SUCCESS_GET_LECTURE_ROUND, LectureCurrentRoundResponse.from(response));
   }
 }

@@ -1,17 +1,13 @@
 package org.sopt.makers.domain.crew.meeting;
 
-import static org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.FORBIDDEN_MEETING;
 import static org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.FULL_MEETING_CAPACITY;
-import static org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.LEADER_CANNOT_APPLY;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import org.sopt.makers.domain.crew.meeting.exception.MeetingException;
 
 public record Meeting(
     Long id,
-    Long userId,
     Long meetingDemandId,
     String title,
     String subTitle,
@@ -41,7 +37,6 @@ public record Meeting(
   }
 
   public static Meeting create(
-      Long userId,
       Long meetingDemandId,
       String title,
       String subTitle,
@@ -64,7 +59,6 @@ public record Meeting(
       List<MeetingJoinablePart> joinableParts) {
     return new Meeting(
         null,
-        userId,
         meetingDemandId,
         title,
         subTitle,
@@ -92,7 +86,6 @@ public record Meeting(
   public Meeting update(UpdateValues values) {
     return new Meeting(
         id,
-        userId,
         meetingDemandId,
         values.title(),
         values.subTitle(),
@@ -120,7 +113,6 @@ public record Meeting(
   public Meeting patch(UpdateValues values) {
     return new Meeting(
         id,
-        userId,
         meetingDemandId,
         values.title() == null ? title : values.title(),
         values.subTitle() == null ? subTitle : values.subTitle(),
@@ -157,22 +149,6 @@ public record Meeting(
       return MeetingStatus.APPLY_ABLE;
     }
     return MeetingStatus.RECRUITMENT_COMPLETE;
-  }
-
-  public boolean isLeader(Long requestUserId) {
-    return Objects.equals(userId, requestUserId);
-  }
-
-  public void validateLeader(Long requestUserId) {
-    if (!isLeader(requestUserId)) {
-      throw new MeetingException(FORBIDDEN_MEETING);
-    }
-  }
-
-  public void validateNotLeader(Long requestUserId) {
-    if (isLeader(requestUserId)) {
-      throw new MeetingException(LEADER_CANNOT_APPLY);
-    }
   }
 
   public void validateCapacity(long approvedCount) {

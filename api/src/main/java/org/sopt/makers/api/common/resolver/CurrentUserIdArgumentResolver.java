@@ -27,7 +27,7 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
   }
 
   @Override
-  public Object resolveArgument(
+  public @Nullable Object resolveArgument(
       MethodParameter parameter,
       @Nullable ModelAndViewContainer mavContainer,
       NativeWebRequest webRequest,
@@ -37,10 +37,18 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
         !(SecurityContextHolder.getContext().getAuthentication() instanceof CustomAuthentication);
 
     if (isNotAuthenticated) {
+      if (!isRequired(parameter)) {
+        return null;
+      }
       throw new AuthException(MISSING_AUTHORIZATION_HEADER);
     }
 
     CustomAuthentication authentication = (CustomAuthentication) Objects.requireNonNull(rawAuth);
     return Long.parseLong(authentication.getPrincipal());
+  }
+
+  private boolean isRequired(MethodParameter parameter) {
+    CurrentUserId annotation = parameter.getParameterAnnotation(CurrentUserId.class);
+    return annotation == null || annotation.required();
   }
 }

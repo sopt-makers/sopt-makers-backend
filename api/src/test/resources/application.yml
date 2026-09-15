@@ -75,3 +75,13 @@ external:
     service-name: test-service
   crew:
     url: http://localhost
+
+sopt:
+  current:
+    generation: 36
+  soptamp:
+    admin:
+      password: test-admin-password
+      notification-api-key: test-notification-api-key
+  app:
+    available: true
