@@ -12,7 +12,7 @@ public interface UserCareerRepositoryPort {
   List<UserCareer> findByUserId(Long userId);
 
   List<UserCareer> findByUserIdIn(List<Long> userIds);
-  
+
   /** 유저별 가장 최근(startDate desc, id desc) 커리어 1건씩을 조회한다. */
   List<UserCareer> findLastCareersByUserIds(List<Long> userIds);
 

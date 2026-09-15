@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.makers.storage.db.common.BaseEntity;
 
-
 /**
  * CoffeeChat 도메인 마이그레이션 이전까지 사용하는 최소 매핑. {@code coffee_chat_history} 테이블의 송/수신자 집계에만 필요한 컬럼만 조회한다.
  */
@@ -44,5 +43,4 @@ public class CoffeeChatHistoryEntity extends BaseEntity {
   public static CoffeeChatHistoryEntity of(Long receiverId, Long senderId, String requestContent) {
     return new CoffeeChatHistoryEntity(receiverId, senderId, requestContent);
   }
-
 }

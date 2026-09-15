@@ -1,8 +1,8 @@
 package org.sopt.makers.storage.db.playground.coffeechat.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Collection;
 import org.sopt.makers.domain.playground.coffeechat.enums.Career;
 import org.sopt.makers.storage.db.playground.coffeechat.entity.CoffeeChatEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

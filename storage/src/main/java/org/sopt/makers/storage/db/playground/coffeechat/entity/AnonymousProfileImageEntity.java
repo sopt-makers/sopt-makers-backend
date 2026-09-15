@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "CoffeeChatAnonymousProfileImageEntity")
 @Getter
 @NoArgsConstructor(access = PROTECTED)
 @Table(name = "anonymous_profile_image")

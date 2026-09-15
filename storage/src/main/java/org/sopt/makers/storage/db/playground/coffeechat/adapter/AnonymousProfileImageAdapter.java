@@ -7,7 +7,7 @@ import org.sopt.makers.domain.playground.coffeechat.exception.CoffeeChatExceptio
 import org.sopt.makers.domain.playground.coffeechat.exception.CoffeeChatFailure;
 import org.sopt.makers.domain.playground.coffeechat.port.AnonymousProfileImagePort;
 import org.sopt.makers.storage.db.playground.coffeechat.entity.AnonymousProfileImageEntity;
-import org.sopt.makers.storage.db.playground.coffeechat.repository.AnonymousProfileImageJpaRepository;
+import org.sopt.makers.storage.db.playground.coffeechat.repository.CoffeeChatAnonymousProfileImageJpaRepository;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +16,7 @@ public class AnonymousProfileImageAdapter implements AnonymousProfileImagePort {
 
   private static final List<Long> ANONYMOUS_IMAGE_IDS = List.of(1L, 2L, 3L, 4L, 5L);
 
-  private final AnonymousProfileImageJpaRepository anonymousProfileImageJpaRepository;
+  private final CoffeeChatAnonymousProfileImageJpaRepository anonymousProfileImageJpaRepository;
 
   @Override
   public AnonymousImage getRandomImage() {

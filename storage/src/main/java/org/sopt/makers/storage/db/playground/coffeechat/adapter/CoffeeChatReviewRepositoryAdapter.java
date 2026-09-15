@@ -6,7 +6,7 @@ import org.sopt.makers.domain.playground.coffeechat.CoffeeChatReview;
 import org.sopt.makers.domain.playground.coffeechat.port.CoffeeChatReviewRepositoryPort;
 import org.sopt.makers.storage.db.playground.coffeechat.entity.AnonymousProfileImageEntity;
 import org.sopt.makers.storage.db.playground.coffeechat.entity.CoffeeChatReviewEntity;
-import org.sopt.makers.storage.db.playground.coffeechat.repository.AnonymousProfileImageJpaRepository;
+import org.sopt.makers.storage.db.playground.coffeechat.repository.CoffeeChatAnonymousProfileImageJpaRepository;
 import org.sopt.makers.storage.db.playground.coffeechat.repository.CoffeeChatReviewJpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CoffeeChatReviewRepositoryAdapter implements CoffeeChatReviewRepositoryPort {
 
   private final CoffeeChatReviewJpaRepository coffeeChatReviewJpaRepository;
-  private final AnonymousProfileImageJpaRepository anonymousProfileImageJpaRepository;
+  private final CoffeeChatAnonymousProfileImageJpaRepository anonymousProfileImageJpaRepository;
 
   @Transactional
   @Override
