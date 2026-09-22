@@ -57,9 +57,6 @@ external:
     bucket: test-bucket
     region: ap-northeast-2
     base-dir: test/
-  playground:
-    url: http://localhost
-    token: test-playground-token
   alarm:
     url: http://localhost
     key: test-alarm-key
