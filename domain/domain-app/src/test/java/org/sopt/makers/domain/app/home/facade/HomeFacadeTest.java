@@ -128,12 +128,22 @@ class HomeFacadeTest {
   }
 
   @Test
+  @DisplayName("탭 서비스 응답도 앱잼 모드 플래그를 함께 준다")
+  void tabAppServicesCarryAppjamMode() {
+    addService("SOPTAMP", true, true);
+
+    HomeAppServices result = homeFacade.checkTabAppServiceEntryStatus(null);
+
+    assertThat(result.isAppjamMode()).isFalse();
+  }
+
+  @Test
   @DisplayName("로그인하지 않으면 서비스 전부를 뱃지 없이 준다")
   void anonymousGetsAllServicesWithoutBadge() {
     addService("POKE", true, false);
     addService("SOPTAMP", false, true);
 
-    List<AppServiceEntryStatus> result = homeFacade.checkTabAppServiceEntryStatus(null);
+    List<AppServiceEntryStatus> result = tabAppServices(null);
 
     assertThat(result)
         .extracting(AppServiceEntryStatus::serviceName)
@@ -147,7 +157,7 @@ class HomeFacadeTest {
     addService("POKE", true, false);
     addService("SOPTAMP", false, true);
 
-    List<AppServiceEntryStatus> result = homeFacade.checkTabAppServiceEntryStatus(ACTIVE_USER);
+    List<AppServiceEntryStatus> result = tabAppServices(ACTIVE_USER);
 
     assertThat(result).hasSize(1);
     assertThat(result.getFirst().serviceName()).isEqualTo("콕찌르기");
@@ -161,9 +171,13 @@ class HomeFacadeTest {
     addService("POKE", true, false);
     addService("SOPTAMP", false, true);
 
-    List<AppServiceEntryStatus> result = homeFacade.checkTabAppServiceEntryStatus(INACTIVE_USER);
+    List<AppServiceEntryStatus> result = tabAppServices(INACTIVE_USER);
 
     assertThat(result).extracting(AppServiceEntryStatus::serviceName).containsExactly("솝탬프");
+  }
+
+  private List<AppServiceEntryStatus> tabAppServices(Long userId) {
+    return homeFacade.checkTabAppServiceEntryStatus(userId).appServices();
   }
 
   @Test

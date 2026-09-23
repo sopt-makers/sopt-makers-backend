@@ -8,11 +8,9 @@ import static org.sopt.makers.api.controller.app.home.HomeSuccessCode.GET_RECENT
 import static org.sopt.makers.api.controller.app.home.HomeSuccessCode.GET_REVIEW_FORM;
 import static org.sopt.makers.api.controller.app.home.HomeSuccessCode.GET_TAB_APP_SERVICES;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
-import org.sopt.makers.api.controller.app.home.dto.AppServiceEntryStatusResponse;
 import org.sopt.makers.api.controller.app.home.dto.FloatingButtonResponse;
 import org.sopt.makers.api.controller.app.home.dto.HomeAppServiceResponse;
 import org.sopt.makers.api.controller.app.home.dto.HomeDescriptionResponse;
@@ -51,14 +49,12 @@ public class HomeController implements HomeApi {
   }
 
   @Override
-  @GetMapping("/tab-app-service")
-  public ResponseEntity<BaseResponse<List<AppServiceEntryStatusResponse>>> getTabAppService(
+  @GetMapping("/tab-app-service-info")
+  public ResponseEntity<BaseResponse<HomeAppServiceResponse>> getTabAppService(
       @CurrentUserId(required = false) Long userId) {
     return ResponseFactory.typedSuccess(
         GET_TAB_APP_SERVICES,
-        homeFacade.checkTabAppServiceEntryStatus(userId).stream()
-            .map(AppServiceEntryStatusResponse::of)
-            .toList());
+        HomeAppServiceResponse.of(homeFacade.checkTabAppServiceEntryStatus(userId)));
   }
 
   @Override

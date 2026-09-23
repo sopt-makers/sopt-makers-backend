@@ -94,8 +94,10 @@ public class HomeFacade {
         soptampMode.isAppjam(), checkAppServiceEntryStatus(userId, appServices));
   }
 
-  public List<AppServiceEntryStatus> checkTabAppServiceEntryStatus(Long userId) {
-    return checkAppServiceEntryStatus(userId, appServiceService.getTabAppServices());
+  public HomeAppServices checkTabAppServiceEntryStatus(Long userId) {
+    List<AppService> tabAppServices = appServiceService.getTabAppServices();
+    return new HomeAppServices(
+        soptampMode.isAppjam(), checkAppServiceEntryStatus(userId, tabAppServices));
   }
 
   public FloatingButton getFloatingButtonInfo(Long userId) {
