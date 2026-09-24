@@ -6,8 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import org.sopt.makers.api.controller.app.home.dto.AppServiceEntryStatusResponse;
 import org.sopt.makers.api.controller.app.home.dto.FloatingButtonResponse;
 import org.sopt.makers.api.controller.app.home.dto.HomeAppServiceResponse;
 import org.sopt.makers.api.controller.app.home.dto.HomeDescriptionResponse;
@@ -50,7 +48,7 @@ public interface HomeApi {
         description = "존재하지 않는 회원이거나, 앱 서비스 정보를 찾을 수 없습니다.",
         content = @Content)
   })
-  ResponseEntity<BaseResponse<List<AppServiceEntryStatusResponse>>> getTabAppService(
+  ResponseEntity<BaseResponse<HomeAppServiceResponse>> getTabAppService(
       @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "플레이그라운드 최신 게시글 조회", description = "캐시가 비어 있으면 빈 목록을 주고 뒤에서 채운다")
