@@ -52,16 +52,16 @@ class SoptampPartRankCalculatorTest {
         .extracting(PartRank::part, PartRank::rank, PartRank::pointsDecimal)
         .containsExactly(
             tuple("기획", 5, new BigDecimal("0.00")),
-            tuple("디자인", 2, new BigDecimal("94.87")),
+            tuple("디자인", 2, new BigDecimal("9487.00")),
             tuple("웹", 5, new BigDecimal("0.00")),
-            tuple("아요", 2, new BigDecimal("94.87")),
-            tuple("안드", 4, new BigDecimal("63.25")),
-            tuple("서버", 1, new BigDecimal("219.09")));
+            tuple("아요", 2, new BigDecimal("9487.00")),
+            tuple("안드", 4, new BigDecimal("6325.00")),
+            tuple("서버", 1, new BigDecimal("21909.00")));
   }
 
   @Test
-  @DisplayName("points 는 반올림이 아니라 소수부를 버린 값이다")
-  void truncatesLegacyPoints() {
+  @DisplayName("points 는 100을 곱한 pointsDecimal 과 같은 정수 값이다")
+  void legacyPointsMatchesScaledPointsDecimal() {
     List<PartRank> ranks =
         SoptampPartRankCalculator.calculatePartRank(
             List.of(user(10L, 100L, SoptampPart.SERVER)), Map.of(Part.SERVER, 3L));
@@ -70,7 +70,7 @@ class SoptampPartRankCalculatorTest {
         .filteredOn(rank -> rank.part().equals("서버"))
         .singleElement()
         .extracting(PartRank::points, PartRank::pointsDecimal)
-        .containsExactly(57L, new BigDecimal("57.74"));
+        .containsExactly(5774L, new BigDecimal("5774.00"));
   }
 
   @Test
@@ -100,7 +100,7 @@ class SoptampPartRankCalculatorTest {
 
     assertThat(ranks)
         .extracting(PartRank::part, PartRank::pointsDecimal)
-        .contains(tuple("서버", new BigDecimal("31.62")))
+        .contains(tuple("서버", new BigDecimal("3162.00")))
         .contains(tuple("기획", new BigDecimal("0.00")));
   }
 

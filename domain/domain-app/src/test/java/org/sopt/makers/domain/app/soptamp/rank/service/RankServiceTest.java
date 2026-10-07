@@ -171,8 +171,8 @@ class RankServiceTest {
     assertThat(ranks)
         .extracting(PartRank::part, PartRank::rank, PartRank::points, PartRank::pointsDecimal)
         .contains(
-            tuple("서버", 2, 31L, new BigDecimal("31.62")),
-            tuple("안드", 1, 63L, new BigDecimal("63.25")));
+            tuple("서버", 2, 3162L, new BigDecimal("3162.00")),
+            tuple("안드", 1, 6325L, new BigDecimal("6325.00")));
   }
 
   @Test

@@ -23,6 +23,7 @@ public final class SoptampPartRankCalculator {
   private static final BigDecimal ZERO_POINT =
       BigDecimal.ZERO.setScale(POINT_SCALE, POINT_ROUNDING_MODE);
   private static final MathContext SQRT_MATH_CONTEXT = MathContext.DECIMAL128;
+  private static final BigDecimal DISPLAY_POINT_MULTIPLIER = BigDecimal.valueOf(100);
 
   private static final List<Part> RANKING_PARTS =
       List.of(Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER);
@@ -40,7 +41,8 @@ public final class SoptampPartRankCalculator {
             part -> {
               // TODO: 파트 랭킹 조회시 기존(points) 정수를 유지하고 신규(pointsDecimal)을 추가함으로 앱 하위 호환 대응. 추후 points
               // 제거 필요.
-              BigDecimal pointsDecimal = adjustedPoints.get(part);
+              BigDecimal pointsDecimal =
+                  adjustedPoints.get(part).multiply(DISPLAY_POINT_MULTIPLIER);
 
               return new PartRank(
                   SoptampPart.of(part).getShortName(),
