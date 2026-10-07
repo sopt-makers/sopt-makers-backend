@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingLong;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -21,6 +22,7 @@ public final class SoptampPartRankCalculator {
   private static final RoundingMode POINT_ROUNDING_MODE = RoundingMode.HALF_UP;
   private static final BigDecimal ZERO_POINT =
       BigDecimal.ZERO.setScale(POINT_SCALE, POINT_ROUNDING_MODE);
+  private static final MathContext SQRT_MATH_CONTEXT = MathContext.DECIMAL128;
 
   private static final List<Part> RANKING_PARTS =
       List.of(Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER);
@@ -80,7 +82,10 @@ public final class SoptampPartRankCalculator {
           memberCount == 0
               ? ZERO_POINT
               : BigDecimal.valueOf(totalScore)
-                  .divide(BigDecimal.valueOf(memberCount), POINT_SCALE, POINT_ROUNDING_MODE);
+                  .divide(
+                      BigDecimal.valueOf(memberCount).sqrt(SQRT_MATH_CONTEXT),
+                      POINT_SCALE,
+                      POINT_ROUNDING_MODE);
 
       adjustedPoints.put(part, adjustedPoint);
     }

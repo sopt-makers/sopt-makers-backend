@@ -44,19 +44,19 @@ class SoptampPartRankCalculatorTest {
   }
 
   @Test
-  @DisplayName("평균은 소수 둘째 자리 HALF_UP 이고 동점은 공동 순위로 다음 순위를 건너뛴다")
-  void ranksByAveragePointWithSharedRank() {
+  @DisplayName("동점은 공동 순위이고 다음 순위는 동점 파트 수만큼 건너뛴다")
+  void ranksByAdjustedPointWithSharedRank() {
     List<PartRank> ranks = SoptampPartRankCalculator.calculatePartRank(USERS, MEMBER_COUNTS);
 
     assertThat(ranks)
         .extracting(PartRank::part, PartRank::rank, PartRank::pointsDecimal)
         .containsExactly(
             tuple("기획", 5, new BigDecimal("0.00")),
-            tuple("디자인", 2, new BigDecimal("30.00")),
+            tuple("디자인", 2, new BigDecimal("94.87")),
             tuple("웹", 5, new BigDecimal("0.00")),
-            tuple("아요", 2, new BigDecimal("30.00")),
-            tuple("안드", 4, new BigDecimal("20.00")),
-            tuple("서버", 1, new BigDecimal("40.00")));
+            tuple("아요", 2, new BigDecimal("94.87")),
+            tuple("안드", 4, new BigDecimal("63.25")),
+            tuple("서버", 1, new BigDecimal("219.09")));
   }
 
   @Test
@@ -70,7 +70,7 @@ class SoptampPartRankCalculatorTest {
         .filteredOn(rank -> rank.part().equals("서버"))
         .singleElement()
         .extracting(PartRank::points, PartRank::pointsDecimal)
-        .containsExactly(33L, new BigDecimal("33.33"));
+        .containsExactly(57L, new BigDecimal("57.74"));
   }
 
   @Test
@@ -100,7 +100,7 @@ class SoptampPartRankCalculatorTest {
 
     assertThat(ranks)
         .extracting(PartRank::part, PartRank::pointsDecimal)
-        .contains(tuple("서버", new BigDecimal("10.00")))
+        .contains(tuple("서버", new BigDecimal("31.62")))
         .contains(tuple("기획", new BigDecimal("0.00")));
   }
 
