@@ -30,15 +30,15 @@ public final class SoptampPartRankCalculator {
   public static List<PartRank> calculatePartRank(
       List<SoptampUser> users, Map<Part, Long> partMemberCounts) {
     Map<Part, Long> partScores = calculatePartScores(users);
-    Map<Part, BigDecimal> averagePoints = calculateAveragePoints(partScores, partMemberCounts);
-    Map<Part, Integer> ranks = calculateRanks(averagePoints);
+    Map<Part, BigDecimal> adjustedPoints = calculateAdjustedPoints(partScores, partMemberCounts);
+    Map<Part, Integer> ranks = calculateRanks(adjustedPoints);
 
     return RANKING_PARTS.stream()
         .map(
             part -> {
               // TODO: 파트 랭킹 조회시 기존(points) 정수를 유지하고 신규(pointsDecimal)을 추가함으로 앱 하위 호환 대응. 추후 points
               // 제거 필요.
-              BigDecimal pointsDecimal = averagePoints.get(part);
+              BigDecimal pointsDecimal = adjustedPoints.get(part);
 
               return new PartRank(
                   SoptampPart.of(part).getShortName(),
@@ -68,29 +68,29 @@ public final class SoptampPartRankCalculator {
     return user.part() == null ? null : user.part().toPart();
   }
 
-  private static Map<Part, BigDecimal> calculateAveragePoints(
+  private static Map<Part, BigDecimal> calculateAdjustedPoints(
       Map<Part, Long> partScores, Map<Part, Long> partMemberCounts) {
-    Map<Part, BigDecimal> averagePoints = new EnumMap<>(Part.class);
+    Map<Part, BigDecimal> adjustedPoints = new EnumMap<>(Part.class);
 
     for (Part part : RANKING_PARTS) {
       long totalScore = partScores.getOrDefault(part, 0L);
       long memberCount = partMemberCounts.getOrDefault(part, 0L);
 
-      BigDecimal averagePoint =
+      BigDecimal adjustedPoint =
           memberCount == 0
               ? ZERO_POINT
               : BigDecimal.valueOf(totalScore)
                   .divide(BigDecimal.valueOf(memberCount), POINT_SCALE, POINT_ROUNDING_MODE);
 
-      averagePoints.put(part, averagePoint);
+      adjustedPoints.put(part, adjustedPoint);
     }
 
-    return averagePoints;
+    return adjustedPoints;
   }
 
-  private static Map<Part, Integer> calculateRanks(Map<Part, BigDecimal> averagePoints) {
+  private static Map<Part, Integer> calculateRanks(Map<Part, BigDecimal> adjustedPoints) {
     List<Entry<Part, BigDecimal>> sortedParts =
-        averagePoints.entrySet().stream()
+        adjustedPoints.entrySet().stream()
             .sorted(comparingByValue(Comparator.reverseOrder()))
             .toList();
 
