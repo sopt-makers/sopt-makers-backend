@@ -851,12 +851,439 @@ CREATE TABLE user_activity_check
 );
 
 -- ============================================================
+-- Crew 도메인
+-- ============================================================
+
+CREATE TABLE advertisement
+(
+    id                              INTEGER      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    advertisement_desktop_image_url VARCHAR(255) NOT NULL,
+    advertisement_mobile_image_url  VARCHAR(255) NOT NULL,
+    advertisement_link              VARCHAR(255),
+    calendar_image_url              VARCHAR(255),
+    title_prefix                    VARCHAR(255),
+    title_highlight                 VARCHAR(255),
+    title_suffix                    VARCHAR(255),
+    sub_title                       VARCHAR(255),
+    advertisement_category          VARCHAR(255) NOT NULL,
+    priority                        BIGINT       NOT NULL,
+    advertisement_start_date        TIMESTAMP    NOT NULL,
+    advertisement_end_date          TIMESTAMP    NOT NULL,
+    is_sponsored_content            BOOLEAN      NOT NULL,
+    is_display                      BOOLEAN      NOT NULL,
+    event_type                      VARCHAR(255),
+    target_generation               VARCHAR(255) NOT NULL,
+    created_at                      TIMESTAMP    NOT NULL,
+    updated_at                      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE property
+(
+    id           BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    property_key VARCHAR(255) NOT NULL,
+    properties   TEXT         NOT NULL,
+    created_at   TIMESTAMP    NOT NULL,
+    updated_at   TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_property_key UNIQUE (property_key)
+);
+
+CREATE TABLE notice
+(
+    id                BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    title             VARCHAR(255) NOT NULL,
+    sub_title         VARCHAR(255) NOT NULL,
+    contents          TEXT         NOT NULL,
+    created_date      TIMESTAMP    NOT NULL,
+    expose_start_date TIMESTAMP    NOT NULL,
+    expose_end_date   TIMESTAMP    NOT NULL,
+    created_at        TIMESTAMP    NOT NULL,
+    updated_at        TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE slack_message_template
+(
+    template_cd      VARCHAR(255) NOT NULL,
+    template_content TEXT,
+    PRIMARY KEY (template_cd)
+);
+
+CREATE TABLE makers_user_slack
+(
+    id                        BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    username                  VARCHAR(255) NOT NULL,
+    user_slack_id             VARCHAR(255) NOT NULL,
+    team                      VARCHAR(255) NOT NULL,
+    generation                INTEGER      NOT NULL,
+    call_emoji                VARCHAR(255) NOT NULL,
+    slack_message_template_cd VARCHAR(255),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE meeting_demand
+(
+    id                     BIGINT        NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id                BIGINT        NOT NULL,
+    short_intro            VARCHAR(30)   NOT NULL,
+    expectation            VARCHAR(1000) NOT NULL,
+    status                 VARCHAR(20)   NOT NULL,
+    anonymous_nickname     VARCHAR(30)   NOT NULL,
+    anonymous_image_number INTEGER       NOT NULL,
+    meeting_keyword_types  TEXT          NOT NULL,
+    join_info              TEXT,
+    wait_count             INTEGER       NOT NULL DEFAULT 0,
+    comment_count          INTEGER       NOT NULL DEFAULT 0,
+    created_at             TIMESTAMP     NOT NULL,
+    updated_at             TIMESTAMP     NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_demand_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_keyword_preference
+(
+    user_id       BIGINT    NOT NULL,
+    keyword_types TEXT      NOT NULL,
+    created_at    TIMESTAMP NOT NULL,
+    updated_at    TIMESTAMP NOT NULL,
+    PRIMARY KEY (user_id),
+    CONSTRAINT fk_meeting_keyword_preference_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting
+(
+    id                              BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id               BIGINT,
+    title                           VARCHAR(255) NOT NULL,
+    sub_title                       VARCHAR(255),
+    category                        VARCHAR(50)  NOT NULL,
+    image_urls                      TEXT         NOT NULL,
+    start_date                      TIMESTAMP    NOT NULL,
+    end_date                        TIMESTAMP    NOT NULL,
+    capacity                        INTEGER      NOT NULL,
+    description                     TEXT         NOT NULL,
+    process_description             TEXT,
+    activity_start_date             TIMESTAMP,
+    activity_end_date               TIMESTAMP,
+    leader_description              TEXT,
+    note                            TEXT,
+    is_mentor_needed                BOOLEAN      NOT NULL,
+    can_join_only_active_generation BOOLEAN      NOT NULL,
+    join_info                       TEXT,
+    created_generation              INTEGER      NOT NULL,
+    target_active_generation        INTEGER,
+    joinable_parts                  TEXT,
+    created_at                      TIMESTAMP    NOT NULL,
+    updated_at                      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE meeting_member
+(
+    id         BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_id BIGINT       NOT NULL,
+    user_id    BIGINT       NOT NULL,
+    role       VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP    NOT NULL,
+    updated_at TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_member_meeting_user
+        UNIQUE (meeting_id, user_id),
+    CONSTRAINT fk_meeting_member_meeting
+        FOREIGN KEY (meeting_id) REFERENCES meeting (id),
+    CONSTRAINT fk_meeting_member_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE apply
+(
+    id           BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    type         VARCHAR(255) NOT NULL,
+    meeting_id   BIGINT       NOT NULL,
+    user_id      BIGINT       NOT NULL,
+    content      TEXT,
+    applied_date TIMESTAMP    NOT NULL,
+    status       VARCHAR(255) NOT NULL,
+    created_at   TIMESTAMP    NOT NULL,
+    updated_at   TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_apply_meeting_user
+        UNIQUE (meeting_id, user_id),
+    CONSTRAINT fk_apply_meeting
+        FOREIGN KEY (meeting_id) REFERENCES meeting (id),
+    CONSTRAINT fk_apply_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE flash
+(
+    id                  BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    leader_user_id      BIGINT       NOT NULL,
+    meeting_id          BIGINT       NOT NULL,
+    title               VARCHAR(30)  NOT NULL,
+    description         VARCHAR(500) NOT NULL,
+    timing_type         VARCHAR(30)  NOT NULL,
+    start_date          TIMESTAMP    NOT NULL,
+    end_date            TIMESTAMP    NOT NULL,
+    activity_start_date TIMESTAMP    NOT NULL,
+    activity_end_date   TIMESTAMP    NOT NULL,
+    place_type          VARCHAR(30)  NOT NULL,
+    place               VARCHAR(255),
+    minimum_capacity    INTEGER      NOT NULL,
+    maximum_capacity    INTEGER      NOT NULL,
+    created_generation  INTEGER      NOT NULL,
+    image_urls          TEXT         NOT NULL,
+    created_at          TIMESTAMP    NOT NULL,
+    updated_at          TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_flash_meeting UNIQUE (meeting_id),
+    CONSTRAINT fk_flash_leader_user
+        FOREIGN KEY (leader_user_id) REFERENCES users (id),
+    CONSTRAINT fk_flash_meeting
+        FOREIGN KEY (meeting_id) REFERENCES meeting (id)
+);
+
+CREATE TABLE subway_station
+(
+    id         BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    name       VARCHAR(255) NOT NULL,
+    lines      TEXT         NOT NULL,
+    created_at TIMESTAMP    NOT NULL,
+    updated_at TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_subway_station_name UNIQUE (name)
+);
+
+CREATE TABLE sopt_map
+(
+    id                 BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    nearby_station_ids TEXT         NOT NULL,
+    place_name         VARCHAR(255) NOT NULL,
+    description        VARCHAR(500) NOT NULL,
+    map_tags           TEXT         NOT NULL,
+    naver_link         VARCHAR(255),
+    kakao_link         VARCHAR(255),
+    creator_id         BIGINT       NOT NULL,
+    created_at         TIMESTAMP    NOT NULL,
+    updated_at         TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_sopt_map_place_name UNIQUE (place_name),
+    CONSTRAINT fk_sopt_map_creator
+        FOREIGN KEY (creator_id) REFERENCES users (id)
+);
+
+CREATE TABLE map_recommended
+(
+    id          BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id     BIGINT    NOT NULL,
+    sopt_map_id BIGINT    NOT NULL,
+    active      BOOLEAN   NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    updated_at  TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_map_recommended_user_map
+        UNIQUE (user_id, sopt_map_id),
+    CONSTRAINT fk_map_recommended_user
+        FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_map_recommended_map
+        FOREIGN KEY (sopt_map_id)
+        REFERENCES sopt_map (id) ON DELETE CASCADE
+);
+
+CREATE TABLE event_gift
+(
+    id         BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id    BIGINT,
+    map_id     BIGINT,
+    gift_url   VARCHAR(255) NOT NULL,
+    claimable  BOOLEAN      NOT NULL,
+    active     BOOLEAN      NOT NULL,
+    created_at TIMESTAMP    NOT NULL,
+    updated_at TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_event_gift_user
+        FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_event_gift_map
+        FOREIGN KEY (map_id)
+        REFERENCES sopt_map (id) ON DELETE SET NULL
+);
+
+CREATE TABLE meeting_demand_wait
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id BIGINT    NOT NULL,
+    user_id           BIGINT    NOT NULL,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_wait_demand_user
+        UNIQUE (meeting_demand_id, user_id),
+    CONSTRAINT fk_meeting_demand_wait_demand
+        FOREIGN KEY (meeting_demand_id)
+        REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_wait_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_wait_history
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id BIGINT    NOT NULL,
+    user_id           BIGINT    NOT NULL,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_wait_history_demand_user
+        UNIQUE (meeting_demand_id, user_id),
+    CONSTRAINT fk_meeting_demand_wait_history_demand
+        FOREIGN KEY (meeting_demand_id)
+        REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_wait_history_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_comment
+(
+    id                BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id BIGINT    NOT NULL,
+    user_id           BIGINT,
+    contents          TEXT      NOT NULL,
+    depth             INTEGER   NOT NULL,
+    comment_order     INTEGER   NOT NULL,
+    parent_id         BIGINT,
+    like_count        INTEGER   NOT NULL,
+    created_at        TIMESTAMP NOT NULL,
+    updated_at        TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_meeting_demand_comment_demand
+        FOREIGN KEY (meeting_demand_id)
+        REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_comment_user
+        FOREIGN KEY (user_id)
+        REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_meeting_demand_comment_parent
+        FOREIGN KEY (parent_id)
+        REFERENCES meeting_demand_comment (id) ON DELETE CASCADE
+);
+
+CREATE TABLE meeting_demand_comment_profile
+(
+    id                     BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_id      BIGINT      NOT NULL,
+    user_id                BIGINT      NOT NULL,
+    anonymous_nickname     VARCHAR(30) NOT NULL,
+    anonymous_image_number INTEGER     NOT NULL,
+    created_at             TIMESTAMP   NOT NULL,
+    updated_at             TIMESTAMP   NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_comment_profile_demand_user
+        UNIQUE (meeting_demand_id, user_id),
+    CONSTRAINT fk_meeting_demand_comment_profile_demand
+        FOREIGN KEY (meeting_demand_id)
+        REFERENCES meeting_demand (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_comment_profile_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_report
+(
+    id          BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id     BIGINT      NOT NULL,
+    target_type VARCHAR(20) NOT NULL,
+    target_id   BIGINT      NOT NULL,
+    created_at  TIMESTAMP   NOT NULL,
+    updated_at  TIMESTAMP   NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_report_user_target
+        UNIQUE (user_id, target_type, target_id),
+    CONSTRAINT fk_meeting_demand_report_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_comment_like
+(
+    id                        BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_demand_comment_id BIGINT    NOT NULL,
+    user_id                   BIGINT    NOT NULL,
+    created_at                TIMESTAMP NOT NULL,
+    updated_at                TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_meeting_demand_comment_like_comment_user
+        UNIQUE (meeting_demand_comment_id, user_id),
+    CONSTRAINT fk_meeting_demand_comment_like_comment
+        FOREIGN KEY (meeting_demand_comment_id)
+        REFERENCES meeting_demand_comment (id) ON DELETE CASCADE,
+    CONSTRAINT fk_meeting_demand_comment_like_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE meeting_demand_opened_notification
+(
+    id         BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    meeting_id BIGINT    NOT NULL,
+    sent_at    TIMESTAMP,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uq_meeting_demand_opened_notification_meeting_id
+        UNIQUE (meeting_id)
+);
+
+CREATE TABLE mumu_text
+(
+    id              BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    text            TEXT         NOT NULL,
+    category        VARCHAR(255) NOT NULL,
+    show_start_date TIMESTAMP    NOT NULL,
+    show_end_date   TIMESTAMP    NOT NULL,
+    created_at      TIMESTAMP    NOT NULL,
+    updated_at      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE mumu_post_write_history
+(
+    id           BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id      BIGINT    NOT NULL,
+    written_date DATE      NOT NULL,
+    created_at   TIMESTAMP NOT NULL,
+    updated_at   TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_mumu_post_write_history_user_date
+        UNIQUE (user_id, written_date),
+    CONSTRAINT fk_mumu_post_write_history_user
+        FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE tag
+(
+    id                    BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    tag_type              VARCHAR(20) NOT NULL,
+    meeting_id            BIGINT      NOT NULL,
+    flash_id              BIGINT,
+    welcome_message_types TEXT        NOT NULL,
+    meeting_keyword_types TEXT        NOT NULL,
+    created_at            TIMESTAMP   NOT NULL,
+    updated_at            TIMESTAMP   NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_tag_meeting UNIQUE (meeting_id),
+    CONSTRAINT uk_tag_flash UNIQUE (flash_id),
+    CONSTRAINT fk_tag_meeting
+        FOREIGN KEY (meeting_id) REFERENCES meeting (id),
+    CONSTRAINT fk_tag_flash
+        FOREIGN KEY (flash_id) REFERENCES flash (id)
+);
+
+-- ============================================================
 -- Crew 모임 게시판(무무) — domain-playground/post/*
 -- 레거시 Playground 커뮤니티(community_post 등)와 물리적으로 분리된 별도 테이블. 두 기능을 하나의 테이블로
 -- 병합하면 레거시 Playground 원본 컬럼(anonymous_profile_id, sopticle_url, is_question 등)이 유실되고
 -- 커뮤니티 71개 API 계약이 깨지므로, 저장 모델은 분리하고 필요 시 Port 계층에서만 통합 창구를 둔다.
--- meeting_id는 domain-crew의 meeting 테이블을 참조해야 하지만, domain-crew 스키마 전체가 아직 어떤
--- 마이그레이션 파일에도 존재하지 않아(meeting/apply/property 등) FK를 걸지 않는다.
+-- meeting_id는 통합 Crew의 meeting을 가리키지만,
+-- 현재 DEV 스키마와 동일하게 meeting_post에는 별도 FK를 두지 않는다.
 -- ============================================================
 
 CREATE TABLE meeting_post
