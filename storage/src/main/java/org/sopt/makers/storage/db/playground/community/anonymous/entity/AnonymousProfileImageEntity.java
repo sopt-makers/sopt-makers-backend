@@ -21,7 +21,7 @@ public class AnonymousProfileImageEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "anonymous_profile_image_id")
+  @Column(name = "id")
   private Long id;
 
   @Column(name = "image_url", nullable = false)
