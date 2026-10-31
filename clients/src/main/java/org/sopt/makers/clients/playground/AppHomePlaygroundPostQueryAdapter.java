@@ -9,6 +9,7 @@ import org.sopt.makers.clients.playground.dto.PlaygroundRecentPostDto;
 import org.sopt.makers.domain.app.playground.PlaygroundPopularPost;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPost;
 import org.sopt.makers.domain.app.playground.port.AppHomePlaygroundPostQueryPort;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestClientException;
 //    규칙을 안 바꾸면 storage 프로젝션 어댑터로 가야 하는데 카테고리별 최신글, 인기글 순위, 익명 프로필 로직이 복제된다.
 //  - 그때 Redis 캐시, 매시 갱신 스케줄러, 갱신 이벤트 리스너를 계속 둘지 다시 본다. HTTP 호출을 줄이려던 장치다.
 @Component
+@EnableConfigurationProperties(PlaygroundProperty.class)
 public class AppHomePlaygroundPostQueryAdapter implements AppHomePlaygroundPostQueryPort {
 
   private static final String RECENT_POSTS_PATH = "/internal/api/v1/community/posts/latest";
