@@ -1,11 +1,9 @@
 package org.sopt.makers.api.controller.official.project;
 
-import static org.sopt.makers.api.common.exception.CommonFailureCode.INVALID_INPUT_VALUE;
 import static org.sopt.makers.api.controller.official.project.ProjectSuccessCode.GET_PROJECTS;
 import static org.sopt.makers.api.controller.official.project.ProjectSuccessCode.GET_PROJECT_DETAIL;
 
 import jakarta.validation.constraints.Min;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.official.project.dto.ProjectResponse;
@@ -18,13 +16,11 @@ import org.sopt.makers.domain.official.project.type.ProjectCategory;
 import org.sopt.makers.domain.official.project.type.ProjectServiceType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestController
 @RequestMapping("/api/v1/official/projects")
@@ -66,14 +62,5 @@ public class ProjectController implements ProjectApi {
     ProjectDetail detail = projectService.getProjectDetail(projectId);
     return ResponseFactory.success(
         GET_PROJECT_DETAIL, ProjectResponse.ProjectDetailItem.of(detail));
-  }
-
-  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-  public ResponseEntity<BaseResponse<?>> handleInvalidParameter(
-      MethodArgumentTypeMismatchException e) {
-    return ResponseEntity.badRequest()
-        .body(
-            BaseResponse.ofFailure(
-                INVALID_INPUT_VALUE, Map.of("valid_" + e.getName(), "유효하지 않은 입력값입니다")));
   }
 }
