@@ -74,11 +74,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<BaseResponse<?>> handleTypeMismatch(
       final MethodArgumentTypeMismatchException e) {
     log.warn(e.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(
-            BaseResponse.ofFailure(
-                METHOD_ARGUMENT_TYPE_MISMATCH,
-                Map.of(String.format(VALIDATION_KEY_FORMAT, e.getName()), "유효하지 않은 입력값입니다")));
+    return toResponse(METHOD_ARGUMENT_TYPE_MISMATCH);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)

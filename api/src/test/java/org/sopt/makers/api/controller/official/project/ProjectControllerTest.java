@@ -14,6 +14,7 @@ import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
+import org.sopt.makers.api.common.exception.OfficialProjectExceptionHandler;
 import org.sopt.makers.domain.official.project.service.ProjectService;
 import org.sopt.makers.domain.official.project.service.ProjectService.SortBy;
 import org.sopt.makers.domain.official.project.service.ProjectService.SortDirection;
@@ -26,7 +27,7 @@ class ProjectControllerTest {
   private final ProjectService service = mock(ProjectService.class);
   private final org.springframework.test.web.servlet.MockMvc mvc =
       MockMvcBuilders.standaloneSetup(new ProjectController(service))
-          .setControllerAdvice(new GlobalExceptionHandler())
+          .setControllerAdvice(new OfficialProjectExceptionHandler(), new GlobalExceptionHandler())
           .build();
 
   @Test
