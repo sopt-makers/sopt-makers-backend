@@ -13,10 +13,10 @@ import org.sopt.makers.domain.official.project.type.ProjectServiceType;
 
 public class ProjectResponse {
 
-  public record ProjectList(List<ProjectItem> projects, int total) {
-    public static ProjectList of(ProjectService.ProjectsResult result) {
+  public record ProjectList(List<ProjectItem> data, int totalCount, int limit, int pageNo) {
+    public static ProjectList of(ProjectService.ProjectsResult result, int limit, int pageNo) {
       return new ProjectList(
-          result.projects().stream().map(ProjectItem::of).toList(), result.total());
+          result.projects().stream().map(ProjectItem::of).toList(), result.total(), limit, pageNo);
     }
   }
 
@@ -30,6 +30,7 @@ public class ProjectResponse {
       String logoImage,
       String thumbnailImage,
       boolean isFounding,
+      boolean isAvailable,
       List<LinkItem> links) {
     public static ProjectItem of(Project p) {
       return new ProjectItem(
@@ -41,7 +42,8 @@ public class ProjectResponse {
           p.summary(),
           p.logoImage(),
           p.thumbnailImage(),
-          Boolean.TRUE.equals(p.isFounding()),
+          p.isFounding(),
+          p.isAvailable(),
           p.links() == null
               ? List.of()
               : p.links().stream().map(l -> new LinkItem(l.linkType(), l.linkUrl())).toList());
@@ -60,6 +62,7 @@ public class ProjectResponse {
       String thumbnailImage,
       String projectImage,
       boolean isFounding,
+      boolean isAvailable,
       LocalDate startAt,
       LocalDate endAt,
       LocalDateTime uploadedAt,
@@ -79,6 +82,7 @@ public class ProjectResponse {
           pd.thumbnailImage(),
           pd.projectImage(),
           pd.isFounding(),
+          pd.isAvailable(),
           pd.startAt(),
           pd.endAt(),
           pd.uploadedAt(),

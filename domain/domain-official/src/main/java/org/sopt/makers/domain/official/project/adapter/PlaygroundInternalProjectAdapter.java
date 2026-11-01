@@ -85,6 +85,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         info.thumbnailImage(),
         projectImage,
         info.isFounding(),
+        info.isAvailable(),
         info.startAt(),
         info.endAt(),
         info.createdAt(),

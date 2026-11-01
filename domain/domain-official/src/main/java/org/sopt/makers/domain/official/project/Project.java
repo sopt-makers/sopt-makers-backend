@@ -14,8 +14,8 @@ public record Project(
     String summary,
     String logoImage,
     String thumbnailImage,
-    Boolean isFounding,
-    Boolean isAvailable,
+    boolean isFounding,
+    boolean isAvailable,
     List<ProjectLink> links) {
   public record ProjectLink(ProjectLinkType linkType, String linkUrl) {}
 }
