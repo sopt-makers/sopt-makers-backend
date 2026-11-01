@@ -3,7 +3,6 @@ package org.sopt.makers.api.controller.official.project;
 import static org.sopt.makers.api.controller.official.project.ProjectSuccessCode.GET_PROJECTS;
 import static org.sopt.makers.api.controller.official.project.ProjectSuccessCode.GET_PROJECT_DETAIL;
 
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.official.project.dto.ProjectResponse;
@@ -40,8 +39,8 @@ public class ProjectController implements ProjectApi {
       @RequestParam(required = false) Boolean isFounding,
       @RequestParam(defaultValue = "GENERATION") SortBy sortBy,
       @RequestParam(defaultValue = "DESC") SortDirection sortDirection,
-      @RequestParam(defaultValue = "1") @Min(1) int pageNo,
-      @RequestParam(defaultValue = "10") @Min(1) int limit) {
+      @RequestParam(defaultValue = "1") int pageNo,
+      @RequestParam(defaultValue = "10") int limit) {
     ProjectService.ProjectsResult result =
         projectService.getProjects(
             filter,

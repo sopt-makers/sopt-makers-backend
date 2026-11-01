@@ -74,6 +74,15 @@ class ProjectServiceTest {
         .isEmpty();
   }
 
+  @Test
+  void foundingFalseIncludesNullToMatchResponse() {
+    var result =
+        service.getProjects(
+            null, null, null, null, false, SortBy.GENERATION, SortDirection.DESC, 1, 10);
+    assertThat(result.total()).isEqualTo(2);
+    assertThat(result.projects()).extracting(Project::id).containsExactly(6L, 7L);
+  }
+
   private static Project project(
       Long id, String name, Integer generation, Boolean available, Boolean founding) {
     return new Project(

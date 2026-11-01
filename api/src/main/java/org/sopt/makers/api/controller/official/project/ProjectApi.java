@@ -2,6 +2,7 @@ package org.sopt.makers.api.controller.official.project;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.official.project.service.ProjectService.SortBy;
 import org.sopt.makers.domain.official.project.service.ProjectService.SortDirection;
@@ -21,8 +22,8 @@ public interface ProjectApi {
       Boolean isFounding,
       SortBy sortBy,
       SortDirection sortDirection,
-      int pageNo,
-      int limit);
+      @Min(1) int pageNo,
+      @Min(1) int limit);
 
   @Operation(summary = "프로젝트 상세 조회")
   ResponseEntity<BaseResponse<?>> getProjectDetail(Long projectId);

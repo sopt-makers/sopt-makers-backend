@@ -1,5 +1,6 @@
 package org.sopt.makers.api.controller.official.project;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -9,13 +10,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
 import org.sopt.makers.domain.official.project.service.ProjectService;
 import org.sopt.makers.domain.official.project.service.ProjectService.SortBy;
 import org.sopt.makers.domain.official.project.service.ProjectService.SortDirection;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.MethodValidationInterceptor;
 
 class ProjectControllerTest {
   private final ProjectService service = mock(ProjectService.class);
@@ -45,5 +50,30 @@ class ProjectControllerTest {
     mvc.perform(get("/api/v1/official/projects").param("sortBy", "invalid"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.data.valid_sortBy").value("유효하지 않은 입력값입니다"));
+  }
+
+  @Test
+  void methodValidationAcceptsValidValuesAndRejectsInvalidPageAndLimit() {
+    try (LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean()) {
+      validator.afterPropertiesSet();
+      ProxyFactory factory = new ProxyFactory(new ProjectController(service));
+      factory.setProxyTargetClass(true);
+      factory.addAdvice(new MethodValidationInterceptor(validator.getValidator()));
+      ProjectController controller = (ProjectController) factory.getProxy();
+      when(service.getProjects(any(), any(), any(), any(), any(), any(), any(), eq(1), eq(10)))
+          .thenReturn(new ProjectService.ProjectsResult(List.of(), 0));
+      controller.getProjects(
+          null, null, null, null, null, SortBy.GENERATION, SortDirection.DESC, 1, 10);
+      assertThatThrownBy(
+              () ->
+                  controller.getProjects(
+                      null, null, null, null, null, SortBy.GENERATION, SortDirection.DESC, 0, 10))
+          .isInstanceOf(ConstraintViolationException.class);
+      assertThatThrownBy(
+              () ->
+                  controller.getProjects(
+                      null, null, null, null, null, SortBy.GENERATION, SortDirection.DESC, 1, 0))
+          .isInstanceOf(ConstraintViolationException.class);
+    }
   }
 }

@@ -60,7 +60,10 @@ public class ProjectService {
             .filter(p -> serviceType == null || p.serviceType().contains(serviceType))
             .filter(p -> generation == null || Objects.equals(p.generation(), generation))
             .filter(p -> isAvailable == null || Objects.equals(p.isAvailable(), isAvailable))
-            .filter(p -> isFounding == null || Objects.equals(p.isFounding(), isFounding))
+            .filter(
+                p ->
+                    isFounding == null
+                        || Objects.equals(Boolean.TRUE.equals(p.isFounding()), isFounding))
             .sorted(comparator)
             .toList();
     int total = filtered.size();
