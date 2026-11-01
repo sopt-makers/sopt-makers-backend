@@ -23,7 +23,7 @@ class OfficialProjectAdapterTest {
   @Test
   @DisplayName("목록 조회는 값이 없는 창업 여부와 이용 가능 여부를 false로 변환한다")
   void fetchAllNormalizesNullFlags() {
-    when(projectService.fetchAllProjects()).thenReturn(List.of(projectWithNullFlags()));
+    when(projectService.fetchAllProjects()).thenReturn(List.of(project(null, null)));
     when(projectService.getProjectLinks(List.of(PROJECT_ID))).thenReturn(List.of());
 
     OfficialProjectInfo info = adapter.fetchAll().get(0);
@@ -33,10 +33,22 @@ class OfficialProjectAdapterTest {
   }
 
   @Test
+  @DisplayName("목록 조회는 창업 여부와 이용 가능 여부를 각각의 필드로 전달한다")
+  void fetchAllKeepsFlagsSeparate() {
+    when(projectService.fetchAllProjects()).thenReturn(List.of(project(true, false)));
+    when(projectService.getProjectLinks(List.of(PROJECT_ID))).thenReturn(List.of());
+
+    OfficialProjectInfo info = adapter.fetchAll().get(0);
+
+    assertThat(info.isAvailable()).isTrue();
+    assertThat(info.isFounding()).isFalse();
+  }
+
+  @Test
   @DisplayName("상세 조회는 값이 없는 창업 여부와 이용 가능 여부를 false로 변환한다")
   void fetchDetailNormalizesNullFlags() {
     when(projectService.getProjectDetail(PROJECT_ID))
-        .thenReturn(new ProjectDetailResult(projectWithNullFlags(), List.of(), List.of()));
+        .thenReturn(new ProjectDetailResult(project(null, null), List.of(), List.of()));
 
     OfficialProjectDetailInfo info = adapter.fetchDetail(PROJECT_ID);
 
@@ -44,7 +56,19 @@ class OfficialProjectAdapterTest {
     assertThat(info.isAvailable()).isFalse();
   }
 
-  private static Project projectWithNullFlags() {
+  @Test
+  @DisplayName("상세 조회는 창업 여부와 이용 가능 여부를 각각의 필드로 전달한다")
+  void fetchDetailKeepsFlagsSeparate() {
+    when(projectService.getProjectDetail(PROJECT_ID))
+        .thenReturn(new ProjectDetailResult(project(true, false), List.of(), List.of()));
+
+    OfficialProjectDetailInfo info = adapter.fetchDetail(PROJECT_ID);
+
+    assertThat(info.isAvailable()).isTrue();
+    assertThat(info.isFounding()).isFalse();
+  }
+
+  private static Project project(Boolean isAvailable, Boolean isFounding) {
     return new Project(
         PROJECT_ID,
         null,
@@ -54,8 +78,8 @@ class OfficialProjectAdapterTest {
         null,
         null,
         List.of(),
-        null,
-        null,
+        isAvailable,
+        isFounding,
         null,
         null,
         null,

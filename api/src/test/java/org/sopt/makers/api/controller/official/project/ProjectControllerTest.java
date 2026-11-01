@@ -95,14 +95,14 @@ class ProjectControllerTest {
   @DisplayName("목록 응답에 이용 가능 여부와 창업 여부를 포함한다")
   void listResponseIncludesServiceFlags() throws Exception {
     Project project =
-        new Project(1L, "프로젝트", 39, null, List.of(), null, null, null, true, true, List.of());
+        new Project(1L, "프로젝트", 39, null, List.of(), null, null, null, false, true, List.of());
     when(service.getProjects(any(), anyInt(), anyInt()))
         .thenReturn(new ProjectService.ProjectsResult(List.of(project), 1));
 
     mvc.perform(get(PROJECTS_URL))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.data[0].isAvailable").value(true))
-        .andExpect(jsonPath("$.data.data[0].isFounding").value(true));
+        .andExpect(jsonPath("$.data.data[0].isFounding").value(false));
   }
 
   @Test
@@ -124,14 +124,14 @@ class ProjectControllerTest {
   void detailResponseIncludesServiceFlags() throws Exception {
     ProjectDetail detail =
         new ProjectDetail(
-            1L, "프로젝트", 39, null, List.of(), null, null, null, null, null, true, true, null, null,
+            1L, "프로젝트", 39, null, List.of(), null, null, null, null, null, false, true, null, null,
             null, null, List.of(), List.of());
     when(service.getProjectDetail(1L)).thenReturn(detail);
 
     mvc.perform(get(PROJECTS_URL + "/1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.isAvailable").value(true))
-        .andExpect(jsonPath("$.data.isFounding").value(true));
+        .andExpect(jsonPath("$.data.isFounding").value(false));
   }
 
   @ParameterizedTest
