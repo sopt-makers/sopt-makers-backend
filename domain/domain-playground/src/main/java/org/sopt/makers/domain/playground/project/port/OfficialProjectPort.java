@@ -19,7 +19,8 @@ public interface OfficialProjectPort {
       String summary,
       String logoImage,
       String thumbnailImage,
-      boolean isFounding,
+      Boolean isFounding,
+      Boolean isAvailable,
       List<OfficialProjectLinkInfo> links) {}
 
   record OfficialProjectDetailInfo(

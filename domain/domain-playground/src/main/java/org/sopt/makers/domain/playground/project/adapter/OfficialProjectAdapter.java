@@ -65,7 +65,7 @@ public class OfficialProjectAdapter implements OfficialProjectPort {
         project.logoImage(),
         project.thumbnailImage(),
         project.images(),
-        project.isFounding(),
+        Boolean.TRUE.equals(project.isFounding()),
         project.startAt(),
         project.endAt(),
         project.createdAt(),
@@ -86,6 +86,7 @@ public class OfficialProjectAdapter implements OfficialProjectPort {
         project.logoImage(),
         project.thumbnailImage(),
         project.isFounding(),
+        project.isAvailable(),
         links);
   }
 }

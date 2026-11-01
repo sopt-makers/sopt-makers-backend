@@ -41,7 +41,7 @@ public class ProjectResponse {
           p.summary(),
           p.logoImage(),
           p.thumbnailImage(),
-          p.isFounding(),
+          Boolean.TRUE.equals(p.isFounding()),
           p.links() == null
               ? List.of()
               : p.links().stream().map(l -> new LinkItem(l.linkType(), l.linkUrl())).toList());
