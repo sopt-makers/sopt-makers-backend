@@ -109,8 +109,8 @@ class SoptampRankControllerTest {
     given(rankService.findAllPartRanks())
         .willReturn(
             List.of(
-                new PartRank("기획", 1, 30L, new BigDecimal("30.00")),
-                new PartRank("디자인", 2, 2L, new BigDecimal("2.50"))));
+                new PartRank("기획", 1, 3000L, new BigDecimal("3000.00")),
+                new PartRank("디자인", 2, 250L, new BigDecimal("250.00"))));
 
     mockMvc
         .perform(get("/api/v2/rank/part"))
@@ -123,8 +123,8 @@ class SoptampRankControllerTest {
                       "success": true,
                       "message": "파트끼리의 랭킹 목록 조회에 성공했습니다.",
                       "data": [
-                        {"part": "기획", "rank": 1, "points": 30, "pointsDecimal": 30.00},
-                        {"part": "디자인", "rank": 2, "points": 2, "pointsDecimal": 2.50}
+                        {"part": "기획", "rank": 1, "points": 3000, "pointsDecimal": 3000.00},
+                        {"part": "디자인", "rank": 2, "points": 250, "pointsDecimal": 250.00}
                       ]
                     }
                     """,
