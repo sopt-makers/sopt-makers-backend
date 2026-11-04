@@ -6,14 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface WordChainGameWinnerJpaRepository
+public interface ReportWordChainGameWinnerJpaRepository
     extends JpaRepository<WordChainGameWinnerEntity, Long> {
 
   @Query(
       """
       SELECT COUNT(winner)
-      FROM WordChainGameWinnerEntity winner
-      JOIN WordChainGameRoomEntity room ON room.id = winner.roomId
+      FROM ReportWordChainGameWinnerEntity winner
+      JOIN ReportWordChainGameRoomEntity room ON room.id = winner.roomId
       WHERE winner.userId = :userId
         AND room.createdAt BETWEEN :start AND :end
       """)

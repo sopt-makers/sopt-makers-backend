@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
-@Entity
+@Entity(name = "ReportWordChainGameWinnerEntity")
 @Immutable
 @Getter
 @NoArgsConstructor(access = PROTECTED)

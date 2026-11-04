@@ -21,6 +21,9 @@ public enum CommonFailureCode implements FailureCode {
   METHOD_ARGUMENT_TYPE_MISMATCH(400, "입력한 값의 타입이 잘못되었습니다"),
   INVALID_REQUEST_BODY(400, "요청 본문을 읽을 수 없습니다"),
 
+  // 403
+  INVALID_ADMIN_KEY(403, "유효하지 않은 Admin Key입니다"),
+
   // 404
   NOT_FOUND_URL(404, "존재하지 않는 URL입니다"),
   NO_RESOURCE_FOUND(404, "요청한 리소스를 찾을 수 없습니다");

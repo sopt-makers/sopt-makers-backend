@@ -358,7 +358,7 @@ CREATE TABLE sub_attendances
 
 CREATE TABLE sopt_story_like
 (
-    id           BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    id           BIGINT      NOT NULL GENERATED ALWAYS AS IDEN  TITY,
     sopt_story_id BIGINT     NOT NULL,
     ip           VARCHAR(45) NOT NULL,
     PRIMARY KEY (id),
@@ -452,9 +452,9 @@ CREATE TABLE anonymous_nickname
 
 CREATE TABLE anonymous_profile_image
 (
-    anonymous_profile_image_id BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
-    image_url                   VARCHAR(255) NOT NULL,
-    PRIMARY KEY (anonymous_profile_image_id)
+    id        BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    image_url VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE anonymous_profile
@@ -468,9 +468,7 @@ CREATE TABLE anonymous_profile
     updated_at                 TIMESTAMP NOT NULL,
     PRIMARY KEY (anonymous_profile_id),
     CONSTRAINT uk_anonymous_profile_user_post UNIQUE (user_id, post_id),
-    CONSTRAINT fk_anonymous_profile_user FOREIGN KEY (user_id) REFERENCES users (id),
-    CONSTRAINT fk_anonymous_profile_nickname FOREIGN KEY (anonymous_nickname_id) REFERENCES anonymous_nickname (anonymous_nickname_id),
-    CONSTRAINT fk_anonymous_profile_image FOREIGN KEY (anonymous_profile_image_id) REFERENCES anonymous_profile_image (anonymous_profile_image_id)
+    CONSTRAINT fk_anonymous_profile_nickname FOREIGN KEY (anonymous_nickname_id) REFERENCES anonymous_nickname (anonymous_nickname_id)
 );
 
 CREATE TABLE community_post
@@ -714,7 +712,7 @@ CREATE TABLE member_question
     CONSTRAINT fk_member_question_receiver FOREIGN KEY (receiver_id) REFERENCES users (id),
     CONSTRAINT fk_member_question_asker FOREIGN KEY (asker_id) REFERENCES users (id),
     CONSTRAINT fk_member_question_anonymous_nickname FOREIGN KEY (anonymous_nickname_id) REFERENCES anonymous_nickname (anonymous_nickname_id),
-    CONSTRAINT fk_member_question_anonymous_profile_image FOREIGN KEY (anonymous_profile_image_id) REFERENCES anonymous_profile_image (anonymous_profile_image_id)
+    CONSTRAINT fk_member_question_anonymous_profile_image FOREIGN KEY (anonymous_profile_image_id) REFERENCES anonymous_profile_image (id)
 );
 
 CREATE TABLE member_answer
@@ -1377,4 +1375,107 @@ CREATE TABLE meeting_post_comment_report
     CONSTRAINT fk_meeting_post_comment_report_comment FOREIGN KEY (comment_id) REFERENCES meeting_post_comment (id),
     CONSTRAINT fk_meeting_post_comment_report_reporter FOREIGN KEY (reporter_id) REFERENCES users (id),
     CONSTRAINT uk_meeting_post_comment_report_comment_reporter UNIQUE (comment_id, reporter_id)
+);
+
+-- ============================================================
+-- Playground 프로젝트 도메인
+-- ============================================================
+
+CREATE TABLE projects
+(
+    id              BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    creator_id      BIGINT,
+    name            VARCHAR(255),
+    generation      INTEGER,
+    category        VARCHAR(255),
+    start_at        DATE,
+    end_at          DATE,
+    service_type    TEXT[],
+    is_available    BOOLEAN,
+    is_founding     BOOLEAN,
+    summary         TEXT,
+    detail          TEXT,
+    logo_image      VARCHAR(255),
+    thumbnail_image VARCHAR(255),
+    images          TEXT[],
+    created_at      TIMESTAMP    NOT NULL,
+    updated_at      TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE links
+(
+    id         BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+    project_id BIGINT,
+    title      VARCHAR(255),
+    url        VARCHAR(255),
+    PRIMARY KEY (id),
+    CONSTRAINT fk_links_project FOREIGN KEY (project_id) REFERENCES projects (id)
+);
+
+CREATE TABLE project_users
+(
+    id             BIGINT  NOT NULL GENERATED ALWAYS AS IDENTITY,
+    project_id     BIGINT,
+    user_id        BIGINT,
+    role           VARCHAR(255),
+    description    TEXT,
+    is_team_member BOOLEAN,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_project_users_project FOREIGN KEY (project_id) REFERENCES projects (id)
+);
+
+CREATE TABLE coffee_chat_review
+(
+    id                      BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
+    reviewer_id             BIGINT      NOT NULL,
+    coffee_chat_id          BIGINT      NOT NULL,
+    anonymous_profile_image BIGINT      NOT NULL,
+    nickname                VARCHAR(10) NOT NULL,
+    content                 TEXT        NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_coffee_chat_review_image FOREIGN KEY (anonymous_profile_image) REFERENCES anonymous_profile_image (id)
+);
+
+-- ============================================================
+-- Playground 기타 도메인
+-- ============================================================
+
+CREATE TABLE popup
+(
+    id                             BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
+    start_date                     DATE         NOT NULL,
+    end_date                       DATE         NOT NULL,
+    pc_image_url                   VARCHAR(255) NOT NULL,
+    mobile_image_url               VARCHAR(255) NOT NULL,
+    link_url                       VARCHAR(255),
+    open_in_new_tab                BOOLEAN,
+    show_only_to_recent_generation BOOLEAN,
+    created_at                     TIMESTAMP    NOT NULL,
+    updated_at                     TIMESTAMP    NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE user_resolution
+(
+    id              BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id         BIGINT    NOT NULL,
+    content         TEXT      NOT NULL,
+    generation      INTEGER   NOT NULL,
+    resolution_tags VARCHAR(255),
+    created_at      TIMESTAMP NOT NULL,
+    updated_at      TIMESTAMP NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE user_resolution_lucky_pick
+(
+    id         BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,
+    user_id    BIGINT    NOT NULL,
+    result     BOOLEAN   NOT NULL DEFAULT FALSE,
+    has_drawn  BOOLEAN   NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT uq_user_resolution_lucky_pick_user UNIQUE (user_id)
 );
