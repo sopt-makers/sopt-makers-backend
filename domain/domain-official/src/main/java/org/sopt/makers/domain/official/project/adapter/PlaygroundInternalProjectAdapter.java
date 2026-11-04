@@ -53,6 +53,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         info.logoImage(),
         info.thumbnailImage(),
         info.isFounding(),
+        info.isAvailable(),
         info.links().stream()
             .map(l -> new ProjectLink(parseLinkType(l.linkTitle()), l.linkUrl()))
             .toList());
@@ -84,6 +85,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         info.thumbnailImage(),
         projectImage,
         info.isFounding(),
+        info.isAvailable(),
         info.startAt(),
         info.endAt(),
         info.createdAt(),

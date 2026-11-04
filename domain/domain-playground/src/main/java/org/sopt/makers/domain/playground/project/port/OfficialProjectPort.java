@@ -20,6 +20,7 @@ public interface OfficialProjectPort {
       String logoImage,
       String thumbnailImage,
       boolean isFounding,
+      boolean isAvailable,
       List<OfficialProjectLinkInfo> links) {}
 
   record OfficialProjectDetailInfo(
@@ -34,6 +35,7 @@ public interface OfficialProjectPort {
       String thumbnailImage,
       List<String> images,
       boolean isFounding,
+      boolean isAvailable,
       LocalDate startAt,
       LocalDate endAt,
       LocalDateTime createdAt,

@@ -20,6 +20,7 @@ public record ProjectDetail(
     String thumbnailImage,
     String projectImage,
     boolean isFounding,
+    boolean isAvailable,
     LocalDate startAt,
     LocalDate endAt,
     LocalDateTime uploadedAt,
