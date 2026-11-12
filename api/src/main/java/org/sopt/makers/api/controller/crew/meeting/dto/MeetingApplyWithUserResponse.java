@@ -13,7 +13,7 @@ public record MeetingApplyWithUserResponse(
     String content,
     LocalDateTime appliedDate,
     Integer status,
-    MeetingUserResponse user) {
+    MeetingUserProfileResponse user) {
 
   public static MeetingApplyWithUserResponse from(MeetingService.ApplyDetail detail) {
     MeetingApply apply = detail.apply();
@@ -26,6 +26,6 @@ public record MeetingApplyWithUserResponse(
         apply.content(),
         apply.appliedDate(),
         apply.status().getValue(),
-        MeetingUserResponse.from(detail.user()));
+        MeetingUserProfileResponse.from(detail.user()));
   }
 }

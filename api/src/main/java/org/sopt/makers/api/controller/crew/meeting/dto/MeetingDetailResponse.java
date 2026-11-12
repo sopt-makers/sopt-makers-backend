@@ -34,8 +34,8 @@ public record MeetingDetailResponse(
     Integer createdGeneration,
     Integer targetActiveGeneration,
     List<MeetingJoinablePart> joinableParts,
-    MeetingUserResponse user,
-    List<MeetingUserResponse> coMeetingLeaders,
+    MeetingUserProfileResponse user,
+    List<MeetingCoLeaderResponse> coMeetingLeaders,
     Boolean host,
     Boolean apply,
     Boolean approved,
@@ -51,8 +51,8 @@ public record MeetingDetailResponse(
     return baseFrom(
         meeting,
         detail.status().getValue(),
-        MeetingUserResponse.from(detail.leader()),
-        detail.coLeaders().stream().map(MeetingUserResponse::from).toList(),
+        MeetingUserProfileResponse.from(detail.leader()),
+        detail.coLeaders().stream().map(MeetingCoLeaderResponse::from).toList(),
         detail.isHost(),
         detail.isApply(),
         detail.isApproved(),
@@ -66,8 +66,8 @@ public record MeetingDetailResponse(
   private static MeetingDetailResponse baseFrom(
       Meeting meeting,
       int status,
-      MeetingUserResponse user,
-      List<MeetingUserResponse> coMeetingLeaders,
+      MeetingUserProfileResponse user,
+      List<MeetingCoLeaderResponse> coMeetingLeaders,
       Boolean host,
       Boolean apply,
       Boolean approved,
@@ -78,7 +78,7 @@ public record MeetingDetailResponse(
       List<String> meetingKeywordTypes) {
     return new MeetingDetailResponse(
         meeting.id(),
-        user.userId(),
+        user.id(),
         meeting.meetingDemandId(),
         meeting.title(),
         meeting.subTitle(),
