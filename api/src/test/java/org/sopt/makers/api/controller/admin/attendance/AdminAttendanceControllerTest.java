@@ -13,7 +13,6 @@ import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.*;
 import org.sopt.makers.domain.admin.attendance.exception.*;
 import org.sopt.makers.domain.admin.attendance.service.AttendanceService;
-import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 import org.sopt.makers.domain.admin.user.UserActivity;
 import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,22 +29,13 @@ class AdminAttendanceControllerTest {
   @DisplayName("유저별 출석 조회는 레거시 필드 구조와 시간 및 표시명을 반환한다")
   void returnsLegacyResponseContract() throws Exception {
     LocalDateTime start = LocalDateTime.of(2026, 10, 1, 14, 0);
-    Attendance attendance =
-        new Attendance(
-            1L,
-            10L,
-            2L,
-            "세미나",
-            start,
-            LectureAttribute.SEMINAR,
-            true,
-            AttendanceStatus.TARDY,
-            List.of());
     AttendanceDetail detail =
         new AttendanceDetail(
-            attendance,
+            "세미나",
             start,
             start.plusHours(4),
+            -0.5f,
+            AttendanceStatus.TARDY,
             List.of(
                 new AttendanceDetail.SubAttendanceDetail(
                     1, AttendanceStatus.ATTENDANCE, start.plusMinutes(10))));

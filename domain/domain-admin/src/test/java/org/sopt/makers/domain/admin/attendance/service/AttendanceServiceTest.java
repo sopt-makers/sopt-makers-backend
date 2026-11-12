@@ -14,7 +14,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceDetail;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.UserAttendanceSummary;
@@ -22,7 +21,6 @@ import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
 import org.sopt.makers.domain.admin.attendance.port.SubAttendanceRepositoryPort;
-import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 import org.sopt.makers.domain.admin.lecture.port.SubLectureRepositoryPort;
 import org.sopt.makers.domain.admin.user.UserActivity;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
@@ -43,22 +41,13 @@ class AttendanceServiceTest {
     UserActivity activity = new UserActivity(userId, "홍길동", 38, Part.SERVER, 1.5f);
     LocalDateTime start = LocalDateTime.of(2026, 10, 1, 14, 0);
     LocalDateTime end = start.plusHours(4);
-    Attendance attendance =
-        new Attendance(
-            1L,
-            userId,
-            2L,
-            "세미나",
-            start,
-            LectureAttribute.SEMINAR,
-            true,
-            AttendanceStatus.TARDY,
-            List.of());
     AttendanceDetail detail =
         new AttendanceDetail(
-            attendance,
+            "세미나",
             start,
             end,
+            -0.5f,
+            AttendanceStatus.TARDY,
             List.of(
                 new AttendanceDetail.SubAttendanceDetail(
                     1, AttendanceStatus.ATTENDANCE, start.plusMinutes(10))));

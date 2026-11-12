@@ -44,7 +44,9 @@ class AttendanceRepositoryAdapterTest {
         .singleElement()
         .satisfies(
             detail -> {
-              assertThat(detail.attendance().lectureName()).isEqualTo("세미나");
+              assertThat(detail.lectureName()).isEqualTo("세미나");
+              assertThat(detail.status()).isEqualTo(AttendanceStatus.ABSENT);
+              assertThat(detail.additiveScore()).isEqualTo(-1f);
               assertThat(detail.startDate()).isEqualTo(START);
               assertThat(detail.endDate()).isEqualTo(START.plusHours(4));
               assertThat(detail.subAttendances()).containsExactly(expected);
@@ -72,17 +74,17 @@ class AttendanceRepositoryAdapterTest {
     var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
-        .extracting(detail -> detail.attendance().id())
-        .containsExactlyInAnyOrder(first.getId(), second.getId());
+        .extracting(AttendanceDetail::lectureName)
+        .containsExactlyInAnyOrder("첫 세션", "둘째 세션");
     assertThat(result)
-        .filteredOn(detail -> detail.attendance().id().equals(first.getId()))
+        .filteredOn(detail -> detail.lectureName().equals("첫 세션"))
         .singleElement()
         .satisfies(
             detail ->
                 assertThat(detail.subAttendances())
                     .containsExactlyInAnyOrder(firstRound, secondRound));
     assertThat(result)
-        .filteredOn(detail -> detail.attendance().id().equals(second.getId()))
+        .filteredOn(detail -> detail.lectureName().equals("둘째 세션"))
         .singleElement()
         .satisfies(
             detail -> assertThat(detail.subAttendances()).containsExactly(otherSessionRound));
@@ -102,7 +104,6 @@ class AttendanceRepositoryAdapterTest {
         .satisfies(
             detail -> {
               assertThat(detail.subAttendances()).isEmpty();
-              assertThat(detail.attendance().subAttendances()).isEmpty();
             });
   }
 
@@ -125,30 +126,28 @@ class AttendanceRepositoryAdapterTest {
   @DisplayName("같은 사용자의 이전 기수 출석은 제외하고 요청한 기수의 출석만 반환한다")
   void excludesAttendancesFromOtherGenerations() {
     saveAttendance(10L, "이전 기수 세션", 38);
-    AttendanceEntity current = saveAttendance(10L, "현재 기수 세션", 39);
+    saveAttendance(10L, "현재 기수 세션", 39);
     saveAttendance(20L, "다른 사용자 세션", 39);
     flushAndClear();
 
     var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
-    assertThat(result)
-        .extracting(detail -> detail.attendance().id())
-        .containsExactly(current.getId());
+    assertThat(result).extracting(AttendanceDetail::lectureName).containsExactly("현재 기수 세션");
   }
 
   @Test
   @DisplayName("세션 시작 시간이 최근인 출석부터 내림차순으로 반환한다")
   void ordersByLectureStartDateDescending() {
-    AttendanceEntity early = saveAttendance(10L, "이른 세션", 39, START);
-    AttendanceEntity latest = saveAttendance(10L, "최근 세션", 39, START.plusDays(2));
-    AttendanceEntity middle = saveAttendance(10L, "중간 세션", 39, START.plusDays(1));
+    saveAttendance(10L, "이른 세션", 39, START);
+    saveAttendance(10L, "최근 세션", 39, START.plusDays(2));
+    saveAttendance(10L, "중간 세션", 39, START.plusDays(1));
     flushAndClear();
 
     var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
-        .extracting(detail -> detail.attendance().id())
-        .containsExactly(latest.getId(), middle.getId(), early.getId());
+        .extracting(AttendanceDetail::lectureName)
+        .containsExactly("최근 세션", "중간 세션", "이른 세션");
   }
 
   private AttendanceEntity saveAttendance(Long userId, String name) {

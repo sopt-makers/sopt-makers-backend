@@ -27,13 +27,12 @@ public record AttendancesByUserResponse(
       List<AttendanceResponse> attendances) {
 
     public static LectureResponse from(AttendanceDetail detail) {
-      Attendance attendance = detail.attendance();
       return new LectureResponse(
           detail.startDate(),
           detail.endDate(),
-          attendance.lectureName(),
-          attendance.computeScore(),
-          attendance.status().getName(),
+          detail.lectureName(),
+          detail.additiveScore(),
+          detail.status().getName(),
           detail.subAttendances().stream().map(AttendanceResponse::from).toList());
     }
   }

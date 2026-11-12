@@ -50,10 +50,13 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
             entity -> {
               List<SubAttendanceEntity> subs =
                   subsByAttendanceId.getOrDefault(entity.getId(), List.of());
+              Attendance attendance = entity.toDomain(List.of());
               return new AttendanceDetail(
-                  entity.toDomain(subs.stream().map(SubAttendanceEntity::toDomain).toList()),
+                  attendance.lectureName(),
                   entity.getLecture().getStartDate(),
                   entity.getLecture().getEndDate(),
+                  attendance.computeScore(),
+                  attendance.status(),
                   subs.stream()
                       .map(
                           sub ->
