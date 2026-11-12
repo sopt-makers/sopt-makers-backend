@@ -263,7 +263,7 @@ public class MeetingService {
         getUserMap(applies.stream().map(MeetingApply::userId).distinct().toList());
     List<ApplyDetail> applyDetails =
         applies.stream()
-            .sorted(Comparator.comparing(MeetingApply::appliedDate))
+            .sorted(Comparator.comparing(MeetingApply::appliedDate).thenComparing(MeetingApply::id))
             .map(apply -> new ApplyDetail(apply, applyUserMap.get(apply.userId())))
             .toList();
 
@@ -279,7 +279,8 @@ public class MeetingService {
         members.hasRole(meetingId, userId, MemberRole.PARTICIPANT),
         members.hasRole(meetingId, userId, MemberRole.CO_LEADER),
         members.getByRole(MemberRole.PARTICIPANT).size(),
-        applyDetails);
+        applyDetails,
+        meeting.getMeetingStatus(LocalDateTime.now(clock)));
   }
 
   public PageResult<MeetingSummary> searchMeetings(
@@ -365,7 +366,7 @@ public class MeetingService {
                 apply ->
                     isSamePartMember(
                         userMap.get(apply.userId()), requestActivity, activeGenerationUser))
-            .sorted(Comparator.comparing(MeetingApply::appliedDate))
+            .sorted(Comparator.comparing(MeetingApply::appliedDate).thenComparing(MeetingApply::id))
             .map(apply -> new ApplyDetail(apply, userMap.get(apply.userId())))
             .toList();
 
@@ -628,7 +629,7 @@ public class MeetingService {
     Map<Long, MeetingUser> userMap =
         getUserMap(applies.stream().map(MeetingApply::userId).distinct().toList());
     return applies.stream()
-        .sorted(Comparator.comparing(MeetingApply::appliedDate))
+        .sorted(Comparator.comparing(MeetingApply::appliedDate).thenComparing(MeetingApply::id))
         .map(apply -> new ApplyDetail(apply, userMap.get(apply.userId())))
         .filter(detail -> detail.user() != null)
         .toList();
@@ -743,7 +744,8 @@ public class MeetingService {
       boolean isApproved,
       boolean isCoLeader,
       long approvedApplyCount,
-      List<ApplyDetail> applies) {}
+      List<ApplyDetail> applies,
+      MeetingStatus status) {}
 
   public record ApplyDetail(MeetingApply apply, MeetingUser user) {}
 

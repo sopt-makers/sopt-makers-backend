@@ -10,7 +10,6 @@ public record MeetingApplicantListResponse(List<MeetingApplyWithUserResponse> ap
   }
 
   public static MeetingApplicantListResponse from(List<MeetingService.ApplyDetail> applicants) {
-    return new MeetingApplicantListResponse(
-        applicants.stream().map(MeetingApplyWithUserResponse::from).toList());
+    return new MeetingApplicantListResponse(MeetingApplyWithUserResponse.fromAll(applicants));
   }
 }

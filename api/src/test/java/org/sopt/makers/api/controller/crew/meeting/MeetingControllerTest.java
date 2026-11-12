@@ -43,7 +43,7 @@ class MeetingControllerTest {
                 .param("pageNo", "1")
                 .param("limit", "20"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.totalCount").value(0));
+        .andExpect(jsonPath("$.data.meta.itemCount").value(0));
 
     ArgumentCaptor<MeetingService.SearchMeetingsCommand> commandCaptor =
         ArgumentCaptor.forClass(MeetingService.SearchMeetingsCommand.class);
@@ -85,7 +85,7 @@ class MeetingControllerTest {
     mockMvc
         .perform(get("/meeting/v2/me/joined"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.data").isArray());
+        .andExpect(jsonPath("$.data.meetings").isArray());
 
     verify(meetingFacade).findJoinedMeetings(USER_ID, 1, 10);
   }

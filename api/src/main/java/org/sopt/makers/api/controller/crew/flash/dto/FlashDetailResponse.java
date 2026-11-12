@@ -64,6 +64,6 @@ public record FlashDetailResponse(
         meeting.isApply(),
         meeting.isApproved(),
         MeetingUserResponse.from(meeting.leader()),
-        meeting.applies().stream().map(MeetingApplyWithUserResponse::from).toList());
+        MeetingApplyWithUserResponse.fromAll(meeting.applies()));
   }
 }
