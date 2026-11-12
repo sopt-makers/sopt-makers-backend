@@ -1,8 +1,12 @@
 package org.sopt.makers.api.controller.crew.meeting;
 
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,8 +17,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.api.controller.crew.CrewChannelMockMvc;
+import org.sopt.makers.api.controller.crew.flash.FlashController;
 import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.core.type.Part;
+import org.sopt.makers.domain.crew.flash.Flash;
+import org.sopt.makers.domain.crew.flash.FlashPlaceType;
+import org.sopt.makers.domain.crew.flash.FlashTimingType;
+import org.sopt.makers.domain.crew.flash.facade.FlashFacade;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
 import org.sopt.makers.domain.crew.meeting.MeetingApplyStatus;
@@ -28,6 +37,7 @@ import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 import org.sopt.makers.domain.crew.meeting.tag.service.MeetingTagService;
 import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.Team;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 class MeetingResponseContractTest {
@@ -108,11 +118,7 @@ class MeetingResponseContractTest {
     PageResult<MeetingFacade.MeetingSummaryResult> meetings =
         new PageResult<>(
             count == 0 ? List.of() : List.of(result), count, pages, page, take, next, previous);
-    when(facade.searchMeetings(
-            org.mockito.ArgumentMatchers.any(),
-            org.mockito.ArgumentMatchers.eq(page),
-            org.mockito.ArgumentMatchers.eq(take)))
-        .thenReturn(meetings);
+    when(facade.searchMeetings(any(), eq(page), eq(take))).thenReturn(meetings);
     when(facade.findMeetingsByCreator(USER_ID, page, take)).thenReturn(meetings);
     MeetingFacade.JoinedMeetingResult joined =
         new MeetingFacade.JoinedMeetingResult(
@@ -174,6 +180,115 @@ class MeetingResponseContractTest {
           .andExpect(jsonPath("$.data." + listKey + "[1].id").value(97))
           .andExpect(jsonPath("$.data." + listKey + "[1].user.id").value(30));
     }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "/meeting/v2/1, appliedInfo",
+    "/meeting/v2/1/applicants, applicants",
+    "/meeting/v2/1/members, appliedInfo"
+  })
+  void 신청이_없으면_빈_배열을_반환한다(String path, String listKey) throws Exception {
+    when(facade.getMeetingDetail(1L, USER_ID)).thenReturn(detail(false, List.of()));
+    when(service.getApplicants(1L, USER_ID)).thenReturn(List.of());
+    when(service.getMeetingPartMembers(1L, USER_ID))
+        .thenReturn(new MeetingService.MeetingPartMembers("서버", 0, true, 36, List.of()));
+
+    mockMvc
+        .perform(get(path))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data." + listKey).isArray())
+        .andExpect(jsonPath("$.data." + listKey).isEmpty());
+  }
+
+  @Test
+  void 활동과_공동모임장이_없고_프로필이_비어도_상세_계약을_유지한다() throws Exception {
+    MeetingService.MeetingDetail meetingDetail =
+        new MeetingService.MeetingDetail(
+            meeting(),
+            new MeetingUser(USER_ID, "모임장", null, List.of()),
+            List.of(),
+            true,
+            false,
+            false,
+            false,
+            0,
+            List.of(),
+            MeetingStatus.RECRUITMENT_COMPLETE);
+    when(facade.getMeetingDetail(1L, USER_ID))
+        .thenReturn(
+            new MeetingFacade.MeetingDetailResult(
+                meetingDetail, MeetingTagService.MeetingTagInfo.empty()));
+
+    mockMvc
+        .perform(get("/meeting/v2/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.status").value(2))
+        .andExpect(jsonPath("$.data.coMeetingLeaders").isEmpty())
+        .andExpect(jsonPath("$.data.user.activities").isEmpty())
+        .andExpect(jsonPath("$.data.user.profileImage").value(nullValue()))
+        .andExpect(jsonPath("$.data.user.phone").value(nullValue()));
+  }
+
+  @Test
+  void 수정_응답도_조회와_같은_상세_계약을_반환한다() throws Exception {
+    when(facade.updateMeeting(eq(1L), any(), eq(USER_ID)))
+        .thenReturn(detail(true, List.of(application(41L, 20L))));
+
+    mockMvc
+        .perform(
+            patch("/meeting/v2/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\":\"스터디\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.host").value(true))
+        .andExpect(jsonPath("$.data.status").value(1))
+        .andExpect(jsonPath("$.data.createdTimestamp").value("2026-08-01T12:00:00"))
+        .andExpect(jsonPath("$.data.user.id").value(USER_ID))
+        .andExpect(jsonPath("$.data.coMeetingLeaders[0].userName").value("공동 모임장"))
+        .andExpect(jsonPath("$.data.appliedInfo[0].applyNumber").value(1))
+        .andExpect(jsonPath("$.data.isHost").doesNotExist());
+  }
+
+  @Test
+  void 신청_DTO를_공유하는_번쩍_상세도_신청번호를_반환한다() throws Exception {
+    FlashFacade flashFacade = mock(FlashFacade.class);
+    MockMvc flashMvc = CrewChannelMockMvc.of(new FlashController(flashFacade), USER_ID);
+    Flash flash =
+        new Flash(
+            2L,
+            USER_ID,
+            1L,
+            "번쩍 모임",
+            "소개",
+            FlashTimingType.IMMEDIATE,
+            CREATED_AT,
+            CREATED_AT.plusHours(1),
+            CREATED_AT.plusHours(2),
+            CREATED_AT.plusHours(3),
+            FlashPlaceType.OFFLINE,
+            "서울",
+            2,
+            10,
+            36,
+            List.of(),
+            CREATED_AT,
+            CREATED_AT);
+    when(flashFacade.getFlashDetail(1L, USER_ID))
+        .thenReturn(
+            new FlashFacade.FlashDetail(
+                flash,
+                detail(true, List.of(application(41L, 20L), application(97L, 30L))).meetingDetail(),
+                MeetingTagService.MeetingTagInfo.empty(),
+                MeetingStatus.APPLY_ABLE));
+
+    flashMvc
+        .perform(get("/flash/v2/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.appliedInfo[0].applyNumber").value(1))
+        .andExpect(jsonPath("$.data.appliedInfo[1].applyNumber").value(2))
+        .andExpect(jsonPath("$.data.appliedInfo[0].user.id").value(20))
+        .andExpect(jsonPath("$.data.appliedInfo[0].user.orgId").value(20));
   }
 
   private MeetingService.ApplyDetail application(Long id, Long userId) {
