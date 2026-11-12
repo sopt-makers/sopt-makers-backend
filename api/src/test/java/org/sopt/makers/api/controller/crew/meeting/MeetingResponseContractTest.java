@@ -17,6 +17,8 @@ import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
+import org.sopt.makers.domain.crew.meeting.MeetingApplyStatus;
+import org.sopt.makers.domain.crew.meeting.MeetingApplyType;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.domain.crew.meeting.MeetingStatus;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
@@ -145,6 +147,48 @@ class MeetingResponseContractTest {
           .andExpect(jsonPath("$.data.totalCount").doesNotExist())
           .andExpect(jsonPath("$.data.meta.totalCount").doesNotExist());
     }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "/meeting/v2/1, appliedInfo",
+    "/meeting/v2/1/applicants, applicants",
+    "/meeting/v2/1/members, appliedInfo"
+  })
+  void 신청_번호는_응답_목록마다_1부터_연속된_숫자다(String path, String listKey) throws Exception {
+    List<MeetingService.ApplyDetail> applies =
+        List.of(application(41L, 20L), application(97L, 30L));
+    when(facade.getMeetingDetail(1L, USER_ID)).thenReturn(detail(true, applies));
+    when(service.getApplicants(1L, USER_ID)).thenReturn(applies);
+    when(service.getMeetingPartMembers(1L, USER_ID))
+        .thenReturn(new MeetingService.MeetingPartMembers("서버", 2, true, 36, applies));
+
+    for (int request = 0; request < 2; request++) {
+      mockMvc
+          .perform(get(path))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data." + listKey + "[0].applyNumber").value(1))
+          .andExpect(jsonPath("$.data." + listKey + "[0].id").value(41))
+          .andExpect(jsonPath("$.data." + listKey + "[0].user.id").value(20))
+          .andExpect(jsonPath("$.data." + listKey + "[1].applyNumber").value(2))
+          .andExpect(jsonPath("$.data." + listKey + "[1].id").value(97))
+          .andExpect(jsonPath("$.data." + listKey + "[1].user.id").value(30));
+    }
+  }
+
+  private MeetingService.ApplyDetail application(Long id, Long userId) {
+    return new MeetingService.ApplyDetail(
+        new MeetingApply(
+            id,
+            MeetingApplyType.APPLY,
+            1L,
+            userId,
+            "신청합니다",
+            CREATED_AT,
+            MeetingApplyStatus.APPROVE,
+            CREATED_AT,
+            CREATED_AT),
+        profile(userId));
   }
 
   private MeetingUser profile(Long id) {

@@ -263,7 +263,7 @@ public class MeetingService {
         getUserMap(applies.stream().map(MeetingApply::userId).distinct().toList());
     List<ApplyDetail> applyDetails =
         applies.stream()
-            .sorted(Comparator.comparing(MeetingApply::appliedDate))
+            .sorted(Comparator.comparing(MeetingApply::appliedDate).thenComparing(MeetingApply::id))
             .map(apply -> new ApplyDetail(apply, applyUserMap.get(apply.userId())))
             .toList();
 
@@ -366,7 +366,7 @@ public class MeetingService {
                 apply ->
                     isSamePartMember(
                         userMap.get(apply.userId()), requestActivity, activeGenerationUser))
-            .sorted(Comparator.comparing(MeetingApply::appliedDate))
+            .sorted(Comparator.comparing(MeetingApply::appliedDate).thenComparing(MeetingApply::id))
             .map(apply -> new ApplyDetail(apply, userMap.get(apply.userId())))
             .toList();
 
@@ -629,7 +629,7 @@ public class MeetingService {
     Map<Long, MeetingUser> userMap =
         getUserMap(applies.stream().map(MeetingApply::userId).distinct().toList());
     return applies.stream()
-        .sorted(Comparator.comparing(MeetingApply::appliedDate))
+        .sorted(Comparator.comparing(MeetingApply::appliedDate).thenComparing(MeetingApply::id))
         .map(apply -> new ApplyDetail(apply, userMap.get(apply.userId())))
         .filter(detail -> detail.user() != null)
         .toList();

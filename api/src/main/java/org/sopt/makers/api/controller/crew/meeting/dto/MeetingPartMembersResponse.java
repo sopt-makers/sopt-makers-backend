@@ -16,6 +16,6 @@ public record MeetingPartMembersResponse(
         members.participantCount(),
         members.isActiveGeneration(),
         members.activeGeneration(),
-        members.appliedInfo().stream().map(MeetingApplyWithUserResponse::from).toList());
+        MeetingApplyWithUserResponse.fromAll(members.appliedInfo()));
   }
 }

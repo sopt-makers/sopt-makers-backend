@@ -58,7 +58,7 @@ public record MeetingDetailResponse(
         detail.isApproved(),
         detail.isCoLeader(),
         detail.approvedApplyCount(),
-        detail.applies().stream().map(MeetingApplyWithUserResponse::from).toList(),
+        MeetingApplyWithUserResponse.fromAll(detail.applies()),
         MeetingTagMapper.fromWelcomeMessageTypes(result.meetingTagInfo().welcomeMessageTypes()),
         MeetingTagMapper.fromMeetingKeywordTypes(result.meetingTagInfo().meetingKeywordTypes()));
   }

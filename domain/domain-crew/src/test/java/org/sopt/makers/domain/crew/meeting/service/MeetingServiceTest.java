@@ -352,6 +352,72 @@ class MeetingServiceTest {
     assertThat(timedService.getMeetingDetail(1L, 10L).status()).isEqualTo(expected);
   }
 
+  @Test
+  void 상세와_지원자_목록은_신청시각과_ID_순으로_정렬한다() {
+    List<MeetingApply> applies =
+        List.of(orderedApply(300L, 20L, 1), orderedApply(200L, 30L, 0), orderedApply(100L, 40L, 0));
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
+    when(userPort.findById(10L)).thenReturn(Optional.of(meetingUser(10L, Part.SERVER)));
+    when(userPort.findAllById(any()))
+        .thenReturn(
+            List.of(
+                meetingUser(20L, Part.SERVER),
+                meetingUser(30L, Part.WEB),
+                meetingUser(40L, Part.SERVER)));
+    when(applyRepository.findAllByMeetingIdAndStatuses(eq(1L), any())).thenReturn(applies);
+    when(applyRepository.findAllByMeetingId(1L)).thenReturn(applies);
+
+    assertThat(service.getMeetingDetail(1L, 10L).applies())
+        .extracting(detail -> detail.apply().id())
+        .containsExactly(100L, 200L, 300L);
+    assertThat(service.getApplicants(1L, 10L))
+        .extracting(detail -> detail.apply().id())
+        .containsExactly(100L, 200L, 300L);
+  }
+
+  @Test
+  void 파트_멤버_목록은_대상자를_필터링한_후_신청순으로_정렬한다() {
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(userPort.findById(10L)).thenReturn(Optional.of(meetingUser(10L, Part.SERVER)));
+    when(userPort.findAllById(any()))
+        .thenReturn(
+            List.of(
+                meetingUser(20L, Part.SERVER),
+                meetingUser(30L, Part.WEB),
+                meetingUser(40L, Part.SERVER)));
+    when(applyRepository.findAllByMeetingIdAndStatuses(eq(1L), any()))
+        .thenReturn(
+            List.of(
+                orderedApply(300L, 20L, 1),
+                orderedApply(200L, 30L, 0),
+                orderedApply(100L, 40L, 0)));
+
+    MeetingService.MeetingPartMembers result = service.getMeetingPartMembers(1L, 10L);
+
+    assertThat(result.participantCount()).isEqualTo(2);
+    assertThat(result.appliedInfo())
+        .extracting(detail -> detail.apply().id())
+        .containsExactly(100L, 300L);
+  }
+
+  private MeetingApply orderedApply(Long id, Long userId, int hourOffset) {
+    return new MeetingApply(
+        id,
+        MeetingApplyType.APPLY,
+        1L,
+        userId,
+        "신청합니다",
+        LocalDateTime.of(2026, 9, 1, 12, 0).plusHours(hourOffset),
+        MeetingApplyStatus.APPROVE,
+        null,
+        null);
+  }
+
+  private MeetingUser meetingUser(Long id, Part part) {
+    return new MeetingUser(id, "사용자", null, List.of(Activity.of(36, Team.MAKERS, part, true)));
+  }
+
   private MeetingService.CreateMeetingCommand createCommand(List<Long> coLeaderUserIds) {
     return new MeetingService.CreateMeetingCommand(
         null,
