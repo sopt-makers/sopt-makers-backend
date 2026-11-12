@@ -49,12 +49,12 @@ class AdminAttendanceControllerTest {
             List.of(
                 new AttendanceDetail.SubAttendanceDetail(
                     1, AttendanceStatus.ATTENDANCE, start.plusMinutes(10))));
-    when(service.getAttendancesByUserId(10L))
+    when(service.getAttendancesByUserId(10L, 38))
         .thenReturn(
             new UserAttendanceSummary(
-                new UserActivity(10L, "홍길동", 39, Part.SERVER, 1.5f), List.of(detail)));
+                new UserActivity(10L, "홍길동", 38, Part.SERVER, 1.5f), List.of(detail)));
 
-    mvc.perform(get("/api/v1/admin/attendances/users/10"))
+    mvc.perform(get("/api/v1/admin/attendances/users/10").param("generation", "38"))
         .andExpect(status().isOk())
         .andExpect(
             content()
@@ -68,17 +68,17 @@ class AdminAttendanceControllerTest {
             }]}}
           """,
                     JsonCompareMode.STRICT));
-    verify(service).getAttendancesByUserId(10L);
+    verify(service).getAttendancesByUserId(10L, 38);
   }
 
   @Test
   @DisplayName("출석 내역이 없으면 사용자 정보와 빈 세션 목록을 반환한다")
   void returnsEmptyLectures() throws Exception {
-    when(service.getAttendancesByUserId(10L))
+    when(service.getAttendancesByUserId(10L, 38))
         .thenReturn(
             new UserAttendanceSummary(
-                new UserActivity(10L, "홍길동", 39, Part.SERVER, 2.0f), List.of()));
-    mvc.perform(get("/api/v1/admin/attendances/users/10"))
+                new UserActivity(10L, "홍길동", 38, Part.SERVER, 2.0f), List.of()));
+    mvc.perform(get("/api/v1/admin/attendances/users/10").param("generation", "38"))
         .andExpect(status().isOk())
         .andExpect(
             content()
@@ -93,9 +93,9 @@ class AdminAttendanceControllerTest {
   @Test
   @DisplayName("출석 조회에 실패하면 404와 공통 실패 응답을 반환한다")
   void returnsNotFound() throws Exception {
-    when(service.getAttendancesByUserId(10L))
+    when(service.getAttendancesByUserId(10L, 38))
         .thenThrow(new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
-    mvc.perform(get("/api/v1/admin/attendances/users/10"))
+    mvc.perform(get("/api/v1/admin/attendances/users/10").param("generation", "38"))
         .andExpect(status().isNotFound())
         .andExpect(
             content()
@@ -104,5 +104,12 @@ class AdminAttendanceControllerTest {
           {"success":false,"message":"출석 정보를 찾을 수 없습니다","data":null}
           """,
                     JsonCompareMode.STRICT));
+  }
+
+  @Test
+  @DisplayName("기수를 지정하지 않으면 400을 반환하고 서비스를 호출하지 않는다")
+  void requiresGeneration() throws Exception {
+    mvc.perform(get("/api/v1/admin/attendances/users/10")).andExpect(status().isBadRequest());
+    verifyNoInteractions(service);
   }
 }

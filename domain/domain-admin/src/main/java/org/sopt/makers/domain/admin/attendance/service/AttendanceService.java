@@ -31,13 +31,13 @@ public class AttendanceService {
   private final SubAttendanceRepositoryPort subAttendanceRepositoryPort;
   private final AdminUserActivityPort adminUserActivityPort;
 
-  public UserAttendanceSummary getAttendancesByUserId(Long userId) {
+  public UserAttendanceSummary getAttendancesByUserId(Long userId, int generation) {
     UserActivity activity =
         adminUserActivityPort
-            .findCurrentActivity(userId)
+            .findActivityByUserIdAndGeneration(userId, generation)
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
     return new UserAttendanceSummary(
-        activity, attendanceRepositoryPort.findAllDetailsByUserId(userId));
+        activity, attendanceRepositoryPort.findAllDetailsByUserIdAndGeneration(userId, generation));
   }
 
   public List<Attendance> getAttendancesByLectureId(

@@ -25,8 +25,12 @@ public interface AttendanceJpaRepository
   Optional<AttendanceEntity> findByLectureIdAndUserId(
       @Param("lectureId") Long lectureId, @Param("userId") Long userId);
 
-  @Query("SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture WHERE a.userId = :userId")
-  List<AttendanceEntity> findAllByUserId(@Param("userId") Long userId);
+  @Query(
+      "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture"
+          + " WHERE a.userId = :userId AND a.lecture.generation = :generation"
+          + " ORDER BY a.lecture.startDate DESC")
+  List<AttendanceEntity> findAllByUserIdAndGeneration(
+      @Param("userId") Long userId, @Param("generation") int generation);
 
   @Query(
       "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture"

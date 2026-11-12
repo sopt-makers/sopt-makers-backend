@@ -3,6 +3,8 @@ package org.sopt.makers.domain.admin.attendance.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -35,10 +37,10 @@ class AttendanceServiceTest {
           mock(SubAttendanceRepositoryPort.class), activityPort);
 
   @Test
-  @DisplayName("사용자의 현재 활동 정보와 세션별 출석 상세를 함께 반환한다")
+  @DisplayName("요청한 기수의 활동 정보와 출석 상세를 함께 반환한다")
   void returnsActivityAndAttendanceDetails() {
     Long userId = 10L;
-    UserActivity activity = new UserActivity(userId, "홍길동", 39, Part.SERVER, 1.5f);
+    UserActivity activity = new UserActivity(userId, "홍길동", 38, Part.SERVER, 1.5f);
     LocalDateTime start = LocalDateTime.of(2026, 10, 1, 14, 0);
     LocalDateTime end = start.plusHours(4);
     Attendance attendance =
@@ -60,37 +62,43 @@ class AttendanceServiceTest {
             List.of(
                 new AttendanceDetail.SubAttendanceDetail(
                     1, AttendanceStatus.ATTENDANCE, start.plusMinutes(10))));
-    when(activityPort.findCurrentActivity(userId)).thenReturn(Optional.of(activity));
-    when(attendancePort.findAllDetailsByUserId(userId)).thenReturn(List.of(detail));
+    when(activityPort.findActivityByUserIdAndGeneration(userId, activity.generation()))
+        .thenReturn(Optional.of(activity));
+    when(attendancePort.findAllDetailsByUserIdAndGeneration(userId, activity.generation()))
+        .thenReturn(List.of(detail));
 
-    UserAttendanceSummary result = service.getAttendancesByUserId(userId);
+    UserAttendanceSummary result = service.getAttendancesByUserId(userId, activity.generation());
 
     assertThat(result.activity()).isEqualTo(activity);
     assertThat(result.lectures()).containsExactly(detail);
+    verify(attendancePort).findAllDetailsByUserIdAndGeneration(userId, 38);
   }
 
   @Test
-  @DisplayName("출석 내역이 없어도 현재 활동 정보와 빈 출석 목록을 반환한다")
+  @DisplayName("출석 내역이 없어도 요청한 기수의 활동 정보와 빈 출석 목록을 반환한다")
   void returnsActivityWithEmptyAttendances() {
     Long userId = 10L;
     UserActivity activity = new UserActivity(userId, "홍길동", 39, Part.SERVER, 2.0f);
-    when(activityPort.findCurrentActivity(userId)).thenReturn(Optional.of(activity));
-    when(attendancePort.findAllDetailsByUserId(userId)).thenReturn(List.of());
+    when(activityPort.findActivityByUserIdAndGeneration(userId, activity.generation()))
+        .thenReturn(Optional.of(activity));
+    when(attendancePort.findAllDetailsByUserIdAndGeneration(userId, activity.generation()))
+        .thenReturn(List.of());
 
-    UserAttendanceSummary result = service.getAttendancesByUserId(userId);
+    UserAttendanceSummary result = service.getAttendancesByUserId(userId, activity.generation());
 
     assertThat(result.activity()).isEqualTo(activity);
     assertThat(result.lectures()).isEmpty();
   }
 
   @Test
-  @DisplayName("현재 활동 정보가 없으면 출석 정보를 조회하지 않고 예외를 발생시킨다")
+  @DisplayName("요청한 기수의 활동 정보가 없으면 출석 정보를 조회하지 않고 예외를 발생시킨다")
   void rejectsUserWithoutActivity() {
-    when(activityPort.findCurrentActivity(10L)).thenReturn(Optional.empty());
+    when(activityPort.findActivityByUserIdAndGeneration(10L, 38)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> service.getAttendancesByUserId(10L))
+    assertThatThrownBy(() -> service.getAttendancesByUserId(10L, 38))
         .isInstanceOf(AttendanceException.class)
         .hasMessage(AttendanceFailure.NOT_FOUND_ATTENDANCE.getMessage());
     verifyNoInteractions(attendancePort);
+    verify(activityPort, never()).findCurrentActivity(10L);
   }
 }

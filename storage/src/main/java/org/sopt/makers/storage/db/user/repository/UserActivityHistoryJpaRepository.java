@@ -18,6 +18,12 @@ public interface UserActivityHistoryJpaRepository
 
   Optional<UserActivityHistoryEntity> findFirstByUserIdOrderByGenerationDesc(Long userId);
 
+  @Query(
+      "SELECT a FROM UserActivityHistoryEntity a JOIN FETCH a.user"
+          + " WHERE a.user.id = :userId AND a.generation = :generation AND a.isSopt = true")
+  Optional<UserActivityHistoryEntity> findSoptActivityByUserIdAndGeneration(
+      @Param("userId") Long userId, @Param("generation") int generation);
+
   void deleteByUserId(Long userId);
 
   List<UserActivityHistoryEntity> findByGenerationAndIsSopt(int generation, boolean isSopt);

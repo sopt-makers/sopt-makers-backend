@@ -35,8 +35,9 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
   }
 
   @Override
-  public List<AttendanceDetail> findAllDetailsByUserId(Long userId) {
-    List<AttendanceEntity> entities = attendanceJpaRepository.findAllByUserId(userId);
+  public List<AttendanceDetail> findAllDetailsByUserIdAndGeneration(Long userId, int generation) {
+    List<AttendanceEntity> entities =
+        attendanceJpaRepository.findAllByUserIdAndGeneration(userId, generation);
     if (entities.isEmpty()) {
       return List.of();
     }

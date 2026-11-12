@@ -13,7 +13,7 @@ public interface AttendanceRepositoryPort {
 
   Optional<Attendance> findByLectureIdAndUserId(Long lectureId, Long userId);
 
-  List<AttendanceDetail> findAllDetailsByUserId(Long userId);
+  List<AttendanceDetail> findAllDetailsByUserIdAndGeneration(Long userId, int generation);
 
   List<Attendance> findAllEndedByUserId(Long userId, int generation);
 

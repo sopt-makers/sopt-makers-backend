@@ -39,8 +39,10 @@ public class AdminAttendanceController implements AdminAttendanceApi {
 
   @Override
   @GetMapping("/users/{userId}")
-  public ResponseEntity<BaseResponse<?>> getAttendancesByUser(@PathVariable Long userId) {
-    UserAttendanceSummary attendances = attendanceService.getAttendancesByUserId(userId);
+  public ResponseEntity<BaseResponse<?>> getAttendancesByUser(
+      @PathVariable Long userId, @RequestParam int generation) {
+    UserAttendanceSummary attendances =
+        attendanceService.getAttendancesByUserId(userId, generation);
     return ResponseFactory.success(
         SUCCESS_GET_ATTENDANCES_BY_USER, AttendancesByUserResponse.from(attendances));
   }

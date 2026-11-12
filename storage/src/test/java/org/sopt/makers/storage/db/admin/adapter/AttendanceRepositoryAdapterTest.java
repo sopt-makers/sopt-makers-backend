@@ -38,7 +38,7 @@ class AttendanceRepositoryAdapterTest {
     var expected = saveSubAttendance(attendance, 1, AttendanceStatus.ATTENDANCE);
     flushAndClear();
 
-    var result = adapter.findAllDetailsByUserId(10L);
+    var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
         .singleElement()
@@ -69,7 +69,7 @@ class AttendanceRepositoryAdapterTest {
             .getStatistics();
     statistics.clear();
 
-    var result = adapter.findAllDetailsByUserId(10L);
+    var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
         .extracting(detail -> detail.attendance().id())
@@ -95,7 +95,7 @@ class AttendanceRepositoryAdapterTest {
     saveAttendance(10L, "세션");
     flushAndClear();
 
-    var result = adapter.findAllDetailsByUserId(10L);
+    var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
         .singleElement()
@@ -117,19 +117,58 @@ class AttendanceRepositoryAdapterTest {
             .getStatistics();
     statistics.clear();
 
-    assertThat(adapter.findAllDetailsByUserId(999L)).isEmpty();
+    assertThat(adapter.findAllDetailsByUserIdAndGeneration(999L, 39)).isEmpty();
     assertThat(statistics.getPrepareStatementCount()).isEqualTo(1);
   }
 
+  @Test
+  @DisplayName("같은 사용자의 이전 기수 출석은 제외하고 요청한 기수의 출석만 반환한다")
+  void excludesAttendancesFromOtherGenerations() {
+    saveAttendance(10L, "이전 기수 세션", 38);
+    AttendanceEntity current = saveAttendance(10L, "현재 기수 세션", 39);
+    saveAttendance(20L, "다른 사용자 세션", 39);
+    flushAndClear();
+
+    var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
+
+    assertThat(result)
+        .extracting(detail -> detail.attendance().id())
+        .containsExactly(current.getId());
+  }
+
+  @Test
+  @DisplayName("세션 시작 시간이 최근인 출석부터 내림차순으로 반환한다")
+  void ordersByLectureStartDateDescending() {
+    AttendanceEntity early = saveAttendance(10L, "이른 세션", 39, START);
+    AttendanceEntity latest = saveAttendance(10L, "최근 세션", 39, START.plusDays(2));
+    AttendanceEntity middle = saveAttendance(10L, "중간 세션", 39, START.plusDays(1));
+    flushAndClear();
+
+    var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
+
+    assertThat(result)
+        .extracting(detail -> detail.attendance().id())
+        .containsExactly(latest.getId(), middle.getId(), early.getId());
+  }
+
   private AttendanceEntity saveAttendance(Long userId, String name) {
+    return saveAttendance(userId, name, 39);
+  }
+
+  private AttendanceEntity saveAttendance(Long userId, String name, int generation) {
+    return saveAttendance(userId, name, generation, START);
+  }
+
+  private AttendanceEntity saveAttendance(
+      Long userId, String name, int generation, LocalDateTime start) {
     LectureEntity lecture =
         entityManager.persist(
             LectureEntity.builder()
                 .name(name)
                 .part(Part.SERVER)
-                .generation(39)
-                .startDate(START)
-                .endDate(START.plusHours(4))
+                .generation(generation)
+                .startDate(start)
+                .endDate(start.plusHours(4))
                 .attribute(LectureAttribute.SEMINAR)
                 .status(LectureStatus.END)
                 .build());
