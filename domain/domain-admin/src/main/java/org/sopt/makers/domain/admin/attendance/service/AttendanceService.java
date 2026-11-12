@@ -7,6 +7,7 @@ import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.domain.admin.attendance.UserAttendanceSummary;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
@@ -15,6 +16,7 @@ import org.sopt.makers.domain.admin.lecture.SubLecture;
 import org.sopt.makers.domain.admin.lecture.exception.LectureException;
 import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
 import org.sopt.makers.domain.admin.lecture.port.SubLectureRepositoryPort;
+import org.sopt.makers.domain.admin.user.UserActivity;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +31,13 @@ public class AttendanceService {
   private final SubAttendanceRepositoryPort subAttendanceRepositoryPort;
   private final AdminUserActivityPort adminUserActivityPort;
 
-  public List<Attendance> getAttendancesByUserId(Long userId) {
-    return attendanceRepositoryPort.findAllByUserId(userId);
+  public UserAttendanceSummary getAttendancesByUserId(Long userId) {
+    UserActivity activity =
+        adminUserActivityPort
+            .findCurrentActivity(userId)
+            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
+    return new UserAttendanceSummary(
+        activity, attendanceRepositoryPort.findAllDetailsByUserId(userId));
   }
 
   public List<Attendance> getAttendancesByLectureId(

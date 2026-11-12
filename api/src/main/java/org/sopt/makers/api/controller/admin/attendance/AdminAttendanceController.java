@@ -17,6 +17,7 @@ import org.sopt.makers.api.controller.admin.attendance.dto.SubAttendanceUpdateRe
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
+import org.sopt.makers.domain.admin.attendance.UserAttendanceSummary;
 import org.sopt.makers.domain.admin.attendance.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +40,7 @@ public class AdminAttendanceController implements AdminAttendanceApi {
   @Override
   @GetMapping("/users/{userId}")
   public ResponseEntity<BaseResponse<?>> getAttendancesByUser(@PathVariable Long userId) {
-    List<Attendance> attendances = attendanceService.getAttendancesByUserId(userId);
+    UserAttendanceSummary attendances = attendanceService.getAttendancesByUserId(userId);
     return ResponseFactory.success(
         SUCCESS_GET_ATTENDANCES_BY_USER, AttendancesByUserResponse.from(attendances));
   }
