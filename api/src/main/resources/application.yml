@@ -5,6 +5,9 @@ spring:
       - classpath:security.yml
       - classpath:external.yml
 
+server:
+  forward-headers-strategy: framework
+  
 management:
   endpoints:
     web:
