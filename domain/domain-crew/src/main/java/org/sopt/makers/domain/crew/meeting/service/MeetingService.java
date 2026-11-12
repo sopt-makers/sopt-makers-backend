@@ -279,7 +279,8 @@ public class MeetingService {
         members.hasRole(meetingId, userId, MemberRole.PARTICIPANT),
         members.hasRole(meetingId, userId, MemberRole.CO_LEADER),
         members.getByRole(MemberRole.PARTICIPANT).size(),
-        applyDetails);
+        applyDetails,
+        meeting.getMeetingStatus(LocalDateTime.now(clock)));
   }
 
   public PageResult<MeetingSummary> searchMeetings(
@@ -743,7 +744,8 @@ public class MeetingService {
       boolean isApproved,
       boolean isCoLeader,
       long approvedApplyCount,
-      List<ApplyDetail> applies) {}
+      List<ApplyDetail> applies,
+      MeetingStatus status) {}
 
   public record ApplyDetail(MeetingApply apply, MeetingUser user) {}
 

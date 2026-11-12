@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.sopt.makers.core.pagination.PageQuery;
@@ -327,6 +329,27 @@ class MeetingServiceTest {
     assertThat(conditionCaptor.getValue().category()).isEqualTo(MeetingCategory.STUDY);
     assertThat(conditionCaptor.getValue().status()).isEqualTo(MeetingStatus.APPLY_ABLE);
     assertThat(conditionCaptor.getValue().now()).isEqualTo(LocalDateTime.of(2026, 9, 1, 12, 0));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "2026-08-31T23:59:59, BEFORE_START",
+    "2026-09-01T00:00:00, APPLY_ABLE",
+    "2026-09-01T23:59:59, APPLY_ABLE",
+    "2026-09-02T00:00:00, RECRUITMENT_COMPLETE"
+  })
+  void 상세_모집상태는_주입된_시계와_모집기간_경계를_따른다(String now, MeetingStatus expected) {
+    Clock clock =
+        Clock.fixed(LocalDateTime.parse(now).atZone(CLOCK.getZone()).toInstant(), CLOCK.getZone());
+    MeetingService timedService =
+        new MeetingService(meetingRepository, applyRepository, memberRepository, userPort, clock);
+    when(meetingRepository.findById(1L)).thenReturn(Optional.of(meeting(1L)));
+    when(memberRepository.findAllByMeetingId(1L)).thenReturn(List.of(Member.leader(1L, 10L)));
+    when(userPort.findById(10L))
+        .thenReturn(Optional.of(new MeetingUser(10L, "모임장", null, List.of())));
+    when(applyRepository.findAllByMeetingIdAndStatuses(eq(1L), any())).thenReturn(List.of());
+
+    assertThat(timedService.getMeetingDetail(1L, 10L).status()).isEqualTo(expected);
   }
 
   private MeetingService.CreateMeetingCommand createCommand(List<Long> coLeaderUserIds) {

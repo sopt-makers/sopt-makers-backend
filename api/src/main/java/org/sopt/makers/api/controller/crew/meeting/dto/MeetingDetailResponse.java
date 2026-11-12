@@ -20,6 +20,8 @@ public record MeetingDetailResponse(
     LocalDateTime startDate,
     LocalDateTime endDate,
     Integer capacity,
+    int status,
+    LocalDateTime createdTimestamp,
     String desc,
     String processDesc,
     LocalDateTime mStartDate,
@@ -48,6 +50,7 @@ public record MeetingDetailResponse(
     Meeting meeting = detail.meeting();
     return baseFrom(
         meeting,
+        detail.status().getValue(),
         MeetingUserResponse.from(detail.leader()),
         detail.coLeaders().stream().map(MeetingUserResponse::from).toList(),
         detail.isHost(),
@@ -62,6 +65,7 @@ public record MeetingDetailResponse(
 
   private static MeetingDetailResponse baseFrom(
       Meeting meeting,
+      int status,
       MeetingUserResponse user,
       List<MeetingUserResponse> coMeetingLeaders,
       Boolean host,
@@ -83,6 +87,8 @@ public record MeetingDetailResponse(
         meeting.startDate(),
         meeting.endDate(),
         meeting.capacity(),
+        status,
+        meeting.createdAt(),
         meeting.description(),
         meeting.processDescription(),
         meeting.activityStartDate(),

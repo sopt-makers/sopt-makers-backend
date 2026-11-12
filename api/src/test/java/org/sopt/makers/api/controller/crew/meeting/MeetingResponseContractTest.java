@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.api.controller.crew.CrewChannelMockMvc;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
+import org.sopt.makers.domain.crew.meeting.MeetingStatus;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
 import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
@@ -37,6 +38,9 @@ class MeetingResponseContractTest {
         .perform(get("/meeting/v2/1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.host").value(host))
+        .andExpect(jsonPath("$.data.status").value(1))
+        .andExpect(jsonPath("$.data.createdTimestamp").value("2026-08-01T12:00:00"))
+        .andExpect(jsonPath("$.data.meetingDemandId").value(7))
         .andExpect(jsonPath("$.data.user.name").value("모임장"))
         .andExpect(jsonPath("$.data.appliedInfo").isEmpty())
         .andExpect(jsonPath("$.data.isHost").doesNotExist())
@@ -56,7 +60,8 @@ class MeetingResponseContractTest {
             false,
             false,
             0,
-            applies),
+            applies,
+            MeetingStatus.APPLY_ABLE),
         MeetingTagService.MeetingTagInfo.empty());
   }
 
