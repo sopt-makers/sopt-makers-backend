@@ -10,14 +10,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.api.controller.crew.CrewChannelMockMvc;
+import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.crew.meeting.Meeting;
 import org.sopt.makers.domain.crew.meeting.MeetingApply;
 import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.domain.crew.meeting.MeetingStatus;
 import org.sopt.makers.domain.crew.meeting.MeetingUser;
+import org.sopt.makers.domain.crew.meeting.Member;
 import org.sopt.makers.domain.crew.meeting.facade.MeetingFacade;
 import org.sopt.makers.domain.crew.meeting.service.MeetingService;
 import org.sopt.makers.domain.crew.meeting.tag.service.MeetingTagService;
@@ -83,6 +86,65 @@ class MeetingResponseContractTest {
         .andExpect(jsonPath("$.data.appliedInfo[0].user.id").value(20))
         .andExpect(jsonPath("$.data.appliedInfo[0].user.orgId").value(20))
         .andExpect(jsonPath("$.data.appliedInfo[0].user.activities[0].part").value("웹"));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    "1, 10, 0, 0, false, false",
+    "1, 10, 1, 1, false, false",
+    "1, 10, 21, 3, false, true",
+    "2, 10, 21, 3, true, true",
+    "3, 10, 21, 3, true, false"
+  })
+  void 모임_목록은_meetings와_기존_meta를_반환한다(
+      int page, int take, long count, int pages, boolean previous, boolean next) throws Exception {
+    MeetingService.MeetingSummary summary =
+        new MeetingService.MeetingSummary(
+            meeting(), Member.leader(1L, USER_ID), 0, 0, MeetingStatus.APPLY_ABLE);
+    MeetingFacade.MeetingSummaryResult result =
+        new MeetingFacade.MeetingSummaryResult(summary, MeetingTagService.MeetingTagInfo.empty());
+    PageResult<MeetingFacade.MeetingSummaryResult> meetings =
+        new PageResult<>(
+            count == 0 ? List.of() : List.of(result), count, pages, page, take, next, previous);
+    when(facade.searchMeetings(
+            org.mockito.ArgumentMatchers.any(),
+            org.mockito.ArgumentMatchers.eq(page),
+            org.mockito.ArgumentMatchers.eq(take)))
+        .thenReturn(meetings);
+    when(facade.findMeetingsByCreator(USER_ID, page, take)).thenReturn(meetings);
+    MeetingFacade.JoinedMeetingResult joined =
+        new MeetingFacade.JoinedMeetingResult(
+            new MeetingService.JoinedMeeting(summary, Member.participant(1L, USER_ID)),
+            MeetingTagService.MeetingTagInfo.empty());
+    when(facade.findJoinedMeetings(USER_ID, page, take))
+        .thenReturn(
+            new PageResult<>(
+                count == 0 ? List.of() : List.of(joined),
+                count,
+                pages,
+                page,
+                take,
+                next,
+                previous));
+
+    for (String path : List.of("/meeting/v2", "/meeting/v2/me", "/meeting/v2/me/joined")) {
+      mockMvc
+          .perform(
+              get(path)
+                  .param("pageNo", Integer.toString(page))
+                  .param("limit", Integer.toString(take)))
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.data.meetings.length()").value(count == 0 ? 0 : 1))
+          .andExpect(jsonPath("$.data.meta.page").value(page))
+          .andExpect(jsonPath("$.data.meta.take").value(take))
+          .andExpect(jsonPath("$.data.meta.itemCount").value(count))
+          .andExpect(jsonPath("$.data.meta.pageCount").value(pages))
+          .andExpect(jsonPath("$.data.meta.hasPreviousPage").value(previous))
+          .andExpect(jsonPath("$.data.meta.hasNextPage").value(next))
+          .andExpect(jsonPath("$.data.data").doesNotExist())
+          .andExpect(jsonPath("$.data.totalCount").doesNotExist())
+          .andExpect(jsonPath("$.data.meta.totalCount").doesNotExist());
+    }
   }
 
   private MeetingUser profile(Long id) {
