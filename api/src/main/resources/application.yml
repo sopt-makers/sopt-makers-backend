@@ -32,6 +32,8 @@ internal:
     api-key: ${INTERNAL_PLATFORM_API_KEY:}
 
 crew:
+  dining:
+    default-image: ${DINING_IMAGE:}
   apikey: ${CREW_API_KEY:}
   slack:
     api-auth-token: ${SLACK_API_AUTH_TOKEN:}
