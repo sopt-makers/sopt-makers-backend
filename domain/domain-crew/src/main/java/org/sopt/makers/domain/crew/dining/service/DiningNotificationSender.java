@@ -1,0 +1,236 @@
+package org.sopt.makers.domain.crew.dining.service;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.sopt.makers.domain.crew.dining.event.DiningAttendeeAddedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningAttendeeRemovedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningDeletedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningPayerApprovedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningPayerRejectedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningPayerRequestedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningPayerRevokedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningRoundCreatedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningRoundDeletedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningRoundUpdatedEvent;
+import org.sopt.makers.domain.crew.dining.event.DiningUpdatedEvent;
+import org.sopt.makers.domain.crew.dining.model.DiningMeeting;
+import org.sopt.makers.domain.crew.dining.model.DiningRounds;
+import org.sopt.makers.domain.crew.dining.notification.DiningCloseGuideTarget;
+import org.sopt.makers.domain.crew.dining.notification.DiningReminderTarget;
+import org.sopt.makers.domain.crew.dining.port.DiningMeetingPort;
+import org.sopt.makers.domain.crew.dining.port.DiningRoundPort;
+import org.sopt.makers.domain.crew.meeting.MeetingCategory;
+import org.springframework.stereotype.Component;
+
+/** 회식 푸시 알림. 수신자와 표시 값은 상태 변경 트랜잭션에서 확정해 이벤트로 전달받는다. (마감 안내·리마인드는 스케줄러가 대상을 조회한다.) */
+@Component
+@RequiredArgsConstructor
+public class DiningNotificationSender {
+
+  private static final String NEW_ROUND_TITLE = "새로운 회차 추가";
+  private static final String NEW_ROUND_CONTENT = "[%s] %d차에 참석하려면 신청해주세요.";
+  private static final String ROUND_UPDATED_TITLE = "회차 정보 수정";
+  private static final String ROUND_UPDATED_CONTENT = "[%s] %d차 정보가 수정됐어요. 변경된 내용을 확인해주세요.";
+  private static final String DINING_UPDATED_TITLE = "회식 정보 수정";
+  private static final String DINING_UPDATED_CONTENT = "[%s] 변경된 내용을 확인해주세요.";
+  private static final String ROUND_DELETED_TITLE = "회차 삭제";
+  private static final String ROUND_DELETED_CONTENT = "[%s] %d차 회식이 삭제됐어요.";
+  private static final String DINING_DELETED_TITLE = "회식 삭제";
+  private static final String DINING_DELETED_CONTENT = "[%s] 개설자가 회식을 삭제했어요.";
+  private static final String ATTENDEE_ADDED_TITLE = "회식 참석자 추가";
+  private static final String ATTENDEE_ADDED_CONTENT = "[%s] %d차 참석자로 추가됐어요.";
+  private static final String ATTENDEE_REMOVED_TITLE = "회식 참석자 제외";
+  private static final String ATTENDEE_REMOVED_CONTENT = "[%s] %d차 참석자에서 제외됐어요.";
+  private static final String CLOSE_GUIDE_TITLE = "마감하지 않은 회차";
+  private static final String CLOSE_GUIDE_CONTENT = "[%s] 내일 오전 11:59에 자동으로 마감돼요.";
+  private static final String REMINDER_TITLE = "내일 예정된 회식";
+  private static final String REMINDER_CONTENT = "[%s] 회식 정보를 확인해주세요.";
+  private static final String PAYER_REQUESTED_TITLE = "공동 결제자 승인 요청";
+  private static final String PAYER_REQUESTED_CONTENT =
+      "[%s] %d차 [%s]님이 승인을 요청했어요. 참석자 관리 화면에서 확인해주세요.";
+  private static final String PAYER_APPROVED_TITLE = "공동 결제자 요청 승인";
+  private static final String PAYER_APPROVED_CONTENT =
+      "[%s] %d차 요청이 승인됐어요. 이제 참석자 관리 화면을 이용할 수 있어요.";
+  private static final String PAYER_REJECTED_TITLE = "공동 결제자 요청 거절";
+  private static final String PAYER_REJECTED_CONTENT = "[%s] %d차 공동 결제자 요청이 거절됐어요.";
+  private static final String PAYER_REVOKED_TITLE = "공동 결제자 권한 해제";
+  private static final String PAYER_REVOKED_CONTENT = "[%s] %d차 공동 결제자 권한이 해제됐어요.";
+
+  // push-notification.web-url 이 이미 /group 까지 포함하므로 그 이후 경로만 붙인다. (FE 경로: /group/settlement/...)
+  private static final String DINING_TAB_WEB_LINK_FORMAT = "%s/settlement";
+  private static final String DINING_DETAIL_WEB_LINK_FORMAT = "%s/settlement/detail?id=%d";
+  private static final String DINING_MANAGEMENT_WEB_LINK_FORMAT = "%s/settlement/management?id=%d";
+
+  private final DiningMeetingPort meetingRepository;
+  private final DiningRoundPort diningRoundRepository;
+  private final org.sopt.makers.domain.crew.dining.port.DiningNotificationPort notificationPort;
+
+  /** 새 회차 생성 트랜잭션에서 확정한 현재 참석자에게 알린다. 비동기 발송 시점의 신청·취소로 수신자를 바꾸지 않으며, 회식이나 대상 회차가 삭제됐으면 보내지 않는다. */
+  public void sendNewRoundNotification(DiningRoundCreatedEvent event) {
+    Long meetingId = event.meetingId();
+    Long roundId = event.roundId();
+    Optional<DiningMeeting> dining = findDining(meetingId);
+    if (dining.isEmpty()) {
+      return;
+    }
+
+    DiningRounds rounds =
+        new DiningRounds(diningRoundRepository.findAllByMeetingIdOrderByIdAsc(meetingId));
+    if (!rounds.getRoundIds().contains(roundId)) {
+      return;
+    }
+
+    Long leaderUserId = dining.get().getUserId();
+    send(
+        event.attendeeUserIds().stream().filter(userId -> !userId.equals(leaderUserId)).toList(),
+        NEW_ROUND_TITLE,
+        String.format(NEW_ROUND_CONTENT, dining.get().getTitle(), rounds.getRoundNumber(roundId)),
+        detailLink(meetingId));
+  }
+
+  public void sendRoundUpdatedNotification(DiningRoundUpdatedEvent event) {
+    send(
+        event.receiverUserIds(),
+        ROUND_UPDATED_TITLE,
+        String.format(ROUND_UPDATED_CONTENT, event.diningTitle(), event.roundNumber()),
+        detailLink(event.meetingId()));
+  }
+
+  public void sendDiningUpdatedNotification(DiningUpdatedEvent event) {
+    send(
+        event.receiverUserIds(),
+        DINING_UPDATED_TITLE,
+        String.format(DINING_UPDATED_CONTENT, event.diningTitle()),
+        tabLink());
+  }
+
+  public void sendRoundDeletedNotification(DiningRoundDeletedEvent event) {
+    send(
+        event.receiverUserIds(),
+        ROUND_DELETED_TITLE,
+        String.format(ROUND_DELETED_CONTENT, event.diningTitle(), event.roundNumber()),
+        detailLink(event.meetingId()));
+  }
+
+  public void sendDiningDeletedNotification(DiningDeletedEvent event) {
+    send(
+        event.receiverUserIds(),
+        DINING_DELETED_TITLE,
+        String.format(DINING_DELETED_CONTENT, event.diningTitle()),
+        tabLink());
+  }
+
+  public void sendAttendeeAddedNotification(DiningAttendeeAddedEvent event) {
+    send(
+        List.of(event.attendeeUserId()),
+        ATTENDEE_ADDED_TITLE,
+        String.format(ATTENDEE_ADDED_CONTENT, event.diningTitle(), event.roundNumber()),
+        detailLink(event.meetingId()));
+  }
+
+  public void sendAttendeeRemovedNotification(DiningAttendeeRemovedEvent event) {
+    send(
+        List.of(event.attendeeUserId()),
+        ATTENDEE_REMOVED_TITLE,
+        String.format(ATTENDEE_REMOVED_CONTENT, event.diningTitle(), event.roundNumber()),
+        detailLink(event.meetingId()));
+  }
+
+  /**
+   * @return 발송 실패 시 false (스케줄러 실패 집계용)
+   */
+  public boolean sendCloseGuideNotification(DiningCloseGuideTarget target) {
+    return send(
+        List.of(target.leaderUserId()),
+        CLOSE_GUIDE_TITLE,
+        String.format(CLOSE_GUIDE_CONTENT, target.diningTitle()),
+        managementLink(target.meetingId()));
+  }
+
+  /**
+   * @return 발송 실패 시 false (스케줄러 실패 집계용)
+   */
+  public boolean sendReminderNotification(DiningReminderTarget target) {
+    return send(
+        target.receiverUserIds(),
+        REMINDER_TITLE,
+        String.format(REMINDER_CONTENT, target.diningTitle()),
+        tabLink());
+  }
+
+  public void sendPayerRequestedNotification(DiningPayerRequestedEvent event) {
+    send(
+        List.of(event.leaderUserId()),
+        PAYER_REQUESTED_TITLE,
+        String.format(
+            PAYER_REQUESTED_CONTENT,
+            event.diningTitle(),
+            event.roundNumber(),
+            event.requesterName()),
+        managementLink(event.meetingId()));
+  }
+
+  public void sendPayerApprovedNotification(DiningPayerApprovedEvent event) {
+    send(
+        List.of(event.requesterUserId()),
+        PAYER_APPROVED_TITLE,
+        String.format(PAYER_APPROVED_CONTENT, event.diningTitle(), event.roundNumber()),
+        managementLink(event.meetingId()));
+  }
+
+  public void sendPayerRejectedNotification(DiningPayerRejectedEvent event) {
+    send(
+        List.of(event.requesterUserId()),
+        PAYER_REJECTED_TITLE,
+        String.format(PAYER_REJECTED_CONTENT, event.diningTitle(), event.roundNumber()),
+        detailLink(event.meetingId()));
+  }
+
+  public void sendPayerRevokedNotification(DiningPayerRevokedEvent event) {
+    send(
+        List.of(event.requesterUserId()),
+        PAYER_REVOKED_TITLE,
+        String.format(PAYER_REVOKED_CONTENT, event.diningTitle(), event.roundNumber()),
+        detailLink(event.meetingId()));
+  }
+
+  private Optional<DiningMeeting> findDining(Long meetingId) {
+    return meetingRepository
+        .findById(meetingId)
+        .filter(meeting -> meeting.getCategory() == MeetingCategory.DINING);
+  }
+
+  /**
+   * 중복 수신자는 1건으로 합치고, 수신자가 없으면 보내지 않는다.
+   *
+   * @return push 서버 발송 요청 성공 여부. 수신자가 없어 보내지 않은 경우는 실패가 아니므로 true
+   */
+  private boolean send(
+      Collection<Long> receiverUserIds, String title, String content, String webLink) {
+    String[] receivers =
+        receiverUserIds.stream()
+            .filter(Objects::nonNull)
+            .distinct()
+            .map(String::valueOf)
+            .toArray(String[]::new);
+    if (receivers.length == 0) {
+      return true;
+    }
+    return notificationPort.send(List.of(receivers), title, content, webLink);
+  }
+
+  private String detailLink(Long meetingId) {
+    return String.format(DINING_DETAIL_WEB_LINK_FORMAT, "", meetingId);
+  }
+
+  private String managementLink(Long meetingId) {
+    return String.format(DINING_MANAGEMENT_WEB_LINK_FORMAT, "", meetingId);
+  }
+
+  private String tabLink() {
+    return String.format(DINING_TAB_WEB_LINK_FORMAT, "");
+  }
+}
