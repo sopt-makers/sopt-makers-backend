@@ -23,14 +23,16 @@ public interface MeetingJpaRepository
 
   int countAllByCreatedGenerationAndCategory(Integer createdGeneration, MeetingCategory category);
 
-  Optional<MeetingEntity> findFirstByTitleOrderByIdDesc(String title);
+  Optional<MeetingEntity> findFirstByTitleAndCategoryNotOrderByIdDesc(
+      String title, MeetingCategory category);
 
-  Optional<MeetingEntity> findFirstByTitleContainingOrderByIdDesc(String title);
+  Optional<MeetingEntity> findFirstByTitleContainingAndCategoryNotOrderByIdDesc(
+      String title, MeetingCategory category);
 
   @Query(
       "SELECT meeting FROM MeetingEntity meeting "
           + "JOIN MeetingMemberEntity member ON member.meetingId = meeting.id "
-          + "WHERE member.userId = :userId AND member.role = :role")
+          + "WHERE meeting.category <> org.sopt.makers.domain.crew.meeting.MeetingCategory.DINING AND member.userId = :userId AND member.role = :role")
   Page<MeetingEntity> findAllByMember(
       @Param("userId") Long userId, @Param("role") MemberRole role, Pageable pageable);
 
@@ -41,7 +43,7 @@ public interface MeetingJpaRepository
   @Query(
       "SELECT meeting FROM MeetingEntity meeting "
           + "JOIN MeetingMemberEntity member ON member.meetingId = meeting.id "
-          + "WHERE member.userId = :userId")
+          + "WHERE meeting.category <> org.sopt.makers.domain.crew.meeting.MeetingCategory.DINING AND member.userId = :userId")
   Page<MeetingEntity> findAllByMemberUserId(@Param("userId") Long userId, Pageable pageable);
 
   Page<MeetingEntity> findAllByMeetingDemandId(Long meetingDemandId, Pageable pageable);
