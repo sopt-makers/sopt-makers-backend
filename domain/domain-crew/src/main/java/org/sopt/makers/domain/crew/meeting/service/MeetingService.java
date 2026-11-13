@@ -59,6 +59,10 @@ public class MeetingService {
 
   @Transactional
   public Meeting createMeeting(CreateMeetingCommand command, Long userId) {
+    if (command.category() == MeetingCategory.DINING) {
+      throw new MeetingException(
+          org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.INVALID_MEETING_CATEGORY);
+    }
     MeetingUser creator = getUser(userId);
     int createdGeneration = resolveCreatedGeneration(command.createdGeneration(), creator);
     Integer targetActiveGeneration =
@@ -126,6 +130,10 @@ public class MeetingService {
 
   @Transactional
   public Meeting updateMeeting(Long meetingId, UpdateMeetingCommand command, Long userId) {
+    if (command.category() == MeetingCategory.DINING) {
+      throw new MeetingException(
+          org.sopt.makers.domain.crew.meeting.exception.MeetingFailure.INVALID_MEETING_CATEGORY);
+    }
     Meeting meeting = getMeeting(meetingId);
     getMembers(meetingId).validateLeader(meetingId, userId);
 

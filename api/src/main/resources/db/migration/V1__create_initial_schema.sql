@@ -358,7 +358,7 @@ CREATE TABLE sub_attendances
 
 CREATE TABLE sopt_story_like
 (
-    id           BIGINT      NOT NULL GENERATED ALWAYS AS IDEN  TITY,
+    id           BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
     sopt_story_id BIGINT     NOT NULL,
     ip           VARCHAR(45) NOT NULL,
     PRIMARY KEY (id),
@@ -974,6 +974,9 @@ CREATE TABLE meeting
     created_generation              INTEGER      NOT NULL,
     target_active_generation        INTEGER,
     joinable_parts                  TEXT,
+    dining_ended_at                 TIMESTAMP,
+    is_date_modified                BOOLEAN NOT NULL DEFAULT FALSE,
+    is_joinable_parts_modified      BOOLEAN NOT NULL DEFAULT FALSE,
     created_at                      TIMESTAMP    NOT NULL,
     updated_at                      TIMESTAMP    NOT NULL,
     PRIMARY KEY (id)
@@ -1479,3 +1482,54 @@ CREATE TABLE user_resolution_lucky_pick
     PRIMARY KEY (id),
     CONSTRAINT uq_user_resolution_lucky_pick_user UNIQUE (user_id)
 );
+
+-- 회식 1차 스프린트 (#118). 통합 스키마의 BIGINT ID 및 snake_case 규칙을 따른다.
+CREATE TABLE dining_round
+(
+    id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    meeting_id BIGINT NOT NULL,
+    place VARCHAR(30),
+    naver_map_link VARCHAR(500),
+    kakao_map_link VARCHAR(500),
+    start_time TIME,
+    status VARCHAR(255) NOT NULL DEFAULT 'OPEN',
+    closed_at TIMESTAMP,
+    is_place_modified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_link_modified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_start_time_modified BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_dining_round_meeting FOREIGN KEY (meeting_id) REFERENCES meeting (id) ON DELETE CASCADE
+);
+CREATE INDEX dining_round_meeting_index ON dining_round (meeting_id);
+CREATE INDEX dining_round_open_index ON dining_round (status) WHERE status = 'OPEN';
+
+CREATE TABLE dining_attendance
+(
+    id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    round_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    payer_status VARCHAR(255),
+    payer_requested_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_dining_attendance_round FOREIGN KEY (round_id) REFERENCES dining_round (id) ON DELETE CASCADE,
+    CONSTRAINT fk_dining_attendance_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT uk_dining_attendance_round_user UNIQUE (round_id, user_id)
+);
+CREATE INDEX dining_attendance_user_index ON dining_attendance (user_id);
+CREATE INDEX dining_attendance_round_created_index ON dining_attendance (round_id, created_at, id);
+
+-- 삭제 후에도 스냅샷을 유지하므로 원본 데이터에 대한 FK는 두지 않는다.
+CREATE TABLE dining_deletion_history
+(
+    id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    meeting_id BIGINT NOT NULL,
+    target_type VARCHAR(255) NOT NULL,
+    target_id BIGINT NOT NULL,
+    deleted_by_user_id BIGINT NOT NULL,
+    snapshot JSONB NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX dining_deletion_history_meeting_index ON dining_deletion_history (meeting_id);

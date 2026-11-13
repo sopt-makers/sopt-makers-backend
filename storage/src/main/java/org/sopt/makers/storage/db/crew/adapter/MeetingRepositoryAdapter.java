@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.pagination.PageQuery;
 import org.sopt.makers.core.pagination.PageResult;
 import org.sopt.makers.domain.crew.meeting.Meeting;
+import org.sopt.makers.domain.crew.meeting.MeetingCategory;
 import org.sopt.makers.domain.crew.meeting.MeetingSearchCondition;
 import org.sopt.makers.domain.crew.meeting.MeetingStatus;
 import org.sopt.makers.domain.crew.meeting.port.MeetingRepositoryPort;
@@ -34,13 +35,19 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
 
   @Override
   public Optional<Meeting> findById(Long meetingId) {
-    return meetingJpaRepository.findById(meetingId).map(MeetingEntity::toDomain);
+    return meetingJpaRepository
+        .findById(meetingId)
+        .filter(m -> m.getCategory() != MeetingCategory.DINING)
+        .map(MeetingEntity::toDomain);
   }
 
   @Transactional
   @Override
   public Optional<Meeting> findByIdForUpdate(Long meetingId) {
-    return meetingJpaRepository.findByIdForUpdate(meetingId).map(MeetingEntity::toDomain);
+    return meetingJpaRepository
+        .findByIdForUpdate(meetingId)
+        .filter(m -> m.getCategory() != MeetingCategory.DINING)
+        .map(MeetingEntity::toDomain);
   }
 
   @Override
@@ -49,26 +56,30 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
       return List.of();
     }
     return meetingJpaRepository.findAllById(meetingIds).stream()
+        .filter(m -> m.getCategory() != MeetingCategory.DINING)
         .map(MeetingEntity::toDomain)
         .toList();
   }
 
   @Override
   public Optional<Long> findFirstIdByTitle(String title) {
-    return meetingJpaRepository.findFirstByTitleOrderByIdDesc(title).map(MeetingEntity::getId);
+    return meetingJpaRepository
+        .findFirstByTitleAndCategoryNotOrderByIdDesc(title, MeetingCategory.DINING)
+        .map(MeetingEntity::getId);
   }
 
   @Override
   public Optional<Long> findFirstIdByTitleContaining(String title) {
     return meetingJpaRepository
-        .findFirstByTitleContainingOrderByIdDesc(title)
+        .findFirstByTitleContainingAndCategoryNotOrderByIdDesc(title, MeetingCategory.DINING)
         .map(MeetingEntity::getId);
   }
 
   @Override
   public PageResult<Meeting> findAll(PageQuery pageQuery) {
     return PageMapper.toPageResult(
-        meetingJpaRepository.findAll(PageMapper.toPageable(pageQuery)), MeetingEntity::toDomain);
+        meetingJpaRepository.findAll(excludeDining(), PageMapper.toPageable(pageQuery)),
+        MeetingEntity::toDomain);
   }
 
   @Override
@@ -121,9 +132,12 @@ public class MeetingRepositoryAdapter implements MeetingRepositoryPort {
     meetingJpaRepository.delete(MeetingEntity.fromDomain(meeting));
   }
 
+  private Specification<MeetingEntity> excludeDining() {
+    return (root, query, cb) -> cb.notEqual(root.get("category"), MeetingCategory.DINING);
+  }
+
   private Specification<MeetingEntity> toSpecification(MeetingSearchCondition condition) {
-    Specification<MeetingEntity> specification =
-        (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
+    Specification<MeetingEntity> specification = excludeDining();
     if (condition.search() != null) {
       String keyword = "%" + condition.search().toLowerCase(Locale.ROOT) + "%";
       specification =

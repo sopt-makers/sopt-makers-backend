@@ -101,6 +101,27 @@ public class MeetingEntity extends BaseEntity {
   @Column(name = "joinable_parts", columnDefinition = "TEXT")
   private List<MeetingJoinablePart> joinableParts;
 
+  @Column(name = "dining_ended_at")
+  private LocalDateTime diningEndedAt;
+
+  @Column(name = "is_date_modified", nullable = false)
+  private boolean dateModified;
+
+  @Column(name = "is_joinable_parts_modified", nullable = false)
+  private boolean joinablePartsModified;
+
+  public void updateDining(org.sopt.makers.domain.crew.dining.model.DiningMeeting dining) {
+    title = dining.getTitle();
+    images = dining.getImageURL();
+    endDate = dining.getEndDate();
+    activityStartDate = dining.getmStartDate();
+    activityEndDate = dining.getmEndDate();
+    joinableParts = java.util.Arrays.asList(dining.getJoinableParts());
+    diningEndedAt = dining.getDiningEndedAt();
+    dateModified = dining.isDateModified();
+    joinablePartsModified = dining.isJoinablePartsModified();
+  }
+
   @Builder(access = PRIVATE)
   private MeetingEntity(
       Long id,
