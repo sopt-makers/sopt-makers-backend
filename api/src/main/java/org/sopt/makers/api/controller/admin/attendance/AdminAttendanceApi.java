@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "어드민 출석", description = "어드민 출석 API")
 public interface AdminAttendanceApi {
 
-  @Operation(summary = "유저별 출석 조회")
-  ResponseEntity<BaseResponse<?>> getAttendancesByUser(Long userId);
+  @Operation(summary = "기수별 유저 출석 조회", description = "선택한 기수의 사용자 활동 정보와 출석 내역을 조회합니다")
+  ResponseEntity<BaseResponse<?>> getAttendancesByUser(Long userId, int generation);
 
   @Operation(summary = "세션별 출석 조회")
   ResponseEntity<BaseResponse<?>> getAttendancesByLecture(

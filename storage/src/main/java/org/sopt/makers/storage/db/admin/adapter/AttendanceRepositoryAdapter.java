@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
+import org.sopt.makers.domain.admin.attendance.AttendanceDetail;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
@@ -34,8 +35,38 @@ public class AttendanceRepositoryAdapter implements AttendanceRepositoryPort {
   }
 
   @Override
-  public List<Attendance> findAllByUserId(Long userId) {
-    return toBatchAttendanceDomain(attendanceJpaRepository.findAllByUserId(userId));
+  public List<AttendanceDetail> findAllDetailsByUserIdAndGeneration(Long userId, int generation) {
+    List<AttendanceEntity> entities =
+        attendanceJpaRepository.findAllByUserIdAndGeneration(userId, generation);
+    if (entities.isEmpty()) {
+      return List.of();
+    }
+    List<Long> ids = entities.stream().map(AttendanceEntity::getId).toList();
+    Map<Long, List<SubAttendanceEntity>> subsByAttendanceId =
+        subAttendanceJpaRepository.findAllByAttendanceIdIn(ids).stream()
+            .collect(Collectors.groupingBy(sub -> sub.getAttendance().getId()));
+    return entities.stream()
+        .map(
+            entity -> {
+              List<SubAttendanceEntity> subs =
+                  subsByAttendanceId.getOrDefault(entity.getId(), List.of());
+              Attendance attendance = entity.toDomain(List.of());
+              return new AttendanceDetail(
+                  attendance.lectureName(),
+                  entity.getLecture().getStartDate(),
+                  entity.getLecture().getEndDate(),
+                  attendance.computeScore(),
+                  attendance.status(),
+                  subs.stream()
+                      .map(
+                          sub ->
+                              new AttendanceDetail.SubAttendanceDetail(
+                                  sub.getSubLecture().getRound(),
+                                  sub.getStatus(),
+                                  sub.getUpdatedAt()))
+                      .toList());
+            })
+        .toList();
   }
 
   @Override

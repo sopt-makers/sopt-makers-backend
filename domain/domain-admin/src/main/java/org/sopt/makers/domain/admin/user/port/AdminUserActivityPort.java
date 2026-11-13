@@ -20,4 +20,6 @@ public interface AdminUserActivityPort {
   void bulkUpdateAttendanceScores(int generation, Map<Long, Float> userScores);
 
   Optional<UserActivity> findCurrentActivity(Long userId);
+
+  Optional<UserActivity> findActivityByUserIdAndGeneration(Long userId, int generation);
 }

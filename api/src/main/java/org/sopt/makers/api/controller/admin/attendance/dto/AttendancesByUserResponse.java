@@ -1,32 +1,47 @@
 package org.sopt.makers.api.controller.admin.attendance.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.admin.attendance.Attendance;
-import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.domain.admin.attendance.AttendanceDetail;
+import org.sopt.makers.domain.admin.attendance.UserAttendanceSummary;
 
-public record AttendancesByUserResponse(List<AttendanceItem> attendances) {
+public record AttendancesByUserResponse(
+    String name, float score, String part, List<LectureResponse> lectures) {
 
-  public static AttendancesByUserResponse from(List<Attendance> attendances) {
-    return new AttendancesByUserResponse(attendances.stream().map(AttendanceItem::from).toList());
+  public static AttendancesByUserResponse from(UserAttendanceSummary summary) {
+    var activity = summary.activity();
+    return new AttendancesByUserResponse(
+        activity.name(),
+        activity.attendanceScore() != null ? activity.attendanceScore() : Attendance.BASE_SCORE,
+        activity.part().getName(),
+        summary.lectures().stream().map(LectureResponse::from).toList());
   }
 
-  public record AttendanceItem(
-      Long id, String attribute, String status, List<SubAttendanceItem> subAttendances) {
+  public record LectureResponse(
+      LocalDateTime startDate,
+      LocalDateTime endDate,
+      String lecture,
+      float additiveScore,
+      String status,
+      List<AttendanceResponse> attendances) {
 
-    public static AttendanceItem from(Attendance attendance) {
-      return new AttendanceItem(
-          attendance.id(),
-          attendance.attribute().name(),
-          attendance.status().name(),
-          attendance.subAttendances().stream().map(SubAttendanceItem::from).toList());
+    public static LectureResponse from(AttendanceDetail detail) {
+      return new LectureResponse(
+          detail.startDate(),
+          detail.endDate(),
+          detail.lectureName(),
+          detail.additiveScore(),
+          detail.status().getName(),
+          detail.subAttendances().stream().map(AttendanceResponse::from).toList());
     }
   }
 
-  public record SubAttendanceItem(Long id, int round, String status) {
+  public record AttendanceResponse(int round, String status, String date) {
 
-    public static SubAttendanceItem from(SubAttendance subAttendance) {
-      return new SubAttendanceItem(
-          subAttendance.id(), subAttendance.round(), subAttendance.status().name());
+    public static AttendanceResponse from(AttendanceDetail.SubAttendanceDetail detail) {
+      return new AttendanceResponse(
+          detail.round(), detail.status().getName(), detail.updatedAt().toString());
     }
   }
 }

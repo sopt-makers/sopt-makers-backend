@@ -78,6 +78,20 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
                     a.getAttendanceScore()));
   }
 
+  @Override
+  public Optional<UserActivity> findActivityByUserIdAndGeneration(Long userId, int generation) {
+    return activityJpaRepository
+        .findSoptActivityByUserIdAndGeneration(userId, generation)
+        .map(
+            a ->
+                new UserActivity(
+                    a.getUser().getId(),
+                    a.getUser().getName(),
+                    a.getGeneration(),
+                    a.getPart(),
+                    a.getAttendanceScore()));
+  }
+
   private Map<Long, Map<AttendanceStatus, Integer>> fetchAttendanceCountsByUser(
       List<Long> userIds, int generation) {
     return attendanceJpaRepository
