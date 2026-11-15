@@ -32,6 +32,9 @@ public class AppScheduleService {
 
   public Map<LocalDate, List<AppSchedule>> getSchedules(
       LocalDateTime startAt, LocalDateTime endAt) {
+    if (endAt.isBefore(startAt)) {
+      throw new AppException(AppFailure.INVALID_SCHEDULE_DATE_RANGE);
+    }
     List<AppSchedule> schedules = appScheduleRepositoryPort.findBetween(startAt, endAt);
     Map<LocalDate, List<AppSchedule>> scheduleMap = getInitializedMap(startAt, endAt);
     schedules.forEach(schedule -> putScheduleToMap(scheduleMap, schedule));

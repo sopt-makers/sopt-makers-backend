@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.domain.admin.app.AppSchedule;
 import org.sopt.makers.domain.admin.app.exception.AppException;
 import org.sopt.makers.domain.admin.app.port.AppScheduleRepositoryPort;
@@ -32,6 +34,23 @@ class AppScheduleServiceTest {
     when(port.findBetween(start, start.plusDays(50))).thenReturn(List.of());
     assertThatThrownBy(() -> service.getSchedules(start, start.plusDays(50)))
         .isInstanceOf(AppException.class);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"2026-11-15T23:00", "2026-11-16T01:00", "2026-11-14T02:00"})
+  @DisplayName("종료 시각이 시작 시각보다 이르면 일정 조회 없이 요청을 거부한다")
+  void rejectsReversedRange(String end) {
+    LocalDateTime from = LocalDateTime.of(2026, 11, 16, 2, 0);
+    assertThatThrownBy(() -> service.getSchedules(from, LocalDateTime.parse(end)))
+        .isInstanceOf(AppException.class);
+    verifyNoInteractions(port);
+  }
+
+  @Test
+  @DisplayName("시작 시각과 종료 시각이 같으면 해당 날짜를 조회한다")
+  void acceptsSameInstant() {
+    when(port.findBetween(start, start)).thenReturn(List.of());
+    assertThat(service.getSchedules(start, start)).containsOnlyKeys(start.toLocalDate());
   }
 
   @Test
