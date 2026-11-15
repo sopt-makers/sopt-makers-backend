@@ -75,7 +75,9 @@ class AdminTokenIssuerAdapterTest {
             .expiration(Date.from(Instant.now().minusSeconds(60)))
             .signWith(key)
             .compact();
+    repository.save(1L, token, Duration.ofMinutes(1));
     assertThatThrownBy(() -> adapter.refresh(token)).isInstanceOf(TokenException.class);
+    assertThat(repository.tokens).contains("1:" + token);
   }
 
   @Test
@@ -107,7 +109,9 @@ class AdminTokenIssuerAdapterTest {
             .expiration(Date.from(Instant.now().plusSeconds(3600)))
             .signWith(otherKey)
             .compact();
+    repository.save(1L, token, Duration.ofMinutes(1));
     assertThatThrownBy(() -> adapter.refresh(token)).isInstanceOf(TokenException.class);
+    assertThat(repository.tokens).contains("1:" + token);
   }
 
   private static class Tokens implements AdminRefreshTokenRepositoryPort {
