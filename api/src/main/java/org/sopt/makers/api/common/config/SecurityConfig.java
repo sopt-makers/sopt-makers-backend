@@ -97,7 +97,9 @@ public class SecurityConfig {
             authorize.requestMatchers(path, path + PATTERN_ALL).hasRole(INTERNAL_SERVICE);
           }
 
-          authorize.requestMatchers("/api/v1/admin/**").hasAuthority(ADMIN);
+          authorize
+              .requestMatchers("/api/v1/admin/**", "/api/v1/banners", "/api/v1/banners/**")
+              .hasAuthority(ADMIN);
 
           for (String endpoint : securityProperty.api().securedEndpoints()) {
             authorize.requestMatchers(endpoint + PATTERN_ALL).hasRole(INTERNAL_SERVICE);

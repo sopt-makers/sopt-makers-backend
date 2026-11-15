@@ -40,7 +40,7 @@ public final class SecurityConstant {
           "/api/v1/admin/auth/login",
           "/api/v1/admin/auth/refresh",
           "/api/v1/popups",
-          "/api/v1/admin/banners/images",
+          "/api/v1/banners/images",
           "/slack/emoji",
           "/api/v2/admin/soptamp",
           "/api/v2/admin/notification",
