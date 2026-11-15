@@ -22,14 +22,13 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "어드민 인증", description = "어드민 인증 API")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/auth")
+@RequestMapping("/api/v1/auth")
 public class AdminAuthController implements AdminAuthApi {
 
   private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
@@ -48,11 +47,10 @@ public class AdminAuthController implements AdminAuthApi {
   }
 
   @Override
-  @PostMapping("/refresh")
+  @PatchMapping("/refresh")
   public ResponseEntity<BaseResponse<?>> refresh(
-      @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken,
       @CookieValue(value = REFRESH_TOKEN_COOKIE) String refreshToken) {
-    AdminTokenPair tokenPair = adminAuthService.refresh(accessToken, refreshToken);
+    AdminTokenPair tokenPair = adminAuthService.refresh(refreshToken);
     HttpHeaders headers = cookieFactory.setRefreshToken(tokenPair.refreshToken());
     return ResponseFactory.success(
         SUCCESS_REFRESH_TOKEN, headers, AdminAuthResponse.RefreshResult.from(tokenPair));

@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.QAttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.QLectureEntity;
@@ -56,7 +55,7 @@ public class AttendanceQuerydslRepositoryImpl implements AttendanceQuerydslRepos
 
   @Override
   public List<AttendanceUserCountRow> countByUserIdsAndGenerationGroupByStatus(
-      List<Long> userIds, int generation, LectureStatus lectureStatus) {
+      List<Long> userIds, int generation) {
     return queryFactory
         .select(
             Projections.constructor(
@@ -65,10 +64,7 @@ public class AttendanceQuerydslRepositoryImpl implements AttendanceQuerydslRepos
                 attendance.status,
                 attendance.count()))
         .from(attendance)
-        .where(
-            attendance.userId.in(userIds),
-            attendance.lecture.generation.eq(generation),
-            attendance.lecture.status.eq(lectureStatus))
+        .where(attendance.userId.in(userIds), attendance.lecture.generation.eq(generation))
         .groupBy(attendance.userId, attendance.status)
         .fetch();
   }

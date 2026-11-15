@@ -1,5 +1,6 @@
 package org.sopt.makers.api.common.security.filter;
 
+import static org.sopt.makers.api.common.security.SecurityConstant.ALARM_STATUS_UPDATE_PATH;
 import static org.sopt.makers.api.common.security.SecurityConstant.JWT_OPTIONAL_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.JWT_WHITELIST;
 import static org.sopt.makers.api.common.security.SecurityConstant.TOKEN_HEADER;
@@ -49,7 +50,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   public boolean shouldNotFilter(final HttpServletRequest request) {
-    return isWhiteRequest(request)
+    return ("PATCH".equals(request.getMethod())
+            && PATH_MATCHER.match(ALARM_STATUS_UPDATE_PATH, request.getRequestURI()))
+        || isWhiteRequest(request)
         || isApiKeyAuthenticationExists()
         || isAnonymousOptionalRequest(request);
   }

@@ -4,8 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
-import org.sopt.makers.domain.admin.attendance.AttendanceDetail;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
+import org.sopt.makers.domain.admin.attendance.LectureAttendanceDetail;
+import org.sopt.makers.domain.admin.attendance.MemberAttendanceDetail;
 
 public interface AttendanceRepositoryPort {
 
@@ -13,7 +14,7 @@ public interface AttendanceRepositoryPort {
 
   Optional<Attendance> findByLectureIdAndUserId(Long lectureId, Long userId);
 
-  List<AttendanceDetail> findAllDetailsByUserIdAndGeneration(Long userId, int generation);
+  List<MemberAttendanceDetail> findAllDetailsByUserIdAndGeneration(Long userId, int generation);
 
   List<Attendance> findAllEndedByUserId(Long userId, int generation);
 
@@ -21,7 +22,8 @@ public interface AttendanceRepositoryPort {
 
   void updateStatus(Long attendanceId, AttendanceStatus status);
 
-  List<Attendance> findAllByLectureIdAndPart(Long lectureId, Part part, int page, int limit);
+  List<LectureAttendanceDetail> findAllByLectureIdAndPart(
+      Long lectureId, Part part, int page, int limit);
 
   int countByLectureIdAndPart(Long lectureId, Part part);
 }

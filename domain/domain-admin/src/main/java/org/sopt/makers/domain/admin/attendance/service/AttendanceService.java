@@ -2,27 +2,26 @@ package org.sopt.makers.domain.admin.attendance.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
+import org.sopt.makers.domain.admin.attendance.LectureAttendanceDetail;
 import org.sopt.makers.domain.admin.attendance.SubAttendance;
 import org.sopt.makers.domain.admin.attendance.UserAttendanceSummary;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
 import org.sopt.makers.domain.admin.attendance.port.SubAttendanceRepositoryPort;
-import org.sopt.makers.domain.admin.lecture.SubLecture;
 import org.sopt.makers.domain.admin.lecture.exception.LectureException;
 import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
 import org.sopt.makers.domain.admin.lecture.port.SubLectureRepositoryPort;
-import org.sopt.makers.domain.admin.user.UserActivity;
+import org.sopt.makers.domain.admin.member.Member;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AttendanceService {
 
@@ -30,17 +29,35 @@ public class AttendanceService {
   private final AttendanceRepositoryPort attendanceRepositoryPort;
   private final SubAttendanceRepositoryPort subAttendanceRepositoryPort;
   private final AdminUserActivityPort adminUserActivityPort;
+  private final int currentGeneration;
 
-  public UserAttendanceSummary getAttendancesByUserId(Long userId, int generation) {
-    UserActivity activity =
-        adminUserActivityPort
-            .findActivityByUserIdAndGeneration(userId, generation)
-            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
-    return new UserAttendanceSummary(
-        activity, attendanceRepositoryPort.findAllDetailsByUserIdAndGeneration(userId, generation));
+  public AttendanceService(
+      SubLectureRepositoryPort subLectureRepositoryPort,
+      AttendanceRepositoryPort attendanceRepositoryPort,
+      SubAttendanceRepositoryPort subAttendanceRepositoryPort,
+      AdminUserActivityPort adminUserActivityPort,
+      @Value("${sopt.current.generation}") int currentGeneration) {
+    this.subLectureRepositoryPort = subLectureRepositoryPort;
+    this.attendanceRepositoryPort = attendanceRepositoryPort;
+    this.subAttendanceRepositoryPort = subAttendanceRepositoryPort;
+    this.adminUserActivityPort = adminUserActivityPort;
+    this.currentGeneration = currentGeneration;
   }
 
-  public List<Attendance> getAttendancesByLectureId(
+  public UserAttendanceSummary getAttendancesByUserId(Long userId) {
+    Member member = findMember(userId);
+    return new UserAttendanceSummary(
+        member,
+        attendanceRepositoryPort.findAllDetailsByUserIdAndGeneration(userId, currentGeneration));
+  }
+
+  private Member findMember(Long userId) {
+    return adminUserActivityPort
+        .findMemberByUserIdAndGeneration(userId, currentGeneration)
+        .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
+  }
+
+  public List<LectureAttendanceDetail> getAttendancesByLectureId(
       Long lectureId, Part part, int page, int limit) {
     return attendanceRepositoryPort.findAllByLectureIdAndPart(lectureId, part, page, limit);
   }
@@ -50,30 +67,44 @@ public class AttendanceService {
   }
 
   @Transactional
-  public void attend(Long userId, Long subLectureId, String code) {
-    SubLecture subLecture =
+  public long attend(Long userId, Long subLectureId, String code) {
+    var subLecture =
         subLectureRepositoryPort
             .findById(subLectureId)
             .orElseThrow(() -> new LectureException(LectureFailure.NOT_FOUND_SUB_LECTURE));
 
     subLecture.validateForAttendance(code);
 
-    Attendance attendance =
+    adminUserActivityPort
+        .findActivityByUserIdAndGeneration(userId, currentGeneration)
+        .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
+
+    var attendance =
         attendanceRepositoryPort
             .findByLectureIdAndUserId(subLecture.lectureId(), userId)
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
 
-    SubAttendance subAttendance = attendance.getSubAttendanceByRound(subLecture.round());
-    SubAttendance marked = subAttendance.markAttendance(LocalDateTime.now());
+    var subAttendance =
+        attendance.subAttendances().stream()
+            .filter(sub -> sub.round() == subLecture.round())
+            .findFirst()
+            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_SUB_ATTENDANCE));
 
+    var marked = subAttendance.markAttendance(LocalDateTime.now());
     subAttendanceRepositoryPort.save(marked);
+    attendanceRepositoryPort.updateStatus(attendance.id(), attendance.computeStatus(marked));
 
-    AttendanceStatus newStatus = attendance.computeStatus(marked);
-    attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
+    if (attendance.isEnded()) {
+      float score =
+          Attendance.computeTotalScore(
+              attendanceRepositoryPort.findAllEndedByUserId(userId, currentGeneration));
+      adminUserActivityPort.updateAttendanceScore(userId, currentGeneration, score);
+    }
+    return subLectureId;
   }
 
   @Transactional
-  public void updateSubAttendance(Long subAttendanceId, AttendanceStatus status) {
+  public SubAttendance updateSubAttendance(Long subAttendanceId, AttendanceStatus status) {
     SubAttendance subAttendance =
         subAttendanceRepositoryPort
             .findById(subAttendanceId)
@@ -89,15 +120,18 @@ public class AttendanceService {
 
     AttendanceStatus newStatus = attendance.computeStatus(updated);
     attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
+    return updated;
   }
 
   @Transactional
-  public void updateAttendanceScore(Long userId, int generation) {
+  public float updateAttendanceScore(Long userId) {
+    findMember(userId);
     List<Attendance> endedAttendances =
-        attendanceRepositoryPort.findAllEndedByUserId(userId, generation);
+        attendanceRepositoryPort.findAllEndedByUserId(userId, currentGeneration);
 
     float totalScore = Attendance.computeTotalScore(endedAttendances);
 
-    adminUserActivityPort.updateAttendanceScore(userId, generation, totalScore);
+    adminUserActivityPort.updateAttendanceScore(userId, currentGeneration, totalScore);
+    return totalScore;
   }
 }

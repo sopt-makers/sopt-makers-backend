@@ -66,6 +66,28 @@ public class JwtTokenRotator {
     return new JwtTokenPair(newAccessToken, newRefreshToken);
   }
 
+  public JwtTokenPair refreshWithoutAccessToken(
+      String refreshToken,
+      String tokenType,
+      String authority,
+      RefreshTokenDeleter refreshTokenDeleter,
+      RefreshTokenSaver refreshTokenSaver) {
+    JwtRefreshToken parsed = jwtRefreshTokenService.parse(refreshToken);
+    if (!tokenType.equals(parsed.tokenType())) {
+      throw new TokenException(INVALID_TOKEN_TYPE);
+    }
+    Long subjectId;
+    try {
+      subjectId = Long.valueOf(parsed.subject());
+    } catch (NumberFormatException e) {
+      throw new TokenException(INVALID_SUBJECT);
+    }
+    if (!refreshTokenDeleter.delete(subjectId, refreshToken)) {
+      throw new TokenException(INVALID_REFRESH_TOKEN);
+    }
+    return issue(subjectId, authority, tokenType, refreshTokenSaver);
+  }
+
   private void validateAuthorities(
       CustomAuthentication authentication, Collection<String> allowedAuthorities) {
     List<String> authorities =

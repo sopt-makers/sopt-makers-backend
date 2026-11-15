@@ -4,7 +4,7 @@ public interface AdminTokenIssuerPort {
 
   AdminTokenPair issue(Long adminId);
 
-  AdminTokenPair refresh(String expiredAccessToken, String refreshToken);
+  AdminTokenPair refresh(String refreshToken);
 
   record AdminTokenPair(String accessToken, String refreshToken) {}
 }

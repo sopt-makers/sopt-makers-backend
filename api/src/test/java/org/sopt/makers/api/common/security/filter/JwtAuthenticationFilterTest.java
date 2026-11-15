@@ -47,6 +47,24 @@ class JwtAuthenticationFilterTest {
     assertThat(filter.shouldNotFilter(request("/api/v2/home/description", null))).isFalse();
   }
 
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.ValueSource(
+      strings = {
+        "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/login/web",
+        "/api/v1/auth/login/app", "/api/v1/auth/refresh/web", "/api/v1/auth/refresh/app",
+        "/api/v1/auth/phone", "/api/v1/auth/verify/phone", "/api/v1/auth/signup"
+      })
+  @DisplayName("공개 인증 API는 JWT 필터를 건너뛴다")
+  void skipsPublicAuth(String path) {
+    assertThat(filter.shouldNotFilter(request(path, null))).isTrue();
+  }
+
+  @Test
+  @DisplayName("관리자 비밀번호 변경은 JWT 필터를 통과해야 한다")
+  void filtersAdminPassword() {
+    assertThat(filter.shouldNotFilter(request("/api/v1/auth/password", null))).isFalse();
+  }
+
   private static MockHttpServletRequest request(String uri, String authorization) {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
     request.setRequestURI(uri);

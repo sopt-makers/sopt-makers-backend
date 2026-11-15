@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.common.resolver.CurrentUserId;
 import org.sopt.makers.api.controller.app.attendance.dto.AttendRequest;
+import org.sopt.makers.api.controller.app.attendance.dto.AttendResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.admin.attendance.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,9 @@ public class AppAttendanceController implements AppAttendanceApi {
 
   @Override
   @PostMapping("/attend")
-  public ResponseEntity<BaseResponse<Void>> attend(
+  public ResponseEntity<BaseResponse<AttendResponse>> attend(
       @CurrentUserId Long userId, @RequestBody @Valid AttendRequest request) {
-    attendanceService.attend(userId, request.subLectureId(), request.code());
-    return ResponseFactory.typedSuccess(SUCCESS_ATTEND);
+    long subLectureId = attendanceService.attend(userId, request.subLectureId(), request.code());
+    return ResponseFactory.typedSuccess(SUCCESS_ATTEND, new AttendResponse(subLectureId));
   }
 }

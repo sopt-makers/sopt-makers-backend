@@ -7,7 +7,7 @@ import org.sopt.makers.domain.admin.auth.service.AdminAuthService.LoginResult;
 
 public sealed interface AdminAuthResponse {
 
-  record LoginBody(Long id, String name, AdminAccountType accountType, String accessToken)
+  record LoginBody(Long id, String name, AdminAccountType adminStatus, String accessToken)
       implements AdminAuthResponse {
 
     public static LoginBody of(LoginResult loginResult) {

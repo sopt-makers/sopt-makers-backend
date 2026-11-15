@@ -3,7 +3,7 @@ package org.sopt.makers.domain.admin.attendance;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record AttendanceDetail(
+public record MemberAttendanceDetail(
     String lectureName,
     LocalDateTime startDate,
     LocalDateTime endDate,

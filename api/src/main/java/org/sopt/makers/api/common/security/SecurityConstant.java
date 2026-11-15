@@ -13,6 +13,7 @@ public final class SecurityConstant {
   public static final String ROLE_PREFIX = "ROLE_";
   public static final String INTERNAL_SERVICE = "INTERNAL_SERVICE";
   public static final String ADMIN = "ADMIN";
+  public static final String ALARM_STATUS_UPDATE_PATH = "/api/v1/alarms/*";
   public static final String PATTERN_ALL = "/**";
 
   public static final String[] CORS_ALLOWED_ORIGINS = {
@@ -34,13 +35,15 @@ public final class SecurityConstant {
 
   public static final List<String> JWT_WHITELIST =
       List.of(
-          "/api/v1/auth",
+          "/api/v1/auth/phone",
+          "/api/v1/auth/verify/phone",
+          "/api/v1/auth/signup",
+          "/api/v1/auth/login",
+          "/api/v1/auth/refresh",
           "/api/v1/official",
           "/api/v1/social/accounts",
-          "/api/v1/admin/auth/login",
-          "/api/v1/admin/auth/refresh",
           "/api/v1/popups",
-          "/api/v1/admin/banners/images",
+          "/api/v1/banners/images",
           "/slack/emoji",
           "/api/v2/admin/soptamp",
           "/api/v2/admin/notification",

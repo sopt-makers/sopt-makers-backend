@@ -40,7 +40,7 @@ public interface UserActivityHistoryJpaRepository
   @Modifying(clearAutomatically = true)
   @Query(
       "UPDATE UserActivityHistoryEntity u SET u.attendanceScore = :score"
-          + " WHERE u.user.id = :userId AND u.generation = :generation")
+          + " WHERE u.user.id = :userId AND u.generation = :generation AND u.isSopt = true")
   void updateAttendanceScore(
       @Param("userId") Long userId,
       @Param("generation") int generation,

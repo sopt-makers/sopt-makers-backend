@@ -2,6 +2,7 @@ package org.sopt.makers.domain.admin.app.service;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppScheduleService {
 
   private static final int MIN_SCHEDULE_DURATION = 1;
-  private static final int MAX_SCHEDULE_DURATION = 31;
+  private static final int MAX_SCHEDULE_DURATION = 50;
   private static final int DAY_DURATION = 1;
   private static final int TWO_DAYS_DURATION = 2;
 
@@ -31,6 +32,9 @@ public class AppScheduleService {
 
   public Map<LocalDate, List<AppSchedule>> getSchedules(
       LocalDateTime startAt, LocalDateTime endAt) {
+    if (endAt.isBefore(startAt)) {
+      throw new AppException(AppFailure.INVALID_SCHEDULE_DATE_RANGE);
+    }
     List<AppSchedule> schedules = appScheduleRepositoryPort.findBetween(startAt, endAt);
     Map<LocalDate, List<AppSchedule>> scheduleMap = getInitializedMap(startAt, endAt);
     schedules.forEach(schedule -> putScheduleToMap(scheduleMap, schedule));
@@ -46,7 +50,7 @@ public class AppScheduleService {
   }
 
   private int getDuration(LocalDateTime startAt, LocalDateTime endAt) {
-    long duration = DAYS.between(startAt.toLocalDate(), endAt.toLocalDate()) + 1;
+    long duration = Duration.between(startAt, endAt).toDays() + 1;
     if (duration < MIN_SCHEDULE_DURATION || duration > MAX_SCHEDULE_DURATION) {
       throw new AppException(AppFailure.INVALID_SCHEDULE_DATE_RANGE);
     }
@@ -55,21 +59,14 @@ public class AppScheduleService {
 
   private void putScheduleToMap(
       Map<LocalDate, List<AppSchedule>> scheduleMap, AppSchedule schedule) {
-    long duration = DAYS.between(schedule.startAt().toLocalDate(), schedule.endAt().toLocalDate());
-    scheduleMap.computeIfPresent(
-        schedule.startAt().toLocalDate(),
-        (key, list) -> {
-          list.add(schedule);
-          return list;
-        });
-
+    long duration = DAYS.between(schedule.startAt(), schedule.endAt());
+    scheduleMap
+        .computeIfAbsent(schedule.startAt().toLocalDate(), key -> new ArrayList<>())
+        .add(schedule);
     if (duration >= DAY_DURATION) {
-      scheduleMap.computeIfPresent(
-          schedule.endAt().toLocalDate(),
-          (key, list) -> {
-            list.add(schedule);
-            return list;
-          });
+      scheduleMap
+          .computeIfAbsent(schedule.endAt().toLocalDate(), key -> new ArrayList<>())
+          .add(schedule);
       if (duration >= TWO_DAYS_DURATION) {
         putScheduleMapBetween(scheduleMap, schedule, (int) duration);
       }
@@ -84,11 +81,6 @@ public class AppScheduleService {
   private void putScheduleAtDayCount(
       Map<LocalDate, List<AppSchedule>> scheduleMap, AppSchedule schedule, int dayCount) {
     LocalDate date = schedule.startAt().plusDays(dayCount).toLocalDate();
-    scheduleMap.computeIfPresent(
-        date,
-        (key, list) -> {
-          list.add(schedule);
-          return list;
-        });
+    scheduleMap.computeIfAbsent(date, key -> new ArrayList<>()).add(schedule);
   }
 }

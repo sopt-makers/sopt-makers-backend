@@ -34,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/banners")
+@RequestMapping("/api/v1/banners")
 public class AdminBannerController implements AdminBannerApi {
 
   private static final int DEFAULT_PAGE = 1;

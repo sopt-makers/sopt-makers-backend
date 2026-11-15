@@ -35,7 +35,7 @@ public interface AttendanceJpaRepository
   @Query(
       "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture"
           + " WHERE a.userId = :userId AND a.lecture.generation = :generation"
-          + " AND a.lecture.status = :lectureStatus")
+          + " AND a.lecture.status = :lectureStatus ORDER BY a.lecture.startDate DESC")
   List<AttendanceEntity> findAllEndedByUserId(
       @Param("userId") Long userId,
       @Param("generation") int generation,
@@ -64,16 +64,21 @@ public interface AttendanceJpaRepository
   List<Long> findIdsByLectureId(@Param("lectureId") Long lectureId);
 
   @Query(
-      "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture WHERE a.lecture.id = :lectureId"
-          + " AND (:part IS NULL OR a.lecture.part = :part"
-          + " OR a.lecture.part = org.sopt.makers.core.type.Part.ALL)")
+      "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture l"
+          + " JOIN UserActivityHistoryEntity activity ON activity.user.id = a.userId"
+          + " AND activity.generation = l.generation AND activity.isSopt = true"
+          + " JOIN activity.user u WHERE l.id = :lectureId"
+          + " AND (:part IS NULL OR :part = org.sopt.makers.core.type.Part.ALL OR activity.part = :part)"
+          + " ORDER BY SUBSTRING(u.name, 1, 1), u.id")
   List<AttendanceEntity> findAllByLectureIdAndPart(
       @Param("lectureId") Long lectureId, @Param("part") Part part, Pageable pageable);
 
   @Query(
-      "SELECT COUNT(a) FROM AttendanceEntity a WHERE a.lecture.id = :lectureId"
-          + " AND (:part IS NULL OR a.lecture.part = :part"
-          + " OR a.lecture.part = org.sopt.makers.core.type.Part.ALL)")
+      "SELECT COUNT(a) FROM AttendanceEntity a"
+          + " JOIN UserActivityHistoryEntity activity ON activity.user.id = a.userId"
+          + " AND activity.generation = a.lecture.generation AND activity.isSopt = true"
+          + " WHERE a.lecture.id = :lectureId"
+          + " AND (:part IS NULL OR :part = org.sopt.makers.core.type.Part.ALL OR activity.part = :part)")
   int countByLectureIdAndPart(@Param("lectureId") Long lectureId, @Param("part") Part part);
 
   void deleteAllByLectureId(Long lectureId);

@@ -11,7 +11,7 @@ public interface ScheduleJpaRepository extends JpaRepository<ScheduleEntity, Lon
 
   @Query(
       "SELECT s FROM ScheduleEntity s"
-          + " WHERE s.startDate <= :endAt AND s.endDate >= :startAt"
+          + " WHERE s.startDate BETWEEN :startAt AND :endAt OR s.endDate BETWEEN :startAt AND :endAt"
           + " ORDER BY s.startDate ASC")
   List<ScheduleEntity> findBetween(
       @Param("startAt") LocalDateTime startAt, @Param("endAt") LocalDateTime endAt);

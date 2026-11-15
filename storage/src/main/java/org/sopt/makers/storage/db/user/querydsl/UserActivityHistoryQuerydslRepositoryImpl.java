@@ -36,7 +36,7 @@ public class UserActivityHistoryQuerydslRepositoryImpl
         .join(activity.user, user)
         .fetchJoin()
         .where(generationPartFilter(generation, part))
-        .orderBy(activity.id.asc())
+        .orderBy(user.name.substring(0, 1).asc(), user.id.asc())
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
         .fetch();

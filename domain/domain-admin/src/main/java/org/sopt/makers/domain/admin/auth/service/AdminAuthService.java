@@ -56,8 +56,8 @@ public class AdminAuthService {
 
   public record LoginResult(AdminAccount adminAccount, AdminTokenPair tokenPair) {}
 
-  public AdminTokenPair refresh(String expiredAccessToken, String refreshToken) {
-    return adminTokenIssuerPort.refresh(expiredAccessToken, refreshToken);
+  public AdminTokenPair refresh(String refreshToken) {
+    return adminTokenIssuerPort.refresh(refreshToken);
   }
 
   @Transactional

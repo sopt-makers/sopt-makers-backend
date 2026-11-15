@@ -6,15 +6,20 @@ import java.time.LocalDateTime;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.attendance.AttendanceDetail;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
+import org.sopt.makers.domain.admin.attendance.LectureAttendanceDetail;
+import org.sopt.makers.domain.admin.attendance.MemberAttendanceDetail;
 import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 import org.sopt.makers.domain.admin.lecture.LectureStatus;
+import org.sopt.makers.domain.user.Role;
 import org.sopt.makers.storage.db.admin.entity.AttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.LectureEntity;
 import org.sopt.makers.storage.db.admin.entity.SubAttendanceEntity;
 import org.sopt.makers.storage.db.admin.entity.SubLectureEntity;
+import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
+import org.sopt.makers.storage.db.user.entity.UserEntity;
 import org.sopt.makers.storage.support.AdminJpaTestConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -74,7 +79,7 @@ class AttendanceRepositoryAdapterTest {
     var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
-        .extracting(AttendanceDetail::lectureName)
+        .extracting(MemberAttendanceDetail::lectureName)
         .containsExactlyInAnyOrder("첫 세션", "둘째 세션");
     assertThat(result)
         .filteredOn(detail -> detail.lectureName().equals("첫 세션"))
@@ -132,7 +137,7 @@ class AttendanceRepositoryAdapterTest {
 
     var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
-    assertThat(result).extracting(AttendanceDetail::lectureName).containsExactly("현재 기수 세션");
+    assertThat(result).extracting(MemberAttendanceDetail::lectureName).containsExactly("현재 기수 세션");
   }
 
   @Test
@@ -146,8 +151,65 @@ class AttendanceRepositoryAdapterTest {
     var result = adapter.findAllDetailsByUserIdAndGeneration(10L, 39);
 
     assertThat(result)
-        .extracting(AttendanceDetail::lectureName)
+        .extracting(MemberAttendanceDetail::lectureName)
         .containsExactly("최근 세션", "중간 세션", "이른 세션");
+  }
+
+  @Test
+  @DisplayName("전체 세션의 출석도 회원의 해당 기수 파트로 필터링한다")
+  void filtersLectureAttendanceByMemberPart() {
+    var kim =
+        entityManager.persist(
+            UserEntity.create("김솝트", "01000000001", null, null, null, "kim", OAuthPlatform.GOOGLE));
+    var hong =
+        entityManager.persist(
+            UserEntity.create(
+                "홍길동", "01000000002", null, null, null, "hong", OAuthPlatform.GOOGLE));
+    entityManager.persist(
+        UserActivityHistoryEntity.create(kim, 39, null, Part.WEB, Role.MEMBER, true, 2.0f));
+    entityManager.persist(
+        UserActivityHistoryEntity.create(hong, 39, null, Part.SERVER, Role.MEMBER, true, 1.5f));
+    entityManager.persist(
+        UserActivityHistoryEntity.create(hong, 38, null, Part.WEB, Role.MEMBER, true, 1.0f));
+    var lecture =
+        entityManager.persist(
+            LectureEntity.builder()
+                .name("전체 세미나")
+                .part(Part.ALL)
+                .generation(39)
+                .startDate(START)
+                .endDate(START.plusHours(4))
+                .attribute(LectureAttribute.SEMINAR)
+                .status(LectureStatus.END)
+                .build());
+    entityManager.persist(AttendanceEntity.create(kim.getId(), lecture));
+    var attendance = entityManager.persist(AttendanceEntity.create(hong.getId(), lecture));
+    var sub = saveSubAttendance(attendance, 1, AttendanceStatus.TARDY);
+    flushAndClear();
+    var result = adapter.findAllByLectureIdAndPart(lecture.getId(), Part.SERVER, 0, 20);
+    assertThat(result)
+        .singleElement()
+        .satisfies(
+            detail -> {
+              assertThat(detail.memberId()).isEqualTo(hong.getId());
+              assertThat(detail.memberName()).isEqualTo("홍길동");
+              assertThat(detail.updatedScore()).isEqualTo(-1.0f);
+              assertThat(detail.attendances())
+                  .singleElement()
+                  .satisfies(
+                      item -> {
+                        assertThat(item.status()).isEqualTo(AttendanceStatus.TARDY);
+                        assertThat(item.updatedAt()).isEqualTo(sub.updatedAt());
+                      });
+            });
+    assertThat(adapter.countByLectureIdAndPart(lecture.getId(), Part.SERVER)).isEqualTo(1);
+    assertThat(adapter.findAllByLectureIdAndPart(lecture.getId(), Part.ALL, 0, 1))
+        .extracting(LectureAttendanceDetail::memberName)
+        .containsExactly("김솝트");
+    assertThat(adapter.findAllByLectureIdAndPart(lecture.getId(), null, 1, 1))
+        .extracting(LectureAttendanceDetail::memberName)
+        .containsExactly("홍길동");
+    assertThat(adapter.countByLectureIdAndPart(lecture.getId(), null)).isEqualTo(2);
   }
 
   private AttendanceEntity saveAttendance(Long userId, String name) {
@@ -174,7 +236,7 @@ class AttendanceRepositoryAdapterTest {
     return entityManager.persist(AttendanceEntity.create(userId, lecture));
   }
 
-  private AttendanceDetail.SubAttendanceDetail saveSubAttendance(
+  private MemberAttendanceDetail.SubAttendanceDetail saveSubAttendance(
       AttendanceEntity attendance, int round, AttendanceStatus status) {
     SubLectureEntity lecture = SubLectureEntity.create(attendance.getLecture(), round);
     lecture.updateCodeAndStartAt("1234", START);
@@ -184,7 +246,7 @@ class AttendanceRepositoryAdapterTest {
     sub.updateAttendedAt(START.plusMinutes(1));
     entityManager.persistAndFlush(sub);
     entityManager.refresh(sub);
-    return new AttendanceDetail.SubAttendanceDetail(round, status, sub.getUpdatedAt());
+    return new MemberAttendanceDetail.SubAttendanceDetail(round, status, sub.getUpdatedAt());
   }
 
   private void flushAndClear() {

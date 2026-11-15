@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.admin.alarm.dto.AdminAlarmRequest;
 import org.sopt.makers.core.response.BaseResponse;
+import org.sopt.makers.domain.admin.alarm.AlarmStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Admin Alarm", description = "어드민 알림 관련 API")
@@ -16,7 +18,8 @@ public interface AdminAlarmApi {
   ResponseEntity<BaseResponse<?>> sendScheduleAlarm(AdminAlarmRequest.ScheduleSendRequest request);
 
   @Operation(summary = "알림 목록 조회")
-  ResponseEntity<BaseResponse<?>> getAlarms(Integer generation, String status, int page, int size);
+  ResponseEntity<BaseResponse<?>> getAlarms(
+      Integer generation, AlarmStatus status, Pageable pageable);
 
   @Operation(summary = "알림 상세 조회")
   ResponseEntity<BaseResponse<?>> getAlarm(long alarmId);
