@@ -1,33 +1,37 @@
 package org.sopt.makers.api.controller.admin.attendance.dto;
 
 import java.util.List;
-import org.sopt.makers.domain.admin.attendance.Attendance;
-import org.sopt.makers.domain.admin.attendance.SubAttendance;
+import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
+import org.sopt.makers.domain.admin.attendance.LectureAttendanceDetail;
 
-public record AttendancesByLectureResponse(int totalCount, List<AttendanceItem> attendances) {
-
-  public static AttendancesByLectureResponse from(int totalCount, List<Attendance> attendances) {
+public record AttendancesByLectureResponse(List<AttendanceItem> attendances, int totalCount) {
+  public static AttendancesByLectureResponse from(
+      int totalCount, List<LectureAttendanceDetail> attendances) {
     return new AttendancesByLectureResponse(
-        totalCount, attendances.stream().map(AttendanceItem::from).toList());
+        attendances.stream().map(AttendanceItem::from).toList(), totalCount);
   }
 
   public record AttendanceItem(
-      Long attendanceId, Long userId, String status, List<SubAttendanceItem> subAttendances) {
-
-    public static AttendanceItem from(Attendance attendance) {
+      Long attendanceId,
+      MemberItem member,
+      List<SubAttendanceItem> attendances,
+      float updatedScore) {
+    static AttendanceItem from(LectureAttendanceDetail attendance) {
       return new AttendanceItem(
-          attendance.id(),
-          attendance.userId(),
-          attendance.status().name(),
-          attendance.subAttendances().stream().map(SubAttendanceItem::from).toList());
+          attendance.attendanceId(),
+          new MemberItem(attendance.memberId(), attendance.memberName()),
+          attendance.attendances().stream().map(SubAttendanceItem::from).toList(),
+          attendance.updatedScore());
     }
   }
 
-  public record SubAttendanceItem(Long subAttendanceId, int round, String status) {
+  public record MemberItem(Long memberId, String name) {}
 
-    public static SubAttendanceItem from(SubAttendance subAttendance) {
+  public record SubAttendanceItem(
+      Long subAttendanceId, int round, AttendanceStatus status, String updateAt) {
+    static SubAttendanceItem from(LectureAttendanceDetail.SubAttendanceDetail detail) {
       return new SubAttendanceItem(
-          subAttendance.id(), subAttendance.round(), subAttendance.status().name());
+          detail.subAttendanceId(), detail.round(), detail.status(), detail.updatedAt().toString());
     }
   }
 }
