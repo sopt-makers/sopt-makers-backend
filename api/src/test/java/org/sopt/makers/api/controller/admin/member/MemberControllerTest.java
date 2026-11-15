@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.member.Member;
-import org.sopt.makers.domain.admin.member.service.MemberService;
+import org.sopt.makers.domain.admin.member.service.AdminMemberService;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 class MemberControllerTest {
-  private final MemberService service = mock(MemberService.class);
+  private final AdminMemberService service = mock(AdminMemberService.class);
   private final MockMvc mvc =
       MockMvcBuilders.standaloneSetup(new MemberController(service))
           .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())

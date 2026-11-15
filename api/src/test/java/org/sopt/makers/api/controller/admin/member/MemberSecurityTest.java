@@ -22,7 +22,7 @@ import org.sopt.makers.api.common.security.filter.AuthenticationExceptionFilter;
 import org.sopt.makers.api.common.security.filter.JwtAuthenticationFilter;
 import org.sopt.makers.api.common.security.jwt.JwtAccessTokenService;
 import org.sopt.makers.domain.admin.attendance.service.AttendanceService;
-import org.sopt.makers.domain.admin.member.service.MemberService;
+import org.sopt.makers.domain.admin.member.service.AdminMemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +46,7 @@ class MemberSecurityTest {
   private static final String BASE = "/api/v1/members";
 
   @Autowired private WebApplicationContext context;
-  @Autowired private MemberService service;
+  @Autowired private AdminMemberService service;
   @Autowired private JwtAccessTokenService tokenService;
   private MockMvc mvc;
 
@@ -122,8 +122,8 @@ class MemberSecurityTest {
     }
 
     @Bean
-    MemberService memberService() {
-      return mock(MemberService.class);
+    AdminMemberService memberService() {
+      return mock(AdminMemberService.class);
     }
 
     @Bean

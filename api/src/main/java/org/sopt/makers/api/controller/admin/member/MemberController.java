@@ -9,7 +9,7 @@ import org.sopt.makers.api.controller.admin.member.dto.MembersGetResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.admin.member.Member;
-import org.sopt.makers.domain.admin.member.service.MemberService;
+import org.sopt.makers.domain.admin.member.service.AdminMemberService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/members")
 public class MemberController implements MemberApi {
 
-  private final MemberService memberService;
+  private final AdminMemberService memberService;
 
   @Override
   @GetMapping("/list")
