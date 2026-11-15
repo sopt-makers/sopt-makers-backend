@@ -15,6 +15,7 @@ import org.sopt.makers.api.controller.admin.alarm.dto.AdminAlarmResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.admin.alarm.AlarmStatus;
 import org.sopt.makers.domain.admin.alarm.service.AlarmService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/alarms")
+@RequestMapping("/api/v1/alarms")
 public class AdminAlarmController implements AdminAlarmApi {
 
   private final AlarmService alarmService;
@@ -54,14 +55,13 @@ public class AdminAlarmController implements AdminAlarmApi {
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getAlarms(
       @RequestParam(required = false) Integer generation,
-      @RequestParam(required = false) String status,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    AlarmStatus alarmStatus = status != null ? AlarmStatus.valueOf(status) : null;
+      @RequestParam(required = false) AlarmStatus status,
+      Pageable pageable) {
     return ResponseFactory.success(
         SUCCESS_GET_ALARMS,
         AdminAlarmResponse.AlarmList.from(
-            alarmService.getAlarms(generation, alarmStatus, page, size)));
+            alarmService.getAlarms(
+                generation, status, pageable.getPageNumber(), pageable.getPageSize())));
   }
 
   @Override

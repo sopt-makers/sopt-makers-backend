@@ -13,6 +13,7 @@ public final class SecurityConstant {
   public static final String ROLE_PREFIX = "ROLE_";
   public static final String INTERNAL_SERVICE = "INTERNAL_SERVICE";
   public static final String ADMIN = "ADMIN";
+  public static final String ALARM_STATUS_UPDATE_PATH = "/api/v1/alarms/*";
   public static final String PATTERN_ALL = "/**";
 
   public static final String[] CORS_ALLOWED_ORIGINS = {

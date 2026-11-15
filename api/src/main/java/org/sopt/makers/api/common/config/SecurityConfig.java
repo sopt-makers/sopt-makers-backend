@@ -1,6 +1,7 @@
 package org.sopt.makers.api.common.config;
 
 import static org.sopt.makers.api.common.security.SecurityConstant.ADMIN;
+import static org.sopt.makers.api.common.security.SecurityConstant.ALARM_STATUS_UPDATE_PATH;
 import static org.sopt.makers.api.common.security.SecurityConstant.API_KEY_SECURED_PATHS;
 import static org.sopt.makers.api.common.security.SecurityConstant.INTERNAL_SERVICE;
 import static org.sopt.makers.api.common.security.SecurityConstant.JWT_OPTIONAL_PATHS;
@@ -15,6 +16,7 @@ import org.sopt.makers.api.common.security.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -86,6 +88,7 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
         authorize -> {
           authorize.requestMatchers(publicPatterns).permitAll();
+          authorize.requestMatchers(HttpMethod.PATCH, ALARM_STATUS_UPDATE_PATH).permitAll();
 
           if (includeSwagger) {
             authorize
@@ -103,7 +106,9 @@ public class SecurityConfig {
                   "/api/v1/banners",
                   "/api/v1/banners/**",
                   "/api/v1/lectures",
-                  "/api/v1/lectures/**")
+                  "/api/v1/lectures/**",
+                  "/api/v1/alarms",
+                  "/api/v1/alarms/**")
               .hasAuthority(ADMIN);
 
           for (String endpoint : securityProperty.api().securedEndpoints()) {
