@@ -103,6 +103,7 @@ public class SecurityConfig {
           authorize
               .requestMatchers(
                   "/api/v1/admin/**",
+                  "/api/v1/auth/password",
                   "/api/v1/banners",
                   "/api/v1/banners/**",
                   "/api/v1/lectures",

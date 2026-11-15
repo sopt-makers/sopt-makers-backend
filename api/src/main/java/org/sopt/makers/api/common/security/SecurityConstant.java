@@ -35,11 +35,13 @@ public final class SecurityConstant {
 
   public static final List<String> JWT_WHITELIST =
       List.of(
-          "/api/v1/auth",
+          "/api/v1/auth/phone",
+          "/api/v1/auth/verify/phone",
+          "/api/v1/auth/signup",
+          "/api/v1/auth/login",
+          "/api/v1/auth/refresh",
           "/api/v1/official",
           "/api/v1/social/accounts",
-          "/api/v1/admin/auth/login",
-          "/api/v1/admin/auth/refresh",
           "/api/v1/popups",
           "/api/v1/banners/images",
           "/slack/emoji",

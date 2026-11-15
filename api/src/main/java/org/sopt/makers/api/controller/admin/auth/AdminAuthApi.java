@@ -14,7 +14,7 @@ public interface AdminAuthApi {
   ResponseEntity<BaseResponse<?>> login(AdminAuthRequest.AdminLogin request);
 
   @Operation(summary = "어드민 토큰 갱신")
-  ResponseEntity<BaseResponse<?>> refresh(String accessToken, String refreshToken);
+  ResponseEntity<BaseResponse<?>> refresh(String refreshToken);
 
   @Operation(summary = "어드민 비밀번호 변경")
   ResponseEntity<BaseResponse<?>> changePassword(
