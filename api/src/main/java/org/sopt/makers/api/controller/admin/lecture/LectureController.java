@@ -14,7 +14,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.admin.lecture.dto.LectureCreateRequest;
-import org.sopt.makers.api.controller.admin.lecture.dto.LectureCreateResponse;
 import org.sopt.makers.api.controller.admin.lecture.dto.LectureDetailResponse;
 import org.sopt.makers.api.controller.admin.lecture.dto.LectureGetResponse;
 import org.sopt.makers.api.controller.admin.lecture.dto.LecturesGetResponse;
@@ -39,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/lectures")
+@RequestMapping("/api/v1/lectures")
 public class LectureController implements LectureApi {
 
   private final LectureService lectureService;
@@ -57,7 +56,7 @@ public class LectureController implements LectureApi {
             request.startDate(),
             request.endDate(),
             request.attribute());
-    return ResponseFactory.success(SUCCESS_CREATE_LECTURE, LectureCreateResponse.from(lecture));
+    return ResponseFactory.success(SUCCESS_CREATE_LECTURE, lecture.id());
   }
 
   @Override

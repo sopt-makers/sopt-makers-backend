@@ -98,7 +98,12 @@ public class SecurityConfig {
           }
 
           authorize
-              .requestMatchers("/api/v1/admin/**", "/api/v1/banners", "/api/v1/banners/**")
+              .requestMatchers(
+                  "/api/v1/admin/**",
+                  "/api/v1/banners",
+                  "/api/v1/banners/**",
+                  "/api/v1/lectures",
+                  "/api/v1/lectures/**")
               .hasAuthority(ADMIN);
 
           for (String endpoint : securityProperty.api().securedEndpoints()) {

@@ -1,6 +1,5 @@
 package org.sopt.makers.api.controller.admin.lecture.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -12,6 +11,6 @@ public record LectureCreateRequest(
     @NotBlank String name,
     @NotNull Integer generation,
     String place,
-    @NotNull @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime startDate,
-    @NotNull @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime endDate,
+    @NotNull LocalDateTime startDate,
+    @NotNull LocalDateTime endDate,
     @NotNull LectureAttribute attribute) {}
