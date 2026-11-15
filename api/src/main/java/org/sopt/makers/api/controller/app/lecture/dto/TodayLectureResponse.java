@@ -50,7 +50,7 @@ public record TodayLectureResponse(
 
   public record LectureGetResponse(
       @Schema(description = "해당 차수 출석 상태") AttendanceStatus status,
-      @Schema(description = "출석 처리된 일시. 아직 출석 전이면 빈 문자열", example = "2026-09-19T14:05:00")
+      @Schema(description = "실제 출석 처리 일시. 출석 전이면 빈 문자열", example = "2026-09-19T14:05:00")
           String attendedAt) {
 
     private static LectureGetResponse from(SubAttendance subAttendance) {

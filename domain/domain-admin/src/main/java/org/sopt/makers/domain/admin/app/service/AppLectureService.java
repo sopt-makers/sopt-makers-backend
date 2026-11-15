@@ -1,9 +1,9 @@
 package org.sopt.makers.domain.admin.app.service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.admin.app.AppLecture;
 import org.sopt.makers.domain.admin.app.AppLectureResponseType;
 import org.sopt.makers.domain.admin.app.AppLectureResult;
@@ -17,35 +17,46 @@ import org.sopt.makers.domain.admin.lecture.LectureAttribute;
 import org.sopt.makers.domain.admin.lecture.LectureStatus;
 import org.sopt.makers.domain.admin.lecture.exception.LectureException;
 import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
-import org.sopt.makers.domain.admin.user.UserActivity;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AppLectureService {
 
   private static final int SUB_LECTURE_MAX_ROUND = 2;
   private static final int MAX_LECTURE_COUNT = 2;
-  private static final int HACKATHON_LECTURE_START_HOUR = 14;
+  private static final int HACKATHON_LECTURE_START_HOUR = 16;
   private static final int ATTENDANCE_MINUTES = 10;
-  private static final String SEMINAR_MESSAGE = "세미나 출석을 진행해주세요";
-  private static final String EVENT_MESSAGE = "행사 출석을 진행해주세요";
-  private static final String ETC_MESSAGE = "별도 출석이 없는 세션입니다";
+  private static final String SEMINAR_MESSAGE = "";
+  private static final String EVENT_MESSAGE = "행사도 참여하고, 출석점수도 받고, 일석이조!";
+  private static final String ETC_MESSAGE = "출석 점수가 반영되지 않아요.";
 
   private final AppLectureRepositoryPort appLectureRepositoryPort;
   private final AdminUserActivityPort adminUserActivityPort;
+  private final int currentGeneration;
+  private final Clock clock;
+
+  public AppLectureService(
+      AppLectureRepositoryPort appLectureRepositoryPort,
+      AdminUserActivityPort adminUserActivityPort,
+      @Value("${sopt.current.generation}") int currentGeneration,
+      Clock clock) {
+    this.appLectureRepositoryPort = appLectureRepositoryPort;
+    this.adminUserActivityPort = adminUserActivityPort;
+    this.currentGeneration = currentGeneration;
+    this.clock = clock;
+  }
 
   public AppLectureResult getTodayLecture(Long userId) {
-    UserActivity activity =
-        adminUserActivityPort
-            .findCurrentActivity(userId)
-            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
-
+    var activity =
+        adminUserActivityPort.findActivityByUserIdAndGeneration(userId, currentGeneration);
+    if (activity.isEmpty()) return AppLectureResult.empty();
     List<AppLecture> lectures =
-        appLectureRepositoryPort.findTodayLectures(userId, activity.generation(), activity.part());
+        appLectureRepositoryPort.findTodayLectures(
+            userId, currentGeneration, activity.get().part());
     validateLectureCount(lectures);
 
     if (lectures.isEmpty()) {
@@ -88,7 +99,7 @@ public class AppLectureService {
   }
 
   private boolean isMultipleLecture(int lectureCount) {
-    return LocalDateTime.now().getHour() >= HACKATHON_LECTURE_START_HOUR
+    return LocalDateTime.now(clock).getHour() >= HACKATHON_LECTURE_START_HOUR
         && lectureCount == MAX_LECTURE_COUNT;
   }
 
@@ -151,7 +162,7 @@ public class AppLectureService {
   }
 
   private void validateTodayLecture(AppLecture lecture) {
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now(clock);
     boolean isNotTodayLecture = !lecture.startAt().toLocalDate().equals(today);
 
     if (isNotTodayLecture) {
@@ -164,11 +175,11 @@ public class AppLectureService {
         && subAttendance
             .subLectureStartAt()
             .plusMinutes(ATTENDANCE_MINUTES)
-            .isBefore(LocalDateTime.now());
+            .isBefore(LocalDateTime.now(clock));
   }
 
   private boolean isAttendanceEnded(AppSubLecture subLecture) {
     return subLecture.startAt() != null
-        && subLecture.startAt().plusMinutes(ATTENDANCE_MINUTES).isBefore(LocalDateTime.now());
+        && subLecture.startAt().plusMinutes(ATTENDANCE_MINUTES).isBefore(LocalDateTime.now(clock));
   }
 }

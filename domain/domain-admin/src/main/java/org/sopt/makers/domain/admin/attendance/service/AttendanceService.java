@@ -12,7 +12,6 @@ import org.sopt.makers.domain.admin.attendance.exception.AttendanceException;
 import org.sopt.makers.domain.admin.attendance.exception.AttendanceFailure;
 import org.sopt.makers.domain.admin.attendance.port.AttendanceRepositoryPort;
 import org.sopt.makers.domain.admin.attendance.port.SubAttendanceRepositoryPort;
-import org.sopt.makers.domain.admin.lecture.SubLecture;
 import org.sopt.makers.domain.admin.lecture.exception.LectureException;
 import org.sopt.makers.domain.admin.lecture.exception.LectureFailure;
 import org.sopt.makers.domain.admin.lecture.port.SubLectureRepositoryPort;
@@ -68,26 +67,40 @@ public class AttendanceService {
   }
 
   @Transactional
-  public void attend(Long userId, Long subLectureId, String code) {
-    SubLecture subLecture =
+  public long attend(Long userId, Long subLectureId, String code) {
+    var subLecture =
         subLectureRepositoryPort
             .findById(subLectureId)
             .orElseThrow(() -> new LectureException(LectureFailure.NOT_FOUND_SUB_LECTURE));
 
     subLecture.validateForAttendance(code);
 
-    Attendance attendance =
+    adminUserActivityPort
+        .findActivityByUserIdAndGeneration(userId, currentGeneration)
+        .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
+
+    var attendance =
         attendanceRepositoryPort
             .findByLectureIdAndUserId(subLecture.lectureId(), userId)
             .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_ATTENDANCE));
 
-    SubAttendance subAttendance = attendance.getSubAttendanceByRound(subLecture.round());
-    SubAttendance marked = subAttendance.markAttendance(LocalDateTime.now());
+    var subAttendance =
+        attendance.subAttendances().stream()
+            .filter(sub -> sub.round() == subLecture.round())
+            .findFirst()
+            .orElseThrow(() -> new AttendanceException(AttendanceFailure.NOT_FOUND_SUB_ATTENDANCE));
 
+    var marked = subAttendance.markAttendance(LocalDateTime.now());
     subAttendanceRepositoryPort.save(marked);
+    attendanceRepositoryPort.updateStatus(attendance.id(), attendance.computeStatus(marked));
 
-    AttendanceStatus newStatus = attendance.computeStatus(marked);
-    attendanceRepositoryPort.updateStatus(attendance.id(), newStatus);
+    if (attendance.isEnded()) {
+      float score =
+          Attendance.computeTotalScore(
+              attendanceRepositoryPort.findAllEndedByUserId(userId, currentGeneration));
+      adminUserActivityPort.updateAttendanceScore(userId, currentGeneration, score);
+    }
+    return subLectureId;
   }
 
   @Transactional

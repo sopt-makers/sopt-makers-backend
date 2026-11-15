@@ -35,7 +35,7 @@ public interface AttendanceJpaRepository
   @Query(
       "SELECT a FROM AttendanceEntity a JOIN FETCH a.lecture"
           + " WHERE a.userId = :userId AND a.lecture.generation = :generation"
-          + " AND a.lecture.status = :lectureStatus")
+          + " AND a.lecture.status = :lectureStatus ORDER BY a.lecture.startDate DESC")
   List<AttendanceEntity> findAllEndedByUserId(
       @Param("userId") Long userId,
       @Param("generation") int generation,

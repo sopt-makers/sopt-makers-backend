@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.sopt.makers.api.controller.app.attendance.dto.AttendRequest;
+import org.sopt.makers.api.controller.app.attendance.dto.AttendResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 
@@ -25,6 +26,6 @@ public interface AppAttendanceApi {
         description = "존재하지 않는 세부 세션이거나, 해당 세션의 출석 정보를 찾을 수 없습니다",
         content = @Content)
   })
-  ResponseEntity<BaseResponse<Void>> attend(
+  ResponseEntity<BaseResponse<AttendResponse>> attend(
       @Parameter(hidden = true) Long userId, AttendRequest request);
 }

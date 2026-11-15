@@ -31,7 +31,7 @@ public record SubLecture(
   }
 
   private boolean isNotStarted(LocalDateTime now) {
-    return startAt == null || startAt.isAfter(now);
+    return startAt == null || code == null || startAt.isAfter(now);
   }
 
   private boolean isEnded(LocalDateTime now) {
