@@ -1,10 +1,11 @@
-package org.sopt.makers.domain.admin.user;
+package org.sopt.makers.domain.admin.member;
 
 import org.sopt.makers.core.type.Part;
 
-public record AdminUser(
+public record Member(
     Long id,
     String name,
+    int generation,
     Part part,
     float attendanceScore,
     int attendanceCount,

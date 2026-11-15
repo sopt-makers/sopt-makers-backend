@@ -6,9 +6,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.core.type.Part;
+import org.sopt.makers.domain.admin.attendance.Attendance;
 import org.sopt.makers.domain.admin.attendance.AttendanceStatus;
-import org.sopt.makers.domain.admin.lecture.LectureStatus;
-import org.sopt.makers.domain.admin.user.AdminUser;
+import org.sopt.makers.domain.admin.member.Member;
 import org.sopt.makers.domain.admin.user.UserActivity;
 import org.sopt.makers.domain.admin.user.port.AdminUserActivityPort;
 import org.sopt.makers.storage.db.admin.projection.AttendanceUserCountRow;
@@ -30,7 +30,7 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
   private final AttendanceJpaRepository attendanceJpaRepository;
 
   @Override
-  public List<AdminUser> findByGenerationAndPart(int generation, Part part, int page, int limit) {
+  public List<Member> findByGenerationAndPart(int generation, Part part, int page, int limit) {
     List<UserActivityHistoryEntity> activities =
         activityQuerydslRepository.findByGenerationAndPartWithUser(
             generation, part, PageRequest.of(page, limit));
@@ -39,7 +39,7 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
     Map<Long, Map<AttendanceStatus, Integer>> countsByUser =
         fetchAttendanceCountsByUser(userIds, generation);
 
-    return activities.stream().map(a -> toAdminUser(a, countsByUser)).toList();
+    return activities.stream().map(a -> toMember(a, countsByUser)).toList();
   }
 
   @Override
@@ -62,6 +62,13 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
   @Override
   public void bulkUpdateAttendanceScores(int generation, Map<Long, Float> userScores) {
     activityQuerydslRepository.bulkUpdateAttendanceScores(generation, userScores);
+  }
+
+  @Override
+  public Optional<Member> findMemberByUserIdAndGeneration(Long userId, int generation) {
+    return activityJpaRepository
+        .findSoptActivityByUserIdAndGeneration(userId, generation)
+        .map(a -> toMember(a, fetchAttendanceCountsByUser(List.of(userId), a.getGeneration())));
   }
 
   @Override
@@ -95,7 +102,7 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
   private Map<Long, Map<AttendanceStatus, Integer>> fetchAttendanceCountsByUser(
       List<Long> userIds, int generation) {
     return attendanceJpaRepository
-        .countByUserIdsAndGenerationGroupByStatus(userIds, generation, LectureStatus.END)
+        .countByUserIdsAndGenerationGroupByStatus(userIds, generation)
         .stream()
         .collect(
             Collectors.groupingBy(
@@ -103,15 +110,18 @@ public class AdminUserActivityAdapter implements AdminUserActivityPort {
                 Collectors.toMap(AttendanceUserCountRow::status, row -> row.count().intValue())));
   }
 
-  private AdminUser toAdminUser(
+  private Member toMember(
       UserActivityHistoryEntity activity, Map<Long, Map<AttendanceStatus, Integer>> countsByUser) {
     Long userId = activity.getUser().getId();
     Map<AttendanceStatus, Integer> counts = countsByUser.getOrDefault(userId, Map.of());
-    return new AdminUser(
+    return new Member(
         userId,
         activity.getUser().getName(),
+        activity.getGeneration(),
         activity.getPart(),
-        activity.getAttendanceScore() != null ? activity.getAttendanceScore() : 2.0f,
+        activity.getAttendanceScore() != null
+            ? activity.getAttendanceScore()
+            : Attendance.BASE_SCORE,
         counts.getOrDefault(AttendanceStatus.ATTENDANCE, 0),
         counts.getOrDefault(AttendanceStatus.ABSENT, 0),
         counts.getOrDefault(AttendanceStatus.TARDY, 0),

@@ -108,7 +108,8 @@ public class SecurityConfig {
                   "/api/v1/lectures",
                   "/api/v1/lectures/**",
                   "/api/v1/alarms",
-                  "/api/v1/alarms/**")
+                  "/api/v1/alarms/**",
+                  "/api/v1/members/**")
               .hasAuthority(ADMIN);
 
           for (String endpoint : securityProperty.api().securedEndpoints()) {

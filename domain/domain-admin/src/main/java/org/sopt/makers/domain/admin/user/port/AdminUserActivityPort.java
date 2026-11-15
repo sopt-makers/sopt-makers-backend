@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.sopt.makers.core.type.Part;
-import org.sopt.makers.domain.admin.user.AdminUser;
+import org.sopt.makers.domain.admin.member.Member;
 import org.sopt.makers.domain.admin.user.UserActivity;
 
 public interface AdminUserActivityPort {
 
-  List<AdminUser> findByGenerationAndPart(int generation, Part part, int page, int limit);
+  List<Member> findByGenerationAndPart(int generation, Part part, int page, int limit);
 
   int countByGenerationAndPart(int generation, Part part);
 
@@ -18,6 +18,8 @@ public interface AdminUserActivityPort {
   void updateAttendanceScore(Long userId, int generation, Float score);
 
   void bulkUpdateAttendanceScores(int generation, Map<Long, Float> userScores);
+
+  Optional<Member> findMemberByUserIdAndGeneration(Long userId, int generation);
 
   Optional<UserActivity> findCurrentActivity(Long userId);
 
