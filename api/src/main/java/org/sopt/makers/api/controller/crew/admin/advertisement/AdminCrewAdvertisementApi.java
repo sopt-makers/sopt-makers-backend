@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.advertisement;
+package org.sopt.makers.api.controller.crew.admin.advertisement;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.advertisement;
+package org.sopt.makers.api.controller.crew.admin.advertisement;
 
 import static org.sopt.makers.api.controller.crew.admin.advertisement.AdminCrewAdvertisementSuccessCode.UPDATE_MEETING_TOP_ADVERTISEMENT;
 import static org.sopt.makers.api.controller.crew.admin.advertisement.AdminCrewAdvertisementSuccessCode.UPLOAD_MEETING_TOP_ADVERTISEMENT_IMAGE;
