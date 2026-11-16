@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController implements AuthApi {
 
-  private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
+  private static final String REFRESH_TOKEN_COOKIE = "Refresh-Token";
 
   private final AuthFacade authFacade;
   private final CookieFactory cookieFactory;
@@ -69,7 +69,8 @@ public class AuthController implements AuthApi {
   public ResponseEntity<BaseResponse<?>> loginFromWeb(@RequestBody LoginRequest request) {
     OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
     AuthFacade.LoginResult result = authFacade.login(request.token(), platform);
-    HttpHeaders headers = cookieFactory.setRefreshToken(result.refreshToken());
+    HttpHeaders headers =
+        cookieFactory.setRefreshToken(result.refreshToken(), REFRESH_TOKEN_COOKIE);
     return ResponseFactory.success(LOGIN, headers, LoginForWebResponse.from(result));
   }
 
@@ -98,7 +99,8 @@ public class AuthController implements AuthApi {
       throw new AuthException(REFRESH_TOKEN_NOT_FOUND);
     }
     TokenIssuerPort.TokenPair tokenPair = authFacade.refresh(accessToken, refreshToken);
-    HttpHeaders headers = cookieFactory.setRefreshToken(tokenPair.refreshToken());
+    HttpHeaders headers =
+        cookieFactory.setRefreshToken(tokenPair.refreshToken(), REFRESH_TOKEN_COOKIE);
     return ResponseFactory.success(REFRESH_TOKEN, headers, RefreshForWebResponse.from(tokenPair));
   }
 

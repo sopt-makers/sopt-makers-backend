@@ -18,9 +18,13 @@ public class CookieFactory {
   private final SecurityProperty securityProperty;
 
   public HttpHeaders setRefreshToken(final String refreshToken) {
+    return setRefreshToken(refreshToken, REFRESH_TOKEN_COOKIE_NAME);
+  }
+
+  public HttpHeaders setRefreshToken(final String refreshToken, final String cookieName) {
     long durationSeconds = securityProperty.jwt().secret().expiration().refreshTokenExpiration();
     ResponseCookie cookie =
-        ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
+        ResponseCookie.from(cookieName, refreshToken)
             .httpOnly(true)
             .secure(true)
             .sameSite(SAME_SITE_NONE)
