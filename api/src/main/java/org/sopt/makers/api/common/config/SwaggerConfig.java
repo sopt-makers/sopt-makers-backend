@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
   private static final String BEARER_AUTH = "bearerAuth";
+  private static final String CREW_ADMIN_PACKAGE = "org.sopt.makers.api.controller.crew.admin";
 
   @Bean
   public OpenAPI openAPI() {
@@ -35,7 +36,7 @@ public class SwaggerConfig {
   public GroupedOpenApi adminApi() {
     return GroupedOpenApi.builder()
         .group("Admin")
-        .packagesToScan("org.sopt.makers.api.controller.admin")
+        .packagesToScan("org.sopt.makers.api.controller.admin", CREW_ADMIN_PACKAGE)
         .build();
   }
 
@@ -60,6 +61,7 @@ public class SwaggerConfig {
     return GroupedOpenApi.builder()
         .group("Crew")
         .packagesToScan("org.sopt.makers.api.controller.crew")
+        .packagesToExclude(CREW_ADMIN_PACKAGE)
         .build();
   }
 
