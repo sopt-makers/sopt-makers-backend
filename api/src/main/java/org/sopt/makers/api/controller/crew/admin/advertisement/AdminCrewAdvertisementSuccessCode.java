@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.advertisement;
+package org.sopt.makers.api.controller.crew.admin.advertisement;
 
 import static lombok.AccessLevel.PRIVATE;
 
