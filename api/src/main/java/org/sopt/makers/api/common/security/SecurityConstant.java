@@ -44,6 +44,7 @@ public final class SecurityConstant {
           "/v2/homepage",
           "/v2/recruit",
           "/v2/projects",
+          "/v2/reviews",
           "/api/v1/social/accounts",
           "/api/v1/popups",
           "/api/v1/banners/images",

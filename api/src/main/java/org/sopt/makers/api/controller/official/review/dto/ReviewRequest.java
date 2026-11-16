@@ -68,7 +68,4 @@ public final class ReviewRequest {
       return (long) (pageNoOrDefault() - 1) * limitOrDefault();
     }
   }
-
-  @Schema(description = "작성자별 활동후기 조회 요청")
-  public record Author(@Schema(description = "작성자명", example = "홍길동") @NotBlank String name) {}
 }
