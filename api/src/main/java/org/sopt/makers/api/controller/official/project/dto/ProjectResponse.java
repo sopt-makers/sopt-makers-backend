@@ -46,7 +46,7 @@ public class ProjectResponse {
           p.isAvailable(),
           p.links() == null
               ? List.of()
-              : p.links().stream().map(l -> new LinkItem(l.linkType(), l.linkUrl())).toList());
+              : p.links().stream().map(l -> LinkItem.of(l.linkType(), l.linkUrl())).toList());
     }
   }
 
@@ -89,16 +89,26 @@ public class ProjectResponse {
           pd.updatedAt(),
           pd.links() == null
               ? List.of()
-              : pd.links().stream().map(l -> new LinkItem(l.linkType(), l.linkUrl())).toList(),
+              : pd.links().stream().map(l -> LinkItem.of(l.linkType(), l.linkUrl())).toList(),
           pd.members() == null
               ? List.of()
               : pd.members().stream()
-                  .map(m -> new MemberItem(m.name(), m.role(), m.description()))
+                  .map(m -> MemberItem.of(m.name(), m.role(), m.description()))
                   .toList());
     }
   }
 
-  public record LinkItem(ProjectLinkType linkType, String linkUrl) {}
+  /** 링크 종류는 FE가 사용하는 레거시 값(website, googlePlay 등)으로 응답한다. */
+  public record LinkItem(String title, String url) {
+    static LinkItem of(ProjectLinkType type, String url) {
+      return new LinkItem(type.getValue(), url);
+    }
+  }
 
-  public record MemberItem(String name, ProjectMemberRole role, String description) {}
+  /** 역할은 화면에 표시하는 역할명으로 응답한다. 알 수 없는 역할은 null이다. */
+  public record MemberItem(String name, String role, String description) {
+    static MemberItem of(String name, ProjectMemberRole role, String description) {
+      return new MemberItem(name, role == null ? null : role.getDescription(), description);
+    }
+  }
 }

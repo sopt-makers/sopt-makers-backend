@@ -1,5 +1,6 @@
 package org.sopt.makers.api.controller.official.project;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -21,6 +22,8 @@ import org.sopt.makers.domain.official.project.Project;
 import org.sopt.makers.domain.official.project.ProjectDetail;
 import org.sopt.makers.domain.official.project.ProjectSearchCondition;
 import org.sopt.makers.domain.official.project.service.ProjectService;
+import org.sopt.makers.domain.official.project.type.ProjectLinkType;
+import org.sopt.makers.domain.official.project.type.ProjectMemberRole;
 import org.sopt.makers.domain.official.project.type.ProjectSortDirection;
 import org.sopt.makers.domain.official.project.type.ProjectSortType;
 import org.springframework.test.json.JsonCompareMode;
@@ -132,6 +135,74 @@ class ProjectControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.isAvailable").value(true))
         .andExpect(jsonPath("$.data.isFounding").value(false));
+  }
+
+  @Test
+  @DisplayName("링크는 FE가 사용하는 title·url 형태와 레거시 값으로 응답한다")
+  void linksUseLegacyShape() throws Exception {
+    Project project =
+        new Project(
+            1L,
+            "프로젝트",
+            39,
+            null,
+            List.of(),
+            null,
+            null,
+            null,
+            false,
+            false,
+            List.of(
+                new Project.ProjectLink(ProjectLinkType.GOOGLE_PLAYSTORE, "https://play"),
+                new Project.ProjectLink(ProjectLinkType.APP_STORE, "https://apps")));
+    when(service.getProjects(any(), anyInt(), anyInt()))
+        .thenReturn(new ProjectService.ProjectsResult(List.of(project), 1));
+
+    mvc.perform(get(PROJECTS_URL))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.data[0].links[0].title").value("googlePlay"))
+        .andExpect(jsonPath("$.data.data[0].links[0].url").value("https://play"))
+        .andExpect(jsonPath("$.data.data[0].links[1].title").value("appStore"))
+        .andExpect(jsonPath("$.data.data[0].links[0].linkType").doesNotExist())
+        .andExpect(jsonPath("$.data.data[0].links[0].linkUrl").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("상세 응답의 링크는 레거시 값, 멤버 역할은 표시용 역할명으로 응답한다")
+  void detailUsesLegacyLinkAndRoleValues() throws Exception {
+    ProjectDetail detail =
+        new ProjectDetail(
+            1L,
+            "프로젝트",
+            39,
+            null,
+            List.of(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            false,
+            false,
+            null,
+            null,
+            null,
+            null,
+            List.of(new ProjectDetail.ProjectLink(ProjectLinkType.WEBSITE, "https://web")),
+            List.of(
+                new ProjectDetail.ProjectMember("김솝트", ProjectMemberRole.DESIGN, "UI 디자인"),
+                new ProjectDetail.ProjectMember("이솝트", ProjectMemberRole.WEB, null),
+                new ProjectDetail.ProjectMember("박솝트", null, null)));
+    when(service.getProjectDetail(1L)).thenReturn(detail);
+
+    mvc.perform(get(PROJECTS_URL + "/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.links[0].title").value("website"))
+        .andExpect(jsonPath("$.data.links[0].url").value("https://web"))
+        .andExpect(jsonPath("$.data.members[0].role").value("디자이너"))
+        .andExpect(jsonPath("$.data.members[0].description").value("UI 디자인"))
+        .andExpect(jsonPath("$.data.members[1].role").value("웹 프론트엔드 개발자"))
+        .andExpect(jsonPath("$.data.members[2].role").value(nullValue()));
   }
 
   @ParameterizedTest

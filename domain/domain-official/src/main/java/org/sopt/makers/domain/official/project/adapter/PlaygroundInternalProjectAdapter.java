@@ -121,25 +121,21 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
   }
 
   private ProjectLinkType parseLinkType(String title) {
-    if (title == null) return ProjectLinkType.WEBSITE;
-    return switch (title) {
-      case "website" -> ProjectLinkType.WEBSITE;
-      case "googlePlay" -> ProjectLinkType.GOOGLE_PLAYSTORE;
-      case "appStore" -> ProjectLinkType.APP_STORE;
-      case "github" -> ProjectLinkType.GITHUB;
-      case "media" -> ProjectLinkType.MEDIA;
-      case "instagram" -> ProjectLinkType.INSTAGRAM;
-      default -> ProjectLinkType.WEBSITE;
-    };
+    return ProjectLinkType.fromValue(title)
+        .orElseGet(
+            () -> {
+              log.warn("알 수 없는 링크 종류: {}", title);
+              return ProjectLinkType.WEBSITE;
+            });
   }
 
   private ProjectMemberRole parseMemberRole(String role) {
     if (role == null) return null;
-    try {
-      return ProjectMemberRole.valueOf(role);
-    } catch (IllegalArgumentException e) {
-      log.warn("알 수 없는 멤버 역할: {}", role);
-      return null;
-    }
+    return ProjectMemberRole.fromValue(role)
+        .orElseGet(
+            () -> {
+              log.warn("알 수 없는 멤버 역할: {}", role);
+              return null;
+            });
   }
 }
