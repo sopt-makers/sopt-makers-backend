@@ -114,6 +114,16 @@ class OfficialPageRepositoryTest {
         .containsExactly(new Faq.QuestionAnswer("질문", "답변"));
   }
 
+  @Test
+  @DisplayName("게시일 없이 생성한 소식은 저장 시 게시일을 설정한다")
+  void initializesNewsPublishedAt() {
+    var before = Instant.now();
+    var entity = em.persistAndFlush(NewsEntity.fromDomain(News.create("image", "소식", "link")));
+    em.clear();
+    assertThat(em.find(NewsEntity.class, entity.getId()).toDomain().publishedAt())
+        .isBetween(before, Instant.now());
+  }
+
   @Configuration
   @EntityScan(basePackages = "org.sopt.makers.storage.db.official.entity")
   @EnableJpaRepositories(basePackages = "org.sopt.makers.storage.db.official.repository")
