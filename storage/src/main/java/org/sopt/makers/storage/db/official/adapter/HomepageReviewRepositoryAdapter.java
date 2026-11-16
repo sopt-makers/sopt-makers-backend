@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.official.homepage.review.HomepageReview;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 import org.sopt.makers.domain.official.homepage.review.port.HomepageReviewRepositoryPort;
 import org.sopt.makers.storage.db.official.entity.HomepageReviewEntity;
 import org.sopt.makers.storage.db.official.repository.HomepageReviewJpaRepository;
@@ -49,5 +50,10 @@ public class HomepageReviewRepositoryAdapter implements HomepageReviewRepository
   @Override
   public void deleteAll() {
     homepageReviewJpaRepository.deleteAll();
+  }
+
+  @Override
+  public long countByType(HomepageReviewType type) {
+    return homepageReviewJpaRepository.countByType(type);
   }
 }

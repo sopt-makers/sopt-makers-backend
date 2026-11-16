@@ -18,7 +18,7 @@ public class FaqRepositoryAdapter implements FaqRepositoryPort {
 
   @Override
   public List<Faq> findAll() {
-    return faqJpaRepository.findAllOrderByPart().stream().map(FaqEntity::toDomain).toList();
+    return faqJpaRepository.findAllOrderByCategory().stream().map(FaqEntity::toDomain).toList();
   }
 
   @Transactional

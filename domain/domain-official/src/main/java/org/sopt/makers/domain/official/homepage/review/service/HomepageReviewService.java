@@ -6,6 +6,7 @@ import static org.sopt.makers.domain.official.homepage.review.exception.Homepage
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.official.homepage.review.HomepageReview;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 import org.sopt.makers.domain.official.homepage.review.exception.HomepageReviewException;
 import org.sopt.makers.domain.official.homepage.review.port.HomepageReviewRepositoryPort;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,23 @@ public class HomepageReviewService {
 
   @Transactional
   public HomepageReview create(CreateHomepageReviewCommand command) {
+    HomepageReviewType type = command.type() == null ? HomepageReviewType.ACTIVITY : command.type();
+    validateCapacity(type);
     HomepageReview review =
-        HomepageReview.create(command.title(), command.content(), command.authorInfo());
+        HomepageReview.create(type, command.title(), command.content(), command.authorInfo());
     return homepageReviewRepositoryPort.save(review);
   }
 
   @Transactional
   public List<HomepageReview> createAll(BulkCreateHomepageReviewsCommand command) {
+    validateMaxCountPerType(
+        command.reviews().stream().map(BulkCreateHomepageReviewsCommand.ReviewData::type).toList());
     List<HomepageReview> reviews =
         command.reviews().stream()
             .map(
                 review ->
-                    HomepageReview.create(review.title(), review.content(), review.authorInfo()))
+                    HomepageReview.create(
+                        review.type(), review.title(), review.content(), review.authorInfo()))
             .toList();
     return homepageReviewRepositoryPort.saveAll(reviews);
   }
@@ -44,14 +50,12 @@ public class HomepageReviewService {
     return createAll(command);
   }
 
+  public List<HomepageReview> findAll() {
+    return homepageReviewRepositoryPort.findAllByOrderByIdAsc();
+  }
+
   public List<HomepageReview> getReviews() {
-    List<HomepageReview> reviews = homepageReviewRepositoryPort.findAllByOrderByIdAsc();
-
-    if (reviews.size() > MAX_REVIEW) {
-      throw new HomepageReviewException(EXCEEDED_HOMEPAGE_REVIEW_COUNT);
-    }
-
-    return reviews;
+    return findAll();
   }
 
   @Transactional
@@ -61,16 +65,40 @@ public class HomepageReviewService {
             .findById(id)
             .orElseThrow(() -> new HomepageReviewException(NOT_FOUND_HOMEPAGE_REVIEW));
 
+    if (command.type() != null && command.type() != review.type()) {
+      validateCapacity(command.type());
+    }
     return homepageReviewRepositoryPort.save(
-        review.update(command.title(), command.content(), command.authorInfo()));
+        review.update(command.type(), command.title(), command.content(), command.authorInfo()));
   }
 
-  public record CreateHomepageReviewCommand(String title, String content, String authorInfo) {}
+  public record CreateHomepageReviewCommand(
+      String title, String content, String authorInfo, HomepageReviewType type) {}
 
-  public record EditHomepageReviewCommand(String title, String content, String authorInfo) {}
+  public record EditHomepageReviewCommand(
+      String title, String content, String authorInfo, HomepageReviewType type) {}
 
   public record BulkCreateHomepageReviewsCommand(List<ReviewData> reviews) {
 
-    public record ReviewData(String title, String content, String authorInfo) {}
+    public record ReviewData(
+        String title, String content, String authorInfo, HomepageReviewType type) {}
+  }
+
+  public void validateMaxCountPerType(List<HomepageReviewType> types) {
+    java.util.Map<HomepageReviewType, Long> counts =
+        types.stream()
+            .collect(
+                java.util.stream.Collectors.groupingBy(
+                    t -> t == null ? HomepageReviewType.ACTIVITY : t,
+                    java.util.stream.Collectors.counting()));
+    if (counts.values().stream().anyMatch(count -> count > MAX_REVIEW)) {
+      throw new HomepageReviewException(EXCEEDED_HOMEPAGE_REVIEW_COUNT);
+    }
+  }
+
+  private void validateCapacity(HomepageReviewType type) {
+    if (homepageReviewRepositoryPort.countByType(type) >= MAX_REVIEW) {
+      throw new HomepageReviewException(EXCEEDED_HOMEPAGE_REVIEW_COUNT);
+    }
   }
 }

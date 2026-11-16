@@ -2,8 +2,10 @@ package org.sopt.makers.api.controller.official.homepage.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import org.sopt.makers.domain.official.faq.Faq;
 import org.sopt.makers.domain.official.homepage.facade.HomepageFacade;
 import org.sopt.makers.domain.official.homepage.review.HomepageReview;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 import org.sopt.makers.domain.official.news.News;
 import org.sopt.makers.domain.official.recruit.RecruitPart;
 import org.sopt.makers.domain.official.recruit.RecruitPartInfo;
@@ -20,7 +22,8 @@ public record HomepageMainResponse(
     List<LatestNews> latestNews,
     List<RecruitSchedule> recruitSchedule,
     ActivitiesRecords activitiesRecords,
-    List<Review> reviews) {
+    List<Review> reviews,
+    List<FAQ> faq) {
 
   public static HomepageMainResponse from(HomepageFacade.MainPageData data) {
     return new HomepageMainResponse(
@@ -33,7 +36,8 @@ public record HomepageMainResponse(
         data.news().stream().map(LatestNews::from).toList(),
         data.recruitments().stream().map(RecruitSchedule::from).toList(),
         ActivitiesRecords.from(data.activitiesRecords()),
-        data.reviews().stream().map(Review::from).toList());
+        data.reviews().stream().map(Review::from).toList(),
+        data.faqs().stream().map(FAQ::from).toList());
   }
 
   public record BrandingColor(
@@ -70,10 +74,11 @@ public record HomepageMainResponse(
     }
   }
 
-  public record LatestNews(int id, String title, String image, String link) {
+  public record LatestNews(int id, String title, String image, String link, String publishedDate) {
 
     public static LatestNews from(News news) {
-      return new LatestNews(news.id(), news.title(), news.imageUrl(), news.link());
+      return new LatestNews(
+          news.id(), news.title(), news.imageUrl(), news.link(), news.publishedDate());
     }
   }
 
@@ -112,6 +117,8 @@ public record HomepageMainResponse(
       @Schema(description = "활동 회원 수") int activitiesMemberCount,
       @Schema(description = "프로젝트 수") int projectCounts,
       @Schema(description = "스터디 수") int studyCounts,
+      int foundingTeamCount,
+      int availableServiceCount,
       @Schema(description = "운영 기간") int operationPeriod) {
 
     public static ActivitiesRecords from(HomepageFacade.ActivitiesRecords records) {
@@ -119,19 +126,36 @@ public record HomepageMainResponse(
           records.activitiesUserCount(),
           records.projectCounts(),
           records.studyCounts(),
+          records.foundingTeamCount(),
+          records.availableServiceCount(),
           records.operationPeriod());
     }
   }
 
   public record Review(
       @Schema(description = "ID") int id,
+      HomepageReviewType type,
       @Schema(description = "제목") String title,
       @Schema(description = "내용") String content,
       @Schema(description = "작성자 정보") String authorInfo) {
 
     public static Review from(HomepageReview review) {
       return new Review(
-          review.id().intValue(), review.title(), review.content(), review.authorInfo());
+          review.id().intValue(),
+          review.type(),
+          review.title(),
+          review.content(),
+          review.authorInfo());
+    }
+  }
+
+  public record Question(String question, String answer) {}
+
+  public record FAQ(String category, List<Question> questions) {
+    public static FAQ from(Faq faq) {
+      return new FAQ(
+          faq.category().getDisplayName(),
+          faq.questions().stream().map(q -> new Question(q.question(), q.answer())).toList());
     }
   }
 }

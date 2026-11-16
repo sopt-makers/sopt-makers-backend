@@ -53,19 +53,30 @@ public class HomepageFacade {
   private final HomepageUserCountPort userCountPort;
   private final HomepageStudyCountPort studyCountPort;
 
+  public Generation getBrandingGeneration() {
+    return generationService.findLatest();
+  }
+
   public MainPageData getMainPage() {
     Generation generation = generationService.findLatest();
     Integer generationId = generation.id();
 
     List<RecruitPartInfo> partInfos = partService.findByGeneration(generationId);
     List<CoreValue> coreValues = coreValueService.findByGeneration(generationId);
-    List<News> news = newsService.findAll();
+    List<News> news = newsService.findLatestForHomepage();
     List<Recruitment> recruitments = recruitmentService.findByGeneration(generationId);
     ActivitiesRecords activitiesRecords = fetchActivitiesRecords(generationId - 1);
-    List<HomepageReview> reviews = homepageReviewService.getReviews();
+    List<HomepageReview> reviews = homepageReviewService.findAll();
 
     return new MainPageData(
-        generation, coreValues, partInfos, news, recruitments, activitiesRecords, reviews);
+        generation,
+        coreValues,
+        partInfos,
+        news,
+        recruitments,
+        activitiesRecords,
+        reviews,
+        faqService.findCategoryFaqs());
   }
 
   public AboutPageData getAboutPage() {
@@ -108,15 +119,26 @@ public class HomepageFacade {
 
       int operationPeriod = LocalDate.now().getYear() - ORGANIZATION_YEAR + 1;
 
-      return new ActivitiesRecords(userCount, projectCount, studyCount, operationPeriod);
+      return new ActivitiesRecords(
+          userCount,
+          projectCount,
+          studyCount,
+          (int) allProjects.stream().filter(Project::isFounding).count(),
+          (int) allProjects.stream().filter(Project::isAvailable).count(),
+          operationPeriod);
     } catch (Exception e) {
       log.warn("activities records 조회 실패 generationId={}: {}", generationId, e.getMessage());
-      return new ActivitiesRecords(0, 0, 0, 0);
+      return new ActivitiesRecords(0, 0, 0, 0, 0, 0);
     }
   }
 
   public record ActivitiesRecords(
-      int activitiesUserCount, int projectCounts, int studyCounts, int operationPeriod) {}
+      int activitiesUserCount,
+      int projectCounts,
+      int studyCounts,
+      int foundingTeamCount,
+      int availableServiceCount,
+      int operationPeriod) {}
 
   public record MainPageData(
       Generation generation,
@@ -125,7 +147,8 @@ public class HomepageFacade {
       List<News> news,
       List<Recruitment> recruitments,
       ActivitiesRecords activitiesRecords,
-      List<HomepageReview> reviews) {}
+      List<HomepageReview> reviews,
+      List<Faq> faqs) {}
 
   public record AboutPageData(
       Generation generation,

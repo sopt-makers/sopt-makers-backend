@@ -1,10 +1,14 @@
 package org.sopt.makers.api.controller.official.soptstory.dto;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
-public record GetSoptStoryListRequest(
-    String sort, @Min(1) Integer pageNo, @Min(1) @Max(100) Integer limit) {
+public record GetSoptStoryListRequest(String sort, @Min(1) Integer pageNo, @Min(1) Integer limit) {
+
+  public GetSoptStoryListRequest {
+    if (sort == null || sort.isBlank()) {
+      sort = "recent";
+    }
+  }
 
   private static final int DEFAULT_PAGE_NO = 1;
   private static final int DEFAULT_LIMIT = 10;

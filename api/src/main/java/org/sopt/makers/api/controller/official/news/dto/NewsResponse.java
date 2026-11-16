@@ -3,7 +3,7 @@ package org.sopt.makers.api.controller.official.news.dto;
 import java.util.List;
 import org.sopt.makers.domain.official.news.News;
 
-public record NewsResponse(Integer id, String imageUrl, String title, String link) {
+public record NewsResponse(Integer id, String image, String title, String link) {
 
   public static NewsResponse of(News news) {
     return new NewsResponse(news.id(), news.imageUrl(), news.title(), news.link());

@@ -2,13 +2,16 @@ package org.sopt.makers.domain.official.news.service;
 
 import static org.sopt.makers.domain.official.news.exception.NewsFailure.NOT_FOUND_NEWS;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.official.news.News;
 import org.sopt.makers.domain.official.news.exception.NewsException;
 import org.sopt.makers.domain.official.news.port.NewsFileStoragePort;
 import org.sopt.makers.domain.official.news.port.NewsRepositoryPort;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class NewsService {
+
+  @Value("${news.display-limit:4}")
+  private int displayLimit;
 
   private static final String NEWS_IMAGE_DIRECTORY = "news/";
 
@@ -60,6 +66,9 @@ public class NewsService {
   @Transactional
   public News edit(Integer id, EditNewsCommand command) {
     News news = getById(id);
+    if (!Objects.equals(command.imageUrl(), news.imageUrl())) {
+      newsFileStoragePort.delete(news.imageUrl());
+    }
     News saved =
         newsRepositoryPort.save(news.update(command.imageUrl(), command.title(), command.link()));
     log.info("최신소식 수정 완료 - id={}", id);
@@ -89,6 +98,18 @@ public class NewsService {
 
   public News getById(Integer id) {
     return newsRepositoryPort.findById(id).orElseThrow(() -> new NewsException(NOT_FOUND_NEWS));
+  }
+
+  public List<News> findLatestForHomepage() {
+    var ordered =
+        newsRepositoryPort.findAll().stream()
+            .filter(n -> !n.hidden())
+            .sorted(
+                Comparator.comparing(
+                        News::publishedAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(News::createdAt, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(News::id, Comparator.reverseOrder()));
+    return (displayLimit > 0 ? ordered.limit(displayLimit) : ordered).toList();
   }
 
   public List<News> findAll() {

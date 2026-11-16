@@ -12,6 +12,7 @@ public record Project(
     ProjectCategory category,
     List<ProjectServiceType> serviceType,
     String summary,
+    String detail,
     String logoImage,
     String thumbnailImage,
     boolean isFounding,

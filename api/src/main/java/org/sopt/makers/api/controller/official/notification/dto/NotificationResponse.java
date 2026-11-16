@@ -25,7 +25,7 @@ public final class NotificationResponse {
 
     public static NotificationList of(Integer generation, List<Notification> notifications) {
       List<String> emailList = notifications.stream().map(Notification::email).toList();
-      return new NotificationList(generation, emailList);
+      return new NotificationList(notifications.isEmpty() ? null : generation, emailList);
     }
   }
 }

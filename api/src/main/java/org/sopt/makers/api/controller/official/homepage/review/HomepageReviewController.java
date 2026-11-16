@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/official/homepage-reviews")
+@RequestMapping("/v2/homepage-reviews")
 @RequiredArgsConstructor
 @Validated
 public class HomepageReviewController implements HomepageReviewApi {
@@ -35,8 +35,8 @@ public class HomepageReviewController implements HomepageReviewApi {
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createReview(
       @Valid @RequestBody HomepageReviewRequest.Create request) {
-    HomepageReview result = homepageReviewService.create(request.toCommand());
-    return ResponseFactory.success(CREATE_HOMEPAGE_REVIEW, HomepageReviewResponse.of(result));
+    homepageReviewService.create(request.toCommand());
+    return ResponseFactory.success(CREATE_HOMEPAGE_REVIEW);
   }
 
   @Override
@@ -50,7 +50,7 @@ public class HomepageReviewController implements HomepageReviewApi {
   @PatchMapping("/{id}")
   public ResponseEntity<BaseResponse<?>> editReview(
       @PathVariable Long id, @Valid @RequestBody HomepageReviewRequest.Edit request) {
-    HomepageReview result = homepageReviewService.edit(id, request.toCommand());
-    return ResponseFactory.success(UPDATE_HOMEPAGE_REVIEW, HomepageReviewResponse.of(result));
+    homepageReviewService.edit(id, request.toCommand());
+    return ResponseFactory.success(UPDATE_HOMEPAGE_REVIEW);
   }
 }

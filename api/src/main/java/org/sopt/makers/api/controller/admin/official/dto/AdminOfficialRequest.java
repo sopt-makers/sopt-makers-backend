@@ -1,22 +1,26 @@
 package org.sopt.makers.api.controller.admin.official.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.admin.facade.AdminOfficialFacade;
 import org.sopt.makers.domain.official.admin.port.AdminCachePort;
+import org.sopt.makers.domain.official.faq.FaqCategory;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 
 public class AdminOfficialRequest {
 
   public record AddCommonRequest(
-      Integer generation,
-      String name,
-      String darkModeKeyColor,
-      String darkModeTextColor,
-      String lightModeKeyColor,
-      String lightModeTextColor,
-      List<RecruitScheduleRequest> recruitSchedule) {
+      @NotNull @Positive Integer generation,
+      @NotEmpty String name,
+      @NotNull @Valid BrandingColorRequest brandingColor,
+      @Valid List<RecruitScheduleRequest> recruitSchedule) {
 
-    public record RecruitScheduleRequest(String type, ScheduleRequest schedule) {}
+    public record RecruitScheduleRequest(
+        @Pattern(regexp = "^(OB|YB)$") String type, @Valid ScheduleRequest schedule) {}
 
     public record ScheduleRequest(
         String applicationStartTime,
@@ -48,23 +52,28 @@ public class AdminOfficialRequest {
       return new AdminOfficialFacade.AddCommonRequest(
           generation,
           name,
-          darkModeKeyColor,
-          darkModeTextColor,
-          lightModeKeyColor,
-          lightModeTextColor,
+          brandingColor.darkModeKeyColor(),
+          brandingColor.darkModeTextColor(),
+          brandingColor.lightModeKeyColor(),
+          brandingColor.lightModeTextColor(),
           schedules);
     }
   }
 
   public record AddHomeRequest(
-      Integer generation,
+      @NotNull @Positive Integer generation,
       String homeHeaderImageFileName,
-      List<NewsRequest> news,
-      List<ReviewRequest> review) {
+      @Valid List<NewsRequest> news,
+      @Valid List<ReviewRequest> review) {
 
-    public record NewsRequest(String title, String link, String imageFileName) {}
+    public record NewsRequest(
+        @NotEmpty String title, @NotEmpty String link, @NotNull String imageFileName) {}
 
-    public record ReviewRequest(String title, String content, String authorInfo) {}
+    public record ReviewRequest(
+        @NotBlank @Size(max = 10) String title,
+        @NotBlank @Size(max = 200) String content,
+        @NotBlank String authorInfo,
+        HomepageReviewType type) {}
 
     public AdminOfficialFacade.AddHomeRequest toCommand() {
       List<AdminOfficialFacade.AddHomeRequest.NewsFileRequest> newsRequests =
@@ -83,7 +92,7 @@ public class AdminOfficialRequest {
                   .map(
                       r ->
                           new AdminOfficialFacade.AddHomeRequest.ReviewRequest(
-                              r.title(), r.content(), r.authorInfo()))
+                              r.title(), r.content(), r.authorInfo(), r.type()))
                   .toList();
       return new AdminOfficialFacade.AddHomeRequest(
           generation, homeHeaderImageFileName, newsRequests, reviewRequests);
@@ -91,27 +100,28 @@ public class AdminOfficialRequest {
   }
 
   public record AddAboutRequest(
-      Integer generation,
+      @NotNull @Positive Integer generation,
       String headerImageFileName,
-      List<CoreValueRequest> coreValue,
-      List<MemberRequest> member,
-      List<ActivityScheduleRequest> activitySchedule) {
+      @Valid List<CoreValueRequest> coreValue,
+      @Valid List<MemberRequest> member,
+      @Valid List<ActivityScheduleRequest> activitySchedule) {
 
     public record CoreValueRequest(
-        String value, String description, String detailDescription, String imageFileName) {}
+        @NotBlank String value,
+        @NotBlank String description,
+        @NotBlank String detailDescription,
+        String imageFileName) {}
 
     public record MemberRequest(
-        String role,
-        String name,
-        String affiliation,
-        String introduction,
+        @NotBlank String role,
+        @NotBlank String name,
+        @NotBlank String affiliation,
+        @NotBlank String introduction,
         String profileImageFileName,
-        String snsEmail,
-        String snsLinkedin,
-        String snsGithub,
-        String snsBehance) {}
+        @Valid SnsRequest sns) {}
 
-    public record ActivityScheduleRequest(String name, LocalDate startDate, LocalDate endDate) {}
+    public record ActivityScheduleRequest(
+        @NotBlank String name, @NotNull LocalDate startDate, LocalDate endDate) {}
 
     public AdminOfficialFacade.AddAboutRequest toCommand() {
       List<AdminOfficialFacade.AddAboutRequest.CoreValueRequest> cvRequests =
@@ -138,10 +148,10 @@ public class AdminOfficialRequest {
                               m.affiliation(),
                               m.introduction(),
                               m.profileImageFileName(),
-                              m.snsEmail(),
-                              m.snsLinkedin(),
-                              m.snsGithub(),
-                              m.snsBehance()))
+                              m.sns() == null ? null : m.sns().email(),
+                              m.sns() == null ? null : m.sns().linkedin(),
+                              m.sns() == null ? null : m.sns().github(),
+                              m.sns() == null ? null : m.sns().behance()))
                   .toList();
       List<AdminOfficialFacade.AddAboutRequest.ActivityScheduleRequest> scheduleRequests =
           activitySchedule == null
@@ -158,24 +168,26 @@ public class AdminOfficialRequest {
   }
 
   public record AddRecruitRequest(
-      Integer generation,
+      @NotNull @Positive Integer generation,
       String recruitHeaderImageFileName,
-      List<PartIntroductionRequest> partIntroduction,
-      List<PartCurriculumRequest> partCurriculum,
-      List<RecruitPartCurriculumRequest> recruitPartCurriculum,
-      List<RecruitQuestionRequest> recruitQuestion) {
+      @Valid List<PartIntroductionRequest> partIntroduction,
+      @Valid List<PartCurriculumRequest> partCurriculum,
+      @Valid List<RecruitPartCurriculumRequest> recruitPartCurriculum,
+      @Valid List<RecruitQuestionRequest> recruitQuestion,
+      @Valid List<@NotNull FaqRequest> faq) {
 
-    public record PartIntroductionRequest(String part, String description) {}
+    public record PartIntroductionRequest(@NotBlank String part, @NotBlank String description) {}
 
-    public record PartCurriculumRequest(String part, List<String> curriculums) {}
+    public record PartCurriculumRequest(
+        @NotBlank String part, @NotEmpty List<String> curriculums) {}
 
-    public record RecruitPartCurriculumRequest(String part, IntroductionRequest introduction) {}
+    public record RecruitPartCurriculumRequest(
+        @NotBlank String part, @NotNull @Valid IntroductionRequest introduction) {}
 
-    public record IntroductionRequest(String content, String preference) {}
+    public record IntroductionRequest(@NotBlank String content, String preference) {}
 
-    public record RecruitQuestionRequest(String part, List<QuestionRequest> questions) {}
-
-    public record QuestionRequest(String question, String answer) {}
+    public record RecruitQuestionRequest(
+        @NotBlank String part, @NotEmpty @Valid List<QuestionRequest> questions) {}
 
     public AdminOfficialFacade.AddRecruitRequest toCommand() {
       List<AdminCachePort.PartIntroductionData> piData =
@@ -204,29 +216,59 @@ public class AdminOfficialRequest {
                                       rpc.introduction().content(),
                                       rpc.introduction().preference())))
                   .toList();
-      List<AdminCachePort.RecruitQuestionData> rqData =
-          recruitQuestion == null
-              ? null
-              : recruitQuestion.stream()
-                  .map(
-                      rq ->
-                          new AdminCachePort.RecruitQuestionData(
-                              rq.part(),
-                              rq.questions() == null
-                                  ? null
-                                  : rq.questions().stream()
-                                      .map(
-                                          q ->
-                                              new AdminCachePort.QuestionData(
-                                                  q.question(), q.answer()))
-                                      .toList()))
-                  .toList();
+      List<AdminCachePort.FaqData> faqData = null;
+      if (faq != null) {
+        faqData =
+            faq.stream()
+                .map(
+                    f ->
+                        new AdminCachePort.FaqData(
+                            Arrays.stream(FaqCategory.values())
+                                .filter(
+                                    category ->
+                                        category.getDisplayName().equals(f.category().trim()))
+                                .findFirst()
+                                .orElseThrow(),
+                            f.questions().stream()
+                                .map(q -> new AdminCachePort.QuestionData(q.question(), q.answer()))
+                                .toList()))
+                .toList();
+      } else if (recruitQuestion != null) {
+        faqData =
+            recruitQuestion.stream()
+                .map(
+                    f ->
+                        new AdminCachePort.FaqData(
+                            FaqCategory.valueOf(Part.fromString(f.part()).name()),
+                            f.questions().stream()
+                                .map(q -> new AdminCachePort.QuestionData(q.question(), q.answer()))
+                                .toList()))
+                .toList();
+      }
       return new AdminOfficialFacade.AddRecruitRequest(
-          generation, recruitHeaderImageFileName, piData, pcData, rpcData, rqData);
+          generation, recruitHeaderImageFileName, piData, pcData, rpcData, faqData);
     }
   }
 
-  public record ConfirmRequest(Integer generation) {}
+  public record BrandingColorRequest(
+      @NotNull @Pattern(regexp = "^#?[A-Fa-f0-9]{6}$") String darkModeKeyColor,
+      @NotNull @Pattern(regexp = "^(white|black)$") String darkModeTextColor,
+      @NotNull @Pattern(regexp = "^#?[A-Fa-f0-9]{6}$") String lightModeKeyColor,
+      @NotNull @Pattern(regexp = "^(white|black)$") String lightModeTextColor) {}
+
+  public record SnsRequest(
+      @Email String email,
+      @Pattern(regexp = "^https?://.*") String linkedin,
+      @Pattern(regexp = "^https?://.*") String github,
+      @Pattern(regexp = "^https?://.*") String behance) {}
+
+  public record QuestionRequest(@NotBlank String question, @NotBlank String answer) {}
+
+  public record FaqRequest(
+      @NotBlank @Pattern(regexp = "^\\s*(지원자격|면접|활동)\\s*$") String category,
+      @NotEmpty List<@NotNull @Valid QuestionRequest> questions) {}
+
+  public record ConfirmRequest(@NotNull @Positive Integer generation) {}
 
   private AdminOfficialRequest() {}
 }

@@ -17,11 +17,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/official/homepage")
+@RequestMapping("/v2/homepage")
 @RequiredArgsConstructor
 public class HomepageController implements HomepageApi {
 
   private final HomepageFacade homepageFacade;
+
+  @Override
+  @GetMapping("/branding-color")
+  public ResponseEntity<BaseResponse<?>> getBrandingColor() {
+    return ResponseFactory.success(
+        HomepageSuccessCode.GET_BRANDING_COLOR,
+        HomepageMainResponse.BrandingColor.from(homepageFacade.getBrandingGeneration()));
+  }
 
   @Override
   @GetMapping

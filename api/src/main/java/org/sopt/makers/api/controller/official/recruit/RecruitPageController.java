@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/official/recruit")
+@RequestMapping("/v2/recruit")
 public class RecruitPageController implements RecruitPageApi {
 
   private final RecruitPageFacade recruitPageFacade;

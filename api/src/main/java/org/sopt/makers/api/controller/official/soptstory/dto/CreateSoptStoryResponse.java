@@ -3,7 +3,7 @@ package org.sopt.makers.api.controller.official.soptstory.dto;
 import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
 
 public record CreateSoptStoryResponse(
-    String thumbnailUrl, String title, String description, String articleUrl) {
+    String thumbnailUrl, String title, String description, String soptStoryUrl) {
 
   public static CreateSoptStoryResponse from(ScrapedArticle article) {
     return new CreateSoptStoryResponse(

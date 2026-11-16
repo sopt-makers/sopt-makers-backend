@@ -11,15 +11,11 @@ import org.springframework.http.ResponseEntity;
 public interface ReviewApi {
 
   @Operation(summary = "활동후기 추가")
-  ResponseEntity<BaseResponse<?>> createReview(ReviewRequest.Create request);
+  ResponseEntity<BaseResponse<?>> createReview(ReviewRequest.Create request, String apiKey);
 
   @Operation(summary = "활동후기 목록 조회")
   ResponseEntity<BaseResponse<?>> getReviews(@ParameterObject ReviewRequest.Search request);
 
   @Operation(summary = "랜덤 활동후기 파트별로 하나씩 조회")
   ResponseEntity<BaseResponse<?>> getRandomReviewsByPart();
-
-  // TODO: playground 내부 서비스 간 통신 로직 이관 완료 후 삭제
-  @Operation(summary = "Playground Internal - 유저 활동후기 데이터 조회")
-  ResponseEntity<BaseResponse<?>> getReviewsByAuthor(@ParameterObject ReviewRequest.Author request);
 }

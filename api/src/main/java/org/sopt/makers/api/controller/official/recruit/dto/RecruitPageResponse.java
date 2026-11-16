@@ -77,8 +77,7 @@ public final class RecruitPageResponse {
 
     public static RecruitQuestion from(Faq faq) {
       return new RecruitQuestion(
-          RecruitPart.displayName(faq.part()),
-          faq.questions().stream().map(Question::from).toList());
+          faq.category().getDisplayName(), faq.questions().stream().map(Question::from).toList());
     }
   }
 

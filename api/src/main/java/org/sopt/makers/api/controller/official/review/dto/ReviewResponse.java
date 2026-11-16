@@ -2,7 +2,6 @@ package org.sopt.makers.api.controller.official.review.dto;
 
 import java.util.List;
 import org.sopt.makers.domain.official.review.Review;
-import org.sopt.makers.domain.official.review.ReviewAuthorReviews;
 import org.sopt.makers.domain.official.review.ReviewPart;
 
 public record ReviewResponse(
@@ -44,13 +43,6 @@ public record ReviewResponse(
   public record Page(List<ReviewResponse> data, int totalCount, int limit, int pageNo) {
     public static Page of(List<ReviewResponse> data, int totalCount, int limit, int pageNo) {
       return new Page(data, totalCount, limit, pageNo);
-    }
-  }
-
-  public record AuthorReviews(int reviewCount, List<ReviewResponse> reviews) {
-    public static AuthorReviews of(ReviewAuthorReviews reviewAuthorReviews) {
-      return new AuthorReviews(
-          reviewAuthorReviews.reviewCount(), ReviewResponse.of(reviewAuthorReviews.reviews()));
     }
   }
 }

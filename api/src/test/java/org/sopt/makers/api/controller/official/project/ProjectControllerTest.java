@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,7 +35,7 @@ import org.springframework.validation.beanvalidation.MethodValidationPostProcess
 
 class ProjectControllerTest {
 
-  private static final String PROJECTS_URL = "/api/v1/official/projects";
+  private static final String PROJECTS_URL = "/v2/projects";
   private static final String TYPE_MISMATCH_RESPONSE =
       """
       {"success": false, "message": "입력한 값의 타입이 잘못되었습니다", "data": null}
@@ -98,7 +99,8 @@ class ProjectControllerTest {
   @DisplayName("목록 응답에 이용 가능 여부와 창업 여부를 포함한다")
   void listResponseIncludesServiceFlags() throws Exception {
     Project project =
-        new Project(1L, "프로젝트", 39, null, List.of(), null, null, null, false, true, List.of());
+        new Project(
+            1L, "프로젝트", 39, null, List.of(), null, null, null, null, false, true, List.of());
     when(service.getProjects(any(), anyInt(), anyInt()))
         .thenReturn(new ProjectService.ProjectsResult(List.of(project), 1));
 
@@ -147,6 +149,7 @@ class ProjectControllerTest {
             39,
             null,
             List.of(),
+            null,
             null,
             null,
             null,
@@ -221,18 +224,88 @@ class ProjectControllerTest {
     mvc.perform(get(PROJECTS_URL).param(parameter, "0"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.data.valid_" + parameter).exists());
+    verifyNoInteractions(service);
   }
 
   @Test
-  @DisplayName("limit은 100까지 허용하고 초과하면 400과 필드명을 반환한다")
-  void limitIsBoundedByOneHundred() throws Exception {
+  @DisplayName("페이지 크기는 100까지 허용한다")
+  void allowsMaximumPageSize() throws Exception {
     mvc.perform(get(PROJECTS_URL).param("limit", "100")).andExpect(status().isOk());
+  }
+
+  @Test
+  @DisplayName("페이지 크기가 100을 초과하면 400과 필드명을 반환한다")
+  void rejectsPageSizeAboveMaximum() throws Exception {
     mvc.perform(get(PROJECTS_URL).param("limit", "101"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.data.valid_limit").exists());
+    verifyNoInteractions(service);
   }
 
-  /** 운영과 같은 후처리기를 적용해 {@code @Validated}가 빠지면 검증 테스트가 실패하도록 한다. */
+  @Test
+  @DisplayName("프로젝트 목록에 상세 설명과 카테고리를 포함한다")
+  void listIncludesDetailsAndCategory() throws Exception {
+    Project project =
+        new Project(
+            1L,
+            "프로젝트",
+            39,
+            org.sopt.makers.domain.official.project.type.ProjectCategory.APPJAM,
+            List.of(),
+            "소개",
+            "상세 설명",
+            "logo",
+            "thumbnail",
+            false,
+            true,
+            List.of(
+                new Project.ProjectLink(
+                    org.sopt.makers.domain.official.project.type.ProjectLinkType.WEBSITE,
+                    "https://sopt.org")));
+    when(service.getProjects(any(), anyInt(), anyInt()))
+        .thenReturn(new ProjectService.ProjectsResult(List.of(project), 25));
+    mvc.perform(get(PROJECTS_URL).param("pageNo", "2").param("limit", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.data[0].detail").value("상세 설명"))
+        .andExpect(jsonPath("$.data.data[0].category").value("APPJAM"));
+  }
+
+  @Test
+  @DisplayName("프로젝트 상세의 등록 일시는 밀리초와 Z를 포함하고 빈 이미지는 제외한다")
+  void detailFormatsDates() throws Exception {
+    var time = java.time.LocalDateTime.of(2026, 1, 2, 3, 4, 5, 123000000);
+    when(service.getProjectDetail(1L))
+        .thenReturn(
+            new ProjectDetail(
+                1L,
+                "프로젝트",
+                39,
+                null,
+                List.of(),
+                null,
+                null,
+                null,
+                null,
+                "",
+                false,
+                true,
+                null,
+                null,
+                time,
+                time,
+                List.of(),
+                List.of(
+                    new ProjectDetail.ProjectMember(
+                        "김솝트",
+                        org.sopt.makers.domain.official.project.type.ProjectMemberRole.SERVER,
+                        "서버"))));
+    mvc.perform(get(PROJECTS_URL + "/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.uploadedAt").value("2026-01-02T03:04:05.123Z"))
+        .andExpect(jsonPath("$.data.updatedAt").value("2026-01-02T03:04:05.123Z"))
+        .andExpect(jsonPath("$.data.projectImage").doesNotExist());
+  }
+
   private Object validatedController() {
     LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
     validator.afterPropertiesSet();

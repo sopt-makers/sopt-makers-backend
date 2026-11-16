@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/s3")
+@RequestMapping("/v2/s3")
 @RequiredArgsConstructor
 @Validated
 public class S3Controller implements S3Api {

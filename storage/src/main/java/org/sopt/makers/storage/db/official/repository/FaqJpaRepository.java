@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface FaqJpaRepository extends JpaRepository<FaqEntity, Long> {
 
-  @Query("SELECT f FROM FaqEntity f ORDER BY f.part ASC")
-  List<FaqEntity> findAllOrderByPart();
+  @Query("SELECT f FROM FaqEntity f ORDER BY f.category ASC")
+  List<FaqEntity> findAllOrderByCategory();
 }

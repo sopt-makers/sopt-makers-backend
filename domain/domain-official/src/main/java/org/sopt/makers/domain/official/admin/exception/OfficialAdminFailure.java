@@ -9,6 +9,7 @@ import org.sopt.makers.core.code.FailureCode;
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum OfficialAdminFailure implements FailureCode {
+  DUPLICATE_FAQ_CATEGORY(400, "FAQ 카테고리는 중복될 수 없습니다"),
   COMMON_CACHE_NOT_FOUND(400, "공통 탭 배포 1단계를 먼저 호출하세요"),
   HOME_CACHE_NOT_FOUND(400, "홈 탭 배포 1단계를 먼저 호출하세요"),
   ABOUT_CACHE_NOT_FOUND(400, "소개 탭 배포 1단계를 먼저 호출하세요"),

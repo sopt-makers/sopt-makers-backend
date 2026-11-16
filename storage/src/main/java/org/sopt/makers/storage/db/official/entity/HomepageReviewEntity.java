@@ -5,6 +5,8 @@ import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.sopt.makers.domain.official.homepage.review.HomepageReview;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 
 @Entity
 @Getter
@@ -28,6 +31,10 @@ public class HomepageReviewEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type", nullable = false)
+  private HomepageReviewType type;
 
   @Column(name = "title", nullable = false)
   private String title;
@@ -49,12 +56,14 @@ public class HomepageReviewEntity {
   @Builder(access = PRIVATE)
   private HomepageReviewEntity(
       Long id,
+      HomepageReviewType type,
       String title,
       String content,
       String authorInfo,
       LocalDateTime createdAt,
       LocalDateTime updatedAt) {
     this.id = id;
+    this.type = type;
     this.title = title;
     this.content = content;
     this.authorInfo = authorInfo;
@@ -63,12 +72,13 @@ public class HomepageReviewEntity {
   }
 
   public HomepageReview toDomain() {
-    return new HomepageReview(id, title, content, authorInfo, createdAt, updatedAt);
+    return new HomepageReview(id, type, title, content, authorInfo, createdAt, updatedAt);
   }
 
   public static HomepageReviewEntity fromDomain(HomepageReview review) {
     return HomepageReviewEntity.builder()
         .id(review.id())
+        .type(review.type())
         .title(review.title())
         .content(review.content())
         .authorInfo(review.authorInfo())

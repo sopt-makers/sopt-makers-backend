@@ -3,6 +3,7 @@ package org.sopt.makers.storage.db.official.entity;
 import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -13,10 +14,9 @@ import jakarta.persistence.Table;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.faq.Faq;
+import org.sopt.makers.domain.official.faq.FaqCategory;
+import org.sopt.makers.storage.db.official.converter.FaqQuestionsConverter;
 
 @Entity
 @Getter
@@ -30,21 +30,21 @@ public class FaqEntity {
   private Long id;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "part", nullable = false, length = 20)
-  private Part part;
+  @Column(name = "category", nullable = false, length = 20)
+  private FaqCategory category;
 
-  @JdbcTypeCode(SqlTypes.JSON)
+  @Convert(converter = FaqQuestionsConverter.class)
   @Column(name = "questions", nullable = false, columnDefinition = "text")
   private List<Faq.QuestionAnswer> questions;
 
   public Faq toDomain() {
-    return new Faq(id, part, questions);
+    return new Faq(id, category, questions);
   }
 
   public static FaqEntity fromDomain(Faq faq) {
     FaqEntity entity = new FaqEntity();
     entity.id = faq.id();
-    entity.part = faq.part();
+    entity.category = faq.category();
     entity.questions = faq.questions();
     return entity;
   }

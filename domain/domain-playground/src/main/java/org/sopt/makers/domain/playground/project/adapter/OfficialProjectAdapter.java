@@ -84,6 +84,7 @@ public class OfficialProjectAdapter implements OfficialProjectPort {
         project.category(),
         project.serviceType(),
         project.summary(),
+        project.detail(),
         project.logoImage(),
         project.thumbnailImage(),
         Boolean.TRUE.equals(project.isFounding()),
