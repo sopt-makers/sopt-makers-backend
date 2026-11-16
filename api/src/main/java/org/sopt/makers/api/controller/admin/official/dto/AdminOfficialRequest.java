@@ -184,7 +184,7 @@ public class AdminOfficialRequest {
     public record RecruitPartCurriculumRequest(
         @NotBlank String part, @NotNull @Valid IntroductionRequest introduction) {}
 
-    public record IntroductionRequest(@NotBlank String content, @NotBlank String preference) {}
+    public record IntroductionRequest(@NotBlank String content, String preference) {}
 
     public record RecruitQuestionRequest(
         @NotBlank String part, @NotEmpty @Valid List<QuestionRequest> questions) {}

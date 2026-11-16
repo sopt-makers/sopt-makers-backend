@@ -366,6 +366,38 @@ class AdminOfficialApiTest {
             new Faq(2L, FaqCategory.QUALIFICATION, List.of(new Faq.QuestionAnswer("질문", "답변")))));
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"ALL", "전체"})
+  @DisplayName("전체 파트 FAQ를 저장 요청으로 변환한다")
+  void acceptsAllPartFaq(String part) throws Exception {
+    mvc.perform(
+            adminPost(
+                "recruit",
+                "{\"generation\":39,\"recruitQuestion\":[{\"part\":\""
+                    + part
+                    + "\",\"questions\":[{\"question\":\"질문\",\"answer\":\"답변\"}]}]}"))
+        .andExpect(status().isCreated());
+    var captor = ArgumentCaptor.forClass(AdminOfficialFacade.AddRecruitRequest.class);
+    verify(facade).addRecruitData(captor.capture());
+    org.assertj.core.api.Assertions.assertThat(captor.getValue().faqs())
+        .extracting(AdminCachePort.FaqData::category)
+        .containsExactly(FaqCategory.ALL);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"null", "\"\"", "\" \""})
+  @DisplayName("선호사항이 비어 있어도 모집 소개를 저장한다")
+  void acceptsEmptyPreference(String preference) throws Exception {
+    mvc.perform(
+            adminPost(
+                "recruit",
+                "{\"generation\":39,\"recruitPartCurriculum\":[{\"part\":\"서버\",\"introduction\":{\"content\":\"소개\",\"preference\":"
+                    + preference
+                    + "}}]}"))
+        .andExpect(status().isCreated());
+    verify(facade).addRecruitData(any());
+  }
+
   @Configuration
   @EnableWebMvc
   @Import({

@@ -11,6 +11,7 @@ public enum FaqCategory {
   ACTIVITY("활동", false),
 
   // 레거시 필드. 후에 삭제 조치 예정
+  ALL("전체", true),
   IOS("iOS", true),
   PLAN("기획", true),
   DESIGN("디자인", true),

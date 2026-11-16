@@ -64,4 +64,30 @@ class AdminOfficialCacheRepositoryAdapterTest {
     when(values.get("admin:official:recruit:39")).thenReturn(json.getValue());
     assertThat(adapter.getRecruit(39)).isEqualTo(data);
   }
+
+  @Test
+  @DisplayName("이전 형식의 모집 초안을 읽을 때 파트 질문을 FAQ로 변환한다")
+  void readsPreviousRecruitDraft() {
+    when(values.get("admin:official:recruit:39"))
+        .thenReturn(
+            """
+      {"generationId":39,"recruitQuestions":[{"part":"전체","questions":[{"question":"질문","answer":"답변"}]}]}
+      """);
+    var result = adapter.getRecruit(39);
+    assertThat(result.faqs())
+        .containsExactly(
+            new AdminCachePort.FaqData(
+                FaqCategory.ALL, List.of(new AdminCachePort.QuestionData("질문", "답변"))));
+  }
+
+  @Test
+  @DisplayName("이전 파트 질문이 함께 있어도 명시된 빈 FAQ 목록을 유지한다")
+  void prioritizesCurrentFaqs() {
+    when(values.get("admin:official:recruit:39"))
+        .thenReturn(
+            """
+      {"generationId":39,"faqs":[],"recruitQuestions":[{"part":"서버","questions":[]}]}
+      """);
+    assertThat(adapter.getRecruit(39).faqs()).isEmpty();
+  }
 }

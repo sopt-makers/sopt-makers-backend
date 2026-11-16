@@ -2,10 +2,13 @@ package org.sopt.makers.storage.redis.admin.adapter;
 
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.admin.port.AdminCachePort;
+import org.sopt.makers.domain.official.faq.FaqCategory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 @Component
 @RequiredArgsConstructor
@@ -76,7 +79,24 @@ public class AdminOfficialCacheRepositoryAdapter implements AdminCachePort {
   @Override
   public RecruitCacheData getRecruit(Integer generationId) {
     String json = stringRedisTemplate.opsForValue().get(RECRUIT_KEY_PREFIX + generationId);
-    return json != null ? deserialize(json, RecruitCacheData.class) : null;
+    if (json == null) {
+      return null;
+    }
+    ObjectNode root = (ObjectNode) objectMapper.readTree(json);
+    var previousQuestions = root.remove("recruitQuestions");
+    if ((!root.has("faqs") || root.get("faqs").isNull())
+        && previousQuestions != null
+        && !previousQuestions.isNull()) {
+      var faqs = root.putArray("faqs");
+      for (var question : previousQuestions) {
+        var faq = faqs.addObject();
+        faq.put(
+            "category",
+            FaqCategory.valueOf(Part.fromString(question.get("part").asString()).name()).name());
+        faq.set("questions", question.get("questions"));
+      }
+    }
+    return objectMapper.treeToValue(root, RecruitCacheData.class);
   }
 
   @Override
