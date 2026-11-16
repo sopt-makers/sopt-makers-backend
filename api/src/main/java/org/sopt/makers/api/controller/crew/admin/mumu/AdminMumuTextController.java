@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.mumu;
+package org.sopt.makers.api.controller.crew.admin.mumu;
 
 import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.CREATE_MUMU_TEXT;
 import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.DELETE_MUMU_TEXT;

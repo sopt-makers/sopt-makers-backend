@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.mumu;
+package org.sopt.makers.api.controller.crew.admin.mumu;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
