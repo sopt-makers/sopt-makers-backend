@@ -55,7 +55,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         info.isFounding(),
         info.isAvailable(),
         info.links().stream()
-            .map(l -> new ProjectLink(parseLinkType(l.linkTitle()), l.linkUrl()))
+            .map(l -> new ProjectLink(ProjectLinkType.fromValue(l.linkTitle()), l.linkUrl()))
             .toList());
   }
 
@@ -65,7 +65,10 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
 
     List<ProjectDetail.ProjectLink> links =
         info.links().stream()
-            .map(l -> new ProjectDetail.ProjectLink(parseLinkType(l.linkTitle()), l.linkUrl()))
+            .map(
+                l ->
+                    new ProjectDetail.ProjectLink(
+                        ProjectLinkType.fromValue(l.linkTitle()), l.linkUrl()))
             .toList();
 
     List<ProjectMember> members =
@@ -118,19 +121,6 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
             })
         .filter(Objects::nonNull)
         .toList();
-  }
-
-  private ProjectLinkType parseLinkType(String title) {
-    if (title == null) return ProjectLinkType.WEBSITE;
-    return switch (title) {
-      case "website" -> ProjectLinkType.WEBSITE;
-      case "googlePlay" -> ProjectLinkType.GOOGLE_PLAYSTORE;
-      case "appStore" -> ProjectLinkType.APP_STORE;
-      case "github" -> ProjectLinkType.GITHUB;
-      case "media" -> ProjectLinkType.MEDIA;
-      case "instagram" -> ProjectLinkType.INSTAGRAM;
-      default -> ProjectLinkType.WEBSITE;
-    };
   }
 
   private ProjectMemberRole parseMemberRole(String role) {
