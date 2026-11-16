@@ -7,9 +7,9 @@ import static org.sopt.makers.domain.crew.advertisement.exception.AdvertisementF
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.AdvertisementImageUploadResponse;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.MeetingTopAdvertisementUpdateRequest;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.MeetingTopAdvertisementUpdateResponse;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.AdvertisementImageUploadResponse;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.MeetingTopAdvertisementUpdateRequest;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.MeetingTopAdvertisementUpdateResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.crew.advertisement.exception.AdvertisementException;
 import org.sopt.makers.domain.crew.advertisement.port.AdvertisementImageStoragePort;

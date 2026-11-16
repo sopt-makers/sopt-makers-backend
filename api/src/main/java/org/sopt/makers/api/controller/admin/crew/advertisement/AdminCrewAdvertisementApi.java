@@ -2,7 +2,7 @@ package org.sopt.makers.api.controller.admin.crew.advertisement;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.MeetingTopAdvertisementUpdateRequest;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.MeetingTopAdvertisementUpdateRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
