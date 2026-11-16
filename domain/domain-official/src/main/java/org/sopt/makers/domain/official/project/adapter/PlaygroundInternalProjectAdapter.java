@@ -1,7 +1,9 @@
 package org.sopt.makers.domain.official.project.adapter;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.official.project.Project;
@@ -29,7 +31,11 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
 
   @Override
   public List<Project> fetchAll() {
-    return officialProjectPort.fetchAll().stream().map(this::toProject).toList();
+    Set<String> names = new HashSet<>();
+    return officialProjectPort.fetchAll().stream()
+        .filter(project -> names.add(project.name()))
+        .map(this::toProject)
+        .toList();
   }
 
   @Override
@@ -50,6 +56,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         parseCategory(info.category()),
         parseServiceTypes(info.serviceType()),
         info.summary(),
+        info.detail(),
         info.logoImage(),
         info.thumbnailImage(),
         info.isFounding(),

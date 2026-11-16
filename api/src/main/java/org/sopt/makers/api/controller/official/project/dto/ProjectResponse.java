@@ -1,5 +1,7 @@
 package org.sopt.makers.api.controller.official.project.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +29,7 @@ public class ProjectResponse {
       ProjectCategory category,
       List<ProjectServiceType> serviceType,
       String summary,
+      String detail,
       String logoImage,
       String thumbnailImage,
       boolean isFounding,
@@ -40,6 +43,7 @@ public class ProjectResponse {
           p.category(),
           p.serviceType(),
           p.summary(),
+          p.detail(),
           p.logoImage(),
           p.thumbnailImage(),
           p.isFounding(),
@@ -60,13 +64,13 @@ public class ProjectResponse {
       String detail,
       String logoImage,
       String thumbnailImage,
-      String projectImage,
+      @JsonInclude(JsonInclude.Include.NON_EMPTY) String projectImage,
       boolean isFounding,
       boolean isAvailable,
       LocalDate startAt,
       LocalDate endAt,
-      LocalDateTime uploadedAt,
-      LocalDateTime updatedAt,
+      @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") LocalDateTime uploadedAt,
+      @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") LocalDateTime updatedAt,
       List<LinkItem> links,
       List<MemberItem> members) {
     public static ProjectDetailItem of(ProjectDetail pd) {

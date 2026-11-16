@@ -34,6 +34,7 @@ class ProjectServiceTest {
               null,
               null,
               null,
+              null,
               false,
               false,
               List.of()));
@@ -169,6 +170,7 @@ class ProjectServiceTest {
         generation,
         ProjectCategory.APPJAM,
         List.of(),
+        null,
         null,
         null,
         null,
