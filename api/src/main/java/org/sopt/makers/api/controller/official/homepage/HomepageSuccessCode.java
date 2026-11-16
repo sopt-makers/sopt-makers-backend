@@ -9,6 +9,7 @@ import org.sopt.makers.core.code.SuccessCode;
 @Getter
 @RequiredArgsConstructor(access = PRIVATE)
 public enum HomepageSuccessCode implements SuccessCode {
+  GET_BRANDING_COLOR(200, "브랜딩 색상 조회에 성공했습니다."),
   GET_HOMEPAGE_MAIN(200, "메인 페이지 조회에 성공했습니다."),
   GET_HOMEPAGE_ABOUT(200, "About 페이지 조회에 성공했습니다."),
   GET_HOMEPAGE_RECRUIT(200, "Recruiting 페이지 조회에 성공했습니다.");

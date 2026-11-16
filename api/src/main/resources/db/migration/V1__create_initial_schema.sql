@@ -104,13 +104,15 @@ CREATE TABLE core_value
 CREATE TABLE faq
 (
     id        BIGINT      NOT NULL GENERATED ALWAYS AS IDENTITY,
-    part      VARCHAR(20) NOT NULL,
+    category  VARCHAR(20) NOT NULL,
     questions TEXT        NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE main_news
 (
+    published_at TIMESTAMP WITH TIME ZONE,
+    hidden BOOLEAN NOT NULL DEFAULT FALSE,
     id         INT          NOT NULL GENERATED ALWAYS AS IDENTITY,
     image      VARCHAR(255) NOT NULL,
     title      VARCHAR(255) NOT NULL,
@@ -122,6 +124,7 @@ CREATE TABLE main_news
 
 CREATE TABLE homepage_review
 (
+    type VARCHAR(20) NOT NULL DEFAULT 'ACTIVITY',
     id          BIGINT       NOT NULL GENERATED ALWAYS AS IDENTITY,
     title       VARCHAR(255) NOT NULL,
     content     VARCHAR(200) NOT NULL,

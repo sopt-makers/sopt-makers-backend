@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "공식 홈페이지", description = "공식 홈페이지 페이지별 조회 API")
 public interface HomepageApi {
 
+  @Operation(summary = "브랜딩 색상 조회")
+  ResponseEntity<BaseResponse<?>> getBrandingColor();
+
   @Operation(summary = "메인 페이지 조회", description = "메인 페이지 데이터를 조회합니다.")
   ResponseEntity<BaseResponse<?>> getMainPage();
 

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public record HomepageReview(
     Long id,
+    HomepageReviewType type,
     String title,
     String content,
     String authorInfo,
@@ -11,10 +12,11 @@ public record HomepageReview(
     LocalDateTime updatedAt) {
 
   public static HomepageReview create(String title, String content, String authorInfo) {
-    return new HomepageReview(null, title, content, authorInfo, null, null);
+    return new HomepageReview(
+        null, HomepageReviewType.ACTIVITY, title, content, authorInfo, null, null);
   }
 
   public HomepageReview update(String title, String content, String authorInfo) {
-    return new HomepageReview(id, title, content, authorInfo, createdAt, updatedAt);
+    return new HomepageReview(id, type, title, content, authorInfo, createdAt, updatedAt);
   }
 }

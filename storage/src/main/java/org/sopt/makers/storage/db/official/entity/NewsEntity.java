@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +39,12 @@ public class NewsEntity {
   @Column(name = "link", nullable = false)
   private String link;
 
+  @Column(name = "published_at")
+  private Instant publishedAt;
+
+  @Column(name = "hidden", nullable = false)
+  private boolean hidden;
+
   @CreationTimestamp
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
@@ -52,18 +59,22 @@ public class NewsEntity {
       String image,
       String title,
       String link,
+      Instant publishedAt,
+      boolean hidden,
       LocalDateTime createdAt,
       LocalDateTime updatedAt) {
     this.id = id;
     this.image = image;
     this.title = title;
     this.link = link;
+    this.publishedAt = publishedAt;
+    this.hidden = hidden;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
 
   public News toDomain() {
-    return new News(id, image, title, link, createdAt, updatedAt);
+    return new News(id, image, title, link, publishedAt, hidden, createdAt, updatedAt);
   }
 
   public static NewsEntity fromDomain(News news) {
@@ -72,6 +83,8 @@ public class NewsEntity {
         .image(news.imageUrl())
         .title(news.title())
         .link(news.link())
+        .publishedAt(news.publishedAt())
+        .hidden(news.hidden())
         .createdAt(news.createdAt())
         .updatedAt(news.updatedAt())
         .build();

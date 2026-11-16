@@ -44,6 +44,10 @@ public class HomepageReviewService {
     return createAll(command);
   }
 
+  public List<HomepageReview> findAll() {
+    return homepageReviewRepositoryPort.findAllByOrderByIdAsc();
+  }
+
   public List<HomepageReview> getReviews() {
     List<HomepageReview> reviews = homepageReviewRepositoryPort.findAllByOrderByIdAsc();
 

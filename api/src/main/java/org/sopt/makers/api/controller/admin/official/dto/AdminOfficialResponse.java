@@ -142,7 +142,7 @@ public class AdminOfficialResponse {
                   .map(
                       faq ->
                           new RecruitQuestionData(
-                              faq.part() != null ? faq.part().getName() : null,
+                              faq.category().getDisplayName(),
                               faq.questions() == null
                                   ? null
                                   : faq.questions().stream()
