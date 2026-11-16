@@ -2,6 +2,7 @@ package org.sopt.makers.api.controller.admin.official.dto;
 
 import java.util.List;
 import org.sopt.makers.domain.official.admin.facade.AdminOfficialFacade;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 
 public class AdminOfficialResponse {
 
@@ -25,7 +26,8 @@ public class AdminOfficialResponse {
       List<RecruitPartCurriculumData> recruitPartCurriculum,
       List<RecruitQuestionData> recruitQuestion,
       List<ReviewData> review,
-      List<ActivityScheduleData> activitySchedule) {
+      List<ActivityScheduleData> activitySchedule,
+      List<CategoryFaqData> faq) {
 
     public static AdminMainResponse from(AdminOfficialFacade.AdminMainData data) {
       var gen = data.generation();
@@ -154,7 +156,8 @@ public class AdminOfficialResponse {
           data.reviews() == null
               ? null
               : data.reviews().stream()
-                  .map(r -> new ReviewData(r.id(), r.title(), r.content(), r.authorInfo()))
+                  .map(
+                      r -> new ReviewData(r.id(), r.type(), r.title(), r.content(), r.authorInfo()))
                   .toList();
 
       List<ActivityScheduleData> activitySchedule =
@@ -185,7 +188,16 @@ public class AdminOfficialResponse {
           recruitPartCurriculum,
           recruitQuestion,
           review,
-          activitySchedule);
+          activitySchedule,
+          data.categoryFaqs().stream()
+              .map(
+                  f ->
+                      new CategoryFaqData(
+                          f.category().getDisplayName(),
+                          f.questions().stream()
+                              .map(q -> new QuestionAnswerData(q.question(), q.answer()))
+                              .toList()))
+              .toList());
     }
   }
 
@@ -230,9 +242,12 @@ public class AdminOfficialResponse {
 
   public record RecruitQuestionData(String part, List<QuestionAnswerData> questions) {}
 
+  public record CategoryFaqData(String category, List<QuestionAnswerData> questions) {}
+
   public record QuestionAnswerData(String question, String answer) {}
 
-  public record ReviewData(Long id, String title, String content, String authorInfo) {}
+  public record ReviewData(
+      Long id, HomepageReviewType type, String title, String content, String authorInfo) {}
 
   public record ActivityScheduleData(String name, String startDate, String endDate) {}
 

@@ -3,7 +3,6 @@ package org.sopt.makers.domain.official.faq.service;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.official.faq.Faq;
 import org.sopt.makers.domain.official.faq.FaqCategory;
 import org.sopt.makers.domain.official.faq.port.FaqRepositoryPort;
@@ -40,7 +39,7 @@ public class FaqService {
                 data ->
                     new Faq(
                         null,
-                        FaqCategory.valueOf(Part.fromString(data.part()).name()),
+                        data.category(),
                         data.questions().stream()
                             .map(q -> new Faq.QuestionAnswer(q.question(), q.answer()))
                             .toList()))
@@ -48,7 +47,7 @@ public class FaqService {
     faqRepositoryPort.saveAll(faqList);
   }
 
-  public record BulkCreateFaqData(String part, List<QuestionData> questions) {
+  public record BulkCreateFaqData(FaqCategory category, List<QuestionData> questions) {
     public record QuestionData(String question, String answer) {}
   }
 }

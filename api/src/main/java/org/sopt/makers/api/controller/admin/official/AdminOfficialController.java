@@ -10,6 +10,7 @@ import static org.sopt.makers.api.controller.admin.official.AdminOfficialSuccess
 import static org.sopt.makers.api.controller.admin.official.AdminOfficialSuccessCode.SUCCESS_CONFIRM_RECRUIT;
 import static org.sopt.makers.api.controller.admin.official.AdminOfficialSuccessCode.SUCCESS_GET_ADMIN_MAIN;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
 import org.sopt.makers.api.controller.admin.official.dto.AdminOfficialRequest;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/official")
+@RequestMapping("/v2/admin")
 public class AdminOfficialController implements AdminOfficialApi {
 
   private final AdminOfficialFacade adminOfficialFacade;
@@ -43,7 +44,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/common")
   public ResponseEntity<BaseResponse<?>> addCommonData(
-      @RequestBody AdminOfficialRequest.AddCommonRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.AddCommonRequest request) {
     return ResponseFactory.success(
         SUCCESS_ADD_COMMON,
         AdminOfficialResponse.AddCommonResponse.from(
@@ -53,7 +54,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/common/confirm")
   public ResponseEntity<BaseResponse<?>> confirmCommonData(
-      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_COMMON,
         AdminOfficialResponse.ConfirmResponse.from(
@@ -63,7 +64,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/home")
   public ResponseEntity<BaseResponse<?>> addHomeData(
-      @RequestBody AdminOfficialRequest.AddHomeRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.AddHomeRequest request) {
     return ResponseFactory.success(
         SUCCESS_ADD_HOME,
         AdminOfficialResponse.AddHomeResponse.from(
@@ -73,7 +74,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/home/confirm")
   public ResponseEntity<BaseResponse<?>> confirmHomeData(
-      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_HOME,
         AdminOfficialResponse.ConfirmResponse.from(
@@ -83,7 +84,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/about")
   public ResponseEntity<BaseResponse<?>> addAboutData(
-      @RequestBody AdminOfficialRequest.AddAboutRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.AddAboutRequest request) {
     return ResponseFactory.success(
         SUCCESS_ADD_ABOUT,
         AdminOfficialResponse.AddAboutResponse.from(
@@ -93,7 +94,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/about/confirm")
   public ResponseEntity<BaseResponse<?>> confirmAboutData(
-      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_ABOUT,
         AdminOfficialResponse.ConfirmResponse.from(
@@ -103,7 +104,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/recruit")
   public ResponseEntity<BaseResponse<?>> addRecruitData(
-      @RequestBody AdminOfficialRequest.AddRecruitRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.AddRecruitRequest request) {
     return ResponseFactory.success(
         SUCCESS_ADD_RECRUIT,
         AdminOfficialResponse.AddRecruitResponse.from(
@@ -113,7 +114,7 @@ public class AdminOfficialController implements AdminOfficialApi {
   @Override
   @PostMapping("/recruit/confirm")
   public ResponseEntity<BaseResponse<?>> confirmRecruitData(
-      @RequestBody AdminOfficialRequest.ConfirmRequest request) {
+      @Valid @RequestBody AdminOfficialRequest.ConfirmRequest request) {
     return ResponseFactory.success(
         SUCCESS_CONFIRM_RECRUIT,
         AdminOfficialResponse.ConfirmResponse.from(

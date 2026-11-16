@@ -32,11 +32,14 @@ public class HomepageReviewService {
 
   @Transactional
   public List<HomepageReview> createAll(BulkCreateHomepageReviewsCommand command) {
+    validateMaxCountPerType(
+        command.reviews().stream().map(BulkCreateHomepageReviewsCommand.ReviewData::type).toList());
     List<HomepageReview> reviews =
         command.reviews().stream()
             .map(
                 review ->
-                    HomepageReview.create(review.title(), review.content(), review.authorInfo()))
+                    HomepageReview.create(
+                        review.type(), review.title(), review.content(), review.authorInfo()))
             .toList();
     return homepageReviewRepositoryPort.saveAll(reviews);
   }
@@ -77,7 +80,20 @@ public class HomepageReviewService {
 
   public record BulkCreateHomepageReviewsCommand(List<ReviewData> reviews) {
 
-    public record ReviewData(String title, String content, String authorInfo) {}
+    public record ReviewData(
+        String title, String content, String authorInfo, HomepageReviewType type) {}
+  }
+
+  public void validateMaxCountPerType(List<HomepageReviewType> types) {
+    java.util.Map<HomepageReviewType, Long> counts =
+        types.stream()
+            .collect(
+                java.util.stream.Collectors.groupingBy(
+                    t -> t == null ? HomepageReviewType.ACTIVITY : t,
+                    java.util.stream.Collectors.counting()));
+    if (counts.values().stream().anyMatch(count -> count > MAX_REVIEW)) {
+      throw new HomepageReviewException(EXCEEDED_HOMEPAGE_REVIEW_COUNT);
+    }
   }
 
   private void validateCapacity(HomepageReviewType type) {

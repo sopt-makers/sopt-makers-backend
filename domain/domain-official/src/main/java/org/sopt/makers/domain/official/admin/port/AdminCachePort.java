@@ -1,6 +1,8 @@
 package org.sopt.makers.domain.official.admin.port;
 
 import java.util.List;
+import org.sopt.makers.domain.official.faq.FaqCategory;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 
 public interface AdminCachePort {
 
@@ -56,7 +58,7 @@ public interface AdminCachePort {
       List<PartIntroductionData> partIntroductions,
       List<PartCurriculumData> partCurriculums,
       List<RecruitPartCurriculumData> recruitPartCurriculums,
-      List<RecruitQuestionData> recruitQuestions) {}
+      List<FaqData> faqs) {}
 
   record RecruitScheduleData(String type, ScheduleData schedule) {}
 
@@ -70,7 +72,7 @@ public interface AdminCachePort {
 
   record NewsData(String title, String link, String imageUrl) {}
 
-  record ReviewData(String title, String content, String authorInfo) {}
+  record ReviewData(String title, String content, String authorInfo, HomepageReviewType type) {}
 
   record CoreValueData(
       String value, String description, String detailDescription, String imageUrl) {}
@@ -96,7 +98,7 @@ public interface AdminCachePort {
 
   record IntroductionData(String content, String preference) {}
 
-  record RecruitQuestionData(String part, List<QuestionData> questions) {}
+  record FaqData(FaqCategory category, List<QuestionData> questions) {}
 
   record QuestionData(String question, String answer) {}
 }

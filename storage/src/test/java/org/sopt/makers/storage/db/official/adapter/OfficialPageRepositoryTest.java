@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.makers.domain.official.faq.*;
+import org.sopt.makers.domain.official.faq.service.FaqService;
 import org.sopt.makers.domain.official.homepage.review.*;
 import org.sopt.makers.domain.official.news.News;
 import org.sopt.makers.storage.db.official.entity.*;
@@ -84,6 +85,33 @@ class OfficialPageRepositoryTest {
             HomepageReviewType.ACTIVITY,
             HomepageReviewType.ACTIVITY,
             HomepageReviewType.RECRUITING);
+  }
+
+  @Test
+  @DisplayName("전달한 FAQ 목록으로 DB의 전체 FAQ를 교체한다")
+  void replacesCategoryFaqs() {
+    faqs.saveAll(
+        List.of(
+            new Faq(null, FaqCategory.WEB, List.of()),
+            new Faq(null, FaqCategory.ACTIVITY, List.of())));
+    em.flush();
+    em.clear();
+    new FaqService(faqs)
+        .bulkCreate(
+            List.of(
+                new FaqService.BulkCreateFaqData(
+                    FaqCategory.QUALIFICATION,
+                    List.of(new FaqService.BulkCreateFaqData.QuestionData("질문", "답변")))));
+    em.flush();
+    em.clear();
+    assertThat(faqs.findAll()).extracting(Faq::category).containsExactly(FaqCategory.QUALIFICATION);
+    assertThat(
+            faqs.findAll().stream()
+                .filter(f -> f.category() == FaqCategory.QUALIFICATION)
+                .findFirst()
+                .orElseThrow()
+                .questions())
+        .containsExactly(new Faq.QuestionAnswer("질문", "답변"));
   }
 
   @Configuration

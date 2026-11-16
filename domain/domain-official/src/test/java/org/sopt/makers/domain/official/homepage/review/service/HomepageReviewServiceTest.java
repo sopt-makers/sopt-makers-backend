@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.sopt.makers.domain.official.homepage.review.HomepageReviewType.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -136,5 +137,37 @@ class HomepageReviewServiceTest {
 
   private HomepageReview review(HomepageReviewType type) {
     return new HomepageReview(1L, type, "제목", "내용", "작성자", null, null);
+  }
+
+  @Test
+  @DisplayName("후기를 일괄 저장할 때 유형을 유지하고 생략한 유형은 활동 후기로 저장한다")
+  void savesReviewTypesInBulk() {
+    service.createAll(
+        new HomepageReviewService.BulkCreateHomepageReviewsCommand(
+            List.of(
+                new HomepageReviewService.BulkCreateHomepageReviewsCommand.ReviewData(
+                    "활동", "내용", "작성자", null),
+                new HomepageReviewService.BulkCreateHomepageReviewsCommand.ReviewData(
+                    "지원", "내용", "작성자", RECRUITING))));
+    org.mockito.ArgumentCaptor<List<HomepageReview>> captor = org.mockito.ArgumentCaptor.captor();
+    verify(port).saveAll(captor.capture());
+    assertThat(captor.getValue())
+        .extracting(HomepageReview::type)
+        .containsExactly(ACTIVITY, RECRUITING);
+  }
+
+  @Test
+  @DisplayName("일괄 저장에서도 유형별 7개 제한을 적용한다")
+  void validatesBulkCapacity() {
+    var entry =
+        new HomepageReviewService.BulkCreateHomepageReviewsCommand.ReviewData(
+            "후기", "내용", "작성자", ACTIVITY);
+    assertThatThrownBy(
+            () ->
+                service.createAll(
+                    new HomepageReviewService.BulkCreateHomepageReviewsCommand(
+                        java.util.Collections.nCopies(8, entry))))
+        .isInstanceOf(HomepageReviewException.class);
+    verify(port, never()).saveAll(any());
   }
 }

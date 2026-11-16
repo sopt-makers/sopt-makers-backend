@@ -42,12 +42,22 @@ class FaqServiceTest {
   @Test
   @DisplayName("FAQ 교체 시 기존 FAQ를 모두 삭제하고 새 목록을 저장한다")
   void replacesAllFaqs() {
-    service.bulkCreate(List.of(new FaqService.BulkCreateFaqData("웹", List.of())));
+    service.bulkCreate(
+        List.of(new FaqService.BulkCreateFaqData(FaqCategory.QUALIFICATION, List.of())));
     verify(port).deleteAll();
-    verify(port).saveAll(List.of(new Faq(null, FaqCategory.WEB, List.of())));
+    verify(port).saveAll(List.of(new Faq(null, FaqCategory.QUALIFICATION, List.of())));
   }
 
   private Faq faq(FaqCategory category) {
     return new Faq(1L, category, List.of());
+  }
+
+  @Test
+  @DisplayName("빈 FAQ 목록을 전달하면 전체 FAQ를 삭제한다")
+  void clearsAllFaqs() {
+    service.bulkCreate(List.of());
+    verify(port).deleteAll();
+    verify(port).saveAll(List.of());
+    verify(port, never()).findAll();
   }
 }

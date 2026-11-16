@@ -20,6 +20,7 @@ import org.sopt.makers.domain.official.faq.service.FaqService;
 import org.sopt.makers.domain.official.generation.BrandingColor;
 import org.sopt.makers.domain.official.generation.Generation;
 import org.sopt.makers.domain.official.generation.service.GenerationService;
+import org.sopt.makers.domain.official.homepage.review.HomepageReviewType;
 import org.sopt.makers.domain.official.homepage.review.service.HomepageReviewService;
 import org.sopt.makers.domain.official.member.Member;
 import org.sopt.makers.domain.official.member.MemberRole;
@@ -69,7 +70,8 @@ public class AdminOfficialFacade {
         recruitPartIntroductionService.findByGeneration(generationId),
         faqService.findAll(),
         newsService.findAll(),
-        homepageReviewService.getReviews());
+        homepageReviewService.getReviews(),
+        faqService.findCategoryFaqs());
   }
 
   // ============================================================
@@ -107,7 +109,7 @@ public class AdminOfficialFacade {
 
     generationService.createOrUpdate(generationId, cached.name(), brandingColor);
 
-    if (cached.recruitSchedules() != null && !cached.recruitSchedules().isEmpty()) {
+    if (cached.recruitSchedules() != null) {
       recruitmentService.bulkCreate(
           new RecruitmentService.BulkCreateRecruitmentsCommand(
               generationId,
@@ -139,6 +141,10 @@ public class AdminOfficialFacade {
 
   @Transactional
   public HomeResult addHomeData(AddHomeRequest request) {
+    if (request.reviews() != null) {
+      homepageReviewService.validateMaxCountPerType(
+          request.reviews().stream().map(AddHomeRequest.ReviewRequest::type).toList());
+    }
     String homeHeaderImageUrl = null;
     if (hasText(request.homeHeaderImageFileName())) {
       homeHeaderImageUrl =
@@ -168,7 +174,10 @@ public class AdminOfficialFacade {
     if (request.reviews() != null) {
       reviewDataList =
           request.reviews().stream()
-              .map(r -> new AdminCachePort.ReviewData(r.title(), r.content(), r.authorInfo()))
+              .map(
+                  r ->
+                      new AdminCachePort.ReviewData(
+                          r.title(), r.content(), r.authorInfo(), r.type()))
               .toList();
     }
 
@@ -212,7 +221,7 @@ public class AdminOfficialFacade {
                   .map(
                       r ->
                           new HomepageReviewService.BulkCreateHomepageReviewsCommand.ReviewData(
-                              r.title(), r.content(), r.authorInfo()))
+                              r.title(), r.content(), r.authorInfo(), r.type()))
                   .toList()));
     }
 
@@ -436,6 +445,11 @@ public class AdminOfficialFacade {
 
   @Transactional
   public RecruitResult addRecruitData(AddRecruitRequest request) {
+    if (request.faqs() != null
+        && request.faqs().stream().map(AdminCachePort.FaqData::category).distinct().count()
+            != request.faqs().size()) {
+      throw new OfficialAdminException(OfficialAdminFailure.DUPLICATE_FAQ_CATEGORY);
+    }
     String recruitHeaderImageUrl = null;
     if (hasText(request.recruitHeaderImageFileName())) {
       recruitHeaderImageUrl =
@@ -450,7 +464,7 @@ public class AdminOfficialFacade {
             request.partIntroductions(),
             request.partCurriculums(),
             request.recruitPartCurriculums(),
-            request.recruitQuestions());
+            request.faqs());
     adminCachePort.putRecruit(request.generationId(), cacheData);
 
     return new RecruitResult(request.generationId(), recruitHeaderImageUrl);
@@ -489,21 +503,20 @@ public class AdminOfficialFacade {
       recruitPartIntroductionService.bulkCreate(generationId, introductions);
     }
 
-    if (cached.recruitQuestions() != null) {
-      List<FaqService.BulkCreateFaqData> faqData =
-          cached.recruitQuestions().stream()
+    if (cached.faqs() != null) {
+      faqService.bulkCreate(
+          cached.faqs().stream()
               .map(
-                  rq ->
+                  f ->
                       new FaqService.BulkCreateFaqData(
-                          rq.part(),
-                          rq.questions().stream()
+                          f.category(),
+                          f.questions().stream()
                               .map(
                                   q ->
                                       new FaqService.BulkCreateFaqData.QuestionData(
                                           q.question(), q.answer()))
                               .toList()))
-              .toList();
-      faqService.bulkCreate(faqData);
+              .toList());
     }
 
     adminCachePort.evictRecruit(generationId);
@@ -604,7 +617,8 @@ public class AdminOfficialFacade {
       List<ReviewRequest> reviews) {
     public record NewsFileRequest(String title, String link, String imageFileName) {}
 
-    public record ReviewRequest(String title, String content, String authorInfo) {}
+    public record ReviewRequest(
+        String title, String content, String authorInfo, HomepageReviewType type) {}
   }
 
   public record AddAboutRequest(
@@ -636,7 +650,7 @@ public class AdminOfficialFacade {
       List<AdminCachePort.PartIntroductionData> partIntroductions,
       List<AdminCachePort.PartCurriculumData> partCurriculums,
       List<AdminCachePort.RecruitPartCurriculumData> recruitPartCurriculums,
-      List<AdminCachePort.RecruitQuestionData> recruitQuestions) {}
+      List<AdminCachePort.FaqData> faqs) {}
 
   public record CommonResult(Integer generationId) {}
 
@@ -665,5 +679,6 @@ public class AdminOfficialFacade {
       List<RecruitPartIntroduction> recruitPartIntroductions,
       List<Faq> faqs,
       List<org.sopt.makers.domain.official.news.News> news,
-      List<org.sopt.makers.domain.official.homepage.review.HomepageReview> reviews) {}
+      List<org.sopt.makers.domain.official.homepage.review.HomepageReview> reviews,
+      List<Faq> categoryFaqs) {}
 }
