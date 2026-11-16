@@ -15,6 +15,4 @@ public record HomepageReviewResponse(
   public static List<HomepageReviewResponse> of(List<HomepageReview> reviews) {
     return reviews.stream().map(HomepageReviewResponse::of).toList();
   }
-
-  public record WriteResult(String message) {}
 }

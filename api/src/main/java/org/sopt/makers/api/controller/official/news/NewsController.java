@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/official/news")
+@RequestMapping("/v2/admin/news")
 @RequiredArgsConstructor
 public class NewsController implements NewsApi {
 
@@ -38,16 +38,16 @@ public class NewsController implements NewsApi {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<BaseResponse<?>> createNews(
       @Valid @ModelAttribute NewsRequest.CreateWithFile request) throws IOException {
-    News result = newsService.createWithFile(request.toCommand());
-    return ResponseFactory.success(CREATE_NEWS, NewsResponse.of(result));
+    newsService.createWithFile(request.toCommand());
+    return ResponseFactory.success(CREATE_NEWS);
   }
 
   @Override
   @PostMapping("/v2")
   public ResponseEntity<BaseResponse<?>> createNewsV2(
       @Valid @RequestBody NewsRequest.Create request) {
-    News result = newsService.create(request.toCommand());
-    return ResponseFactory.success(CREATE_NEWS, NewsResponse.of(result));
+    newsService.create(request.toCommand());
+    return ResponseFactory.success(CREATE_NEWS);
   }
 
   @Override
@@ -55,16 +55,16 @@ public class NewsController implements NewsApi {
   public ResponseEntity<BaseResponse<?>> editNews(
       @PathVariable Integer id, @Valid @ModelAttribute NewsRequest.EditWithFile request)
       throws IOException {
-    News result = newsService.editWithFile(id, request.toCommand());
-    return ResponseFactory.success(UPDATE_NEWS, NewsResponse.of(result));
+    newsService.editWithFile(id, request.toCommand());
+    return ResponseFactory.success(UPDATE_NEWS);
   }
 
   @Override
   @PatchMapping("/{id}/v2")
   public ResponseEntity<BaseResponse<?>> editNewsV2(
       @PathVariable Integer id, @Valid @RequestBody NewsRequest.Edit request) {
-    News result = newsService.edit(id, request.toCommand());
-    return ResponseFactory.success(UPDATE_NEWS, NewsResponse.of(result));
+    newsService.edit(id, request.toCommand());
+    return ResponseFactory.success(UPDATE_NEWS);
   }
 
   @Override

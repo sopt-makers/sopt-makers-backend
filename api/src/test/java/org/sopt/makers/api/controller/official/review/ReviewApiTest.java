@@ -143,7 +143,8 @@ class ReviewApiTest {
      {"title":"후기","content":"내용","authorInfo":"작성자","type":"RECRUITING"}
      """))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.data.message").value("홈페이지 리뷰 추가 성공"));
+        .andExpect(jsonPath("$.message").value("홈페이지 리뷰 추가에 성공했습니다."))
+        .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.nullValue()));
     verify(homepage)
         .create(
             new HomepageReviewService.CreateHomepageReviewCommand(
@@ -193,7 +194,8 @@ class ReviewApiTest {
      {"title":"수정","content":"내용","authorInfo":"작성자"}
      """))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.message").value("홈페이지 리뷰 수정 성공"));
+        .andExpect(jsonPath("$.message").value("홈페이지 리뷰 수정에 성공했습니다."))
+        .andExpect(jsonPath("$.data").value(org.hamcrest.Matchers.nullValue()));
     verify(homepage)
         .edit(1L, new HomepageReviewService.EditHomepageReviewCommand("수정", "내용", "작성자", null));
   }

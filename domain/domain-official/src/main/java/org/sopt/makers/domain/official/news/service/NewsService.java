@@ -4,6 +4,7 @@ import static org.sopt.makers.domain.official.news.exception.NewsFailure.NOT_FOU
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.official.news.News;
@@ -65,6 +66,9 @@ public class NewsService {
   @Transactional
   public News edit(Integer id, EditNewsCommand command) {
     News news = getById(id);
+    if (!Objects.equals(command.imageUrl(), news.imageUrl())) {
+      newsFileStoragePort.delete(news.imageUrl());
+    }
     News saved =
         newsRepositoryPort.save(news.update(command.imageUrl(), command.title(), command.link()));
     log.info("최신소식 수정 완료 - id={}", id);

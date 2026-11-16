@@ -36,8 +36,7 @@ public class HomepageReviewController implements HomepageReviewApi {
   public ResponseEntity<BaseResponse<?>> createReview(
       @Valid @RequestBody HomepageReviewRequest.Create request) {
     homepageReviewService.create(request.toCommand());
-    return ResponseFactory.success(
-        CREATE_HOMEPAGE_REVIEW, new HomepageReviewResponse.WriteResult("홈페이지 리뷰 추가 성공"));
+    return ResponseFactory.success(CREATE_HOMEPAGE_REVIEW);
   }
 
   @Override
@@ -52,7 +51,6 @@ public class HomepageReviewController implements HomepageReviewApi {
   public ResponseEntity<BaseResponse<?>> editReview(
       @PathVariable Long id, @Valid @RequestBody HomepageReviewRequest.Edit request) {
     homepageReviewService.edit(id, request.toCommand());
-    return ResponseFactory.success(
-        UPDATE_HOMEPAGE_REVIEW, new HomepageReviewResponse.WriteResult("홈페이지 리뷰 수정 성공"));
+    return ResponseFactory.success(UPDATE_HOMEPAGE_REVIEW);
   }
 }
