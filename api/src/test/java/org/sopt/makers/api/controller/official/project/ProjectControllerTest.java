@@ -1,5 +1,6 @@
 package org.sopt.makers.api.controller.official.project;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -201,7 +202,7 @@ class ProjectControllerTest {
         .andExpect(jsonPath("$.data.members[0].role").value("디자이너"))
         .andExpect(jsonPath("$.data.members[0].description").value("UI 디자인"))
         .andExpect(jsonPath("$.data.members[1].role").value("웹 프론트엔드 개발자"))
-        .andExpect(jsonPath("$.data.members[2].role").doesNotExist());
+        .andExpect(jsonPath("$.data.members[2].role").value(nullValue()));
   }
 
   @ParameterizedTest
