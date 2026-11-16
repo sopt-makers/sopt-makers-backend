@@ -42,6 +42,7 @@ public final class SecurityConstant {
           "/api/v1/auth/refresh",
           "/api/v1/official",
           "/v2/homepage",
+          "/v2/recruit",
           "/v2/projects",
           "/api/v1/social/accounts",
           "/api/v1/popups",

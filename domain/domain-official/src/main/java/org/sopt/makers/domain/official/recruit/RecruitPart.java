@@ -15,11 +15,13 @@ public final class RecruitPart {
     }
 
     return Arrays.stream(Part.values())
+        .filter(RecruitPart::isRecruitPart)
         .filter(part -> part.name().equalsIgnoreCase(input.trim()))
         .findFirst()
         .or(
             () ->
                 Arrays.stream(Part.values())
+                    .filter(RecruitPart::isRecruitPart)
                     .filter(part -> part.getName().equalsIgnoreCase(input.trim()))
                     .findFirst())
         .orElseThrow(() -> new RecruitException(RecruitFailure.INVALID_PART));
@@ -27,5 +29,12 @@ public final class RecruitPart {
 
   public static String displayName(Part part) {
     return part == null ? null : part.getName();
+  }
+
+  private static boolean isRecruitPart(Part part) {
+    return switch (part) {
+      case IOS, PLAN, DESIGN, SERVER, ANDROID, WEB, COMMON -> true;
+      default -> false;
+    };
   }
 }
