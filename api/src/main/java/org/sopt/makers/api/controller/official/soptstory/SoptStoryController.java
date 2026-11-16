@@ -82,11 +82,11 @@ public class SoptStoryController implements SoptStoryApi {
   @GetMapping
   public ResponseEntity<BaseResponse<?>> getSoptStoryList(
       @Valid @ModelAttribute GetSoptStoryListRequest request, HttpServletRequest httpRequest) {
+    String ip = extractAndValidateIp(httpRequest);
     Page<SoptStory> page =
         soptStoryService.getSoptStoryList(
             request.sort(), request.pageNoOrDefault(), request.limitOrDefault());
 
-    String ip = extractClientIp(httpRequest);
     Set<Long> likedIds = soptStoryService.getLikedSoptStoryIds(ip, page.getContent());
     List<SoptStoryResponse> content =
         page.getContent().stream()
@@ -110,23 +110,9 @@ public class SoptStoryController implements SoptStoryApi {
   }
 
   private String extractAndValidateIp(HttpServletRequest request) {
-    String ip = extractClientIp(request);
-    if (ip == null || ip.isBlank()) {
+    String ip = SoptStoryClientIp.getClientIpAddress(request);
+    if (!SoptStoryClientIp.isValidIpAddress(ip)) {
       throw new SoptStoryException(INVALID_CLIENT_IP);
-    }
-    return ip;
-  }
-
-  private String extractClientIp(HttpServletRequest request) {
-    String ip = request.getHeader("X-Real-IP");
-    if (ip == null || ip.isBlank()) {
-      String xff = request.getHeader("X-Forwarded-For");
-      if (xff != null && !xff.isBlank()) {
-        ip = xff.split(",")[0].trim();
-      }
-    }
-    if (ip == null || ip.isBlank()) {
-      ip = request.getRemoteAddr();
     }
     return ip;
   }

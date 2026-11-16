@@ -137,10 +137,10 @@ class SoptStoryApiTest {
     var liked = new SoptStory(1L, "제목", "설명", "thumbnail", "https://sopt.org/article", 3, time);
     var notLiked = new SoptStory(2L, "다른 글", "설명", "thumbnail", "https://sopt.org/other", 0, time);
     var stories = List.of(liked, notLiked);
-    when(service.getSoptStoryList(null, 1, 10))
+    when(service.getSoptStoryList("recent", 1, 10))
         .thenReturn(new PageImpl<>(stories, PageRequest.of(0, 10), 2));
     when(service.getLikedSoptStoryIds("203.0.113.1", stories)).thenReturn(Set.of(1L));
-    mvc.perform(get(BASE).header("X-Real-IP", "203.0.113.1"))
+    mvc.perform(get(BASE).header("X-Forwarded-For", "203.0.113.1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.content[0].url").value("https://sopt.org/article"))
         .andExpect(jsonPath("$.data.content[0].uploadedAt").exists())
@@ -168,7 +168,7 @@ class SoptStoryApiTest {
   }
 
   @Test
-  @DisplayName("기본 페이지로 조회하고 IP가 없어도 목록을 반환한다")
+  @DisplayName("원격 주소가 없으면 루프백 주소로 목록을 조회한다")
   void listsWithoutIp() throws Exception {
     mvc.perform(
             get(BASE)
@@ -178,15 +178,15 @@ class SoptStoryApiTest {
                       return request;
                     }))
         .andExpect(status().isOk());
-    verify(service).getSoptStoryList(null, 1, 10);
-    verify(service).getLikedSoptStoryIds(null, List.of());
+    verify(service).getSoptStoryList("recent", 1, 10);
+    verify(service).getLikedSoptStoryIds("127.0.0.1", List.of());
   }
 
   @Test
   @DisplayName("페이지 번호와 크기의 허용 범위를 검증한다")
   void validatesPagination() throws Exception {
     mvc.perform(get(BASE).param("pageNo", "0")).andExpect(status().isBadRequest());
-    mvc.perform(get(BASE).param("limit", "101")).andExpect(status().isBadRequest());
+    mvc.perform(get(BASE).param("limit", "0")).andExpect(status().isBadRequest());
     verifyNoInteractions(service);
   }
 
@@ -194,7 +194,7 @@ class SoptStoryApiTest {
   @DisplayName("좋아요는 클라이언트 IP로 처리하고 좋아요 식별자를 반환한다")
   void likesStory() throws Exception {
     when(service.like(1L, "203.0.113.1")).thenReturn(10L);
-    mvc.perform(post(BASE + "/1/like").header("X-Real-IP", "203.0.113.1"))
+    mvc.perform(post(BASE + "/1/like").header("X-Forwarded-For", "203.0.113.1"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.id").value(10))
         .andExpect(jsonPath("$.data.soptStoryId").value(1))
@@ -230,13 +230,13 @@ class SoptStoryApiTest {
   }
 
   @Test
-  @DisplayName("클라이언트 IP가 없으면 좋아요 요청을 거부한다")
-  void rejectsLikeWithoutIp() throws Exception {
+  @DisplayName("유효하지 않은 클라이언트 IP면 좋아요 요청을 거부한다")
+  void rejectsLikeWithInvalidIp() throws Exception {
     mvc.perform(
             post(BASE + "/1/like")
                 .with(
                     request -> {
-                      request.setRemoteAddr(null);
+                      request.setRemoteAddr("invalid-ip");
                       return request;
                     }))
         .andExpect(status().isBadRequest());
@@ -252,7 +252,7 @@ class SoptStoryApiTest {
   @Test
   @DisplayName("중간 페이지는 올림한 전체 페이지 수와 이전 및 다음 페이지 여부를 반환한다")
   void returnsMiddlePageMetadata() throws Exception {
-    when(service.getSoptStoryList(null, 2, 10))
+    when(service.getSoptStoryList("recent", 2, 10))
         .thenReturn(new PageImpl<>(List.of(), PageRequest.of(1, 10), 25));
     mvc.perform(get(BASE).param("pageNo", "2"))
         .andExpect(status().isOk())
@@ -268,7 +268,7 @@ class SoptStoryApiTest {
   @Test
   @DisplayName("마지막 페이지에는 다음 페이지가 없다")
   void returnsLastPageMetadata() throws Exception {
-    when(service.getSoptStoryList(null, 3, 10))
+    when(service.getSoptStoryList("recent", 3, 10))
         .thenReturn(new PageImpl<>(List.of(), PageRequest.of(2, 10), 25));
     mvc.perform(get(BASE).param("pageNo", "3"))
         .andExpect(status().isOk())
@@ -287,6 +287,64 @@ class SoptStoryApiTest {
         .andExpect(jsonPath("$.data.totalPages").value(0))
         .andExpect(jsonPath("$.data.hasNext").value(false))
         .andExpect(jsonPath("$.data.hasPrevious").value(false));
+  }
+
+  @Test
+  @DisplayName("목록 크기는 100을 초과해도 조회할 수 있다")
+  void acceptsLargePageSize() throws Exception {
+    mvc.perform(get(BASE).param("limit", "101")).andExpect(status().isOk());
+    verify(service).getSoptStoryList("recent", 1, 101);
+  }
+
+  @Test
+  @DisplayName("공백 정렬 조건은 최신순으로 조회한다")
+  void defaultsBlankSort() throws Exception {
+    mvc.perform(get(BASE).param("sort", " ")).andExpect(status().isOk());
+    verify(service).getSoptStoryList("recent", 1, 10);
+  }
+
+  @Test
+  @DisplayName("전달 주소는 실제 IP 헤더보다 우선한다")
+  void prioritizesForwardedIp() throws Exception {
+    mvc.perform(
+            post(BASE + "/1/like")
+                .header("X-Real-IP", "203.0.113.2")
+                .header("X-Forwarded-For", "203.0.113.1"))
+        .andExpect(status().isOk());
+    verify(service).like(1L, "203.0.113.1");
+  }
+
+  @Test
+  @DisplayName("알 수 없는 전달 주소는 다음 프록시 헤더로 대체한다")
+  void skipsUnknownIp() throws Exception {
+    mvc.perform(
+            post(BASE + "/1/like")
+                .header("X-Forwarded-For", "unknown")
+                .header("Proxy-Client-IP", "203.0.113.3"))
+        .andExpect(status().isOk());
+    verify(service).like(1L, "203.0.113.3");
+  }
+
+  @Test
+  @DisplayName("IPv6 루프백 주소를 정규화해 좋아요를 처리한다")
+  void normalizesLoopback() throws Exception {
+    mvc.perform(
+            post(BASE + "/1/like")
+                .with(
+                    request -> {
+                      request.setRemoteAddr("0:0:0:0:0:0:0:1");
+                      return request;
+                    }))
+        .andExpect(status().isOk());
+    verify(service).like(1L, "::1");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"invalid-ip", "256.0.0.1"})
+  @DisplayName("유효하지 않은 IP로는 목록을 조회할 수 없다")
+  void rejectsListWithInvalidIp(String ip) throws Exception {
+    mvc.perform(get(BASE).header("X-Forwarded-For", ip)).andExpect(status().isBadRequest());
+    verifyNoInteractions(service);
   }
 
   @Configuration
