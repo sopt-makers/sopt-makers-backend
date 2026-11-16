@@ -1,9 +1,9 @@
 package org.sopt.makers.api.controller.admin.crew.mumu;
 
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.CREATE_MUMU_TEXT;
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.DELETE_MUMU_TEXT;
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.GET_MUMU_TEXTS;
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.UPDATE_MUMU_TEXT;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.CREATE_MUMU_TEXT;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.DELETE_MUMU_TEXT;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.GET_MUMU_TEXTS;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.UPDATE_MUMU_TEXT;
 
 import jakarta.validation.Valid;
 import java.time.Clock;
