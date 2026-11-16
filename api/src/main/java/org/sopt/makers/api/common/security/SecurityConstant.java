@@ -47,6 +47,7 @@ public final class SecurityConstant {
           "/v2/reviews",
           "/v2/homepage-reviews",
           "/v2/soptstory",
+          "/v2/s3",
           "/v2/visitor",
           "/v2/notification",
           "/api/v1/social/accounts",

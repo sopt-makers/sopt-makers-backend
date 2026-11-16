@@ -153,11 +153,12 @@ class S3ApiTest {
   }
 
   @Test
-  @DisplayName("JWT 없이 업로드 URL을 발급할 수 없다")
-  void requiresJwt() throws Exception {
+  @DisplayName("JWT 없이 업로드 URL을 발급한다")
+  void acceptsAnonymousRequest() throws Exception {
     mvc.perform(post(PATH).contentType(MediaType.APPLICATION_JSON).content(BODY))
-        .andExpect(status().isUnauthorized());
-    verifyNoInteractions(service);
+        .andExpect(status().isOk());
+    verify(service).generatePresignedUrl(any());
+    verifyNoInteractions(tokens);
   }
 
   @Configuration
