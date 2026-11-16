@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/official/visitor")
+@RequestMapping("/v2/visitor")
 @RequiredArgsConstructor
 public class VisitorController implements VisitorApi {
 
@@ -28,7 +28,7 @@ public class VisitorController implements VisitorApi {
     String ip = extractClientIp(request);
     String userAgent = request.getHeader("User-Agent");
     visitorService.markVisited(ip, userAgent != null ? userAgent : "");
-    return ResponseFactory.success(VISITOR_COUNT_UP);
+    return ResponseFactory.success(VISITOR_COUNT_UP, new VisitorResponse.CountUp("Success"));
   }
 
   @Override

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = PRIVATE)
 public final class VisitorResponse {
 
+  public record CountUp(String status) {}
+
   public record TodayCount(int count) {
 
     public static TodayCount of(int count) {
