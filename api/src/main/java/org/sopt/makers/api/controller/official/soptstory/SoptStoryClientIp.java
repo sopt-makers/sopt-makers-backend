@@ -1,6 +1,8 @@
 package org.sopt.makers.api.controller.official.soptstory;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.springframework.util.StringUtils;
 
 final class SoptStoryClientIp {
@@ -59,8 +61,21 @@ final class SoptStoryClientIp {
 
     return ip.matches(ipv4Pattern)
         || ip.matches(ipv6Pattern)
+        || isIpv6Literal(ip)
         || "localhost".equals(ip)
         || "127.0.0.1".equals(ip)
         || "::1".equals(ip);
+  }
+
+  private static boolean isIpv6Literal(String ip) {
+    if (!ip.contains(":") || !ip.matches("[0-9a-fA-F:.]+")) {
+      return false;
+    }
+    try {
+      InetAddress.getByName(ip);
+      return true;
+    } catch (UnknownHostException e) {
+      return false;
+    }
   }
 }

@@ -347,6 +347,14 @@ class SoptStoryApiTest {
     verifyNoInteractions(service);
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"2001:db8::1", "::ffff:192.0.2.1"})
+  @DisplayName("축약형과 IPv4 혼합형 IPv6 주소로 좋아요를 처리한다")
+  void acceptsIpv6Literals(String ip) throws Exception {
+    mvc.perform(post(BASE + "/1/like").header("X-Forwarded-For", ip)).andExpect(status().isOk());
+    verify(service).like(1L, ip);
+  }
+
   @Configuration
   @EnableWebMvc
   @Import({
