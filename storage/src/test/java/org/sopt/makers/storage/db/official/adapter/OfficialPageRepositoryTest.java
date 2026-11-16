@@ -20,10 +20,11 @@ import org.springframework.test.context.ContextConfiguration;
 
 @DataJpaTest(properties = "spring.jpa.properties.hibernate.auto_quote_keyword=true")
 @ContextConfiguration(classes = OfficialPageRepositoryTest.Config.class)
-@Import(FaqRepositoryAdapter.class)
+@Import({FaqRepositoryAdapter.class, HomepageReviewRepositoryAdapter.class})
 class OfficialPageRepositoryTest {
   @Autowired private TestEntityManager em;
   @Autowired private FaqRepositoryAdapter faqs;
+  @Autowired private HomepageReviewRepositoryAdapter reviews;
 
   @Test
   @DisplayName("FAQ 전체 삭제 시 파트와 카테고리 FAQ를 모두 삭제한다")
@@ -65,6 +66,24 @@ class OfficialPageRepositoryTest {
     assertThat(news.publishedAt()).isEqualTo(time);
     assertThat(news.hidden()).isTrue();
     assertThat(news.publishedDate()).isEqualTo("2026.01.02");
+  }
+
+  @Test
+  @DisplayName("후기 개수는 유형별로 구분하여 집계한다")
+  void countsReviewsByType() {
+    reviews.save(HomepageReview.create(HomepageReviewType.ACTIVITY, "활동1", "내용", "작성자"));
+    reviews.save(HomepageReview.create(HomepageReviewType.ACTIVITY, "활동2", "내용", "작성자"));
+    reviews.save(HomepageReview.create(HomepageReviewType.RECRUITING, "지원", "내용", "작성자"));
+    em.flush();
+    em.clear();
+    assertThat(reviews.countByType(HomepageReviewType.ACTIVITY)).isEqualTo(2);
+    assertThat(reviews.countByType(HomepageReviewType.RECRUITING)).isEqualTo(1);
+    assertThat(reviews.findAllByOrderByIdAsc())
+        .extracting(HomepageReview::type)
+        .containsExactly(
+            HomepageReviewType.ACTIVITY,
+            HomepageReviewType.ACTIVITY,
+            HomepageReviewType.RECRUITING);
   }
 
   @Configuration
