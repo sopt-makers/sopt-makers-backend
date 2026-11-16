@@ -6,17 +6,17 @@ import static org.sopt.makers.api.controller.auth.SocialAccountSuccessCode.UPDAT
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
-import org.sopt.makers.api.controller.auth.dto.GetSocialAccountPlatformRequest;
 import org.sopt.makers.api.controller.auth.dto.SocialAccountPlatformResponse;
 import org.sopt.makers.api.controller.auth.dto.UpdateSocialAccountRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.core.type.OAuthPlatform;
 import org.sopt.makers.domain.auth.facade.AuthFacade;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,10 +27,11 @@ public class SocialAccountController implements SocialAccountApi {
   private final AuthFacade authFacade;
 
   @Override
-  @PostMapping("/platform")
+  @GetMapping("/platform")
   public ResponseEntity<BaseResponse<?>> getSocialPlatform(
-      @Valid @RequestBody GetSocialAccountPlatformRequest request) {
-    OAuthPlatform platform = authFacade.getSocialPlatform(request.phone());
+      @RequestParam(value = "name", required = false) String name,
+      @RequestParam("phone") String phone) {
+    OAuthPlatform platform = authFacade.getSocialPlatform(phone);
     return ResponseFactory.success(
         GET_SOCIAL_ACCOUNT_PLATFORM, new SocialAccountPlatformResponse(platform.name()));
   }
