@@ -19,10 +19,13 @@ import org.sopt.makers.api.controller.official.soptstory.dto.LikeSoptStoryRespon
 import org.sopt.makers.api.controller.official.soptstory.dto.PaginatedSoptStoryResponse;
 import org.sopt.makers.api.controller.official.soptstory.dto.SoptStoryResponse;
 import org.sopt.makers.core.response.BaseResponse;
+import org.sopt.makers.domain.auth.exception.AuthException;
+import org.sopt.makers.domain.auth.exception.AuthFailure;
 import org.sopt.makers.domain.official.soptstory.ScrapedArticle;
 import org.sopt.makers.domain.official.soptstory.SoptStory;
 import org.sopt.makers.domain.official.soptstory.exception.SoptStoryException;
 import org.sopt.makers.domain.official.soptstory.service.SoptStoryService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,20 +33,26 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/official/soptstories")
+@RequestMapping("/v2/soptstory")
 @RequiredArgsConstructor
 public class SoptStoryController implements SoptStoryApi {
 
   private final SoptStoryService soptStoryService;
 
+  @Value("${official.apikey:}")
+  private String officialApiKey;
+
   @Override
   @PostMapping
   public ResponseEntity<BaseResponse<?>> createSoptStory(
-      @Valid @RequestBody CreateSoptStoryRequest request) {
+      @Valid @RequestBody CreateSoptStoryRequest request,
+      @RequestHeader(value = "api-key", required = false) String apiKey) {
+    validateOfficialApiKey(apiKey);
     ScrapedArticle article = soptStoryService.createSoptStory(request.link());
 
     return ResponseFactory.success(CREATE_SOPT_STORY, CreateSoptStoryResponse.from(article));
@@ -92,6 +101,12 @@ public class SoptStoryController implements SoptStoryApi {
             request.pageNoOrDefault());
 
     return ResponseFactory.success(GET_SOPT_STORIES, response);
+  }
+
+  private void validateOfficialApiKey(String apiKey) {
+    if (apiKey == null || apiKey.isBlank() || !apiKey.equals(officialApiKey)) {
+      throw new AuthException(AuthFailure.INVALID_API_KEY);
+    }
   }
 
   private String extractAndValidateIp(HttpServletRequest request) {

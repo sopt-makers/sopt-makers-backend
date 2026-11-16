@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 public interface SoptStoryApi {
 
   @Operation(summary = "솝트스토리 생성", description = "솝트스토리를 생성합니다.")
-  ResponseEntity<BaseResponse<?>> createSoptStory(CreateSoptStoryRequest request);
+  ResponseEntity<BaseResponse<?>> createSoptStory(CreateSoptStoryRequest request, String apiKey);
 
   @Operation(summary = "솝트스토리 좋아요 누르기")
   ResponseEntity<BaseResponse<?>> likeSoptStory(Long id, HttpServletRequest request);

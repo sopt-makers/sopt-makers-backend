@@ -8,10 +8,10 @@ public record SoptStoryResponse(
     String thumbnailUrl,
     String title,
     String description,
-    String articleUrl,
+    String url,
     int likeCount,
-    boolean isLiked,
-    LocalDateTime createdAt) {
+    boolean isLikedByUser,
+    LocalDateTime uploadedAt) {
 
   public static SoptStoryResponse from(SoptStory soptStory, boolean isLiked) {
     return new SoptStoryResponse(
