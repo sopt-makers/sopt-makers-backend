@@ -101,7 +101,7 @@ public class ProjectResponse {
   /** 링크 종류는 FE가 사용하는 레거시 값(website, googlePlay 등)으로 응답한다. */
   public record LinkItem(String title, String url) {
     static LinkItem of(ProjectLinkType type, String url) {
-      return new LinkItem(type == null ? null : type.getValue(), url);
+      return new LinkItem(type.getValue(), url);
     }
   }
 

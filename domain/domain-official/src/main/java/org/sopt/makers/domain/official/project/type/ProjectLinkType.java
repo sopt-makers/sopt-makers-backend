@@ -1,6 +1,7 @@
 package org.sopt.makers.domain.official.project.type;
 
 import java.util.Arrays;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,11 +18,8 @@ public enum ProjectLinkType {
   /** Playground 저장값이자 공식 홈페이지 응답값. */
   private final String value;
 
-  /** 값이 없거나 알 수 없으면 WEBSITE로 취급한다. */
-  public static ProjectLinkType fromValue(String value) {
-    return Arrays.stream(values())
-        .filter(type -> type.value.equalsIgnoreCase(value))
-        .findFirst()
-        .orElse(WEBSITE);
+  /** 레거시와 같이 대소문자를 구분하지 않고 찾는다. */
+  public static Optional<ProjectLinkType> fromValue(String value) {
+    return Arrays.stream(values()).filter(type -> type.value.equalsIgnoreCase(value)).findFirst();
   }
 }

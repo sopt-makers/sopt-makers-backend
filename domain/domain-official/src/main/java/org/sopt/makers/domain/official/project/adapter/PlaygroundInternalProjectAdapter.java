@@ -55,7 +55,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         info.isFounding(),
         info.isAvailable(),
         info.links().stream()
-            .map(l -> new ProjectLink(ProjectLinkType.fromValue(l.linkTitle()), l.linkUrl()))
+            .map(l -> new ProjectLink(parseLinkType(l.linkTitle()), l.linkUrl()))
             .toList());
   }
 
@@ -65,10 +65,7 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
 
     List<ProjectDetail.ProjectLink> links =
         info.links().stream()
-            .map(
-                l ->
-                    new ProjectDetail.ProjectLink(
-                        ProjectLinkType.fromValue(l.linkTitle()), l.linkUrl()))
+            .map(l -> new ProjectDetail.ProjectLink(parseLinkType(l.linkTitle()), l.linkUrl()))
             .toList();
 
     List<ProjectMember> members =
@@ -123,13 +120,22 @@ public class PlaygroundInternalProjectAdapter implements ProjectClientPort {
         .toList();
   }
 
+  private ProjectLinkType parseLinkType(String title) {
+    return ProjectLinkType.fromValue(title)
+        .orElseGet(
+            () -> {
+              log.warn("알 수 없는 링크 종류: {}", title);
+              return ProjectLinkType.WEBSITE;
+            });
+  }
+
   private ProjectMemberRole parseMemberRole(String role) {
     if (role == null) return null;
-    try {
-      return ProjectMemberRole.valueOf(role);
-    } catch (IllegalArgumentException e) {
-      log.warn("알 수 없는 멤버 역할: {}", role);
-      return null;
-    }
+    return ProjectMemberRole.fromValue(role)
+        .orElseGet(
+            () -> {
+              log.warn("알 수 없는 멤버 역할: {}", role);
+              return null;
+            });
   }
 }
