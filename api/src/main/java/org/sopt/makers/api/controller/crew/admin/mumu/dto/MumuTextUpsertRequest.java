@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.mumu.dto;
+package org.sopt.makers.api.controller.crew.admin.mumu.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
