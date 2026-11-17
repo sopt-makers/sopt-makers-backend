@@ -1,4 +1,4 @@
-package org.sopt.makers.api.controller.admin.crew.advertisement.dto;
+package org.sopt.makers.api.controller.crew.admin.advertisement.dto;
 
 import java.time.LocalDateTime;
 import org.sopt.makers.domain.crew.advertisement.Advertisement;

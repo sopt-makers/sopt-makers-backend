@@ -1,17 +1,17 @@
-package org.sopt.makers.api.controller.admin.crew.mumu;
+package org.sopt.makers.api.controller.crew.admin.mumu;
 
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.CREATE_MUMU_TEXT;
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.DELETE_MUMU_TEXT;
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.GET_MUMU_TEXTS;
-import static org.sopt.makers.api.controller.admin.crew.mumu.AdminMumuTextSuccessCode.UPDATE_MUMU_TEXT;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.CREATE_MUMU_TEXT;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.DELETE_MUMU_TEXT;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.GET_MUMU_TEXTS;
+import static org.sopt.makers.api.controller.crew.admin.mumu.AdminMumuTextSuccessCode.UPDATE_MUMU_TEXT;
 
 import jakarta.validation.Valid;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
-import org.sopt.makers.api.controller.admin.crew.mumu.dto.MumuTextResponse;
-import org.sopt.makers.api.controller.admin.crew.mumu.dto.MumuTextUpsertRequest;
+import org.sopt.makers.api.controller.crew.admin.mumu.dto.MumuTextResponse;
+import org.sopt.makers.api.controller.crew.admin.mumu.dto.MumuTextUpsertRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.crew.mumu.MumuText;
 import org.sopt.makers.domain.crew.mumu.service.MumuTextService;

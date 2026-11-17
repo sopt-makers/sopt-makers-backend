@@ -1,8 +1,8 @@
-package org.sopt.makers.api.controller.admin.crew.mumu;
+package org.sopt.makers.api.controller.crew.admin.mumu;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.sopt.makers.api.controller.admin.crew.mumu.dto.MumuTextUpsertRequest;
+import org.sopt.makers.api.controller.crew.admin.mumu.dto.MumuTextUpsertRequest;
 import org.sopt.makers.core.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 

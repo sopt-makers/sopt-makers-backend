@@ -1,15 +1,15 @@
-package org.sopt.makers.api.controller.admin.crew.advertisement;
+package org.sopt.makers.api.controller.crew.admin.advertisement;
 
-import static org.sopt.makers.api.controller.admin.crew.advertisement.AdminCrewAdvertisementSuccessCode.UPDATE_MEETING_TOP_ADVERTISEMENT;
-import static org.sopt.makers.api.controller.admin.crew.advertisement.AdminCrewAdvertisementSuccessCode.UPLOAD_MEETING_TOP_ADVERTISEMENT_IMAGE;
+import static org.sopt.makers.api.controller.crew.admin.advertisement.AdminCrewAdvertisementSuccessCode.UPDATE_MEETING_TOP_ADVERTISEMENT;
+import static org.sopt.makers.api.controller.crew.admin.advertisement.AdminCrewAdvertisementSuccessCode.UPLOAD_MEETING_TOP_ADVERTISEMENT_IMAGE;
 import static org.sopt.makers.domain.crew.advertisement.exception.AdvertisementFailure.INVALID_ADVERTISEMENT_IMAGE;
 
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.AdvertisementImageUploadResponse;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.MeetingTopAdvertisementUpdateRequest;
-import org.sopt.makers.api.controller.admin.crew.advertisement.dto.MeetingTopAdvertisementUpdateResponse;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.AdvertisementImageUploadResponse;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.MeetingTopAdvertisementUpdateRequest;
+import org.sopt.makers.api.controller.crew.admin.advertisement.dto.MeetingTopAdvertisementUpdateResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.crew.advertisement.exception.AdvertisementException;
 import org.sopt.makers.domain.crew.advertisement.port.AdvertisementImageStoragePort;
