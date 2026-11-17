@@ -1,5 +1,7 @@
 package org.sopt.makers.api.common.factory;
 
+import static org.sopt.makers.api.common.security.CookieConstant.ADMIN_REFRESH_TOKEN_COOKIE;
+
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.config.SecurityProperty;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CookieFactory {
-  private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
   private static final String COOKIE_DOMAIN = ".sopt.org";
   private static final String SAME_SITE_NONE = "None";
   private static final String ROOT_PATH = "/";
@@ -18,7 +19,7 @@ public class CookieFactory {
   private final SecurityProperty securityProperty;
 
   public HttpHeaders setRefreshToken(final String refreshToken) {
-    return setRefreshToken(refreshToken, REFRESH_TOKEN_COOKIE_NAME);
+    return setRefreshToken(refreshToken, ADMIN_REFRESH_TOKEN_COOKIE);
   }
 
   public HttpHeaders setRefreshToken(final String refreshToken, final String cookieName) {

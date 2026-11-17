@@ -1,5 +1,6 @@
 package org.sopt.makers.api.controller.admin.auth;
 
+import static org.sopt.makers.api.common.security.CookieConstant.ADMIN_REFRESH_TOKEN_COOKIE;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_CHANGE_PASSWORD;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_LOGIN;
 import static org.sopt.makers.api.controller.admin.auth.AdminAuthSuccessCode.SUCCESS_REFRESH_TOKEN;
@@ -31,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AdminAuthController implements AdminAuthApi {
 
-  private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
-
   private final AdminAuthService adminAuthService;
   private final CookieFactory cookieFactory;
 
@@ -49,7 +48,7 @@ public class AdminAuthController implements AdminAuthApi {
   @Override
   @PatchMapping("/refresh")
   public ResponseEntity<BaseResponse<?>> refresh(
-      @CookieValue(value = REFRESH_TOKEN_COOKIE) String refreshToken) {
+      @CookieValue(value = ADMIN_REFRESH_TOKEN_COOKIE) String refreshToken) {
     AdminTokenPair tokenPair = adminAuthService.refresh(refreshToken);
     HttpHeaders headers = cookieFactory.setRefreshToken(tokenPair.refreshToken());
     return ResponseFactory.success(
