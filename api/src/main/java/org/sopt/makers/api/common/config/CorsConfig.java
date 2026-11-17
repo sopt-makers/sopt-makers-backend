@@ -22,7 +22,13 @@ public class CorsConfig {
     config.setAllowedOrigins(Arrays.asList(CORS_ALLOWED_ORIGINS));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
     config.setAllowedHeaders(
-        List.of("Authorization", "Content-Type", "api-key", API_KEY_HEADER, SERVICE_NAME_HEADER));
+        List.of(
+            "Authorization",
+            "Content-Type",
+            "api-key",
+            "session-id",
+            API_KEY_HEADER,
+            SERVICE_NAME_HEADER));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
 

@@ -15,8 +15,11 @@ class CorsConfigTest {
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "https://sopt.org", "https://www.dev.sopt.org",
-        "https://admins.sopt.org", "https://dev.admins.sopt.org"
+        "https://sopt.org",
+        "https://www.sopt.org",
+        "https://www.dev.sopt.org",
+        "https://admins.sopt.org",
+        "https://dev.admins.sopt.org"
       })
   @DisplayName("공식 홈페이지와 관리자 페이지의 API 키 사전 요청을 허용한다")
   void allowsPageOrigins(String origin) throws Exception {
@@ -38,6 +41,30 @@ class CorsConfigTest {
         .containsIgnoringCase("X-Service-Name")
         .containsIgnoringCase("Authorization");
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS)).isEqualTo("true");
+  }
+
+  @Test
+  @DisplayName("공식 홈페이지의 솝트스토리 조회에 세션 ID 헤더를 허용한다")
+  void allowsSessionIdHeader() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/v2/soptstory");
+    request.addHeader(HttpHeaders.ORIGIN, "https://www.sopt.org");
+    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
+    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "session-id");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+
+    boolean allowed =
+        new DefaultCorsProcessor()
+            .processRequest(
+                new CorsConfig().corsConfigurationSource().getCorsConfiguration(request),
+                request,
+                response);
+
+    assertThat(allowed).isTrue();
+    assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))
+        .isEqualTo("https://www.sopt.org");
+    assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS))
+        .containsIgnoringCase("session-id");
+    assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).contains("GET");
   }
 
   @Test

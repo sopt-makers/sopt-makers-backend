@@ -22,6 +22,7 @@ public final class SecurityConstant {
     "https://sopt-internal-dev.sopt.org",
     "https://playground.sopt.org",
     "https://sopt.org",
+    "https://www.sopt.org",
     "https://www.dev.sopt.org",
     "https://admins.sopt.org",
     "https://dev.admins.sopt.org",
