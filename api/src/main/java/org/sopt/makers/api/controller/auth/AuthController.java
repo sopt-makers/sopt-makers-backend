@@ -1,5 +1,6 @@
 package org.sopt.makers.api.controller.auth;
 
+import static org.sopt.makers.api.common.security.CookieConstant.AUTH_REFRESH_TOKEN_COOKIE;
 import static org.sopt.makers.api.controller.auth.AuthSuccessCode.CREATE_PHONE_VERIFICATION;
 import static org.sopt.makers.api.controller.auth.AuthSuccessCode.LOGIN;
 import static org.sopt.makers.api.controller.auth.AuthSuccessCode.REFRESH_TOKEN;
@@ -40,8 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController implements AuthApi {
 
-  private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
-
   private final AuthFacade authFacade;
   private final CookieFactory cookieFactory;
 
@@ -69,7 +68,8 @@ public class AuthController implements AuthApi {
   public ResponseEntity<BaseResponse<?>> loginFromWeb(@RequestBody LoginRequest request) {
     OAuthPlatform platform = OAuthPlatform.find(request.authPlatform());
     AuthFacade.LoginResult result = authFacade.login(request.token(), platform);
-    HttpHeaders headers = cookieFactory.setRefreshToken(result.refreshToken());
+    HttpHeaders headers =
+        cookieFactory.setRefreshToken(result.refreshToken(), AUTH_REFRESH_TOKEN_COOKIE);
     return ResponseFactory.success(LOGIN, headers, LoginForWebResponse.from(result));
   }
 
@@ -93,12 +93,13 @@ public class AuthController implements AuthApi {
   @PostMapping("/refresh/web")
   public ResponseEntity<BaseResponse<?>> refreshFromWeb(
       @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken,
-      @CookieValue(value = REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
+      @CookieValue(value = AUTH_REFRESH_TOKEN_COOKIE, required = false) String refreshToken) {
     if (refreshToken == null) {
       throw new AuthException(REFRESH_TOKEN_NOT_FOUND);
     }
     TokenIssuerPort.TokenPair tokenPair = authFacade.refresh(accessToken, refreshToken);
-    HttpHeaders headers = cookieFactory.setRefreshToken(tokenPair.refreshToken());
+    HttpHeaders headers =
+        cookieFactory.setRefreshToken(tokenPair.refreshToken(), AUTH_REFRESH_TOKEN_COOKIE);
     return ResponseFactory.success(REFRESH_TOKEN, headers, RefreshForWebResponse.from(tokenPair));
   }
 
