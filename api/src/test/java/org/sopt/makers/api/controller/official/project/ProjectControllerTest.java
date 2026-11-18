@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
 import org.sopt.makers.domain.official.project.Project;
@@ -122,6 +123,36 @@ class ProjectControllerTest {
         .andExpect(jsonPath("$.data.totalCount").value(25))
         .andExpect(jsonPath("$.data.limit").value(5))
         .andExpect(jsonPath("$.data.pageNo").value(3));
+  }
+
+  @ParameterizedTest(name = "{0}: totalCount={1}, pageNo={2}")
+  @CsvSource({
+    "첫 페이지, 25, 1, 3, true, false",
+    "중간 페이지, 25, 2, 3, true, true",
+    "마지막 페이지, 25, 3, 3, false, true",
+    "결과 0건, 0, 1, 0, false, false"
+  })
+  @DisplayName("목록 응답은 레거시와 같은 페이지 정보를 응답한다")
+  void listResponseIncludesLegacyPageInfo(
+      String label,
+      int totalCount,
+      int pageNo,
+      int totalPage,
+      boolean hasNextPage,
+      boolean hasPrevPage)
+      throws Exception {
+    when(service.getProjects(any(), anyInt(), anyInt()))
+        .thenReturn(new ProjectService.ProjectsResult(List.of(), totalCount));
+
+    mvc.perform(get(PROJECTS_URL).param("pageNo", String.valueOf(pageNo)).param("limit", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.totalCount").value(totalCount))
+        .andExpect(jsonPath("$.data.limit").value(10))
+        .andExpect(jsonPath("$.data.pageNo").value(pageNo))
+        .andExpect(jsonPath("$.data.currentPage").value(pageNo))
+        .andExpect(jsonPath("$.data.totalPage").value(totalPage))
+        .andExpect(jsonPath("$.data.hasNextPage").value(hasNextPage))
+        .andExpect(jsonPath("$.data.hasPrevPage").value(hasPrevPage));
   }
 
   @Test
