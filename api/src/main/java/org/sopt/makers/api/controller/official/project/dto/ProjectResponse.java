@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.sopt.makers.api.controller.official.common.dto.OfficialPageResponse;
 import org.sopt.makers.domain.official.project.Project;
 import org.sopt.makers.domain.official.project.ProjectDetail;
 import org.sopt.makers.domain.official.project.service.ProjectService;
@@ -15,11 +16,10 @@ import org.sopt.makers.domain.official.project.type.ProjectServiceType;
 
 public class ProjectResponse {
 
-  public record ProjectList(List<ProjectItem> data, int totalCount, int limit, int pageNo) {
-    public static ProjectList of(ProjectService.ProjectsResult result, int limit, int pageNo) {
-      return new ProjectList(
-          result.projects().stream().map(ProjectItem::of).toList(), result.total(), limit, pageNo);
-    }
+  public static OfficialPageResponse<ProjectItem> page(
+      ProjectService.ProjectsResult result, int limit, int pageNo) {
+    return OfficialPageResponse.of(
+        result.projects().stream().map(ProjectItem::of).toList(), result.total(), limit, pageNo);
   }
 
   public record ProjectItem(

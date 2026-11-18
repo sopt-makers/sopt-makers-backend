@@ -39,10 +39,4 @@ public record ReviewResponse(
   }
 
   public record Create(Long id) {}
-
-  public record Page(List<ReviewResponse> data, int totalCount, int limit, int pageNo) {
-    public static Page of(List<ReviewResponse> data, int totalCount, int limit, int pageNo) {
-      return new Page(data, totalCount, limit, pageNo);
-    }
-  }
 }

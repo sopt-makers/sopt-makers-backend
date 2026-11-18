@@ -48,8 +48,7 @@ public class ProjectController implements ProjectApi {
         new ProjectSearchCondition(
             filter, platform, generation, isAvailable, isFounding, sortBy, sortDirection);
     ProjectService.ProjectsResult result = projectService.getProjects(condition, pageNo, limit);
-    return ResponseFactory.success(
-        GET_PROJECTS, ProjectResponse.ProjectList.of(result, limit, pageNo));
+    return ResponseFactory.success(GET_PROJECTS, ProjectResponse.page(result, limit, pageNo));
   }
 
   @Override
