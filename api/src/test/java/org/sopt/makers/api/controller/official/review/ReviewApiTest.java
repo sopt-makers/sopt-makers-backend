@@ -72,7 +72,7 @@ class ReviewApiTest {
                 .param("pageNo", "2")
                 .param("limit", "5"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.pageNo").value(2))
+        .andExpect(jsonPath("$.data.currentPage").value(2))
         .andExpect(jsonPath("$.data.limit").value(5));
     var condition =
         new ReviewSearchCondition("전체 활동", "세미나", org.sopt.makers.core.type.Part.SERVER, 39);
@@ -103,7 +103,7 @@ class ReviewApiTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.totalCount").value(totalCount))
         .andExpect(jsonPath("$.data.limit").value(10))
-        .andExpect(jsonPath("$.data.pageNo").value(pageNo))
+        .andExpect(jsonPath("$.data.pageNo").doesNotExist())
         .andExpect(jsonPath("$.data.currentPage").value(pageNo))
         .andExpect(jsonPath("$.data.totalPage").value(totalPage))
         .andExpect(jsonPath("$.data.hasNextPage").value(hasNextPage))

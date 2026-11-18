@@ -122,7 +122,7 @@ class ProjectControllerTest {
         .andExpect(jsonPath("$.data.data").isArray())
         .andExpect(jsonPath("$.data.totalCount").value(25))
         .andExpect(jsonPath("$.data.limit").value(5))
-        .andExpect(jsonPath("$.data.pageNo").value(3));
+        .andExpect(jsonPath("$.data.currentPage").value(3));
   }
 
   @ParameterizedTest(name = "{0}: totalCount={1}, pageNo={2}")
@@ -148,7 +148,7 @@ class ProjectControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data.totalCount").value(totalCount))
         .andExpect(jsonPath("$.data.limit").value(10))
-        .andExpect(jsonPath("$.data.pageNo").value(pageNo))
+        .andExpect(jsonPath("$.data.pageNo").doesNotExist())
         .andExpect(jsonPath("$.data.currentPage").value(pageNo))
         .andExpect(jsonPath("$.data.totalPage").value(totalPage))
         .andExpect(jsonPath("$.data.hasNextPage").value(hasNextPage))
