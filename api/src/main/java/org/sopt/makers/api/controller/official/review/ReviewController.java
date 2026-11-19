@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
+import org.sopt.makers.api.controller.official.dto.OfficialPageResponse;
 import org.sopt.makers.api.controller.official.review.dto.ReviewRequest;
 import org.sopt.makers.api.controller.official.review.dto.ReviewResponse;
 import org.sopt.makers.core.response.BaseResponse;
@@ -57,7 +58,7 @@ public class ReviewController implements ReviewApi {
 
     return ResponseFactory.success(
         GET_REVIEWS,
-        ReviewResponse.Page.of(
+        OfficialPageResponse.of(
             ReviewResponse.of(reviews),
             (int) totalCount,
             request.limitOrDefault(),

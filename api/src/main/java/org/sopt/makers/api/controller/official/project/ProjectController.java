@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.api.common.factory.ResponseFactory;
+import org.sopt.makers.api.controller.official.dto.OfficialPageResponse;
 import org.sopt.makers.api.controller.official.project.dto.ProjectResponse;
 import org.sopt.makers.core.response.BaseResponse;
 import org.sopt.makers.domain.official.project.ProjectDetail;
@@ -49,7 +50,9 @@ public class ProjectController implements ProjectApi {
             filter, platform, generation, isAvailable, isFounding, sortBy, sortDirection);
     ProjectService.ProjectsResult result = projectService.getProjects(condition, pageNo, limit);
     return ResponseFactory.success(
-        GET_PROJECTS, ProjectResponse.ProjectList.of(result, limit, pageNo));
+        GET_PROJECTS,
+        OfficialPageResponse.of(
+            ProjectResponse.ProjectItem.of(result.projects()), result.total(), limit, pageNo));
   }
 
   @Override

@@ -7,20 +7,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.makers.domain.official.project.Project;
 import org.sopt.makers.domain.official.project.ProjectDetail;
-import org.sopt.makers.domain.official.project.service.ProjectService;
 import org.sopt.makers.domain.official.project.type.ProjectCategory;
 import org.sopt.makers.domain.official.project.type.ProjectLinkType;
 import org.sopt.makers.domain.official.project.type.ProjectMemberRole;
 import org.sopt.makers.domain.official.project.type.ProjectServiceType;
 
 public class ProjectResponse {
-
-  public record ProjectList(List<ProjectItem> data, int totalCount, int limit, int pageNo) {
-    public static ProjectList of(ProjectService.ProjectsResult result, int limit, int pageNo) {
-      return new ProjectList(
-          result.projects().stream().map(ProjectItem::of).toList(), result.total(), limit, pageNo);
-    }
-  }
 
   public record ProjectItem(
       Long id,
@@ -51,6 +43,10 @@ public class ProjectResponse {
           p.links() == null
               ? List.of()
               : p.links().stream().map(l -> LinkItem.of(l.linkType(), l.linkUrl())).toList());
+    }
+
+    public static List<ProjectItem> of(List<Project> projects) {
+      return projects.stream().map(ProjectItem::of).toList();
     }
   }
 

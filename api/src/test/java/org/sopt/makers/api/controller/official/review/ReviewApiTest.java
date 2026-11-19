@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.api.common.config.*;
 import org.sopt.makers.api.common.exception.GlobalExceptionHandler;
@@ -71,13 +72,42 @@ class ReviewApiTest {
                 .param("pageNo", "2")
                 .param("limit", "5"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.data.pageNo").value(2))
+        .andExpect(jsonPath("$.data.currentPage").value(2))
         .andExpect(jsonPath("$.data.limit").value(5));
     var condition =
         new ReviewSearchCondition("전체 활동", "세미나", org.sopt.makers.core.type.Part.SERVER, 39);
     verify(reviews).search(condition, 5L, 5);
     verify(reviews).count(condition);
     verifyNoInteractions(tokens);
+  }
+
+  @ParameterizedTest(name = "{0}: totalCount={1}, pageNo={2}")
+  @CsvSource({
+    "첫 페이지, 25, 1, 3, true, false",
+    "중간 페이지, 25, 2, 3, true, true",
+    "마지막 페이지, 25, 3, 3, false, true",
+    "결과 0건, 0, 1, 0, false, false"
+  })
+  @DisplayName("활동 후기 목록은 레거시와 같은 페이지 정보를 응답한다")
+  void reviewPageInfo(
+      String label,
+      long totalCount,
+      int pageNo,
+      int totalPage,
+      boolean hasNextPage,
+      boolean hasPrevPage)
+      throws Exception {
+    when(reviews.count(any())).thenReturn(totalCount);
+
+    mvc.perform(get("/v2/reviews").param("pageNo", String.valueOf(pageNo)).param("limit", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.totalCount").value(totalCount))
+        .andExpect(jsonPath("$.data.limit").value(10))
+        .andExpect(jsonPath("$.data.pageNo").doesNotExist())
+        .andExpect(jsonPath("$.data.currentPage").value(pageNo))
+        .andExpect(jsonPath("$.data.totalPage").value(totalPage))
+        .andExpect(jsonPath("$.data.hasNextPage").value(hasNextPage))
+        .andExpect(jsonPath("$.data.hasPrevPage").value(hasPrevPage));
   }
 
   @Test
