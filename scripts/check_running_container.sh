@@ -32,7 +32,10 @@ check_running_container() {
       exit 1
     fi
     echo "🧹 Stopping stale container: $NEW_CONTAINER"
-    stop_and_clean_container "$NEW_CONTAINER"
+    if ! stop_and_clean_container "$NEW_CONTAINER"; then
+      echo "❌ Failed to clean up stale container. Aborting deployment."
+      exit 1
+    fi
 
   else
     local CONTAINER_NAME="${CONTAINERS[0]}"

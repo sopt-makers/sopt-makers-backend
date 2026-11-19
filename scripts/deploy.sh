@@ -40,6 +40,9 @@ if ! reload_nginx $NEW_PORT; then
 fi
 
 # 5. Stop and remove the previous container
-stop_and_clean_container $RUNNING_CONTAINER
+if ! stop_and_clean_container "$RUNNING_CONTAINER"; then
+  echo "❌ Deployment switched successfully, but failed to clean up the previous container."
+  exit 1
+fi
 
 echo "✅ Finish Deploy"
