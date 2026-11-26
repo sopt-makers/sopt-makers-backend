@@ -10,10 +10,14 @@ public record TopicMessagesResponse(
     @Schema(description = "주제에 달린 전체 메시지 수", example = "120") long totalCount,
     @Schema(
             description = "다음 페이지 요청에 넣을 cursor. 목록이 비면 null이고, 마지막 페이지에도 값이 담길 수 있어 hasNext로 판단한다",
-            example = "100")
+            example = "100",
+            nullable = true)
         Long nextCursor,
     @Schema(description = "다음 페이지가 있는지 여부", example = "true") boolean hasNext,
-    @Schema(description = "기본 주제 조회일 때만 채워진다. 개별 주제가 하나라도 있는지 여부", example = "true")
+    @Schema(
+            description = "기본 주제 조회일 때만 채워진다. 개별 주제가 하나라도 있는지 여부",
+            example = "true",
+            nullable = true)
         Boolean hasNormalTopic,
     @Schema(description = "메시지 목록") List<TopicMessageResponse> messages) {
 
