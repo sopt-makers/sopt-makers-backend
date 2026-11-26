@@ -2,7 +2,7 @@ package org.sopt.makers.domain.app.soptletter.support;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sopt.makers.domain.user.Activity;
@@ -30,8 +30,15 @@ public final class InMemoryAppSoptLetterUserPort implements AppSoptLetterUserPor
   }
 
   @Override
-  public Optional<User> findWithActivities(Long userId) {
-    return Optional.ofNullable(users.get(userId));
+  public OptionalInt findLastSoptGeneration(Long userId) {
+    User user = users.get(userId);
+    if (user == null) {
+      return OptionalInt.empty();
+    }
+    return user.activities().activities().stream()
+        .filter(Activity::isSopt)
+        .mapToInt(Activity::generation)
+        .max();
   }
 
   public static Activity soptActivity(int generation) {

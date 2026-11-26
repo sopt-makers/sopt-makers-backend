@@ -26,7 +26,7 @@ import org.sopt.makers.domain.user.User;
 @DisplayName("SoptLetterLikeAlarmSender 테스트")
 class SoptLetterLikeAlarmSenderTest {
 
-  private static final long CURRENT_GENERATION = 37L;
+  private static final int CURRENT_GENERATION = 37;
   private static final Long AUTHOR = 1L;
   private static final Long LIKER = 2L;
 

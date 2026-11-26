@@ -1,9 +1,9 @@
 package org.sopt.makers.domain.user.adapter;
 
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.sopt.makers.domain.user.User;
+import org.sopt.makers.domain.user.Activity;
 import org.sopt.makers.domain.user.port.AppSoptLetterUserPort;
 import org.sopt.makers.domain.user.service.UserQueryService;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,11 @@ public class AppSoptLetterUserAdapter implements AppSoptLetterUserPort {
   }
 
   @Override
-  public Optional<User> findWithActivities(Long userId) {
-    return userQueryService.findWithActivitiesById(userId);
+  public OptionalInt findLastSoptGeneration(Long userId) {
+    return userQueryService.findWithActivitiesById(userId).stream()
+        .flatMap(user -> user.activities().activities().stream())
+        .filter(Activity::isSopt)
+        .mapToInt(Activity::generation)
+        .max();
   }
 }

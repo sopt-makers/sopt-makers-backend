@@ -1,8 +1,8 @@
 package org.sopt.makers.domain.app.soptletter.service;
 
+import java.util.OptionalInt;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.makers.domain.app.home.ActivityStatus;
 import org.sopt.makers.domain.app.notification.NotificationCategory;
 import org.sopt.makers.domain.app.operationconfig.OperationConfigCategory;
 import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService;
@@ -28,13 +28,13 @@ public class SoptLetterLikeAlarmSender {
   private final PushSenderPort pushSenderPort;
   private final OperationConfigService operationConfigService;
   private final AppSoptLetterUserPort appSoptLetterUserPort;
-  private final long currentGeneration;
+  private final int currentGeneration;
 
   public SoptLetterLikeAlarmSender(
       PushSenderPort pushSenderPort,
       OperationConfigService operationConfigService,
       AppSoptLetterUserPort appSoptLetterUserPort,
-      @Value("${sopt.current.generation}") long currentGeneration) {
+      @Value("${sopt.current.generation}") int currentGeneration) {
     this.pushSenderPort = pushSenderPort;
     this.operationConfigService = operationConfigService;
     this.appSoptLetterUserPort = appSoptLetterUserPort;
@@ -56,7 +56,8 @@ public class SoptLetterLikeAlarmSender {
           operationConfigService.getValue(
               OperationConfigCategory.SOPT_LETTER, LIKE_NOTIFICATION_CONTENT_KEY);
       if (title.isBlank() || content.isBlank()) {
-        throw new IllegalArgumentException("좋아요 알림 제목과 내용은 비어 있을 수 없습니다.");
+        log.error("솝레터 좋아요 알림 문구가 비어 있어 보내지 않음: messageId={}", event.letterId());
+        return;
       }
 
       pushSenderPort.send(
@@ -73,9 +74,7 @@ public class SoptLetterLikeAlarmSender {
   }
 
   private boolean isActiveMember(Long userId) {
-    return appSoptLetterUserPort
-        .findWithActivities(userId)
-        .map(user -> ActivityStatus.of(user, currentGeneration) == ActivityStatus.ACTIVE)
-        .orElse(false);
+    OptionalInt lastSoptGeneration = appSoptLetterUserPort.findLastSoptGeneration(userId);
+    return lastSoptGeneration.isPresent() && lastSoptGeneration.getAsInt() == currentGeneration;
   }
 }
