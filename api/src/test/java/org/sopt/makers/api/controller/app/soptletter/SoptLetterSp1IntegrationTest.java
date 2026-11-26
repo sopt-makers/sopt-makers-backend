@@ -2,25 +2,41 @@ package org.sopt.makers.api.controller.app.soptletter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.sopt.makers.api.common.security.authentication.CustomAuthentication;
+import org.sopt.makers.core.type.OAuthPlatform;
+import org.sopt.makers.core.type.Part;
 import org.sopt.makers.domain.app.home.AppService;
 import org.sopt.makers.domain.app.home.AppServiceEntryStatus;
 import org.sopt.makers.domain.app.home.service.AppServiceBadgeService;
+import org.sopt.makers.domain.app.operationconfig.OperationConfigCategory;
+import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService;
+import org.sopt.makers.domain.app.push.PushMessage;
+import org.sopt.makers.domain.app.push.port.PushSenderPort;
 import org.sopt.makers.domain.auth.port.OAuthAuthenticatorPort;
 import org.sopt.makers.domain.auth.port.SmsSenderPort;
 import org.sopt.makers.domain.auth.port.TokenIssuerPort;
+import org.sopt.makers.domain.user.Role;
+import org.sopt.makers.storage.db.user.entity.UserActivityHistoryEntity;
+import org.sopt.makers.storage.db.user.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -31,6 +47,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
 @SpringBootTest(
@@ -40,21 +58,29 @@ class SoptLetterSp1IntegrationTest {
 
   private static final String DB_URL = System.getenv("SOPT_LETTER_TEST_DB_URL");
   private static final String BASE = "/api/v2/sopt-letter";
-  private static final long ME = 1L;
-  private static final long OTHER = 2L;
+  private static final long ME = 9001L;
+  private static final long OTHER = 9002L;
+  private static final String ADMIN_BASE = "/api/v2/admin/notification/sopt-letter";
+  private static final String API_KEY = "test-notification-api-key";
+  private static final int CURRENT_GENERATION = 36;
 
   @MockitoBean OAuthAuthenticatorPort oAuthAuthenticatorPort;
   @MockitoBean TokenIssuerPort tokenIssuerPort;
   @MockitoBean SmsSenderPort smsSenderPort;
   @MockitoBean OkHttpClient gabiaOkHttpClient;
+  @MockitoBean PushSenderPort pushSenderPort;
 
   @Autowired WebApplicationContext context;
   @Autowired JdbcTemplate jdbc;
   @Autowired AppServiceBadgeService appServiceBadgeService;
+  @Autowired OperationConfigService operationConfigService;
+  @Autowired EntityManager em;
+  @Autowired PlatformTransactionManager transactionManager;
 
   private MockMvc mvc;
   private LocalDateTime now;
   private long otherProfileId;
+  private final List<Long> createdUserIds = new ArrayList<>();
 
   @DynamicPropertySource
   static void database(DynamicPropertyRegistry properties) {
@@ -79,8 +105,8 @@ class SoptLetterSp1IntegrationTest {
     SecurityContextHolder.getContext()
         .setAuthentication(new CustomAuthentication(String.valueOf(ME), "", List.of()));
     now = LocalDateTime.now();
-    profile(ME, "익명의 매운 떡볶이");
-    otherProfileId = profile(OTHER, "익명의 시원한 냉면");
+    profile(ME, "익명의 매운 떡볶이", false);
+    otherProfileId = profile(OTHER, "익명의 시원한 냉면", false);
   }
 
   @AfterEach
@@ -173,6 +199,135 @@ class SoptLetterSp1IntegrationTest {
     assertThat(success).isTrue();
   }
 
+  @Test
+  @DisplayName("어드민 알림 API는 API 키가 틀리면 401을 돌려주고 보내지 않는다")
+  void adminNotificationRejectsWrongApiKey() throws Exception {
+    mvc.perform(
+            post(ADMIN_BASE + "/unwritten-reminder")
+                .header("apiKey", "wrong-key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(notificationBody()))
+        .andExpect(status().isUnauthorized());
+
+    verify(pushSenderPort, never()).send(any());
+  }
+
+  @Test
+  @DisplayName("미작성 리마인드는 현재 기수 회원 중 솝레터를 쓰지 않은 사람에게만 보낸다")
+  void unwrittenReminderSendsToUnwrittenCurrentMembers() throws Exception {
+    long unwritten = user(CURRENT_GENERATION);
+    long written = user(CURRENT_GENERATION);
+    user(CURRENT_GENERATION - 1);
+    profile(written, "익명의 달콤한 호떡", true);
+
+    mvc.perform(
+            post(ADMIN_BASE + "/unwritten-reminder")
+                .header("apiKey", API_KEY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(notificationBody()))
+        .andExpect(status().isOk());
+
+    assertThat(sentPush().userIds()).containsExactly(unwritten);
+  }
+
+  @Test
+  @DisplayName("새 주제 알림은 현재 기수 회원 전체에게 보낸다")
+  void newTopicSendsToAllCurrentMembers() throws Exception {
+    long first = user(CURRENT_GENERATION);
+    long second = user(CURRENT_GENERATION);
+    user(CURRENT_GENERATION - 1);
+
+    mvc.perform(
+            post(ADMIN_BASE + "/new-topic")
+                .header("apiKey", API_KEY)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(notificationBody()))
+        .andExpect(status().isOk());
+
+    PushMessage push = sentPush();
+    assertThat(push.userIds()).containsExactlyInAnyOrder(first, second);
+    assertThat(push.title()).isEqualTo("새 주제가 열렸어요");
+    assertThat(push.deepLink()).isEqualTo("soptletter");
+  }
+
+  @Test
+  @DisplayName("좋아요를 누르면 커밋 뒤 현재 기수 활동 회원인 글쓴이에게 알림을 보낸다")
+  void likeSendsAlarmToActiveAuthor() throws Exception {
+    assumeTrue(DB_URL != null, "좋아요 저장은 PostgreSQL 문법이라 로컬 PostgreSQL에서만 돈다");
+    operationConfigService.upsertValue(
+        OperationConfigCategory.SOPT_LETTER, "likeNotificationTitle", "좋아요가 달렸어요", "제목");
+    operationConfigService.upsertValue(
+        OperationConfigCategory.SOPT_LETTER, "likeNotificationContent", "확인해 보세요", "내용");
+    long author = user(CURRENT_GENERATION);
+    long authorProfileId = profile(author, "익명의 고소한 붕어빵", false);
+    long topic = topic("기본 주제", null, true, now.minusDays(1), now.plusDays(1), now);
+    long letterId = letter(authorProfileId, topic, now.minusHours(1));
+
+    mvc.perform(post(BASE + "/topics/" + topic + "/messages/" + letterId + "/likes"))
+        .andExpect(status().isOk());
+
+    ArgumentCaptor<PushMessage> captor = ArgumentCaptor.forClass(PushMessage.class);
+    verify(pushSenderPort, timeout(5000)).send(captor.capture());
+    PushMessage push = captor.getValue();
+    assertThat(push.userIds()).containsExactly(author);
+    assertThat(push.title()).isEqualTo("좋아요가 달렸어요");
+    assertThat(push.deepLink())
+        .isEqualTo(
+            "soptletter?topicId="
+                + topic
+                + "&messageId="
+                + letterId
+                + "&pushType=soptletter_liked");
+  }
+
+  @Test
+  @DisplayName("내 글에 좋아요를 누르면 403을 돌려준다")
+  void cannotLikeOwnMessage() throws Exception {
+    long myProfileId =
+        jdbc.queryForObject("SELECT id FROM sopt_letter_profile WHERE user_id = ?", Long.class, ME);
+    long topic = topic("기본 주제", null, true, now.minusDays(1), now.plusDays(1), now);
+    long letterId = letter(myProfileId, topic, now.minusHours(1));
+
+    mvc.perform(post(BASE + "/topics/" + topic + "/messages/" + letterId + "/likes"))
+        .andExpect(status().isForbidden());
+  }
+
+  private PushMessage sentPush() {
+    ArgumentCaptor<PushMessage> captor = ArgumentCaptor.forClass(PushMessage.class);
+    verify(pushSenderPort).send(captor.capture());
+    return captor.getValue();
+  }
+
+  private String notificationBody() {
+    return "{\"notificationTitle\":\"새 주제가 열렸어요\","
+        + "\"notificationContent\":\"앱잼 회고를 남겨 보세요\","
+        + "\"deepLink\":\"soptletter\"}";
+  }
+
+  private long user(int generation) {
+    Long userId =
+        new TransactionTemplate(transactionManager)
+            .execute(
+                status -> {
+                  UserEntity user =
+                      UserEntity.create(
+                          "김솝트",
+                          "0100000" + (1000 + createdUserIds.size()),
+                          null,
+                          null,
+                          null,
+                          "test-" + System.nanoTime(),
+                          OAuthPlatform.GOOGLE);
+                  em.persist(user);
+                  em.persist(
+                      UserActivityHistoryEntity.create(
+                          user, generation, null, Part.SERVER, Role.MEMBER, true, null));
+                  return user.getId();
+                });
+    createdUserIds.add(userId);
+    return userId;
+  }
+
   private Long waitForLastRead(long topicId) throws InterruptedException {
     for (int i = 0; i < 50; i++) {
       List<Long> found =
@@ -190,13 +345,14 @@ class SoptLetterSp1IntegrationTest {
     return null;
   }
 
-  private long profile(long userId, String nickname) {
+  private long profile(long userId, String nickname, boolean hasWritten) {
     jdbc.update(
         "INSERT INTO sopt_letter_profile"
             + " (user_id, nickname, is_onboarded, has_written, created_at, updated_at)"
-            + " VALUES (?, ?, true, false, ?, ?)",
+            + " VALUES (?, ?, true, ?, ?, ?)",
         userId,
         nickname,
+        hasWritten,
         now,
         now);
     return jdbc.queryForObject(
@@ -238,6 +394,16 @@ class SoptLetterSp1IntegrationTest {
   }
 
   private void cleanUp() {
+    for (Long userId : createdUserIds) {
+      jdbc.update("DELETE FROM user_activity_histories WHERE user_id = ?", userId);
+      jdbc.update("DELETE FROM users WHERE id = ?", userId);
+    }
+    createdUserIds.clear();
+    jdbc.update(
+        "DELETE FROM operation_configs WHERE category = 'SOPT_LETTER'"
+            + " AND config_key IN ('likeNotificationTitle', 'likeNotificationContent')");
+    jdbc.update("DELETE FROM sopt_letter_like_notification");
+    jdbc.update("DELETE FROM sopt_letter_like");
     jdbc.update("DELETE FROM sopt_letter_topic_read");
     jdbc.update("DELETE FROM sopt_letter");
     jdbc.update("DELETE FROM sopt_letter_topic");
