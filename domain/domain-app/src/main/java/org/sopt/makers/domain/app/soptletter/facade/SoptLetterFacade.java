@@ -43,7 +43,7 @@ public class SoptLetterFacade {
   }
 
   public List<SoptLetterTopic> getTopics(String type) {
-    return soptLetterTopicService.getTopics(type);
+    return soptLetterTopicService.getTopics(type, soptLetterTopicService.now());
   }
 
   public SoptLetterTopic getTopic(Long topicId) {

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.DAILY_MESSAGE_LIMIT_EXCEEDED;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.FORBIDDEN_SOPT_LETTER;
+import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.INACTIVE_SOPT_LETTER_TOPIC;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.INVALID_PAGE_SIZE;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.NOT_FOUND_SOPT_LETTER;
 
@@ -273,5 +274,60 @@ class SoptLetterFacadeTest {
             202L, "더 늦게 시작한 주제", null, "CTA-later", false, NOW, NOW.plusDays(1), NOW));
 
     assertThat(soptLetterFacade.findActiveCta()).get().extracting("id").isEqualTo(202L);
+  }
+
+  @Test
+  @DisplayName("기간 밖의 주제에는 메시지를 쓸 수 없다")
+  void cannotWriteOutsideTopicPeriod() {
+    topicPort.add(topic(300L, false, NOW.minusDays(10), NOW.minusDays(1), NOW.minusDays(10)));
+
+    assertThatThrownBy(() -> soptLetterFacade.createMessage(ME, 300L, "늦은 글"))
+        .isInstanceOf(SoptLetterException.class)
+        .extracting("error")
+        .isEqualTo(INACTIVE_SOPT_LETTER_TOPIC);
+  }
+
+  @Test
+  @DisplayName("전체 주제 목록은 기본 주제를 먼저, 그다음 최근에 만든 순으로 준다")
+  void listsDefaultTopicFirstThenLatest() {
+    topicPort.add(topic(301L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusHours(1)));
+    topicPort.add(topic(302L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusHours(2)));
+
+    assertThat(soptLetterFacade.getTopics(null))
+        .extracting(SoptLetterTopic::id)
+        .containsExactly(TOPIC_ID, 301L, 302L);
+  }
+
+  @Test
+  @DisplayName("주제 목록은 종류와 상관없이 기간 안의 주제만 준다")
+  void listsOnlyActiveTopics() {
+    topicPort.add(topic(303L, false, NOW.minusDays(10), NOW.minusDays(1), NOW.minusDays(10)));
+    topicPort.add(topic(304L, true, NOW.plusDays(1), NOW.plusDays(10), NOW));
+
+    assertThat(soptLetterFacade.getTopics(null))
+        .extracting(SoptLetterTopic::id)
+        .containsExactly(TOPIC_ID);
+    assertThat(soptLetterFacade.getTopics("default"))
+        .extracting(SoptLetterTopic::id)
+        .containsExactly(TOPIC_ID);
+    assertThat(soptLetterFacade.getTopics("normal")).isEmpty();
+  }
+
+  @Test
+  @DisplayName("기본 주제 메시지 조회는 기간이 지난 기본 주제도 찾는다")
+  void defaultTopicMessagesIgnorePeriod() {
+    topicPort.add(topic(305L, true, NOW.minusDays(10), NOW.minusDays(1), NOW.plusHours(1)));
+
+    assertThat(soptLetterFacade.getDefaultTopicMessages(ME, null, 10).topic().id()).isEqualTo(305L);
+  }
+
+  private SoptLetterTopic topic(
+      Long id,
+      boolean isDefault,
+      LocalDateTime startedAt,
+      LocalDateTime endedAt,
+      LocalDateTime createdAt) {
+    return new SoptLetterTopic(
+        id, "주제 " + id, null, null, isDefault, startedAt, endedAt, createdAt);
   }
 }

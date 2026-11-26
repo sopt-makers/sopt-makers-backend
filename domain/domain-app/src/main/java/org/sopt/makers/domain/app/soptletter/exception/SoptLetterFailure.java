@@ -12,6 +12,7 @@ public enum SoptLetterFailure implements FailureCode {
   INVALID_TOPIC_TYPE(400, "지원하지 않는 주제 유형입니다."),
   INVALID_PAGE_SIZE(400, "조회 개수는 1 이상이어야 합니다."),
   DAILY_MESSAGE_LIMIT_EXCEEDED(400, "하루에 작성할 수 있는 메시지 수를 초과했습니다."),
+  INACTIVE_SOPT_LETTER_TOPIC(400, "솝레터 주제의 작성 기간이 아닙니다."),
   FORBIDDEN_SOPT_LETTER(403, "본인이 작성한 메시지가 아닙니다."),
   NOT_FOUND_SOPT_LETTER(404, "존재하지 않는 메시지입니다."),
   NOT_FOUND_SOPT_LETTER_TOPIC(404, "존재하지 않는 주제입니다."),

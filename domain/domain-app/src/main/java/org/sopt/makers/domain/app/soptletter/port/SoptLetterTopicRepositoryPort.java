@@ -9,11 +9,13 @@ public interface SoptLetterTopicRepositoryPort {
 
   Optional<SoptLetterTopic> findById(Long topicId);
 
-  List<SoptLetterTopic> findAllLatestFirst();
+  List<SoptLetterTopic> findActiveTopicsDefaultFirst(LocalDateTime now);
+
+  List<SoptLetterTopic> findActiveDefaultTopicsLatestFirst(LocalDateTime now);
+
+  List<SoptLetterTopic> findActiveNormalTopicsLatestFirst(LocalDateTime now);
 
   List<SoptLetterTopic> findDefaultTopicsLatestFirst();
-
-  List<SoptLetterTopic> findNormalTopicsLatestFirst();
 
   boolean existsNormalTopic();
 

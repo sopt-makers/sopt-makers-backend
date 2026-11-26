@@ -53,7 +53,10 @@ public interface SoptLetterApi {
   @ApiResponse(responseCode = "200", description = "솝레터 CTA 조회에 성공했습니다.")
   ResponseEntity<BaseResponse<CtaResponse>> getCta();
 
-  @Operation(summary = "주제 목록 조회", description = "type 이 없으면 전체, default/normal 이면 해당 종류만 조회한다.")
+  @Operation(
+      summary = "주제 목록 조회",
+      description =
+          "type 이 없으면 전체, default/normal 이면 해당 종류만 조회한다. 노출 기간 안의 주제만 주고, 전체 조회는 기본 주제를 먼저 준다.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "솝레터 주제 목록 조회에 성공했습니다."),
     @ApiResponse(responseCode = "400", description = "지원하지 않는 주제 유형입니다.", content = @Content)
@@ -125,7 +128,7 @@ public interface SoptLetterApi {
     @ApiResponse(responseCode = "201", description = "솝레터 메시지 작성에 성공했습니다."),
     @ApiResponse(
         responseCode = "400",
-        description = "하루에 작성할 수 있는 메시지 수를 초과했거나, 내용이 1자 미만 또는 350자를 넘었습니다.",
+        description = "주제의 작성 기간이 아니거나, 하루에 작성할 수 있는 메시지 수를 초과했거나, 내용이 1자 미만 또는 350자를 넘었습니다.",
         content = @Content),
     @ApiResponse(
         responseCode = "404",

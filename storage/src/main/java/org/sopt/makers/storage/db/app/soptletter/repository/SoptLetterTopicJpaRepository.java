@@ -9,7 +9,18 @@ import org.springframework.data.repository.query.Param;
 
 public interface SoptLetterTopicJpaRepository extends JpaRepository<SoptLetterTopicEntity, Long> {
 
-  List<SoptLetterTopicEntity> findAllByOrderByCreatedAtDesc();
+  @Query(
+      "SELECT t FROM SoptLetterTopicEntity t"
+          + " WHERE t.startedAt <= :now AND t.endedAt >= :now"
+          + " ORDER BY t.isDefault DESC, t.createdAt DESC NULLS LAST")
+  List<SoptLetterTopicEntity> findActiveDefaultFirst(@Param("now") LocalDateTime now);
+
+  @Query(
+      "SELECT t FROM SoptLetterTopicEntity t"
+          + " WHERE t.isDefault = :isDefault AND t.startedAt <= :now AND t.endedAt >= :now"
+          + " ORDER BY t.createdAt DESC NULLS LAST")
+  List<SoptLetterTopicEntity> findActiveByIsDefault(
+      @Param("isDefault") boolean isDefault, @Param("now") LocalDateTime now);
 
   List<SoptLetterTopicEntity> findAllByIsDefaultOrderByCreatedAtDesc(boolean isDefault);
 

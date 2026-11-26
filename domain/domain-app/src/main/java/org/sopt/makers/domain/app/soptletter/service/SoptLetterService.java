@@ -68,6 +68,9 @@ public class SoptLetterService {
 
   @Transactional
   public SoptLetterView create(SoptLetterProfile author, SoptLetterTopic topic, String message) {
+    if (!topic.isActiveAt(LocalDateTime.now(clock))) {
+      throw new SoptLetterException(SoptLetterFailure.INACTIVE_SOPT_LETTER_TOPIC);
+    }
     validateDailyLimit(author.id());
 
     SoptLetterColor previousColor =

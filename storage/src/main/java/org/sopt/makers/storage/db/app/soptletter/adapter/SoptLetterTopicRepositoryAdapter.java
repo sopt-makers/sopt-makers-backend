@@ -24,18 +24,23 @@ public class SoptLetterTopicRepositoryAdapter implements SoptLetterTopicReposito
   }
 
   @Override
-  public List<SoptLetterTopic> findAllLatestFirst() {
-    return toDomains(soptLetterTopicJpaRepository.findAllByOrderByCreatedAtDesc());
+  public List<SoptLetterTopic> findActiveTopicsDefaultFirst(LocalDateTime now) {
+    return toDomains(soptLetterTopicJpaRepository.findActiveDefaultFirst(now));
+  }
+
+  @Override
+  public List<SoptLetterTopic> findActiveDefaultTopicsLatestFirst(LocalDateTime now) {
+    return toDomains(soptLetterTopicJpaRepository.findActiveByIsDefault(true, now));
+  }
+
+  @Override
+  public List<SoptLetterTopic> findActiveNormalTopicsLatestFirst(LocalDateTime now) {
+    return toDomains(soptLetterTopicJpaRepository.findActiveByIsDefault(false, now));
   }
 
   @Override
   public List<SoptLetterTopic> findDefaultTopicsLatestFirst() {
     return toDomains(soptLetterTopicJpaRepository.findAllByIsDefaultOrderByCreatedAtDesc(true));
-  }
-
-  @Override
-  public List<SoptLetterTopic> findNormalTopicsLatestFirst() {
-    return toDomains(soptLetterTopicJpaRepository.findAllByIsDefaultOrderByCreatedAtDesc(false));
   }
 
   @Override
