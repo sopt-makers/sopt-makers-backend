@@ -8,9 +8,13 @@ public record AppServiceEntryStatusResponse(
     @Schema(description = "알림 뱃지를 띄울지 여부. 비로그인이면 항상 false", example = "true")
         boolean displayAlarmBadge,
     @Schema(description = "뱃지에 띄울 문구. 비로그인이면 빈 문자열", example = "N") String alarmBadge,
-    @Schema(description = "서비스 아이콘 주소", example = "https://s3.sopt.org/icon/soptamp.png")
+    @Schema(
+            description = "서비스 아이콘 주소",
+            example = "https://s3.sopt.org/icon/soptamp.png",
+            nullable = true)
         String iconUrl,
-    @Schema(description = "눌렀을 때 이동할 딥링크", example = "home/soptamp") String deepLink) {
+    @Schema(description = "눌렀을 때 이동할 딥링크", example = "home/soptamp", nullable = true)
+        String deepLink) {
 
   public static AppServiceEntryStatusResponse of(AppServiceEntryStatus status) {
     return new AppServiceEntryStatusResponse(

@@ -10,9 +10,9 @@ public record TopicMessageResponse(
     @Schema(description = "작성자 익명 닉네임", example = "그윽한 떡볶이") String authorNickname,
     @Schema(description = "목록에 띄울 미리보기 내용. 50자를 넘으면 잘린다", example = "다들 고생 많으셨어요")
         String previewContent,
-    @Schema(description = "쪽지 배경 색상 코드", example = "#FFE1E1") String colorCode,
+    @Schema(description = "쪽지 배경 색상 코드", example = "#FFE1E1", nullable = true) String colorCode,
     @Schema(description = "쪽지를 기울여 그릴 각도", example = "-3.5") Double rotationDegree,
-    @Schema(description = "쪽지 모양 종류", example = "SQUARE") String shapeType,
+    @Schema(description = "쪽지 모양 종류", example = "SQUARE", nullable = true) String shapeType,
     @Schema(description = "작성 일시", example = "2026-09-19T14:00:00") LocalDateTime createdAt,
     @Schema(description = "마지막 수정 일시", example = "2026-09-19T15:00:00") LocalDateTime updatedAt,
     @Schema(description = "받은 좋아요 수", example = "12") int likeCount,
