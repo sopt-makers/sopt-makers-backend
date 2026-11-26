@@ -2,6 +2,8 @@ ALTER TABLE sopt_letter_topic ADD COLUMN subtitle VARCHAR(255);
 
 CREATE INDEX idx_sopt_letter_created_at ON sopt_letter (created_at);
 
+ALTER TABLE sopt_letter_profile ADD COLUMN has_written BOOLEAN NOT NULL DEFAULT FALSE;
+
 CREATE TABLE sopt_letter_topic_read
 (
     id                  BIGINT    NOT NULL GENERATED ALWAYS AS IDENTITY,

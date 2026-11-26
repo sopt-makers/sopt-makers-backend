@@ -192,8 +192,9 @@ class SoptLetterSp1IntegrationTest {
 
   private long profile(long userId, String nickname) {
     jdbc.update(
-        "INSERT INTO sopt_letter_profile (user_id, nickname, is_onboarded, created_at, updated_at)"
-            + " VALUES (?, ?, true, ?, ?)",
+        "INSERT INTO sopt_letter_profile"
+            + " (user_id, nickname, is_onboarded, has_written, created_at, updated_at)"
+            + " VALUES (?, ?, true, false, ?, ?)",
         userId,
         nickname,
         now,

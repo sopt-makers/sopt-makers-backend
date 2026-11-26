@@ -491,6 +491,17 @@ class SoptLetterFacadeTest {
     assertThat(letterPort.findById(letterId)).get().extracting("likeCount").isEqualTo(1);
   }
 
+  @Test
+  @DisplayName("메시지를 쓰면 프로필에 작성 여부가 남는다")
+  void marksProfileAsWritten() {
+    assertThat(profilePort.findByUserId(ME)).get().extracting("hasWritten").isEqualTo(false);
+
+    soptLetterFacade.createMessage(ME, TOPIC_ID, "첫 글");
+
+    assertThat(profilePort.findByUserId(ME)).get().extracting("hasWritten").isEqualTo(true);
+    assertThat(profilePort.findByUserId(OTHER)).get().extracting("hasWritten").isEqualTo(false);
+  }
+
   private long unreadCountOf(Long userId, Long topicId) {
     return soptLetterFacade.getTopics(userId, null).stream()
         .filter(view -> view.topic().id().equals(topicId))

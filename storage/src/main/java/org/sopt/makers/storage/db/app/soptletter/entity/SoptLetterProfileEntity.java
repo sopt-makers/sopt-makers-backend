@@ -39,10 +39,14 @@ public class SoptLetterProfileEntity extends BaseEntity {
   @Column(name = "is_onboarded", nullable = false)
   private boolean isOnboarded;
 
+  @Column(name = "has_written", nullable = false)
+  private boolean hasWritten;
+
   private SoptLetterProfileEntity(SoptLetterProfile profile) {
     this.userId = profile.userId();
     this.nickname = profile.nickname();
     this.isOnboarded = profile.isOnboarded();
+    this.hasWritten = profile.hasWritten();
   }
 
   public static SoptLetterProfileEntity from(SoptLetterProfile profile) {
@@ -50,6 +54,6 @@ public class SoptLetterProfileEntity extends BaseEntity {
   }
 
   public SoptLetterProfile toDomain() {
-    return new SoptLetterProfile(id, userId, nickname, isOnboarded);
+    return new SoptLetterProfile(id, userId, nickname, isOnboarded, hasWritten);
   }
 }

@@ -24,4 +24,15 @@ public interface SoptLetterProfileJpaRepository
       "UPDATE SoptLetterProfileEntity p SET p.isOnboarded = true, p.updatedAt = CURRENT_TIMESTAMP"
           + " WHERE p.id = :profileId")
   void completeOnboarding(@Param("profileId") Long profileId);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+      "UPDATE SoptLetterProfileEntity p SET p.hasWritten = true, p.updatedAt = CURRENT_TIMESTAMP"
+          + " WHERE p.id = :profileId")
+  void markWritten(@Param("profileId") Long profileId);
+
+  @Query(
+      "SELECT p.userId FROM SoptLetterProfileEntity p"
+          + " WHERE p.userId IN :userIds AND p.hasWritten = true")
+  List<Long> findWrittenUserIds(@Param("userIds") Collection<Long> userIds);
 }

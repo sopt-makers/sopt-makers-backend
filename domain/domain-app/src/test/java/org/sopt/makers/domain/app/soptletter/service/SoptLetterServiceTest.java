@@ -24,7 +24,7 @@ class SoptLetterServiceTest {
   private static final LocalDateTime NOW = LocalDateTime.of(2026, 8, 24, 12, 0);
   private static final SoptLetterTopic TOPIC =
       new SoptLetterTopic(100L, "이번 주 주제", null, null, true, NOW, NOW, NOW);
-  private static final SoptLetterProfile ME = new SoptLetterProfile(1L, 10L, "차은우", true);
+  private static final SoptLetterProfile ME = new SoptLetterProfile(1L, 10L, "차은우", true, false);
 
   private SoptLetterService soptLetterService;
 

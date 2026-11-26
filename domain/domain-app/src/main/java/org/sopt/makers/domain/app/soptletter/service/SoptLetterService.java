@@ -107,6 +107,9 @@ public class SoptLetterService {
     SoptLetter saved =
         soptLetterRepositoryPort.save(
             soptLetterGenerator.generate(author.id(), topic.id(), message, previousColor));
+    if (!author.hasWritten()) {
+      soptLetterProfileRepositoryPort.markWritten(author.id());
+    }
 
     return new SoptLetterView(saved, author.nickname(), false, true);
   }
