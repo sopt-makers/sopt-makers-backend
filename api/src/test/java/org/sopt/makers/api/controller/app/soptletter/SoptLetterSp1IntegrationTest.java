@@ -141,6 +141,20 @@ class SoptLetterSp1IntegrationTest {
   }
 
   @Test
+  @DisplayName("메시지를 작성하면 작성한 메시지를 돌려준다")
+  void writeMessage() throws Exception {
+    long topic = topic("기본 주제", null, true, now.minusDays(1), now.plusDays(1), now);
+
+    mvc.perform(
+            post(BASE + "/topics/" + topic + "/messages")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"반가워요\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.content").value("반가워요"))
+        .andExpect(jsonPath("$.data.mine").value(true));
+  }
+
+  @Test
   @DisplayName("기간 밖 주제에 메시지를 쓰면 400을 돌려준다")
   void rejectsWritingOutsidePeriod() throws Exception {
     long expired =

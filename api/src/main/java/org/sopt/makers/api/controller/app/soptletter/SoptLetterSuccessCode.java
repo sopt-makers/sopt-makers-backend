@@ -17,7 +17,7 @@ public enum SoptLetterSuccessCode implements SuccessCode {
   GET_TOPIC(200, "솝레터 주제 조회에 성공했습니다."),
   GET_TOPIC_MESSAGES(200, "솝레터 메시지 목록 조회에 성공했습니다."),
   GET_MESSAGE(200, "솝레터 메시지 조회에 성공했습니다."),
-  WRITE_MESSAGE(201, "솝레터 메시지 작성에 성공했습니다."),
+  WRITE_MESSAGE(200, "솝레터 메시지 작성에 성공했습니다."),
   UPDATE_MESSAGE(200, "솝레터 메시지 수정에 성공했습니다."),
   DELETE_MESSAGE(200, "솝레터 메시지 삭제에 성공했습니다."),
   ADD_LIKE(200, "솝레터 메시지 좋아요에 성공했습니다."),

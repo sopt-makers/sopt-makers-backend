@@ -132,7 +132,7 @@ public interface SoptLetterApi {
 
   @Operation(summary = "메시지 작성", description = "하루에 작성할 수 있는 개수가 제한된다.")
   @ApiResponses({
-    @ApiResponse(responseCode = "201", description = "솝레터 메시지 작성에 성공했습니다."),
+    @ApiResponse(responseCode = "200", description = "솝레터 메시지 작성에 성공했습니다."),
     @ApiResponse(
         responseCode = "400",
         description = "주제의 작성 기간이 아니거나, 하루에 작성할 수 있는 메시지 수를 초과했거나, 내용이 1자 미만 또는 350자를 넘었습니다.",
