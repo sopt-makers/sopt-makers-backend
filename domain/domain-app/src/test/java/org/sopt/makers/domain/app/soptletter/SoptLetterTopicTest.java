@@ -43,4 +43,26 @@ class SoptLetterTopicTest {
   private SoptLetterTopic topic(LocalDateTime startedAt, LocalDateTime endedAt) {
     return new SoptLetterTopic(1L, "주제", null, "CTA", false, startedAt, endedAt, STARTED_AT);
   }
+
+  @Test
+  @DisplayName("만든 지 7일이 지나지 않았으면 새 주제다")
+  void newWithinSevenDays() {
+    assertThat(createdAt(STARTED_AT).isNewAt(STARTED_AT.plusDays(7).minusSeconds(1))).isTrue();
+  }
+
+  @Test
+  @DisplayName("만든 지 정확히 7일이 지나면 새 주제가 아니다")
+  void notNewAfterSevenDays() {
+    assertThat(createdAt(STARTED_AT).isNewAt(STARTED_AT.plusDays(7))).isFalse();
+  }
+
+  @Test
+  @DisplayName("생성 시각이 없으면 새 주제가 아니다")
+  void notNewWhenCreatedAtMissing() {
+    assertThat(createdAt(null).isNewAt(STARTED_AT)).isFalse();
+  }
+
+  private SoptLetterTopic createdAt(LocalDateTime createdAt) {
+    return new SoptLetterTopic(1L, "주제", null, null, false, STARTED_AT, ENDED_AT, createdAt);
+  }
 }

@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
 import org.sopt.makers.domain.app.soptletter.port.SoptLetterRepositoryPort;
 
@@ -56,6 +58,22 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
   @Override
   public boolean existsByIdAndTopicId(Long letterId, Long topicId) {
     return findById(letterId).filter(l -> l.topicId().equals(topicId)).isPresent();
+  }
+
+  @Override
+  public List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit) {
+    Map<Long, Long> counts =
+        store.stream()
+            .filter(l -> l.createdAt() != null && !l.createdAt().isBefore(since))
+            .collect(Collectors.groupingBy(SoptLetter::topicId, Collectors.counting()));
+    return counts.entrySet().stream()
+        .sorted(
+            Map.Entry.<Long, Long>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry.<Long, Long>comparingByKey().reversed()))
+        .limit(limit)
+        .map(Map.Entry::getKey)
+        .toList();
   }
 
   @Override

@@ -28,4 +28,6 @@ public interface SoptLetterRepositoryPort {
   void increaseLikeCount(Long letterId);
 
   void decreaseLikeCount(Long letterId);
+
+  List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit);
 }

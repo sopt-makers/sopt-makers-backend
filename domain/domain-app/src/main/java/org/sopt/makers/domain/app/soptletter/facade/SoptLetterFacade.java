@@ -3,10 +3,12 @@ package org.sopt.makers.domain.app.soptletter.facade;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.soptletter.SoptLetterPage;
 import org.sopt.makers.domain.app.soptletter.SoptLetterProfile;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
+import org.sopt.makers.domain.app.soptletter.SoptLetterTopicView;
 import org.sopt.makers.domain.app.soptletter.SoptLetterView;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterProfileService;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterService;
@@ -42,8 +44,16 @@ public class SoptLetterFacade {
     return soptLetterTopicService.findActiveCta();
   }
 
-  public List<SoptLetterTopic> getTopics(String type) {
-    return soptLetterTopicService.getTopics(type, soptLetterTopicService.now());
+  public List<SoptLetterTopicView> getTopics(String type) {
+    LocalDateTime now = soptLetterTopicService.now();
+    List<SoptLetterTopic> topics = soptLetterTopicService.getTopics(type, now);
+    Set<Long> hotTopicIds = soptLetterService.getHotTopicIds(now);
+    return topics.stream()
+        .map(
+            topic ->
+                new SoptLetterTopicView(
+                    topic, topic.isNewAt(now), hotTopicIds.contains(topic.id())))
+        .toList();
   }
 
   public SoptLetterTopic getTopic(Long topicId) {

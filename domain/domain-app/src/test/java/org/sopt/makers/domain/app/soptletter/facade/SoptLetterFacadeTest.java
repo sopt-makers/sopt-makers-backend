@@ -21,6 +21,7 @@ import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService
 import org.sopt.makers.domain.app.soptletter.SoptLetterColor;
 import org.sopt.makers.domain.app.soptletter.SoptLetterPage;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
+import org.sopt.makers.domain.app.soptletter.SoptLetterTopicView;
 import org.sopt.makers.domain.app.soptletter.SoptLetterView;
 import org.sopt.makers.domain.app.soptletter.exception.SoptLetterException;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterGenerator;
@@ -294,7 +295,7 @@ class SoptLetterFacadeTest {
     topicPort.add(topic(302L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusHours(2)));
 
     assertThat(soptLetterFacade.getTopics(null))
-        .extracting(SoptLetterTopic::id)
+        .extracting(view -> view.topic().id())
         .containsExactly(TOPIC_ID, 301L, 302L);
   }
 
@@ -305,10 +306,10 @@ class SoptLetterFacadeTest {
     topicPort.add(topic(304L, true, NOW.plusDays(1), NOW.plusDays(10), NOW));
 
     assertThat(soptLetterFacade.getTopics(null))
-        .extracting(SoptLetterTopic::id)
+        .extracting(view -> view.topic().id())
         .containsExactly(TOPIC_ID);
     assertThat(soptLetterFacade.getTopics("default"))
-        .extracting(SoptLetterTopic::id)
+        .extracting(view -> view.topic().id())
         .containsExactly(TOPIC_ID);
     assertThat(soptLetterFacade.getTopics("normal")).isEmpty();
   }
@@ -319,6 +320,39 @@ class SoptLetterFacadeTest {
     topicPort.add(topic(305L, true, NOW.minusDays(10), NOW.minusDays(1), NOW.plusHours(1)));
 
     assertThat(soptLetterFacade.getDefaultTopicMessages(ME, null, 10).topic().id()).isEqualTo(305L);
+  }
+
+  @Test
+  @DisplayName("최근 7일 동안 글이 많은 주제 2개가 HOT이다")
+  void marksTopTwoTopicsByRecentLettersAsHot() {
+    topicPort.add(topic(306L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusDays(1)));
+    topicPort.add(topic(307L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusDays(2)));
+    letterPort.setCreatedAt(NOW.minusDays(8));
+    for (int i = 0; i < 5; i++) {
+      soptLetterFacade.createMessage(OTHER, TOPIC_ID, "오래된 글 " + i);
+    }
+    letterPort.setCreatedAt(NOW.minusDays(1));
+    soptLetterFacade.createMessage(OTHER, 306L, "최근 글 1");
+    soptLetterFacade.createMessage(OTHER, 306L, "최근 글 2");
+    soptLetterFacade.createMessage(OTHER, 307L, "최근 글 3");
+
+    assertThat(soptLetterFacade.getTopics(null))
+        .filteredOn(SoptLetterTopicView::isHot)
+        .extracting(view -> view.topic().id())
+        .containsExactlyInAnyOrder(306L, 307L);
+  }
+
+  @Test
+  @DisplayName("만든 지 7일이 안 된 주제는 NEW이다")
+  void marksRecentlyCreatedTopicAsNew() {
+    topicPort.add(topic(308L, false, NOW.minusDays(10), NOW.plusDays(1), NOW.minusDays(8)));
+
+    assertThat(soptLetterFacade.getTopics("normal"))
+        .extracting(SoptLetterTopicView::isNew)
+        .containsExactly(false);
+    assertThat(soptLetterFacade.getTopics("default"))
+        .extracting(SoptLetterTopicView::isNew)
+        .containsExactly(true);
   }
 
   private SoptLetterTopic topic(

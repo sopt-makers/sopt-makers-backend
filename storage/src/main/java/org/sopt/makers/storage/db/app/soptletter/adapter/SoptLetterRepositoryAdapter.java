@@ -88,4 +88,10 @@ public class SoptLetterRepositoryAdapter implements SoptLetterRepositoryPort {
   public void decreaseLikeCount(Long letterId) {
     soptLetterJpaRepository.decreaseLikeCount(letterId);
   }
+
+  @Override
+  public List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit) {
+    return soptLetterJpaRepository.findTopTopicIdsByLetterCountSince(
+        since, PageRequest.of(0, limit));
+  }
 }

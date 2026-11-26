@@ -31,6 +31,8 @@ public class SoptLetterService {
 
   private static final int DAILY_MESSAGE_LIMIT = 10;
   private static final String REPORT_FORM_URL_KEY = "linkUrl";
+  private static final int HOT_TOPIC_COUNT = 2;
+  private static final int HOT_TOPIC_PERIOD_DAYS = 7;
 
   private final SoptLetterRepositoryPort soptLetterRepositoryPort;
   private final SoptLetterLikeRepositoryPort soptLetterLikeRepositoryPort;
@@ -64,6 +66,12 @@ public class SoptLetterService {
         mine ? requester.nickname() : getAuthorNickname(letter.authorProfileId()),
         soptLetterLikeRepositoryPort.existsByLetterIdAndUserId(letterId, requester.userId()),
         mine);
+  }
+
+  public Set<Long> getHotTopicIds(LocalDateTime now) {
+    return Set.copyOf(
+        soptLetterRepositoryPort.findTopTopicIdsByLetterCountSince(
+            now.minusDays(HOT_TOPIC_PERIOD_DAYS), HOT_TOPIC_COUNT));
   }
 
   @Transactional

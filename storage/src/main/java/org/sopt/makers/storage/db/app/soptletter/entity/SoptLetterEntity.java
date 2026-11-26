@@ -27,7 +27,8 @@ import org.sopt.makers.storage.db.common.BaseEntity;
       @Index(name = "idx_sopt_letter_topic_id_id", columnList = "topic_id, id"),
       @Index(
           name = "idx_sopt_letter_author_profile_id_created_at",
-          columnList = "author_profile_id, created_at")
+          columnList = "author_profile_id, created_at"),
+      @Index(name = "idx_sopt_letter_created_at", columnList = "created_at")
     })
 public class SoptLetterEntity extends BaseEntity {
 
