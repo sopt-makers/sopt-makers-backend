@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record SoptLetterTopic(
     Long id,
     String title,
+    String subtitle,
     String ctaText,
     boolean isDefault,
     LocalDateTime startedAt,

@@ -70,7 +70,7 @@ class SoptLetterFacadeTest {
             clock);
     soptLetterFacade = new SoptLetterFacade(soptLetterService, profileService, topicService);
 
-    topicPort.add(new SoptLetterTopic(TOPIC_ID, "이번 주 주제", null, true, NOW, NOW, NOW));
+    topicPort.add(new SoptLetterTopic(TOPIC_ID, "이번 주 주제", null, null, true, NOW, NOW, NOW));
     profileService.getOrCreate(ME);
     profileService.getOrCreate(OTHER);
   }
@@ -247,7 +247,7 @@ class SoptLetterFacadeTest {
   void tellsWhetherNormalTopicExists() {
     assertThat(soptLetterFacade.getDefaultTopicMessages(ME, null, 10).hasNormalTopic()).isFalse();
 
-    topicPort.add(new SoptLetterTopic(200L, "개별 주제", "CTA", false, NOW, NOW, NOW));
+    topicPort.add(new SoptLetterTopic(200L, "개별 주제", null, "CTA", false, NOW, NOW, NOW));
 
     assertThat(soptLetterFacade.getDefaultTopicMessages(ME, null, 10).hasNormalTopic()).isTrue();
   }
@@ -257,7 +257,7 @@ class SoptLetterFacadeTest {
   void findsActiveCtaIncludingDefaultTopic() {
     topicPort.add(
         new SoptLetterTopic(
-            201L, "기본 주제", "CTA-default", true, NOW.minusDays(1), NOW.plusDays(1), NOW));
+            201L, "기본 주제", null, "CTA-default", true, NOW.minusDays(1), NOW.plusDays(1), NOW));
 
     assertThat(soptLetterFacade.findActiveCta()).get().extracting("id").isEqualTo(201L);
   }
@@ -267,9 +267,10 @@ class SoptLetterFacadeTest {
   void findsActiveCtaByLatestStartedAt() {
     topicPort.add(
         new SoptLetterTopic(
-            201L, "먼저 시작한 주제", "CTA-earlier", false, NOW.minusDays(1), NOW.plusDays(1), NOW));
+            201L, "먼저 시작한 주제", null, "CTA-earlier", false, NOW.minusDays(1), NOW.plusDays(1), NOW));
     topicPort.add(
-        new SoptLetterTopic(202L, "더 늦게 시작한 주제", "CTA-later", false, NOW, NOW.plusDays(1), NOW));
+        new SoptLetterTopic(
+            202L, "더 늦게 시작한 주제", null, "CTA-later", false, NOW, NOW.plusDays(1), NOW));
 
     assertThat(soptLetterFacade.findActiveCta()).get().extracting("id").isEqualTo(202L);
   }

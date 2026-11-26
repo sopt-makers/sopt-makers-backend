@@ -41,6 +41,6 @@ class SoptLetterTopicTest {
   }
 
   private SoptLetterTopic topic(LocalDateTime startedAt, LocalDateTime endedAt) {
-    return new SoptLetterTopic(1L, "주제", "CTA", false, startedAt, endedAt, STARTED_AT);
+    return new SoptLetterTopic(1L, "주제", null, "CTA", false, startedAt, endedAt, STARTED_AT);
   }
 }
