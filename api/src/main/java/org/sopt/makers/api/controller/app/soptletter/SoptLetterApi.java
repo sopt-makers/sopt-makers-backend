@@ -62,6 +62,7 @@ public interface SoptLetterApi {
     @ApiResponse(responseCode = "400", description = "지원하지 않는 주제 유형입니다.", content = @Content)
   })
   ResponseEntity<BaseResponse<TopicsResponse>> getTopics(
+      @Parameter(hidden = true) Long userId,
       @Parameter(description = "주제 종류. default 또는 normal. 생략하면 전체", example = "normal")
           String type);
 
@@ -73,7 +74,10 @@ public interface SoptLetterApi {
   ResponseEntity<BaseResponse<TopicDetailResponse>> getTopic(
       @Parameter(description = "주제 아이디", example = "1") Long topicId);
 
-  @Operation(summary = "기본 주제 메시지 목록 조회", description = "개별 주제 존재 여부를 함께 준다.")
+  @Operation(
+      summary = "기본 주제 메시지 목록 조회",
+      description =
+          "가장 최근에 만든 기본 주제의 메시지를 준다. 노출 기간이 지난 기본 주제도 대상이다. 개별 주제 존재 여부를 함께 준다. cursor 없이 첫 페이지를 조회하면 그 주제를 최신 메시지까지 읽음으로 기록한다.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "솝레터 메시지 목록 조회에 성공했습니다."),
     @ApiResponse(
@@ -91,7 +95,10 @@ public interface SoptLetterApi {
       @Parameter(description = "한 번에 가져올 개수. 1에서 100 사이", example = "20") @Min(1) @Max(100)
           int size);
 
-  @Operation(summary = "주제별 메시지 목록 조회")
+  @Operation(
+      summary = "주제별 메시지 목록 조회",
+      description =
+          "cursor 없이 첫 페이지를 조회하면 그 시점의 최신 메시지까지 읽음으로 기록한다. 이 기록으로 주제 목록의 unreadCount와 홈 솝레터 뱃지가 줄어든다. cursor를 넣은 다음 페이지 조회는 기록하지 않는다.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "솝레터 메시지 목록 조회에 성공했습니다."),
     @ApiResponse(

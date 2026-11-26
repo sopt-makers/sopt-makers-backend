@@ -2,6 +2,7 @@ package org.sopt.makers.domain.app.soptletter.port;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
 
@@ -30,4 +31,6 @@ public interface SoptLetterRepositoryPort {
   void decreaseLikeCount(Long letterId);
 
   List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit);
+
+  Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId);
 }

@@ -2,11 +2,15 @@ package org.sopt.makers.storage.db.app.soptletter.adapter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
 import org.sopt.makers.domain.app.soptletter.port.SoptLetterRepositoryPort;
 import org.sopt.makers.storage.db.app.soptletter.entity.SoptLetterEntity;
+import org.sopt.makers.storage.db.app.soptletter.querydsl.SoptLetterQuerydslRepository;
+import org.sopt.makers.storage.db.app.soptletter.querydsl.TopicUnreadCount;
 import org.sopt.makers.storage.db.app.soptletter.repository.SoptLetterJpaRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SoptLetterRepositoryAdapter implements SoptLetterRepositoryPort {
 
   private final SoptLetterJpaRepository soptLetterJpaRepository;
+  private final SoptLetterQuerydslRepository soptLetterQuerydslRepository;
 
   @Override
   public Optional<SoptLetter> findById(Long letterId) {
@@ -93,5 +98,11 @@ public class SoptLetterRepositoryAdapter implements SoptLetterRepositoryPort {
   public List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit) {
     return soptLetterJpaRepository.findTopTopicIdsByLetterCountSince(
         since, PageRequest.of(0, limit));
+  }
+
+  @Override
+  public Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId) {
+    return soptLetterQuerydslRepository.countUnreadByTopic(userId, excludedAuthorProfileId).stream()
+        .collect(Collectors.toMap(TopicUnreadCount::topicId, TopicUnreadCount::unreadCount));
   }
 }

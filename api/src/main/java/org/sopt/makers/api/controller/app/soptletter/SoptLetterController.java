@@ -90,9 +90,9 @@ public class SoptLetterController implements SoptLetterApi {
   @Override
   @GetMapping("/topics")
   public ResponseEntity<BaseResponse<TopicsResponse>> getTopics(
-      @RequestParam(required = false) String type) {
+      @CurrentUserId Long userId, @RequestParam(required = false) String type) {
     return ResponseFactory.typedSuccess(
-        GET_TOPICS, TopicsResponse.of(soptLetterFacade.getTopics(type)));
+        GET_TOPICS, TopicsResponse.of(soptLetterFacade.getTopics(userId, type)));
   }
 
   @Override

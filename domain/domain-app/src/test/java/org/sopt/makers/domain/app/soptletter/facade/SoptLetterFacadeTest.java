@@ -11,6 +11,7 @@ import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,18 +22,22 @@ import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService
 import org.sopt.makers.domain.app.soptletter.SoptLetterColor;
 import org.sopt.makers.domain.app.soptletter.SoptLetterPage;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
+import org.sopt.makers.domain.app.soptletter.SoptLetterTopicReadEvent;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopicView;
 import org.sopt.makers.domain.app.soptletter.SoptLetterView;
 import org.sopt.makers.domain.app.soptletter.exception.SoptLetterException;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterGenerator;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterProfileService;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterService;
+import org.sopt.makers.domain.app.soptletter.service.SoptLetterTopicReadEventListener;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterTopicService;
 import org.sopt.makers.domain.app.soptletter.support.InMemoryOperationConfigPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterProfileRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterRepositoryPort;
+import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterTopicReadRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterTopicRepositoryPort;
+import org.springframework.context.ApplicationEventPublisher;
 
 @DisplayName("SoptLetterFacade 테스트")
 class SoptLetterFacadeTest {
@@ -42,6 +47,7 @@ class SoptLetterFacadeTest {
   private static final Long OTHER = 2L;
   private static final Long TOPIC_ID = 100L;
 
+  private InMemorySoptLetterTopicReadRepositoryPort readPort;
   private InMemorySoptLetterRepositoryPort letterPort;
   private InMemorySoptLetterLikeRepositoryPort likePort;
   private InMemorySoptLetterProfileRepositoryPort profilePort;
@@ -49,10 +55,12 @@ class SoptLetterFacadeTest {
   private InMemoryOperationConfigPort operationConfigPort;
   private SoptLetterProfileService profileService;
   private SoptLetterFacade soptLetterFacade;
+  private List<Object> publishedEvents;
 
   @BeforeEach
   void setUp() {
-    letterPort = new InMemorySoptLetterRepositoryPort();
+    readPort = new InMemorySoptLetterTopicReadRepositoryPort();
+    letterPort = new InMemorySoptLetterRepositoryPort(readPort);
     likePort = new InMemorySoptLetterLikeRepositoryPort();
     profilePort = new InMemorySoptLetterProfileRepositoryPort();
     topicPort = new InMemorySoptLetterTopicRepositoryPort();
@@ -70,7 +78,18 @@ class SoptLetterFacadeTest {
             new SoptLetterGenerator(),
             new OperationConfigService(operationConfigPort),
             clock);
-    soptLetterFacade = new SoptLetterFacade(soptLetterService, profileService, topicService);
+    SoptLetterTopicReadEventListener readEventListener =
+        new SoptLetterTopicReadEventListener(readPort);
+    publishedEvents = new ArrayList<>();
+    ApplicationEventPublisher eventPublisher =
+        event -> {
+          publishedEvents.add(event);
+          if (event instanceof SoptLetterTopicReadEvent readEvent) {
+            readEventListener.handle(readEvent);
+          }
+        };
+    soptLetterFacade =
+        new SoptLetterFacade(soptLetterService, profileService, topicService, eventPublisher);
 
     topicPort.add(new SoptLetterTopic(TOPIC_ID, "이번 주 주제", null, null, true, NOW, NOW, NOW));
     profileService.getOrCreate(ME);
@@ -294,7 +313,7 @@ class SoptLetterFacadeTest {
     topicPort.add(topic(301L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusHours(1)));
     topicPort.add(topic(302L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusHours(2)));
 
-    assertThat(soptLetterFacade.getTopics(null))
+    assertThat(soptLetterFacade.getTopics(ME, null))
         .extracting(view -> view.topic().id())
         .containsExactly(TOPIC_ID, 301L, 302L);
   }
@@ -305,13 +324,13 @@ class SoptLetterFacadeTest {
     topicPort.add(topic(303L, false, NOW.minusDays(10), NOW.minusDays(1), NOW.minusDays(10)));
     topicPort.add(topic(304L, true, NOW.plusDays(1), NOW.plusDays(10), NOW));
 
-    assertThat(soptLetterFacade.getTopics(null))
+    assertThat(soptLetterFacade.getTopics(ME, null))
         .extracting(view -> view.topic().id())
         .containsExactly(TOPIC_ID);
-    assertThat(soptLetterFacade.getTopics("default"))
+    assertThat(soptLetterFacade.getTopics(ME, "default"))
         .extracting(view -> view.topic().id())
         .containsExactly(TOPIC_ID);
-    assertThat(soptLetterFacade.getTopics("normal")).isEmpty();
+    assertThat(soptLetterFacade.getTopics(ME, "normal")).isEmpty();
   }
 
   @Test
@@ -336,7 +355,7 @@ class SoptLetterFacadeTest {
     soptLetterFacade.createMessage(OTHER, 306L, "최근 글 2");
     soptLetterFacade.createMessage(OTHER, 307L, "최근 글 3");
 
-    assertThat(soptLetterFacade.getTopics(null))
+    assertThat(soptLetterFacade.getTopics(ME, null))
         .filteredOn(SoptLetterTopicView::isHot)
         .extracting(view -> view.topic().id())
         .containsExactlyInAnyOrder(306L, 307L);
@@ -347,12 +366,94 @@ class SoptLetterFacadeTest {
   void marksRecentlyCreatedTopicAsNew() {
     topicPort.add(topic(308L, false, NOW.minusDays(10), NOW.plusDays(1), NOW.minusDays(8)));
 
-    assertThat(soptLetterFacade.getTopics("normal"))
+    assertThat(soptLetterFacade.getTopics(ME, "normal"))
         .extracting(SoptLetterTopicView::isNew)
         .containsExactly(false);
-    assertThat(soptLetterFacade.getTopics("default"))
+    assertThat(soptLetterFacade.getTopics(ME, "default"))
         .extracting(SoptLetterTopicView::isNew)
         .containsExactly(true);
+  }
+
+  @Test
+  @DisplayName("읽음 기록이 없으면 남이 쓴 글 전부가 안 읽은 글이다")
+  void countsAllOthersLettersWhenNeverRead() {
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글 1");
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글 2");
+    soptLetterFacade.createMessage(ME, TOPIC_ID, "내 글");
+
+    assertThat(unreadCountOf(ME, TOPIC_ID)).isEqualTo(2);
+  }
+
+  @Test
+  @DisplayName("첫 페이지를 조회하면 그 주제를 다 읽은 것으로 본다")
+  void firstPageMarksTopicAsRead() {
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글 1");
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글 2");
+
+    soptLetterFacade.getTopicMessages(ME, TOPIC_ID, null, 1);
+
+    assertThat(unreadCountOf(ME, TOPIC_ID)).isZero();
+  }
+
+  @Test
+  @DisplayName("읽은 뒤에 올라온 남의 글만 안 읽은 글로 센다")
+  void countsOnlyLettersAfterLastRead() {
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "읽은 글");
+    soptLetterFacade.getTopicMessages(ME, TOPIC_ID, null, 10);
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "새 글");
+    soptLetterFacade.createMessage(ME, TOPIC_ID, "내 새 글");
+
+    assertThat(unreadCountOf(ME, TOPIC_ID)).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("다른 주제의 읽음 기록은 섞이지 않는다")
+  void readRecordIsPerTopic() {
+    topicPort.add(topic(309L, false, NOW.minusDays(1), NOW.plusDays(1), NOW.minusDays(1)));
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "기본 주제 글");
+    soptLetterFacade.createMessage(OTHER, 309L, "개별 주제 글");
+
+    soptLetterFacade.getTopicMessages(ME, TOPIC_ID, null, 10);
+
+    assertThat(unreadCountOf(ME, TOPIC_ID)).isZero();
+    assertThat(unreadCountOf(ME, 309L)).isEqualTo(1);
+  }
+
+  @Test
+  @DisplayName("기본 주제 메시지 조회도 첫 페이지면 읽음으로 기록한다")
+  void defaultTopicFirstPageMarksRead() {
+    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글");
+
+    soptLetterFacade.getDefaultTopicMessages(ME, null, 10);
+
+    assertThat(unreadCountOf(ME, TOPIC_ID)).isZero();
+  }
+
+  @Test
+  @DisplayName("커서가 있는 조회와 글이 없는 주제 조회는 읽음 이벤트를 내지 않는다")
+  void doesNotPublishReadEventForCursorOrEmptyPage() {
+    soptLetterFacade.getTopicMessages(ME, TOPIC_ID, null, 10);
+    Long letterId = soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글").letter().id();
+    soptLetterFacade.getTopicMessages(ME, TOPIC_ID, letterId + 1, 10);
+
+    assertThat(publishedEvents).noneMatch(SoptLetterTopicReadEvent.class::isInstance);
+  }
+
+  @Test
+  @DisplayName("읽음 기록은 더 큰 메시지 id로만 바뀐다")
+  void readRecordOnlyMovesForward() {
+    readPort.upsertLastReadLetterId(ME, TOPIC_ID, 10L);
+    readPort.upsertLastReadLetterId(ME, TOPIC_ID, 3L);
+
+    assertThat(readPort.lastReadLetterId(ME, TOPIC_ID)).isEqualTo(10L);
+  }
+
+  private long unreadCountOf(Long userId, Long topicId) {
+    return soptLetterFacade.getTopics(userId, null).stream()
+        .filter(view -> view.topic().id().equals(topicId))
+        .findFirst()
+        .orElseThrow()
+        .unreadCount();
   }
 
   private SoptLetterTopic topic(

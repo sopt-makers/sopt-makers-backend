@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
@@ -13,8 +14,17 @@ import org.sopt.makers.domain.app.soptletter.port.SoptLetterRepositoryPort;
 public final class InMemorySoptLetterRepositoryPort implements SoptLetterRepositoryPort {
 
   private final List<SoptLetter> store = new ArrayList<>();
+  private final InMemorySoptLetterTopicReadRepositoryPort readPort;
   private long sequence = 1L;
   private LocalDateTime createdAt = LocalDateTime.of(2026, 8, 24, 12, 0);
+
+  public InMemorySoptLetterRepositoryPort() {
+    this(new InMemorySoptLetterTopicReadRepositoryPort());
+  }
+
+  public InMemorySoptLetterRepositoryPort(InMemorySoptLetterTopicReadRepositoryPort readPort) {
+    this.readPort = readPort;
+  }
 
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
@@ -74,6 +84,19 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
         .limit(limit)
         .map(Map.Entry::getKey)
         .toList();
+  }
+
+  @Override
+  public Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId) {
+    return store.stream()
+        .filter(l -> !Objects.equals(l.authorProfileId(), excludedAuthorProfileId))
+        .filter(
+            l ->
+                readPort
+                    .findLastReadLetterId(userId, l.topicId())
+                    .map(lastRead -> l.id() > lastRead)
+                    .orElse(true))
+        .collect(Collectors.groupingBy(SoptLetter::topicId, Collectors.counting()));
   }
 
   @Override

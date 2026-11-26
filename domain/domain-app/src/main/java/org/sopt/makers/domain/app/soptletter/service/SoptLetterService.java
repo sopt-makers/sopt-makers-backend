@@ -74,6 +74,19 @@ public class SoptLetterService {
             now.minusDays(HOT_TOPIC_PERIOD_DAYS), HOT_TOPIC_COUNT));
   }
 
+  public Map<Long, Long> countUnreadByTopic(Long userId) {
+    Long profileId =
+        soptLetterProfileRepositoryPort
+            .findByUserId(userId)
+            .map(SoptLetterProfile::id)
+            .orElse(null);
+    return soptLetterRepositoryPort.countUnreadByTopic(userId, profileId);
+  }
+
+  public long getTotalUnreadCount(Long userId) {
+    return countUnreadByTopic(userId).values().stream().mapToLong(Long::longValue).sum();
+  }
+
   @Transactional
   public SoptLetterView create(SoptLetterProfile author, SoptLetterTopic topic, String message) {
     if (!topic.isActiveAt(LocalDateTime.now(clock))) {
