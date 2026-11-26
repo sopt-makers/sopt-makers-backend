@@ -121,6 +121,13 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     return activityJpaRepository.countDistinctUserByGenerationAndIsSopt(generation, isSopt);
   }
 
+  @Override
+  public List<Long> findUserIdsByGenerationAndIsSopt(int generation, boolean isSopt) {
+    return activityJpaRepository.findByGenerationAndIsSopt(generation, isSopt).stream()
+        .map(activity -> activity.getUser().getId())
+        .toList();
+  }
+
   @Transactional
   @Override
   public User save(User user) {

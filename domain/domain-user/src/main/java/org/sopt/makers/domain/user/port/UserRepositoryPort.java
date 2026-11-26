@@ -48,6 +48,8 @@ public interface UserRepositoryPort {
 
   int countByGenerationAndIsSopt(int generation, boolean isSopt);
 
+  List<Long> findUserIdsByGenerationAndIsSopt(int generation, boolean isSopt);
+
   User save(User user);
 
   Page<User> findPageByCondition(
