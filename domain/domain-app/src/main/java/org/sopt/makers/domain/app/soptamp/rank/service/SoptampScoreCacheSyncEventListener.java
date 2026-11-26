@@ -1,5 +1,7 @@
 package org.sopt.makers.domain.app.soptamp.rank.service;
 
+import static org.sopt.makers.core.constant.AsyncExecutorConstant.CACHE_SYNC_EXECUTOR;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.makers.domain.app.soptamp.port.SoptampUserQueryPort;
@@ -14,8 +16,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 public class SoptampScoreCacheSyncEventListener {
-
-  private static final String CACHE_SYNC_EXECUTOR = "cacheSyncTaskExecutor";
 
   private final SoptampUserQueryPort soptampUserQueryPort;
   private final RankCachePort rankCachePort;

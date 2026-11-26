@@ -1,5 +1,7 @@
 package org.sopt.makers.api.common.config;
 
+import static org.sopt.makers.core.constant.AsyncExecutorConstant.CACHE_SYNC_EXECUTOR;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,6 @@ public class AsyncConfig implements AsyncConfigurer {
   private static final int DEV_CORE_POOL_SIZE = 2;
   private static final int PROD_CORE_POOL_SIZE = 3;
   private static final String THREAD_NAME_PREFIX = "executor-";
-
-  public static final String CACHE_SYNC_EXECUTOR = "cacheSyncTaskExecutor";
 
   private static final int CACHE_SYNC_CORE_POOL_SIZE = 5;
   private static final int CACHE_SYNC_MAX_POOL_SIZE = 10;
