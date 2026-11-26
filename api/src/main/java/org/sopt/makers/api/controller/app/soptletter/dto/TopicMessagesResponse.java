@@ -7,7 +7,7 @@ import org.sopt.makers.domain.app.soptletter.SoptLetterPage;
 public record TopicMessagesResponse(
     @Schema(description = "주제 아이디", example = "1") Long topicId,
     @Schema(description = "주제 제목", example = "이번 기수에서 가장 기억에 남는 순간") String title,
-    @Schema(description = "주제에 달린 전체 메시지 수", example = "120") long totalCount,
+    @Schema(description = "주제에 달린 전체 메시지 수", example = "120") int totalCount,
     @Schema(
             description = "다음 페이지 요청에 넣을 cursor. 목록이 비면 null이고, 마지막 페이지에도 값이 담길 수 있어 hasNext로 판단한다",
             example = "100",
@@ -25,7 +25,7 @@ public record TopicMessagesResponse(
     return new TopicMessagesResponse(
         page.topic().id(),
         page.topic().title(),
-        page.totalCount(),
+        Math.toIntExact(page.totalCount()),
         page.nextCursor(),
         page.hasNext(),
         page.hasNormalTopic(),
