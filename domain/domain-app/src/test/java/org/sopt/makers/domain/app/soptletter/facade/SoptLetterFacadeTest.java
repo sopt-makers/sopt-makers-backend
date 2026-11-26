@@ -3,6 +3,7 @@ package org.sopt.makers.domain.app.soptletter.facade;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.DAILY_MESSAGE_LIMIT_EXCEEDED;
+import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.FORBIDDEN_SELF_LIKE;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.FORBIDDEN_SOPT_LETTER;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.INACTIVE_SOPT_LETTER_TOPIC;
 import static org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure.INVALID_PAGE_SIZE;
@@ -20,6 +21,7 @@ import org.sopt.makers.domain.app.operationconfig.OperationConfig;
 import org.sopt.makers.domain.app.operationconfig.OperationConfigCategory;
 import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService;
 import org.sopt.makers.domain.app.soptletter.SoptLetterColor;
+import org.sopt.makers.domain.app.soptletter.SoptLetterLikeEvent;
 import org.sopt.makers.domain.app.soptletter.SoptLetterPage;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopicReadEvent;
@@ -32,6 +34,7 @@ import org.sopt.makers.domain.app.soptletter.service.SoptLetterService;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterTopicReadEventListener;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterTopicService;
 import org.sopt.makers.domain.app.soptletter.support.InMemoryOperationConfigPort;
+import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeNotificationRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterProfileRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterRepositoryPort;
@@ -70,14 +73,6 @@ class SoptLetterFacadeTest {
     profileService =
         new SoptLetterProfileService(profilePort, count -> List.of("익명의 매운 떡볶이", "익명의 시원한 냉면"));
     SoptLetterTopicService topicService = new SoptLetterTopicService(topicPort, clock);
-    SoptLetterService soptLetterService =
-        new SoptLetterService(
-            letterPort,
-            likePort,
-            profilePort,
-            new SoptLetterGenerator(),
-            new OperationConfigService(operationConfigPort),
-            clock);
     SoptLetterTopicReadEventListener readEventListener =
         new SoptLetterTopicReadEventListener(readPort);
     publishedEvents = new ArrayList<>();
@@ -88,6 +83,16 @@ class SoptLetterFacadeTest {
             readEventListener.handle(readEvent);
           }
         };
+    SoptLetterService soptLetterService =
+        new SoptLetterService(
+            letterPort,
+            likePort,
+            new InMemorySoptLetterLikeNotificationRepositoryPort(),
+            profilePort,
+            new SoptLetterGenerator(),
+            new OperationConfigService(operationConfigPort),
+            clock,
+            eventPublisher);
     soptLetterFacade =
         new SoptLetterFacade(soptLetterService, profileService, topicService, eventPublisher);
 
@@ -221,9 +226,9 @@ class SoptLetterFacadeTest {
   @Test
   @DisplayName("목록에 내 좋아요 여부와 내 글 여부가 붙는다")
   void marksLikedAndMine() {
-    Long mine = soptLetterFacade.createMessage(ME, TOPIC_ID, "내 글").letter().id();
-    soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글");
-    soptLetterFacade.addLike(ME, TOPIC_ID, mine);
+    soptLetterFacade.createMessage(ME, TOPIC_ID, "내 글");
+    Long others = soptLetterFacade.createMessage(OTHER, TOPIC_ID, "남의 글").letter().id();
+    soptLetterFacade.addLike(ME, TOPIC_ID, others);
 
     List<SoptLetterView> messages =
         soptLetterFacade.getTopicMessages(ME, TOPIC_ID, null, 10).messages();
@@ -233,13 +238,14 @@ class SoptLetterFacadeTest {
             view -> {
               assertThat(view.letter().message()).isEqualTo("내 글");
               assertThat(view.mine()).isTrue();
-              assertThat(view.likedByMe()).isTrue();
+              assertThat(view.likedByMe()).isFalse();
             });
     assertThat(messages)
         .anySatisfy(
             view -> {
               assertThat(view.letter().message()).isEqualTo("남의 글");
               assertThat(view.mine()).isFalse();
+              assertThat(view.likedByMe()).isTrue();
               assertThat(view.authorNickname()).isEqualTo("익명의 시원한 냉면");
             });
   }
@@ -446,6 +452,43 @@ class SoptLetterFacadeTest {
     readPort.upsertLastReadLetterId(ME, TOPIC_ID, 3L);
 
     assertThat(readPort.lastReadLetterId(ME, TOPIC_ID)).isEqualTo(10L);
+  }
+
+  @Test
+  @DisplayName("내 글에는 좋아요를 누를 수 없다")
+  void cannotLikeOwnMessage() {
+    Long mine = soptLetterFacade.createMessage(ME, TOPIC_ID, "내 글").letter().id();
+
+    assertThatThrownBy(() -> soptLetterFacade.addLike(ME, TOPIC_ID, mine))
+        .isInstanceOf(SoptLetterException.class)
+        .extracting("error")
+        .isEqualTo(FORBIDDEN_SELF_LIKE);
+    assertThat(letterPort.findById(mine)).get().extracting("likeCount").isEqualTo(0);
+  }
+
+  @Test
+  @DisplayName("처음 누른 좋아요는 글쓴이에게 보낼 좋아요 이벤트를 발행한다")
+  void firstLikePublishesLikeEvent() {
+    Long letterId = soptLetterFacade.createMessage(ME, TOPIC_ID, "내 글").letter().id();
+
+    soptLetterFacade.addLike(OTHER, TOPIC_ID, letterId);
+
+    assertThat(publishedEvents)
+        .filteredOn(SoptLetterLikeEvent.class::isInstance)
+        .containsExactly(new SoptLetterLikeEvent(OTHER, ME, TOPIC_ID, letterId));
+  }
+
+  @Test
+  @DisplayName("좋아요를 취소했다가 다시 눌러도 좋아요 이벤트를 다시 발행하지 않는다")
+  void relikeDoesNotPublishAgain() {
+    Long letterId = soptLetterFacade.createMessage(ME, TOPIC_ID, "내 글").letter().id();
+
+    soptLetterFacade.addLike(OTHER, TOPIC_ID, letterId);
+    soptLetterFacade.removeLike(OTHER, TOPIC_ID, letterId);
+    soptLetterFacade.addLike(OTHER, TOPIC_ID, letterId);
+
+    assertThat(publishedEvents).filteredOn(SoptLetterLikeEvent.class::isInstance).hasSize(1);
+    assertThat(letterPort.findById(letterId)).get().extracting("likeCount").isEqualTo(1);
   }
 
   private long unreadCountOf(Long userId, Long topicId) {

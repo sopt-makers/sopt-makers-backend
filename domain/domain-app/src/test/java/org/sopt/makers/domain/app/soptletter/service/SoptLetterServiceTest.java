@@ -13,6 +13,7 @@ import org.sopt.makers.domain.app.soptletter.SoptLetterProfile;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
 import org.sopt.makers.domain.app.soptletter.SoptLetterView;
 import org.sopt.makers.domain.app.soptletter.support.InMemoryOperationConfigPort;
+import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeNotificationRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterProfileRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterRepositoryPort;
@@ -34,10 +35,12 @@ class SoptLetterServiceTest {
         new SoptLetterService(
             new InMemorySoptLetterRepositoryPort(),
             new InMemorySoptLetterLikeRepositoryPort(),
+            new InMemorySoptLetterLikeNotificationRepositoryPort(),
             new InMemorySoptLetterProfileRepositoryPort(),
             new SoptLetterGenerator(),
             new OperationConfigService(new InMemoryOperationConfigPort()),
-            clock);
+            clock,
+            event -> {});
   }
 
   @Test

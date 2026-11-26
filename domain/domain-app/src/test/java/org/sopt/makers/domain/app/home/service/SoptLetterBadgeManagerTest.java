@@ -16,6 +16,7 @@ import org.sopt.makers.domain.app.soptletter.SoptLetterProfile;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterGenerator;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterService;
 import org.sopt.makers.domain.app.soptletter.support.InMemoryOperationConfigPort;
+import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeNotificationRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterProfileRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterRepositoryPort;
@@ -43,10 +44,12 @@ class SoptLetterBadgeManagerTest {
         new SoptLetterService(
             letterPort,
             new InMemorySoptLetterLikeRepositoryPort(),
+            new InMemorySoptLetterLikeNotificationRepositoryPort(),
             profilePort,
             new SoptLetterGenerator(),
             new OperationConfigService(new InMemoryOperationConfigPort()),
-            Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
+            Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC),
+            event -> {});
     soptLetterBadgeManager = new SoptLetterBadgeManager(soptLetterService);
   }
 

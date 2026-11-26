@@ -183,7 +183,14 @@ public interface SoptLetterApi {
   @Operation(summary = "메시지 좋아요")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "솝레터 메시지 좋아요에 성공했습니다."),
-    @ApiResponse(responseCode = "404", description = "존재하지 않는 메시지입니다.", content = @Content)
+    @ApiResponse(
+        responseCode = "403",
+        description = "본인이 쓴 메시지에는 좋아요를 누를 수 없습니다.",
+        content = @Content),
+    @ApiResponse(
+        responseCode = "404",
+        description = "존재하지 않는 메시지이거나, 작성자의 솝레터 프로필이 없습니다.",
+        content = @Content)
   })
   ResponseEntity<BaseResponse<Void>> addLike(
       @Parameter(hidden = true) Long userId,
