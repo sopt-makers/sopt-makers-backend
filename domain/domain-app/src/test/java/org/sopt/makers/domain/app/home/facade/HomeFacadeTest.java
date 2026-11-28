@@ -269,7 +269,7 @@ class HomeFacadeTest {
     assertThat(view.status()).isEqualTo(ActivityStatus.ACTIVE);
     assertThat(view.name()).isEqualTo("홍길동");
     assertThat(view.profileImage()).isEqualTo("https://img/p.png");
-    assertThat(view.part()).isEqualTo("WEB/SERVER");
+    assertThat(view.part()).isEqualTo("웹/서버");
     assertThat(view.generationList()).containsExactly(38L, 36L, 34L);
     assertThat(view.isAllConfirm()).isFalse();
   }
