@@ -6,8 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import org.sopt.makers.api.controller.app.home.dto.AppServiceEntryStatusResponse;
 import org.sopt.makers.api.controller.app.home.dto.FloatingButtonResponse;
 import org.sopt.makers.api.controller.app.home.dto.HomeAppServiceResponse;
 import org.sopt.makers.api.controller.app.home.dto.HomeDescriptionResponse;
@@ -40,19 +38,6 @@ public interface HomeApi {
         content = @Content)
   })
   ResponseEntity<BaseResponse<HomeAppServiceResponse>> getHomeAppService(
-      @Parameter(hidden = true) Long userId);
-
-  @Operation(
-      summary = "탭 앱 서비스 목록 조회 (레거시)",
-      description = "data에 앱 서비스 배열을 내려준다. 토큰이 없으면 뱃지를 표시하지 않는다.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "탭 앱 서비스 조회에 성공했습니다."),
-    @ApiResponse(
-        responseCode = "404",
-        description = "존재하지 않는 회원이거나, 앱 서비스 정보를 찾을 수 없습니다.",
-        content = @Content)
-  })
-  ResponseEntity<BaseResponse<List<AppServiceEntryStatusResponse>>> getLegacyTabAppServices(
       @Parameter(hidden = true) Long userId);
 
   @Operation(summary = "탭 앱 서비스 목록 조회", description = "토큰이 없으면 뱃지 없이 목록만 준다")

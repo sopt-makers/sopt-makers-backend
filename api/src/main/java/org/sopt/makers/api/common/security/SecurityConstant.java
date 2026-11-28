@@ -74,7 +74,6 @@ public final class SecurityConstant {
       List.of(
           "/api/v2/user/main",
           "/api/v2/home/app-service",
-          "/api/v2/home/tab-app-service",
           "/api/v2/home/tab-app-service-info",
           "/api/v2/home/floating-button",
           "/api/v2/home/review-form");
