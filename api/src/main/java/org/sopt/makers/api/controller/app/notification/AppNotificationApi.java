@@ -41,7 +41,9 @@ public interface AppNotificationApi {
       @Parameter(hidden = true) Long userId,
       @Parameter(description = "알림 아이디", example = "01HQ2N8K3P") String notificationId);
 
-  @Operation(summary = "알림 읽음 처리", description = "notificationId를 주지 않으면 유저의 알림을 모두 읽음 처리한다.")
+  @Operation(
+      summary = "알림 읽음 처리",
+      description = "notificationId를 주지 않으면 유저의 알림을 모두 읽음 처리한다. 레거시 경로는 /read 없이 호출할 수 있다.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "알림 읽음 처리에 성공했습니다."),
     @ApiResponse(responseCode = "404", description = "존재하지 않는 알림입니다.", content = @Content)

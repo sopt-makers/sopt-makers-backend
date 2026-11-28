@@ -1,15 +1,13 @@
 package org.sopt.makers.api.controller.app.notification;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.sopt.makers.api.controller.app.AppChannelMockMvc;
 import org.sopt.makers.domain.app.notification.service.AppNotificationService;
 import org.springframework.test.json.JsonCompareMode;
@@ -27,28 +25,23 @@ class AppNotificationControllerTest {
   private final MockMvc mockMvc =
       AppChannelMockMvc.of(new AppNotificationController(appNotificationService), USER_ID);
 
-  @Test
-  void read_경로로_단건_읽음_처리() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"/api/v2/notification/read/abc-1", "/api/v2/notification/abc-1"})
+  void 알림_단건_읽음_처리(String path) throws Exception {
     mockMvc
-        .perform(patch("/api/v2/notification/read/abc-1"))
+        .perform(patch(path))
         .andExpect(status().isOk())
         .andExpect(content().json(READ_RESPONSE, JsonCompareMode.STRICT));
     verify(appNotificationService).markAsRead(USER_ID, "abc-1");
   }
 
-  @Test
-  void read_경로로_전체_읽음_처리() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"/api/v2/notification/read", "/api/v2/notification"})
+  void 알림_전체_읽음_처리(String path) throws Exception {
     mockMvc
-        .perform(patch("/api/v2/notification/read"))
+        .perform(patch(path))
         .andExpect(status().isOk())
         .andExpect(content().json(READ_RESPONSE, JsonCompareMode.STRICT));
     verify(appNotificationService).markAsRead(USER_ID, null);
-  }
-
-  @Test
-  void read_없는_경로는_받지_않는다() throws Exception {
-    mockMvc.perform(patch("/api/v2/notification/abc-2")).andExpect(status().isNotFound());
-    mockMvc.perform(patch("/api/v2/notification")).andExpect(status().isNotFound());
-    verify(appNotificationService, never()).markAsRead(anyLong(), any());
   }
 }

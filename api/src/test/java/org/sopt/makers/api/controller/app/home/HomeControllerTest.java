@@ -82,6 +82,32 @@ class HomeControllerTest {
   }
 
   @Test
+  void 레거시_탭_앱_서비스는_data에_배열을_반환한다() throws Exception {
+    given(homeFacade.checkTabAppServiceEntryStatus(null))
+        .willReturn(
+            new HomeAppServices(
+                true, List.of(new AppServiceEntryStatus("콕찌르기", false, "", null, "sopt://poke"))));
+
+    anonymousMockMvc
+        .perform(get("/api/v2/home/tab-app-service"))
+        .andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(
+                    """
+                    {
+                      "success": true,
+                      "message": "탭 앱 서비스 조회에 성공했습니다.",
+                      "data": [{
+                        "serviceName": "콕찌르기", "displayAlarmBadge": false, "alarmBadge": "",
+                        "iconUrl": null, "deepLink": "sopt://poke"
+                      }]
+                    }
+                    """,
+                    JsonCompareMode.STRICT));
+  }
+
+  @Test
   void 토큰_없는_탭_앱_서비스_호출은_200() throws Exception {
     given(homeFacade.checkTabAppServiceEntryStatus(null))
         .willReturn(
