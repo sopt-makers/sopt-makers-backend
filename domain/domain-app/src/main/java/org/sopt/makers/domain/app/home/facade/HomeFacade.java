@@ -200,7 +200,7 @@ public class HomeFacade {
         .filter(Activity::isSopt)
         .filter(activity -> activity.part() != null)
         .sorted(Comparator.comparingInt(Activity::generation))
-        .map(activity -> activity.part().name())
+        .map(activity -> activity.part().getName())
         .distinct()
         .collect(Collectors.joining(PART_DELIMITER));
   }

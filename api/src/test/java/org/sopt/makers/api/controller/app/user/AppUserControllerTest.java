@@ -61,7 +61,7 @@ class AppUserControllerTest {
                 ActivityStatus.ACTIVE,
                 "홍길동",
                 "https://img/p.png",
-                "WEB/SERVER",
+                "웹/서버",
                 List.of(38L, 34L),
                 true));
 
@@ -76,7 +76,7 @@ class AppUserControllerTest {
                       "success": true,
                       "message": "메인 뷰 조회에 성공했습니다.",
                       "data": {
-                        "user": {"status": "ACTIVE", "name": "홍길동", "profileImage": "https://img/p.png", "part": "WEB/SERVER", "generationList": [38, 34]},
+                        "user": {"status": "ACTIVE", "name": "홍길동", "profileImage": "https://img/p.png", "part": "웹/서버", "generationList": [38, 34]},
                         "operation": {"attendanceScore": 0.0, "announcement": ""},
                         "isAllConfirm": true
                       }
