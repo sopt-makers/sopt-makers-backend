@@ -94,6 +94,10 @@ public class UserQueryService {
     return userRepositoryPort.countByGenerationAndIsSopt(generation, isSopt);
   }
 
+  public List<Long> findUserIdsByGenerationAndIsSopt(int generation, boolean isSopt) {
+    return userRepositoryPort.findUserIdsByGenerationAndIsSopt(generation, isSopt);
+  }
+
   public boolean existsById(Long userId) {
     return userRepositoryPort.findById(userId).isPresent();
   }

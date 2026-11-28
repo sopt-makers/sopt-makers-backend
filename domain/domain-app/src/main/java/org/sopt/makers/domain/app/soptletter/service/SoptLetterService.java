@@ -12,15 +12,18 @@ import org.sopt.makers.domain.app.operationconfig.OperationConfigCategory;
 import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService;
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
 import org.sopt.makers.domain.app.soptletter.SoptLetterColor;
+import org.sopt.makers.domain.app.soptletter.SoptLetterLikeEvent;
 import org.sopt.makers.domain.app.soptletter.SoptLetterPage;
 import org.sopt.makers.domain.app.soptletter.SoptLetterProfile;
 import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
 import org.sopt.makers.domain.app.soptletter.SoptLetterView;
 import org.sopt.makers.domain.app.soptletter.exception.SoptLetterException;
 import org.sopt.makers.domain.app.soptletter.exception.SoptLetterFailure;
+import org.sopt.makers.domain.app.soptletter.port.SoptLetterLikeNotificationRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.port.SoptLetterLikeRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.port.SoptLetterProfileRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.port.SoptLetterRepositoryPort;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +34,17 @@ public class SoptLetterService {
 
   private static final int DAILY_MESSAGE_LIMIT = 10;
   private static final String REPORT_FORM_URL_KEY = "linkUrl";
+  private static final int HOT_TOPIC_COUNT = 2;
+  private static final int HOT_TOPIC_PERIOD_DAYS = 7;
 
   private final SoptLetterRepositoryPort soptLetterRepositoryPort;
   private final SoptLetterLikeRepositoryPort soptLetterLikeRepositoryPort;
+  private final SoptLetterLikeNotificationRepositoryPort soptLetterLikeNotificationRepositoryPort;
   private final SoptLetterProfileRepositoryPort soptLetterProfileRepositoryPort;
   private final SoptLetterGenerator soptLetterGenerator;
   private final OperationConfigService operationConfigService;
   private final Clock clock;
+  private final ApplicationEventPublisher eventPublisher;
 
   public String getReportFormUrl() {
     return operationConfigService.getValue(
@@ -66,8 +73,32 @@ public class SoptLetterService {
         mine);
   }
 
+  public Set<Long> getHotTopicIds(LocalDateTime now) {
+    return Set.copyOf(
+        soptLetterRepositoryPort.findTopTopicIdsByLetterCountSince(
+            now.minusDays(HOT_TOPIC_PERIOD_DAYS), HOT_TOPIC_COUNT));
+  }
+
+  public Map<Long, Long> countUnreadByTopic(Long userId, LocalDateTime now) {
+    Long profileId =
+        soptLetterProfileRepositoryPort
+            .findByUserId(userId)
+            .map(SoptLetterProfile::id)
+            .orElse(null);
+    return soptLetterRepositoryPort.countUnreadByTopic(userId, profileId, now);
+  }
+
+  public long getTotalUnreadCount(Long userId) {
+    return countUnreadByTopic(userId, LocalDateTime.now(clock)).values().stream()
+        .mapToLong(Long::longValue)
+        .sum();
+  }
+
   @Transactional
   public SoptLetterView create(SoptLetterProfile author, SoptLetterTopic topic, String message) {
+    if (!topic.isActiveAt(LocalDateTime.now(clock))) {
+      throw new SoptLetterException(SoptLetterFailure.INACTIVE_SOPT_LETTER_TOPIC);
+    }
     validateDailyLimit(author.id());
 
     SoptLetterColor previousColor =
@@ -78,6 +109,9 @@ public class SoptLetterService {
     SoptLetter saved =
         soptLetterRepositoryPort.save(
             soptLetterGenerator.generate(author.id(), topic.id(), message, previousColor));
+    if (!author.hasWritten()) {
+      soptLetterProfileRepositoryPort.markWritten(author.id());
+    }
 
     return new SoptLetterView(saved, author.nickname(), false, true);
   }
@@ -110,9 +144,23 @@ public class SoptLetterService {
 
   @Transactional
   public void addLike(Long userId, Long topicId, Long letterId) {
-    validateLetterInTopic(topicId, letterId);
+    SoptLetter letter = getLetter(letterId);
+    letter.validateInTopic(topicId);
+    SoptLetterProfile author =
+        soptLetterProfileRepositoryPort
+            .findById(letter.authorProfileId())
+            .orElseThrow(
+                () -> new SoptLetterException(SoptLetterFailure.NOT_FOUND_SOPT_LETTER_PROFILE));
+    if (author.userId().equals(userId)) {
+      throw new SoptLetterException(SoptLetterFailure.FORBIDDEN_SELF_LIKE);
+    }
+
     if (soptLetterLikeRepositoryPort.addIfAbsent(userId, letterId) > 0) {
       soptLetterRepositoryPort.increaseLikeCount(letterId);
+      if (soptLetterLikeNotificationRepositoryPort.addIfAbsent(userId, letterId) > 0) {
+        eventPublisher.publishEvent(
+            new SoptLetterLikeEvent(userId, author.userId(), topicId, letterId));
+      }
     }
   }
 

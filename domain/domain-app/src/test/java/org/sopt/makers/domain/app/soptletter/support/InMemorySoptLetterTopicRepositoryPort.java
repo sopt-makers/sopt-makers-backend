@@ -23,18 +23,31 @@ public final class InMemorySoptLetterTopicRepositoryPort implements SoptLetterTo
   }
 
   @Override
-  public List<SoptLetterTopic> findAllLatestFirst() {
-    return latestFirst(store);
+  public List<SoptLetterTopic> findActiveTopicsDefaultFirst(LocalDateTime now) {
+    return store.stream()
+        .filter(t -> t.isActiveAt(now))
+        .sorted(
+            Comparator.comparing(SoptLetterTopic::isDefault)
+                .reversed()
+                .thenComparing(
+                    SoptLetterTopic::createdAt,
+                    Comparator.nullsLast(Comparator.<LocalDateTime>reverseOrder())))
+        .toList();
+  }
+
+  @Override
+  public List<SoptLetterTopic> findActiveDefaultTopicsLatestFirst(LocalDateTime now) {
+    return latestFirst(store.stream().filter(t -> t.isDefault() && t.isActiveAt(now)).toList());
+  }
+
+  @Override
+  public List<SoptLetterTopic> findActiveNormalTopicsLatestFirst(LocalDateTime now) {
+    return latestFirst(store.stream().filter(t -> !t.isDefault() && t.isActiveAt(now)).toList());
   }
 
   @Override
   public List<SoptLetterTopic> findDefaultTopicsLatestFirst() {
     return latestFirst(store.stream().filter(SoptLetterTopic::isDefault).toList());
-  }
-
-  @Override
-  public List<SoptLetterTopic> findNormalTopicsLatestFirst() {
-    return latestFirst(store.stream().filter(t -> !t.isDefault()).toList());
   }
 
   @Override

@@ -46,4 +46,13 @@ public interface SoptLetterJpaRepository extends JpaRepository<SoptLetterEntity,
       "UPDATE SoptLetterEntity l SET l.likeCount = l.likeCount - 1"
           + " WHERE l.id = :letterId AND l.likeCount > 0")
   void decreaseLikeCount(@Param("letterId") Long letterId);
+
+  @Query(
+      "SELECT l.topicId FROM SoptLetterEntity l"
+          + " JOIN SoptLetterTopicEntity t ON t.id = l.topicId"
+          + " WHERE l.createdAt >= :since"
+          + " GROUP BY l.topicId, t.createdAt"
+          + " ORDER BY COUNT(l) DESC, t.createdAt DESC NULLS LAST, l.topicId DESC")
+  List<Long> findTopTopicIdsByLetterCountSince(
+      @Param("since") LocalDateTime since, Pageable pageable);
 }

@@ -47,7 +47,11 @@ public final class InMemorySoptLetterProfileRepositoryPort
   public SoptLetterProfile save(SoptLetterProfile profile) {
     SoptLetterProfile saved =
         new SoptLetterProfile(
-            sequence++, profile.userId(), profile.nickname(), profile.isOnboarded());
+            sequence++,
+            profile.userId(),
+            profile.nickname(),
+            profile.isOnboarded(),
+            profile.hasWritten());
     store.add(saved);
     return saved;
   }
@@ -60,6 +64,34 @@ public final class InMemorySoptLetterProfileRepositoryPort
                 store.set(
                     store.indexOf(profile),
                     new SoptLetterProfile(
-                        profile.id(), profile.userId(), profile.nickname(), true)));
+                        profile.id(),
+                        profile.userId(),
+                        profile.nickname(),
+                        true,
+                        profile.hasWritten())));
+  }
+
+  @Override
+  public void markWritten(Long profileId) {
+    findById(profileId)
+        .ifPresent(
+            profile ->
+                store.set(
+                    store.indexOf(profile),
+                    new SoptLetterProfile(
+                        profile.id(),
+                        profile.userId(),
+                        profile.nickname(),
+                        profile.isOnboarded(),
+                        true)));
+  }
+
+  @Override
+  public Set<Long> findWrittenUserIds(Collection<Long> userIds) {
+    return store.stream()
+        .filter(SoptLetterProfile::hasWritten)
+        .map(SoptLetterProfile::userId)
+        .filter(userIds::contains)
+        .collect(Collectors.toSet());
   }
 }

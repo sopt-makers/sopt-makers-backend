@@ -29,15 +29,15 @@ public class SoptLetterTopicService {
         .orElseThrow(() -> new SoptLetterException(SoptLetterFailure.NOT_FOUND_SOPT_LETTER_TOPIC));
   }
 
-  public List<SoptLetterTopic> getTopics(String type) {
+  public List<SoptLetterTopic> getTopics(String type, LocalDateTime now) {
     if (type == null) {
-      return soptLetterTopicRepositoryPort.findAllLatestFirst();
+      return soptLetterTopicRepositoryPort.findActiveTopicsDefaultFirst(now);
     }
     if (TYPE_DEFAULT.equalsIgnoreCase(type)) {
-      return soptLetterTopicRepositoryPort.findDefaultTopicsLatestFirst();
+      return soptLetterTopicRepositoryPort.findActiveDefaultTopicsLatestFirst(now);
     }
     if (TYPE_NORMAL.equalsIgnoreCase(type)) {
-      return soptLetterTopicRepositoryPort.findNormalTopicsLatestFirst();
+      return soptLetterTopicRepositoryPort.findActiveNormalTopicsLatestFirst(now);
     }
     throw new SoptLetterException(SoptLetterFailure.INVALID_TOPIC_TYPE);
   }

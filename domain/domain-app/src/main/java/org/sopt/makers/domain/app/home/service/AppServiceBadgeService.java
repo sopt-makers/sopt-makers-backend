@@ -1,5 +1,7 @@
 package org.sopt.makers.domain.app.home.service;
 
+import static org.sopt.makers.core.constant.AsyncExecutorConstant.CACHE_SYNC_EXECUTOR;
+
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AppServiceBadgeService {
 
-  private static final String CACHE_SYNC_EXECUTOR = "cacheSyncTaskExecutor";
   private static final String DEFAULT_BADGE_MANAGER = "defaultBadgeManager";
 
   private final Map<String, AppServiceBadgeManager> badgeManagerMap;

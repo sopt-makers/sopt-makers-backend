@@ -4,15 +4,33 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
 import org.sopt.makers.domain.app.soptletter.port.SoptLetterRepositoryPort;
 
 public final class InMemorySoptLetterRepositoryPort implements SoptLetterRepositoryPort {
 
   private final List<SoptLetter> store = new ArrayList<>();
+  private final InMemorySoptLetterTopicReadRepositoryPort readPort;
+  private final InMemorySoptLetterTopicRepositoryPort topicPort;
   private long sequence = 1L;
   private LocalDateTime createdAt = LocalDateTime.of(2026, 8, 24, 12, 0);
+
+  public InMemorySoptLetterRepositoryPort() {
+    this(
+        new InMemorySoptLetterTopicReadRepositoryPort(),
+        new InMemorySoptLetterTopicRepositoryPort());
+  }
+
+  public InMemorySoptLetterRepositoryPort(
+      InMemorySoptLetterTopicReadRepositoryPort readPort,
+      InMemorySoptLetterTopicRepositoryPort topicPort) {
+    this.readPort = readPort;
+    this.topicPort = topicPort;
+  }
 
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
@@ -56,6 +74,37 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
   @Override
   public boolean existsByIdAndTopicId(Long letterId, Long topicId) {
     return findById(letterId).filter(l -> l.topicId().equals(topicId)).isPresent();
+  }
+
+  @Override
+  public List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit) {
+    Map<Long, Long> counts =
+        store.stream()
+            .filter(l -> l.createdAt() != null && !l.createdAt().isBefore(since))
+            .collect(Collectors.groupingBy(SoptLetter::topicId, Collectors.counting()));
+    return counts.entrySet().stream()
+        .sorted(
+            Map.Entry.<Long, Long>comparingByValue()
+                .reversed()
+                .thenComparing(Map.Entry.<Long, Long>comparingByKey().reversed()))
+        .limit(limit)
+        .map(Map.Entry::getKey)
+        .toList();
+  }
+
+  @Override
+  public Map<Long, Long> countUnreadByTopic(
+      Long userId, Long excludedAuthorProfileId, LocalDateTime now) {
+    return store.stream()
+        .filter(l -> topicPort.findById(l.topicId()).map(t -> t.isActiveAt(now)).orElse(false))
+        .filter(l -> !Objects.equals(l.authorProfileId(), excludedAuthorProfileId))
+        .filter(
+            l ->
+                readPort
+                    .findLastReadLetterId(userId, l.topicId())
+                    .map(lastRead -> l.id() > lastRead)
+                    .orElse(true))
+        .collect(Collectors.groupingBy(SoptLetter::topicId, Collectors.counting()));
   }
 
   @Override

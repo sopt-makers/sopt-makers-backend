@@ -1,5 +1,7 @@
 package org.sopt.makers.domain.app.soptamp.clap.service;
 
+import static org.sopt.makers.core.constant.AsyncExecutorConstant.CACHE_SYNC_EXECUTOR;
+
 import java.util.Comparator;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +29,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 public class ClapEventListener {
-
-  private static final String CACHE_SYNC_EXECUTOR = "cacheSyncTaskExecutor";
 
   private static final int FIRST_MILESTONE = 1;
   private static final int[] HUNDRED_MILESTONES = {100, 500};

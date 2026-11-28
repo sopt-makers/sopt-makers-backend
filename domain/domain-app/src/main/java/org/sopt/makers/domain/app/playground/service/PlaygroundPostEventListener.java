@@ -1,5 +1,7 @@
 package org.sopt.makers.domain.app.playground.service;
 
+import static org.sopt.makers.core.constant.AsyncExecutorConstant.CACHE_SYNC_EXECUTOR;
+
 import lombok.RequiredArgsConstructor;
 import org.sopt.makers.domain.app.playground.PlaygroundPopularPostRefreshEvent;
 import org.sopt.makers.domain.app.playground.PlaygroundRecentPostRefreshEvent;
@@ -10,8 +12,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class PlaygroundPostEventListener {
-
-  private static final String CACHE_SYNC_EXECUTOR = "cacheSyncTaskExecutor";
 
   private final PlaygroundPostRefreshService playgroundPostRefreshService;
 

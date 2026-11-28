@@ -50,7 +50,8 @@ public class SoptLetterProfileService {
   public SoptLetterProfile completeOnboarding(Long userId) {
     SoptLetterProfile profile = getByUserId(userId);
     soptLetterProfileRepositoryPort.completeOnboarding(profile.id());
-    return new SoptLetterProfile(profile.id(), profile.userId(), profile.nickname(), true);
+    return new SoptLetterProfile(
+        profile.id(), profile.userId(), profile.nickname(), true, profile.hasWritten());
   }
 
   private String generateUniqueNickname() {

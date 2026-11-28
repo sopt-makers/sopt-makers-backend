@@ -21,4 +21,8 @@ public interface SoptLetterProfileRepositoryPort {
   SoptLetterProfile save(SoptLetterProfile profile);
 
   void completeOnboarding(Long profileId);
+
+  void markWritten(Long profileId);
+
+  Set<Long> findWrittenUserIds(Collection<Long> userIds);
 }

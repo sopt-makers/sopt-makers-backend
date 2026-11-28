@@ -28,6 +28,9 @@ public class SoptLetterTopicEntity extends BaseEntity {
   @Column(name = "title", nullable = false)
   private String title;
 
+  @Column(name = "subtitle")
+  private String subtitle;
+
   @Column(name = "cta_text", length = 50)
   private String ctaText;
 
@@ -41,6 +44,7 @@ public class SoptLetterTopicEntity extends BaseEntity {
   private LocalDateTime endedAt;
 
   public SoptLetterTopic toDomain() {
-    return new SoptLetterTopic(id, title, ctaText, isDefault, startedAt, endedAt, getCreatedAt());
+    return new SoptLetterTopic(
+        id, title, subtitle, ctaText, isDefault, startedAt, endedAt, getCreatedAt());
   }
 }

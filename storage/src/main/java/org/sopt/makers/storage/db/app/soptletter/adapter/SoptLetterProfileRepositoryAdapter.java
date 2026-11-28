@@ -70,4 +70,18 @@ public class SoptLetterProfileRepositoryAdapter implements SoptLetterProfileRepo
   public void completeOnboarding(Long profileId) {
     soptLetterProfileJpaRepository.completeOnboarding(profileId);
   }
+
+  @Override
+  @Transactional
+  public void markWritten(Long profileId) {
+    soptLetterProfileJpaRepository.markWritten(profileId);
+  }
+
+  @Override
+  public Set<Long> findWrittenUserIds(Collection<Long> userIds) {
+    if (userIds.isEmpty()) {
+      return Set.of();
+    }
+    return Set.copyOf(soptLetterProfileJpaRepository.findWrittenUserIds(userIds));
+  }
 }
