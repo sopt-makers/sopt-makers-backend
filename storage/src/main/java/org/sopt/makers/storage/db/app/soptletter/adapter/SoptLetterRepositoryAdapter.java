@@ -101,8 +101,11 @@ public class SoptLetterRepositoryAdapter implements SoptLetterRepositoryPort {
   }
 
   @Override
-  public Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId) {
-    return soptLetterQuerydslRepository.countUnreadByTopic(userId, excludedAuthorProfileId).stream()
+  public Map<Long, Long> countUnreadByTopic(
+      Long userId, Long excludedAuthorProfileId, LocalDateTime now) {
+    return soptLetterQuerydslRepository
+        .countUnreadByTopic(userId, excludedAuthorProfileId, now)
+        .stream()
         .collect(Collectors.toMap(TopicUnreadCount::topicId, TopicUnreadCount::unreadCount));
   }
 }

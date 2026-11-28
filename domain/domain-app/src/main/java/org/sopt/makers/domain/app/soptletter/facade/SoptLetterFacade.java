@@ -52,7 +52,7 @@ public class SoptLetterFacade {
     LocalDateTime now = soptLetterTopicService.now();
     List<SoptLetterTopic> topics = soptLetterTopicService.getTopics(type, now);
     Set<Long> hotTopicIds = soptLetterService.getHotTopicIds(now);
-    Map<Long, Long> unreadCounts = soptLetterService.countUnreadByTopic(userId);
+    Map<Long, Long> unreadCounts = soptLetterService.countUnreadByTopic(userId, now);
     return topics.stream()
         .map(
             topic ->

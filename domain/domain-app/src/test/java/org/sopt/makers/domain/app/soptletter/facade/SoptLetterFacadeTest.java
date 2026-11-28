@@ -63,10 +63,10 @@ class SoptLetterFacadeTest {
   @BeforeEach
   void setUp() {
     readPort = new InMemorySoptLetterTopicReadRepositoryPort();
-    letterPort = new InMemorySoptLetterRepositoryPort(readPort);
+    topicPort = new InMemorySoptLetterTopicRepositoryPort();
+    letterPort = new InMemorySoptLetterRepositoryPort(readPort, topicPort);
     likePort = new InMemorySoptLetterLikeRepositoryPort();
     profilePort = new InMemorySoptLetterProfileRepositoryPort();
-    topicPort = new InMemorySoptLetterTopicRepositoryPort();
     operationConfigPort = new InMemoryOperationConfigPort();
 
     Clock clock = Clock.fixed(NOW.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);

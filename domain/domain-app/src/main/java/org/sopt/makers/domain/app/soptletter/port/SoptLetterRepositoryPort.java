@@ -32,5 +32,5 @@ public interface SoptLetterRepositoryPort {
 
   List<Long> findTopTopicIdsByLetterCountSince(LocalDateTime since, int limit);
 
-  Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId);
+  Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId, LocalDateTime now);
 }

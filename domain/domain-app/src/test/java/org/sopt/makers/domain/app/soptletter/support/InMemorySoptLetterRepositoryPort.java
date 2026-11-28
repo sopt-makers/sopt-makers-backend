@@ -15,15 +15,21 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
 
   private final List<SoptLetter> store = new ArrayList<>();
   private final InMemorySoptLetterTopicReadRepositoryPort readPort;
+  private final InMemorySoptLetterTopicRepositoryPort topicPort;
   private long sequence = 1L;
   private LocalDateTime createdAt = LocalDateTime.of(2026, 8, 24, 12, 0);
 
   public InMemorySoptLetterRepositoryPort() {
-    this(new InMemorySoptLetterTopicReadRepositoryPort());
+    this(
+        new InMemorySoptLetterTopicReadRepositoryPort(),
+        new InMemorySoptLetterTopicRepositoryPort());
   }
 
-  public InMemorySoptLetterRepositoryPort(InMemorySoptLetterTopicReadRepositoryPort readPort) {
+  public InMemorySoptLetterRepositoryPort(
+      InMemorySoptLetterTopicReadRepositoryPort readPort,
+      InMemorySoptLetterTopicRepositoryPort topicPort) {
     this.readPort = readPort;
+    this.topicPort = topicPort;
   }
 
   public void setCreatedAt(LocalDateTime createdAt) {
@@ -87,8 +93,10 @@ public final class InMemorySoptLetterRepositoryPort implements SoptLetterReposit
   }
 
   @Override
-  public Map<Long, Long> countUnreadByTopic(Long userId, Long excludedAuthorProfileId) {
+  public Map<Long, Long> countUnreadByTopic(
+      Long userId, Long excludedAuthorProfileId, LocalDateTime now) {
     return store.stream()
+        .filter(l -> topicPort.findById(l.topicId()).map(t -> t.isActiveAt(now)).orElse(false))
         .filter(l -> !Objects.equals(l.authorProfileId(), excludedAuthorProfileId))
         .filter(
             l ->

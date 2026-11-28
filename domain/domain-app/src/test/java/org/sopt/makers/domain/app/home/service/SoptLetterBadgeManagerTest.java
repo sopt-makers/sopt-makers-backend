@@ -13,6 +13,7 @@ import org.sopt.makers.domain.app.operationconfig.service.OperationConfigService
 import org.sopt.makers.domain.app.soptletter.SoptLetter;
 import org.sopt.makers.domain.app.soptletter.SoptLetterColor;
 import org.sopt.makers.domain.app.soptletter.SoptLetterProfile;
+import org.sopt.makers.domain.app.soptletter.SoptLetterTopic;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterGenerator;
 import org.sopt.makers.domain.app.soptletter.service.SoptLetterService;
 import org.sopt.makers.domain.app.soptletter.support.InMemoryOperationConfigPort;
@@ -21,6 +22,7 @@ import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterLikeRepos
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterProfileRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterRepositoryPort;
 import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterTopicReadRepositoryPort;
+import org.sopt.makers.domain.app.soptletter.support.InMemorySoptLetterTopicRepositoryPort;
 
 @DisplayName("SoptLetterBadgeManager 테스트")
 class SoptLetterBadgeManagerTest {
@@ -30,13 +32,17 @@ class SoptLetterBadgeManagerTest {
   private static final Long OTHER_PROFILE_ID = 99L;
 
   private InMemorySoptLetterTopicReadRepositoryPort readPort;
+  private InMemorySoptLetterTopicRepositoryPort topicPort;
   private InMemorySoptLetterRepositoryPort letterPort;
   private SoptLetterBadgeManager soptLetterBadgeManager;
 
   @BeforeEach
   void setUp() {
     readPort = new InMemorySoptLetterTopicReadRepositoryPort();
-    letterPort = new InMemorySoptLetterRepositoryPort(readPort);
+    topicPort = new InMemorySoptLetterTopicRepositoryPort();
+    topicPort.add(topic(100L, NOW.minusDays(1), NOW.plusDays(1)));
+    topicPort.add(topic(200L, NOW.minusDays(1), NOW.plusDays(1)));
+    letterPort = new InMemorySoptLetterRepositoryPort(readPort, topicPort);
     InMemorySoptLetterProfileRepositoryPort profilePort =
         new InMemorySoptLetterProfileRepositoryPort();
     profilePort.save(SoptLetterProfile.create(ME, "익명의 매운 떡볶이"));
@@ -84,6 +90,16 @@ class SoptLetterBadgeManagerTest {
   }
 
   @Test
+  @DisplayName("기간이 끝난 주제의 안 읽은 글은 뱃지에 넣지 않는다")
+  void excludesEndedTopics() {
+    topicPort.add(topic(300L, NOW.minusDays(7), NOW.minusDays(1)));
+    seed(100L, 3);
+    seed(300L, 5);
+
+    assertThat(soptLetterBadgeManager.acquireAppServiceBadgeInfo(ME).alarmBadge()).isEqualTo("3");
+  }
+
+  @Test
   @DisplayName("99는 그대로, 100부터는 99+ 로 준다")
   void capsAtNinetyNinePlus() {
     seed(100L, 99);
@@ -91,6 +107,10 @@ class SoptLetterBadgeManagerTest {
 
     seed(100L, 1);
     assertThat(soptLetterBadgeManager.acquireAppServiceBadgeInfo(ME).alarmBadge()).isEqualTo("99+");
+  }
+
+  private SoptLetterTopic topic(Long id, LocalDateTime startedAt, LocalDateTime endedAt) {
+    return new SoptLetterTopic(id, "주제", null, null, false, startedAt, endedAt, NOW);
   }
 
   private Long seed(Long topicId, int count) {
